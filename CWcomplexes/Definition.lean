@@ -34,7 +34,7 @@ namespace CWComplex
 
 /- The `n`-th level of a CW-complex, for `n ∈ ℕ ∪ ∞`. -/
 def level (n : ℕ∞) : Set X :=
-  ⋃ (m : ℕ) (hm : m < n) (j : hC.cell m), hC.map m j '' closedBall 0 1
+  ⋃ (m : ℕ) (hm : m < n) (j : hC.cell m), hC.map m j '' closedBall 0 1 -- should this be m ≤ n instead of m < n
 
 /- Every `map` restricts to a homeomorphism between `ball 0 1` and its image.
 Note: `PartialHomeomorph` requires that it's source and target are open. -/
@@ -290,14 +290,43 @@ lemma iUnion_ball_eq_level (n : ℕ∞) :
     norm_cast
     exact hnat m
 
-def CWComplex_level (n : ℕ∞) : CWComplex (hC.level n) := by
-  sorry
+
+/- I have no idea how to work with definitions by cases. Need help to progress with this part.-/
+def CWComplex_level (n : ℕ∞) : CWComplex (hC.level n) := by sorry
+  -- cell l := ite (l < n) (hC.cell l) PEmpty
+
 
 /- The following lemmas are already hard! -/
 
+lemma isClosed_map_closedBall (n : ℕ) (i : hC.cell n) : IsClosed (hC.map n i '' closedBall 0 1) := by
+  apply IsCompact.isClosed
+  apply IsCompact.image_of_continuousOn
+  apply isCompact_closedBall
+  exact hC.cont n i
+
+lemma isClosed : IsClosed C := by
+  rw [hC.closed]
+  intro n i
+  have : ↑(hC.map n i) '' closedBall 0 1 ⊆ C := by
+    simp_rw [← hC.union]
+    apply Set.subset_iUnion_of_subset n
+    apply Set.subset_iUnion (fun j ↦ ↑(hC.map n j) '' closedBall 0 1)
+  rw [Set.inter_eq_right.2 this]
+  exact hC.isClosed_map_closedBall n i
+
 /- The levels are closed. The following might be helpful:
 https://math.stackexchange.com/questions/4051497/subcomplex-is-closed -/
-lemma isClosed_level (n : ℕ∞) : IsClosed (hC.level n) := sorry
+lemma isClosed_level (n : ℕ∞) : IsClosed (hC.level n) := by
+  by_cases h : n = ⊤
+  · rw [h]
+    rw [level_top]
+    exact hC.isClosed
+  push_neg at h
+  let m := ENat.toNat n
+  have coemn: ↑m = n := ENat.coe_toNat h
+  rw [← coemn]
+  induction' m with m hm
+  · sorry
 
 
 /- The following is one way of stating that `level 0` is discrete. -/
