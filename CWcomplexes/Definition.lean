@@ -34,7 +34,7 @@ namespace CWComplex
 
 /- The `n`-th level of a CW-complex, for `n ∈ ℕ ∪ ∞`. -/
 def level (n : ℕ∞) : Set X :=
-  ⋃ (m : ℕ) (hm : m < n) (j : hC.cell m), hC.map m j '' closedBall 0 1 -- should this be m ≤ n instead of m < n
+  ⋃ (m : ℕ) (hm : m < n + 1) (j : hC.cell m), hC.map m j '' closedBall 0 1 -- I changed this from m < n to m < n + 1
 
 /- Every `map` restricts to a homeomorphism between `ball 0 1` and its image.
 Note: `PartialHomeomorph` requires that it's source and target are open. -/
@@ -93,84 +93,47 @@ def mapHomeo (n : ℕ) (i : hC.cell n) : PartialHomeomorph (Fin n → ℝ) X whe
     exact ⟨yopen, ⟨xmemy, subset_trans this ycapcball⟩⟩
 
 @[simp] lemma level_top : hC.level ⊤ = C := by
-  have : C = ⋃ (n : ℕ) (j : hC.cell n), hC.map n j '' closedBall 0 1 := by
-    rw [hC.union]
-  simp only [this]
-  rw [CWComplex.level]
-  ext x
-  repeat rw [mem_iUnion₂, mem_iUnion]
-  constructor
-  · intro ⟨i, ⟨_, xmem⟩⟩
-    use i
-  · intro ⟨i, xmem⟩
-    use i
-    have : i < (⊤ : ENat) := by
-      apply Ne.lt_top
-      apply WithTop.nat_ne_top
-    use this
-
+  simp only [level, top_add, lt_top_iff_ne_top, ne_eq, ENat.coe_ne_top, not_false_eq_true, iUnion_true, ← hC.union]
 
 -- I feel like this proof should be wayyy shorter. Correct usage of protected?
 protected lemma aux1 (l : ℕ) (Y : (m : ℕ) → hC.cell m → Set X):
     ⋃ m, ⋃ (_ : m < Nat.succ l), ⋃ j, Y m j = (⋃ (j : hC.cell l), Y l j) ∪ ⋃ m, ⋃ (_ : m < l), ⋃ j, Y m j := by
   ext x
+  simp only [mem_iUnion, exists_prop, mem_union]
   constructor
-  · intro xmem
-    rw [mem_iUnion] at xmem
-    simp only [mem_iUnion, exists_prop] at xmem
-    rcases xmem with ⟨i, ilel, ⟨e, xmeme⟩⟩
-    rw [Nat.lt_succ] at ilel
-    rw [mem_union]
-    by_cases h : i = l
+  · intro ⟨i, ⟨iltsuccl, h⟩⟩
+    apply Order.le_of_lt_succ at iltsuccl
+    by_cases h' : i = l
     · left
-      rw [mem_iUnion, ← h]
-      use e
-    · push_neg at h
-      have iltl := LE.le.lt_of_ne ilel h
+      rw [h'] at h
+      exact h
+    · push_neg at h'
+      have := LE.le.lt_of_ne iltsuccl h'
       right
-      rw [mem_iUnion]
       use i
-      rw [mem_iUnion]
-      use iltl
-      rw [mem_iUnion]
-      use e
-  · intro xmem
-    rw [mem_union] at xmem
-    simp only [mem_iUnion, exists_prop]
-    rcases xmem with h | h
+  · intro h
+    rcases h with h | h
     · use l
-      constructor
-      · apply Nat.lt_succ_self
-      · rw [← mem_iUnion]
-        exact h
-    · simp only [mem_iUnion, exists_prop] at h
-      rcases h with ⟨m, mltl, existsxmem⟩
-      use m
-      constructor
-      · apply lt_trans mltl (Nat.lt_succ_self l)
-      · exact existsxmem
+      exact ⟨Nat.lt_succ_self l, h⟩
+    · rcases h with ⟨i, iltl, h⟩
+      use i
+      exact ⟨lt_trans iltl (Nat.lt_succ_self l), h⟩
 
-protected lemma aux2 (l : ℕ) : ⋃ (j : hC.cell l), ↑(hC.map l j) '' sphere 0 1 ⊆ hC.level l := by
+protected lemma aux2 (l : ℕ) : ⋃ (j : hC.cell (l + 1)), ↑(hC.map (l + 1) j) '' sphere 0 1 ⊆ hC.level l := by
   rw [CWComplex.level]
   norm_cast
   intro x xmem
   rw [mem_iUnion] at xmem
   rcases xmem with ⟨e, xmeme⟩
-  rcases hC.mapsto l e with ⟨I, hI⟩
+  rcases hC.mapsto (l + 1) e with ⟨I, hI⟩
   apply MapsTo.image_subset at hI
   apply hI at xmeme
-  have : ⋃ m, ⋃ (_ : m < l), ⋃ j ∈ I m, ↑(hC.map m j) '' closedBall 0 1 ⊆ ⋃ m, ⋃ (_ : m < l), ⋃ j, ↑(hC.map m j) '' closedBall 0 1 := by
+  have : ⋃ m, ⋃ (_ : m < l + 1), ⋃ j ∈ I m, ↑(hC.map m j) '' closedBall 0 1 ⊆ ⋃ m, ⋃ (_ : m < l + 1), ⋃ j, ↑(hC.map m j) '' closedBall 0 1 := by
     apply iUnion_mono
-    intro i
-    apply iUnion_mono
-    intro _
-    intro y ymem
-    rw [mem_iUnion] at ymem
-    rcases ymem with ⟨f, hf⟩
-    simp only [mem_iUnion, exists_prop] at hf
-    rw [mem_iUnion]
-    use f
-    exact hf.2
+    simp only [iUnion_subset_iff]
+    intro i iltl e ememIi y ymem
+    simp only [mem_iUnion, exists_prop]
+    exact ⟨iltl, ⟨e, ymem⟩⟩
   exact this xmeme
 
 lemma level_subset_level_of_le {n m : ℕ∞} (h : m ≤ n) : hC.level m ⊆ hC.level n := by
@@ -183,7 +146,7 @@ lemma level_subset_level_of_le {n m : ℕ∞} (h : m ≤ n) : hC.level m ⊆ hC.
   use l
   simp only [mem_iUnion, exists_prop]
   constructor
-  · apply lt_of_lt_of_le xmeml.1 h
+  · exact lt_of_lt_of_le xmeml.1 (add_le_add_right h 1)
   · exact xmeml.2
 
 lemma iUnion_level_eq_level (n : ℕ∞) : ⋃ (m : ℕ) (hm : m < n + 1), hC.level m = hC.level n := by
@@ -213,7 +176,7 @@ lemma iUnion_level_eq_level (n : ℕ∞) : ⋃ (m : ℕ) (hm : m < n + 1), hC.le
       use i
       simp only [mem_iUnion, exists_prop]
       norm_cast
-      exact ⟨lt_add_one i, xmemi.2⟩
+      exact ⟨lt_trans (lt_add_one i) (lt_add_one (i + 1)), xmemi.2⟩
     · push_neg at h
       let m := ENat.toNat n
       have coemn: ↑m = n := ENat.coe_toNat h
@@ -224,42 +187,44 @@ lemma iUnion_level_eq_level (n : ℕ∞) : ⋃ (m : ℕ) (hm : m < n + 1), hC.le
       rw [coemn]
       exact ⟨lt_add_one m, xmem⟩
 
+#check Fin.elim0
+
 /- We can also define the levels using `ball` instead of `closedBall`, using assumption `mapsto`. -/
 lemma iUnion_ball_eq_level (n : ℕ∞) :
-    ⋃ (m : ℕ) (hm : m < n) (j : hC.cell m), hC.map m j '' ball 0 1 = hC.level n := by
-  have hnat : ∀ (l : ℕ), ⋃ (m : ℕ) (hm : m < l) (j : hC.cell m), hC.map m j '' ball 0 1 = hC.level l := by
+    ⋃ (m : ℕ) (hm : m < n + 1) (j : hC.cell m), hC.map m j '' ball 0 1 = hC.level n := by
+  have hnat : ∀ (l : ℕ), ⋃ (m : ℕ) (hm : m < l + 1) (j : hC.cell m), hC.map m j '' ball 0 1 = hC.level l := by
     intro l
     induction' l with l hl
-    · simp [CWComplex.level]
-    rw [CWComplex.aux1 hC l (fun m j ↦ ↑(hC.map m j) '' ball 0 1)]
+    · simp [CWComplex.level, Matrix.empty_eq]
+    rw [CWComplex.aux1 hC (Nat.succ l) (fun m j ↦ ↑(hC.map m j) '' ball 0 1)]
     rw [hl]
     nth_rewrite 2 [CWComplex.level]
     norm_cast
     symm
     calc
-      ⋃ m, ⋃ (_ : m < Nat.succ l), ⋃ j, ↑(hC.map m j) '' closedBall 0 1
-      = (⋃ (j : hC.cell l), ↑(hC.map l j) '' closedBall 0 1) ∪ ⋃ m, ⋃ (_ : Nat.cast m < ↑l), ⋃ j, ↑(hC.map m j) '' closedBall 0 1 := by
-        apply CWComplex.aux1 hC l (fun m j ↦ ↑(hC.map m j) '' closedBall 0 1)
-      _ = (⋃ (j : hC.cell l), ↑(hC.map l j) '' closedBall 0 1) ∪ hC.level l := by
+      ⋃ m, ⋃ (_ : m < Nat.succ l + 1), ⋃ j, ↑(hC.map m j) '' closedBall 0 1
+      = (⋃ (j : hC.cell (l + 1)), ↑(hC.map (l + 1) j) '' closedBall 0 1) ∪ ⋃ m, ⋃ (_ : Nat.cast m < ↑l + 1), ⋃ j, ↑(hC.map m j) '' closedBall 0 1 := by
+        apply CWComplex.aux1 hC (l + 1) (fun m j ↦ ↑(hC.map m j) '' closedBall 0 1)
+      _ = (⋃ (j : hC.cell (l + 1)), ↑(hC.map (l + 1) j) '' closedBall 0 1) ∪ hC.level l := by
         rw [CWComplex.level]
         norm_cast
-      _ = (⋃ (j : hC.cell l), ↑(hC.map l j) '' (sphere 0 1 ∪ ball 0 1)) ∪ hC.level l := by rw [sphere_union_ball]
-      _ = (⋃ (j : hC.cell l), ↑(hC.map l j) '' sphere 0 1 ∪ ↑(hC.map l j) '' ball 0 1) ∪ hC.level l := by
-        have : ⋃ (j : hC.cell l), ↑(hC.map l j) '' (sphere 0 1 ∪ ball 0 1) = ⋃ (j : hC.cell l), ↑(hC.map l j) '' sphere 0 1 ∪ ↑(hC.map l j) '' ball 0 1 := by
+      _ = (⋃ (j : hC.cell (l + 1)), ↑(hC.map (l + 1) j) '' (sphere 0 1 ∪ ball 0 1)) ∪ hC.level l := by rw [sphere_union_ball]
+      _ = (⋃ (j : hC.cell (l + 1)), ↑(hC.map (l + 1) j) '' sphere 0 1 ∪ ↑(hC.map (l + 1) j) '' ball 0 1) ∪ hC.level l := by
+        have : ⋃ (j : hC.cell (l + 1)), ↑(hC.map (l + 1) j) '' (sphere 0 1 ∪ ball 0 1) = ⋃ (j : hC.cell (l + 1)), ↑(hC.map (l + 1) j) '' sphere 0 1 ∪ ↑(hC.map (l + 1) j) '' ball 0 1 := by
           apply iUnion_congr
           intro i
           rw [image_union]
         rw [this]
-      _ = (⋃ (j : hC.cell l), ↑(hC.map l j) '' sphere 0 1) ∪ (⋃ (j : hC.cell l), ↑(hC.map l j) '' ball 0 1) ∪ hC.level l := by
+      _ = (⋃ (j : hC.cell (l + 1)), ↑(hC.map (l + 1) j) '' sphere 0 1) ∪ (⋃ (j : hC.cell (l + 1)), ↑(hC.map (l + 1) j) '' ball 0 1) ∪ hC.level l := by
         rw [iUnion_union_distrib]
-      _ = (⋃ (j : hC.cell l), ↑(hC.map l j) '' ball 0 1) ∪ ((⋃ (j : hC.cell l), ↑(hC.map l j) '' sphere 0 1) ∪ hC.level l) := by
-        rw [← union_assoc, union_comm (⋃ j, ↑(hC.map l j) '' sphere 0 1), union_assoc]
-      _ = (⋃ j, ↑(hC.map l j) '' ball 0 1) ∪ level hC ↑l := by
-        have : (⋃ (j : hC.cell l), ↑(hC.map l j) '' sphere 0 1) ∪ hC.level l = hC.level l := union_eq_right.2 (hC.aux2 l)
+      _ = (⋃ (j : hC.cell (l + 1)), ↑(hC.map (l + 1) j) '' ball 0 1) ∪ ((⋃ (j : hC.cell (l + 1)), ↑(hC.map (l + 1) j) '' sphere 0 1) ∪ hC.level l) := by
+        rw [← union_assoc, union_comm (⋃ j, ↑(hC.map (l + 1) j) '' sphere 0 1), union_assoc]
+      _ = (⋃ j, ↑(hC.map (l + 1) j) '' ball 0 1) ∪ level hC ↑l := by
+        have : (⋃ (j : hC.cell (l + 1)), ↑(hC.map (l + 1) j) '' sphere 0 1) ∪ hC.level l = hC.level l := union_eq_right.2 (hC.aux2 l)
         rw [this]
   by_cases h : n = ⊤
   · rw [h]
-    have : ⋃ (m : ℕ), ⋃ (_ : ↑m < (⊤ : ℕ∞)), ⋃ j, ↑(hC.map m j) '' ball 0 1 = ⋃ (n : ℕ) (hn : ↑n < (⊤ : ℕ∞)), ⋃ (m : ℕ) (hm : m < n), ⋃ j, ↑(hC.map m j) '' ball 0 1 := by
+    have : ⋃ (m : ℕ), ⋃ (_ : ↑m < (⊤ : ℕ∞)), ⋃ j, ↑(hC.map m j) '' ball 0 1 = ⋃ (n : ℕ) (hn : ↑n < (⊤ : ℕ∞)), ⋃ (m : ℕ) (hm : m < n + 1), ⋃ j, ↑(hC.map m j) '' ball 0 1 := by
       apply subset_antisymm
       · intro x xmem
         rw [mem_iUnion] at xmem
@@ -272,14 +237,14 @@ lemma iUnion_ball_eq_level (n : ℕ∞) :
         · rw [ENat.coe_add, WithTop.add_lt_top]
           exact ⟨xmemi.1 , (by apply lt_top_iff_ne_top.2 (WithTop.nat_ne_top 1))⟩
         · use i
-          exact ⟨lt_add_one i, xmemi.2⟩
+          exact ⟨lt_trans (lt_add_one i) (lt_add_one (i + 1)), xmemi.2⟩
       · intro x xmem
         simp only [mem_iUnion, exists_prop] at xmem
         rcases xmem with ⟨_, ⟨_, ⟨i, ⟨_, xmemi⟩⟩⟩⟩
         simp only [mem_iUnion, exists_prop]
         use i
         exact ⟨(by apply lt_top_iff_ne_top.2 (WithTop.nat_ne_top i)), xmemi⟩
-    rw [this, ← hC.iUnion_level_eq_level ⊤, top_add]
+    rw [top_add, this, ← hC.iUnion_level_eq_level ⊤, top_add]
     apply iUnion_congr
     intro i
     rw [hnat]
@@ -326,6 +291,7 @@ lemma isClosed_level (n : ℕ∞) : IsClosed (hC.level n) := by
   have coemn: ↑m = n := ENat.coe_toNat h
   rw [← coemn]
   induction' m with m hm
+  · sorry
   · sorry
 
 
