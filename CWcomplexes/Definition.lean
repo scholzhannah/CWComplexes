@@ -25,7 +25,9 @@ structure CWComplex.{u} {X : Type u} [TopologicalSpace X] (C : Set X) where
     (univ : Set (Σ n, cell n)).PairwiseDisjoint (fun ni ↦ map ni.1 ni.2 '' ball 0 1)
   mapsto (n : ℕ) (i : cell n) : ∃ I : Π m, Finset (cell m),
     MapsTo (map n i) (sphere 0 1) (⋃ (m < n) (j ∈ I m), map m j '' closedBall 0 1)
-  closed (A : Set X) : IsClosed A ↔ ∀ n j, IsClosed (A ∩ map n j '' closedBall 0 1)
+  closed (A : Set X) (asubc : A ⊆ ↑C) : IsClosed A ↔ ∀ n j, IsClosed (A ∩ map n j '' closedBall 0 1)
+  -- I added asubc because if not I don't think the levels are CW-Complexes
+  -- would A : Set C be better?
   union : ⋃ (n : ℕ) (j : cell n), map n j '' closedBall 0 1 = C
 
 variable [T2Space X] {C : Set X} (hC : CWComplex C)
@@ -33,6 +35,7 @@ variable [T2Space X] {C : Set X} (hC : CWComplex C)
 namespace CWComplex
 
 /- The `n`-th level of a CW-complex, for `n ∈ ℕ ∪ ∞`. -/
+/- Would it be possible to add a -1 to make induction proofs easier? -/
 def level (n : ℕ∞) : Set X :=
   ⋃ (m : ℕ) (hm : m < n + 1) (j : hC.cell m), hC.map m j '' closedBall 0 1 -- I changed this from m < n to m < n + 1
 
@@ -64,33 +67,13 @@ def mapHomeo (n : ℕ) (i : hC.cell n) : PartialHomeomorph (Fin n → ℝ) X whe
   open_target := sorry /- Is this even true? Because in the typical
   definition of a CW-complex an open cell is only open in its dimension.-/
   continuousOn_toFun := by
-    simp
-    have := hC.cont n i
-    rw [_root_.continuousOn_iff] at this
-    rw [_root_.continuousOn_iff]
-    intro x xmemball a aopen mapxmem
-    rcases this x (ball_subset_closedBall xmemball) a aopen mapxmem with ⟨y, yopen, xmemy, ycapcball⟩
-    use y
-    have : y ∩ ball 0 1 ⊆ y ∩ closedBall 0 1 := by
-      apply inter_subset_inter_right
-      exact ball_subset_closedBall
-    exact ⟨yopen, ⟨xmemy, subset_trans this ycapcball⟩⟩
+    apply ContinuousOn.mono (hC.cont n i) ball_subset_closedBall
   continuousOn_invFun := by
-    simp
-    have contsymm := hC.cont_symm n i
-    rw [_root_.continuousOn_iff] at contsymm
-    rw [_root_.continuousOn_iff]
-    intro x xmemball a aopen mapxmem
     have : ↑(hC.map n i) '' ball 0 1 ⊆ (hC.map n i).target := by
       rw [← PartialEquiv.image_source_eq_target, source_eq]
       apply image_subset
       exact ball_subset_closedBall
-    rcases contsymm x (this xmemball) a aopen mapxmem with ⟨y, yopen, xmemy, ycapcball⟩
-    use y
-    have : y ∩ ↑(hC.map n i) '' ball 0 1 ⊆ y ∩ (hC.map n i).target := by
-      apply inter_subset_inter_right
-      exact this
-    exact ⟨yopen, ⟨xmemy, subset_trans this ycapcball⟩⟩
+    apply ContinuousOn.mono (hC.cont_symm n i) this
 
 @[simp] lemma level_top : hC.level ⊤ = C := by
   simp only [level, top_add, lt_top_iff_ne_top, ne_eq, ENat.coe_ne_top, not_false_eq_true, iUnion_true, ← hC.union]
@@ -187,7 +170,6 @@ lemma iUnion_level_eq_level (n : ℕ∞) : ⋃ (m : ℕ) (hm : m < n + 1), hC.le
       rw [coemn]
       exact ⟨lt_add_one m, xmem⟩
 
-#check Fin.elim0
 
 /- We can also define the levels using `ball` instead of `closedBall`, using assumption `mapsto`. -/
 lemma iUnion_ball_eq_level (n : ℕ∞) :
@@ -255,13 +237,191 @@ lemma iUnion_ball_eq_level (n : ℕ∞) :
     norm_cast
     exact hnat m
 
+lemma mapsto_sphere_level (n : ℕ) (j : hC.cell n) (nnezero : n ≠ 0) : MapsTo (hC.map n j) (sphere 0 1) (hC.level (Nat.pred n)) := by
+  rcases hC.mapsto n j with ⟨I, hI⟩
+  rw [Set.mapsTo'] at *
+  apply subset_trans hI
+  intro x xmem
+  simp only [mem_iUnion, exists_prop] at xmem
+  rcases xmem with ⟨i, ⟨iltn, ⟨j, ⟨jmemI, xmem⟩⟩⟩⟩
+  simp only [CWComplex.level, mem_iUnion, exists_prop]
+  use i
+  norm_cast
+  constructor
+  · rw [Nat.add_one, Nat.succ_pred nnezero]
+    exact iltn
+  · use j
 
-/- I have no idea how to work with definitions by cases. Need help to progress with this part.-/
-def CWComplex_level (n : ℕ∞) : CWComplex (hC.level n) := by sorry
-  -- cell l := ite (l < n) (hC.cell l) PEmpty
+lemma exists_mem_ball_of_mem_level {n : ℕ∞} {x : X} (xmemlvl : x ∈ hC.level n) : ∃ (m : ℕ) (_ : m ≤ n) (j : hC.cell m), x ∈ ↑(hC.map m j) '' ball 0 1 := by
+  induction' n using ENat.nat_induction with n hn hn
+  · rw [CWComplex.level, mem_iUnion] at xmemlvl
+    simp only [zero_add, Nat.cast_lt_one, mem_iUnion, exists_prop] at xmemlvl
+    rcases xmemlvl with ⟨m, ⟨meqzero, h⟩⟩
+    rw [meqzero] at h
+    rcases h with ⟨j, xmem⟩
+    use 0
+    simp only [Nat.cast_zero, le_refl, exists_const]
+    use j
+    have : (closedBall 0 1 : Set (Fin 0 → ℝ)) = (ball 0 1 : Set (Fin 0 → ℝ)) := by
+    -- I think there was a lemma stating this but I don't find it right now
+      ext x
+      simp [Matrix.empty_eq]
+    rw [← this]
+    exact xmem
+  · simp only [Nat.cast_succ, level, mem_iUnion, exists_prop] at xmemlvl
+    rcases xmemlvl with ⟨m, ⟨mlt, h⟩⟩
+    by_cases h': m = 0
+    · use 0
+      simp only [Nat.cast_zero, Nat.cast_succ, zero_le, exists_const]
+      rw [h'] at h
+      rcases h with ⟨j, hj⟩
+      use j
+      have : (closedBall 0 1 : Set (Fin 0 → ℝ)) = (ball 0 1 : Set (Fin 0 → ℝ)) := by
+        ext x
+        simp [Matrix.empty_eq]
+      rw [← this]
+      exact hj
+    push_neg at h'
+    rcases h with ⟨j, xmem⟩
+    rw [← Metric.sphere_union_ball, image_union] at xmem
+    rcases xmem with h | h
+    · have := hC.mapsto_sphere_level m j h'
+      rw [Set.mapsTo'] at this
+      apply this at h
+      have :  (Nat.pred m : ℕ∞) ≤ (n : ℕ∞) := by
+        norm_cast at *
+        rw [← Nat.pred_succ n, ← Nat.add_one]
+        apply Nat.pred_le_pred
+        rw [Nat.lt_add_one_iff] at mlt
+        exact mlt
+      rcases hn ((hC.level_subset_level_of_le this) h) with ⟨m, hm⟩
+      simp only [exists_prop] at hm
+      use m
+      simp only [exists_prop]
+      norm_cast at *
+      exact ⟨le_trans hm.1 (Nat.le_succ n), hm.2⟩
+    · use m
+      simp only [Nat.cast_succ, exists_prop]
+      norm_cast at *
+      rw [Nat.lt_add_one_iff] at mlt
+      exact ⟨mlt, ⟨j, h⟩⟩
+  · rw [← hC.iUnion_level_eq_level] at xmemlvl
+    simp at xmemlvl
+    rcases xmemlvl with ⟨i, ⟨_, xmemlvli⟩⟩
+    rcases (hn i xmemlvli) with ⟨m, hm⟩
+    simp only [exists_prop] at hm
+    use m
+    simp only [exists_prop]
+    exact ⟨le_top, hm.2⟩
+
+lemma level_inter_image_closedBall_eq_level_inter_image_sphere {n : ℕ∞} {m : ℕ}{j : hC.cell m} (mgtn : m > n) : hC.level n ∩ ↑(hC.map m j) '' closedBall 0 1 = hC.level n ∩ ↑(hC.map m j) '' sphere 0 1 := by
+  ext x
+  constructor
+  · intro ⟨xmemlevel, xmemball⟩
+    constructor
+    · exact xmemlevel
+    rw [← Metric.sphere_union_ball, image_union] at xmemball
+    rcases xmemball with h | h
+    · exact h
+    rcases hC.exists_mem_ball_of_mem_level xmemlevel with ⟨l, ⟨llen, ⟨i, xmem⟩⟩⟩
+    have := hC.pairwiseDisjoint
+    rw [PairwiseDisjoint, Set.Pairwise] at this
+    simp only [mem_univ, ne_eq, forall_true_left] at this
+    have h' : ¬  (⟨l, i⟩ : (Σ n, hC.cell n)) = (⟨m, j⟩ : (Σ n, hC.cell n)) := by
+      simp only [Sigma.mk.inj_iff, not_and]
+      have : ¬ l = m := by
+        push_neg
+        apply LT.lt.ne
+        let k := ENat.toNat n
+        have coekn: ↑k = n := ENat.coe_toNat (LT.lt.ne_top mgtn)
+        rw [← coekn] at mgtn
+        rw [← coekn] at llen
+        norm_cast at *
+        exact lt_of_le_of_lt llen mgtn
+      simp [this]
+    have := this h'
+    simp [Function.onFun, Disjoint] at this
+    have h1 : {x} ⊆ ↑(hC.map l i) '' ball 0 1 := by
+      simp only [singleton_subset_iff]
+      exact xmem
+    have h2 : {x} ⊆ ↑(hC.map m j) '' ball 0 1 := by
+      simp only [singleton_subset_iff]
+      exact h
+    have := this h1 h2
+    simp at this
+  · intro xmem
+    exact ⟨xmem.1,  (Set.image_subset ↑(hC.map m j) Metric.sphere_subset_closedBall) xmem.2⟩
 
 
-/- The following lemmas are already hard! -/
+lemma isClosed_map_sphere {n : ℕ} {i : hC.cell n} : IsClosed (hC.map n i '' sphere 0 1) := by
+  apply IsCompact.isClosed
+  apply IsCompact.image_of_continuousOn
+  apply isCompact_sphere
+  exact ContinuousOn.mono (hC.cont n i) sphere_subset_closedBall
+
+
+def CWComplex_level (n : ℕ∞) : CWComplex (hC.level n) where
+  cell l := {x : hC.cell l // l < n + 1}
+  map l i := hC.map l i
+  source_eq l i := by rw [hC.source_eq]
+  cont l i := hC.cont l i
+  cont_symm l i := hC.cont_symm l i
+  -- Why doesn't ← Set.image_eta work?
+  pairwiseDisjoint := sorry
+  mapsto l i := sorry
+  closed A := by
+    intro asublevel
+    have : A ⊆ C := by
+      apply subset_trans
+      exact asublevel
+      simp_rw [← hC.level_top]
+      apply hC.level_subset_level_of_le le_top
+    have := hC.closed A this
+    constructor
+    · intro closedA l j
+      simp [this.1]
+    · intro h
+      simp at h
+      rw [this]
+      intro m
+      induction' m with m hm -- need strong induction instead
+      · have : 0 < n + 1 := by simp only [add_pos_iff, zero_lt_one, or_true]
+        intro j
+        exact h Nat.zero j this
+      rw [← Nat.add_one] at *
+      intro j
+      let k := ENat.toNat n
+      by_cases mlt : m + 1 < n + 1
+      · exact h (m + 1) j mlt
+      push_neg at mlt
+      have nltm : n ≤ Nat.succ m := le_trans (le_add_right le_rfl) mlt
+      have coekn: ↑k = n := ENat.coe_toNat (ne_top_of_le_ne_top (WithTop.nat_ne_top (Nat.succ m)) nltm)
+      rw [← coekn] at asublevel -- why does at * not work?
+      rw [← coekn] at mlt
+      norm_cast at *
+      have : A ∩ ↑(hC.map (m + 1) j) '' closedBall 0 1 = A ∩ ↑(hC.map (m + 1) j) '' sphere 0 1 := by
+        calc
+          A ∩ ↑(hC.map (m + 1) j) '' closedBall 0 1 = A ∩ (hC.level k ∩ ↑(hC.map (m + 1) j) '' closedBall 0 1) := by rw [← inter_assoc, Set.inter_eq_left.2 asublevel]
+          _ = A ∩ (hC.level k ∩ ↑(hC.map (m + 1) j) '' sphere 0 1) := by
+            have : (m + 1 : ℕ∞) > (k : ℕ∞) := by norm_cast
+            have : hC.level k ∩ ↑(hC.map (m + 1) j) '' closedBall 0 1 = hC.level k ∩ ↑(hC.map (m + 1) j) '' sphere 0 1 := by
+              apply hC.level_inter_image_closedBall_eq_level_inter_image_sphere this
+            rw [this]
+          _ = A ∩ ↑(hC.map (m + 1) j) '' sphere 0 1 := by rw [← inter_assoc, Set.inter_eq_left.2 asublevel]
+      rw [this]
+      rcases hC.mapsto (m + 1) j with ⟨I, hI⟩
+      simp only [mapsTo'] at hI
+      have closedunion: IsClosed (A ∩ ⋃ m_1, ⋃ (_ : m_1 < m + 1), ⋃ j ∈ I m_1, ↑(hC.map m_1 j) '' closedBall 0 1) := by
+        simp [Set.inter_iUnion]
+        -- tell lean that everything is finite (property in union?) then
+        -- apply isClosed_iUnion_of_finite
+        -- use strong induction (change above)
+        sorry
+      have : A ∩ ↑(hC.map (m + 1) j) '' sphere 0 1 = A ∩ (⋃ m_1, ⋃ (_ : m_1 < m + 1), ⋃ j ∈ I m_1, ↑(hC.map m_1 j) '' closedBall 0 1) ∩ ↑(hC.map (m + 1) j) '' sphere 0 1 := by
+        rw [inter_assoc, Set.inter_eq_right.2 hI]
+      rw [this]
+      apply IsClosed.inter closedunion hC.isClosed_map_sphere
+  union := sorry
 
 lemma isClosed_map_closedBall (n : ℕ) (i : hC.cell n) : IsClosed (hC.map n i '' closedBall 0 1) := by
   apply IsCompact.isClosed
@@ -278,10 +438,21 @@ lemma isClosed : IsClosed C := by
     apply Set.subset_iUnion (fun j ↦ ↑(hC.map n j) '' closedBall 0 1)
   rw [Set.inter_eq_right.2 this]
   exact hC.isClosed_map_closedBall n i
+  rfl
+
+lemma level_succ_eq_level_union_iUnion (n : ℕ) : hC.level (↑n + 1) = hC.level ↑n ∪ ⋃ (j : hC.cell (↑n + 1)), hC.map (↑n + 1) j '' closedBall 0 1 := by
+  simp [CWComplex.level]
+  norm_cast
+  rw [Nat.add_one, union_comm]
+  exact CWComplex.aux1 hC (n + 1) (fun m j ↦ ↑(hC.map m j) '' closedBall 0 1)
+
+/- The following lemmas are already hard! -/
 
 /- The levels are closed. The following might be helpful:
 https://math.stackexchange.com/questions/4051497/subcomplex-is-closed -/
-lemma isClosed_level (n : ℕ∞) : IsClosed (hC.level n) := by
+lemma isClosed_level (n : ℕ∞) : IsClosed (hC.level n) := (hC.CWComplex_level n).isClosed
+-- kept my original beginning of the proof in case CWComplex_level doesn't work out:
+/-
   by_cases h : n = ⊤
   · rw [h]
     rw [level_top]
@@ -291,12 +462,17 @@ lemma isClosed_level (n : ℕ∞) : IsClosed (hC.level n) := by
   have coemn: ↑m = n := ENat.coe_toNat h
   rw [← coemn]
   induction' m with m hm
-  · sorry
-  · sorry
-
+  · rw [← Set.inter_self (level hC ↑Nat.zero)]
+    exact hC.isDiscrete_level_zero
+  · rw [← Nat.add_one, ENat.coe_add, ENat.coe_one, hC.level_succ_eq_level_union_iUnion m]
+    sorry
+    /- Next step of the proof: Define disjoint map (how?) show that it is a quotient map (QuotientMap). Then our set is closed since the preimage is also closed by induction -/
+-/
 
 /- The following is one way of stating that `level 0` is discrete. -/
 lemma isDiscrete_level_zero {A : Set X} : IsClosed (A ∩ hC.level 0) := sorry
+
+
 
 
 /- State some more properties: e.g.
