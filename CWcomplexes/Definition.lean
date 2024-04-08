@@ -367,8 +367,41 @@ def CWComplex_level (n : ℕ∞) : CWComplex (hC.level n) where
   cont l i := hC.cont l i
   cont_symm l i := hC.cont_symm l i
   -- Why doesn't ← Set.image_eta work?
-  pairwiseDisjoint := sorry
-  mapsto l i := sorry
+  pairwiseDisjoint := by
+    rw [PairwiseDisjoint, Set.Pairwise]
+    simp only [mem_univ, ne_eq, forall_true_left, Sigma.forall, Subtype.forall]
+    intro a ja alt b jb blt
+    have := hC.pairwiseDisjoint
+    rw [PairwiseDisjoint, Set.Pairwise] at this
+    simp only [mem_univ, ne_eq, forall_true_left, Sigma.forall, Subtype.forall] at this
+    have := this a ja b jb
+    intro h
+    simp only [Sigma.mk.inj_iff, not_and] at *
+    apply this
+    by_cases h' : a = b
+    · simp [h']
+      by_contra h''
+      apply h h'
+      rw [Subtype.heq_iff_coe_heq (type_eq_of_heq h'')]
+      simp [h'']
+      rw [h']
+    · simp only [h', IsEmpty.forall_iff]
+  mapsto l i := by
+    rcases hC.mapsto l i with ⟨I, hI⟩
+    rcases i with ⟨i, llt⟩
+    let J := fun (m : ℕ) ↦ (I m).subtype (fun j ↦ m < n + 1)
+    use J
+    simp only [mapsTo'] at *
+    apply subset_trans hI
+    apply Set.iUnion_mono''
+    intro i x xmem
+    simp only [mem_iUnion, exists_prop] at *
+    constructor
+    · exact xmem.1
+    rcases xmem with ⟨iltl, ⟨j, ⟨jmemIi, xmem⟩⟩⟩
+    have : (i : ℕ∞) < (l : ℕ∞) := by norm_cast
+    use ⟨j, lt_trans this llt⟩
+    exact ⟨(by simp only [Finset.mem_subtype, jmemIi, J]) , xmem⟩
   closed A := by
     intro asublevel
     have : A ⊆ C := by
@@ -384,7 +417,7 @@ def CWComplex_level (n : ℕ∞) : CWComplex (hC.level n) where
       simp at h
       rw [this]
       intro m
-      induction' m with m hm -- need strong induction instead
+      induction' m using Nat.case_strong_induction_on with m hm -- need strong induction instead
       · have : 0 < n + 1 := by simp only [add_pos_iff, zero_lt_one, or_true]
         intro j
         exact h Nat.zero j this
@@ -413,15 +446,46 @@ def CWComplex_level (n : ℕ∞) : CWComplex (hC.level n) where
       simp only [mapsTo'] at hI
       have closedunion: IsClosed (A ∩ ⋃ m_1, ⋃ (_ : m_1 < m + 1), ⋃ j ∈ I m_1, ↑(hC.map m_1 j) '' closedBall 0 1) := by
         simp [Set.inter_iUnion]
-        -- tell lean that everything is finite (property in union?) then
-        -- apply isClosed_iUnion_of_finite
-        -- use strong induction (change above)
-        sorry
+        let N := {n : ℕ // n < Nat.succ m}
+        have : ⋃ i, ⋃ (_ : i < m + 1), ⋃ i_1 ∈ I i, A ∩ ↑(hC.map i i_1) '' closedBall 0 1 = ⋃ (i : N), ⋃ (i_1 : I i), A ∩ ↑(hC.map i i_1) '' closedBall 0 1 := by
+          ext x
+          simp only [mem_iUnion, exists_prop]
+          constructor
+          · intro h
+            rcases h with ⟨i, ⟨ilt, ⟨j, ⟨jmem, h⟩⟩⟩⟩
+            use ⟨i, ilt⟩
+            use ⟨j, jmem⟩
+          · intro h
+            rcases h with ⟨⟨i, ilt⟩, ⟨⟨j, jmem⟩, h⟩⟩
+            use i
+            exact ⟨ilt, (by use j)⟩
+        rw [this]
+        apply isClosed_iUnion_of_finite
+        intro i
+        apply isClosed_iUnion_of_finite
+        intro j
+        exact hm i (Nat.le_of_lt_succ i.2) j
       have : A ∩ ↑(hC.map (m + 1) j) '' sphere 0 1 = A ∩ (⋃ m_1, ⋃ (_ : m_1 < m + 1), ⋃ j ∈ I m_1, ↑(hC.map m_1 j) '' closedBall 0 1) ∩ ↑(hC.map (m + 1) j) '' sphere 0 1 := by
         rw [inter_assoc, Set.inter_eq_right.2 hI]
       rw [this]
       apply IsClosed.inter closedunion hC.isClosed_map_sphere
-  union := sorry
+  union := by
+    rw [CWComplex.level]
+    apply Set.iUnion_congr
+    intro m
+    ext x
+    constructor
+    · intro h
+      rw [mem_iUnion] at *
+      rcases h with ⟨⟨i, mlt⟩, hi⟩
+      use mlt
+      rw [mem_iUnion]
+      use i
+    · intro h
+      rw [mem_iUnion, exists_prop] at *
+      rw [mem_iUnion] at h
+      rcases h with ⟨mlt, ⟨i, hi⟩⟩
+      use ⟨i, mlt⟩
 
 lemma isClosed_map_closedBall (n : ℕ) (i : hC.cell n) : IsClosed (hC.map n i '' closedBall 0 1) := by
   apply IsCompact.isClosed
