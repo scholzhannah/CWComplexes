@@ -6,26 +6,7 @@ namespace CWComplex
 
 variable {X : Type*} [t : TopologicalSpace X] [T2Space X] {C : Set X} (hC : CWComplex C)
 
-/- The levels are closed. The following might be helpful:
-https://math.stackexchange.com/questions/4051497/subcomplex-is-closed -/
 lemma isClosed_level (n : ℕ∞) : IsClosed (hC.level n) := (hC.CWComplex_level n).isClosed
--- this proof seems eerily short so I'm keeping the beginning of my earlier proof for now:
-/-
-  by_cases h : n = ⊤
-  · rw [h]
-    rw [level_top]
-    exact hC.isClosed
-  push_neg at h
-  let m := ENat.toNat n
-  have coemn: ↑m = n := ENat.coe_toNat h
-  rw [← coemn]
-  induction' m with m hm
-  · rw [← Set.inter_self (level hC ↑Nat.zero)]
-    exact hC.isDiscrete_level_zero
-  · rw [← Nat.add_one, ENat.coe_add, ENat.coe_one, hC.level_succ_eq_level_union_iUnion m]
-    sorry
-    /- Next step of the proof: Define disjoint map (how?) show that it is a quotient map (QuotientMap). Then our set is closed since the preimage is also closed by induction -/
--/
 
 /- The following is one way of stating that `level 0` is discrete. -/
 lemma isDiscrete_level_zero {A : Set X} : IsClosed (A ∩ hC.level 0) := by

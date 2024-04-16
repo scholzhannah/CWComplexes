@@ -131,7 +131,7 @@ def CWComplex_disjointUnion (disjoint : Disjoint C D) : CWComplex (C ∪ D) wher
     rcases i with i | i
     · exact hC.cont_symm n i
     · exact hD.cont_symm n i
-  pairwiseDisjoint := by -- Can you tell lean that C and D are interchangable to only look at two of the four cases?
+  pairwiseDisjoint := by
     rw [PairwiseDisjoint, Set.Pairwise]
     simp only [mem_univ, ne_eq, forall_true_left]
     intro ⟨n, cn⟩ ⟨m, cm⟩ ne
@@ -175,12 +175,32 @@ def CWComplex_disjointUnion (disjoint : Disjoint C D) : CWComplex (C ∪ D) wher
     rcases i with ic | id
     · rcases hC.mapsto n ic with ⟨I, hI⟩
       classical
-      let (J : (m : ℕ) → Finset (hC.cell m ⊕ hD.cell m)) := fun (m : ℕ) ↦ Finset.image (fun j ↦ .inl j) (I m)
+      let J : (m : ℕ) → Finset (hC.cell m ⊕ hD.cell m) := fun (m : ℕ) ↦ Finset.image (fun j ↦ .inl j) (I m)
       use J
-      rw [mapsTo']
-      simp only
-      sorry
-    sorry
+      rw [mapsTo'] at *
+      simp only [J]
+      intro x xmem
+      apply hI at xmem
+      simp only [mem_iUnion, exists_prop] at *
+      rcases xmem with ⟨i, ⟨iltn, ⟨j, ⟨jmem, xmem⟩⟩⟩⟩
+      use i
+      simp only [iltn, exists_exists_and_eq_and, true_and]
+      use .inl j
+      simp only [Finset.mem_image, Sum.inl.injEq, exists_eq_right, jmem, true_and, xmem]
+    · rcases hD.mapsto n id with ⟨I, hI⟩
+      classical
+      let J : (m : ℕ) → Finset (hC.cell m ⊕ hD.cell m) := fun (m : ℕ) ↦ Finset.image (fun j ↦ .inr j) (I m)
+      use J
+      rw [mapsTo'] at *
+      simp only [J]
+      intro x xmem
+      apply hI at xmem
+      simp only [mem_iUnion, exists_prop] at *
+      rcases xmem with ⟨i, ⟨iltn, ⟨j, ⟨jmem, xmem⟩⟩⟩⟩
+      use i
+      simp only [iltn, exists_exists_and_eq_and, true_and]
+      use .inr j
+      simp only [Finset.mem_image, Sum.inr.injEq, exists_eq_right, jmem, true_and, xmem]
   closed A := by
     intro asubcd
     constructor
