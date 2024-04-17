@@ -28,3 +28,5 @@ lemma aux1 (l : ℕ) {X : Type*} {s : ℕ →  Type*} (Y : (m : ℕ) → s m →
     · rcases h with ⟨i, iltl, h⟩
       use i
       exact ⟨lt_trans iltl (Nat.lt_succ_self l), h⟩
+
+lemma ENat.coe_lt_top {n : ℕ} : ↑n < (⊤ : ℕ∞) := Ne.lt_top (ENat.coe_ne_top n)

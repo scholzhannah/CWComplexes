@@ -2,7 +2,8 @@ import CWcomplexes.auxiliary
 
 /- Questions:
   - I don't think the imports should be this way but I don't know what to import in aux.lean to make it work
-
+  - Is there a type of subtypes of a type? See CWcomplex_subcomplex
+  - Using statement already proven in definition, see CWcomplex_subcomplex
 -/
 
 set_option autoImplicit false
@@ -341,6 +342,38 @@ lemma isClosed_map_sphere {n : ℕ} {i : hC.cell n} : IsClosed (hC.map n i '' sp
   apply IsCompact.image_of_continuousOn
   apply isCompact_sphere
   exact ContinuousOn.mono (hC.cont n i) sphere_subset_closedBall
+
+/- TODO : Unify these two lemmas. The problem is that in one I have the type (cell n) and in the other (Set (cell n)). I think this will be solved as well if I can solve the subtype of a type problem in CWComplex_subcomplex-/
+
+lemma isClosed_inter_sphere_succ_of_le_isClosed_inter_closedBall_of_mapsto {A : Set X} {n : ℕ} (I : (m : ℕ) → Set (hC.cell m)) (hn : ∀ m ≤ n, ∀ (j : hC.cell m), IsClosed (A ∩ ↑(hC.map m j) '' closedBall 0 1)) (mapsto : ∀ (n : ℕ) i, ∃ I : Π m, Finset (I m), MapsTo (hC.map n i) (sphere 0 1 : Set (Fin n → ℝ)) (⋃ (m < n) (j ∈ I m), hC.map m j '' closedBall 0 1)) : ∀ (j : hC.cell (n + 1)), IsClosed (A ∩ ↑(hC.map (n + 1) j) '' sphere 0 1) := by
+  intro j
+  rcases mapsto (n + 1) j with ⟨J, hJ⟩
+  rw [mapsTo'] at hJ
+  have closedunion : IsClosed (A ∩ ⋃ m, ⋃ (_ : m < n + 1), ⋃ j ∈ J m, ↑(hC.map m j) '' closedBall 0 1) := by
+    simp only [inter_iUnion]
+    let N := {m : ℕ // m < n + 1}
+    have : ⋃ i, ⋃ (_ : i < n + 1),  ⋃ (j : I i), ⋃ (_ : j ∈ J i), A ∩ ↑(hC.map i j) '' closedBall 0 1 = ⋃ (i : N), ⋃ (i_1 : J i), A ∩ ↑(hC.map i i_1) '' closedBall 0 1 := by
+      ext x
+      simp only [mem_iUnion, exists_prop]
+      constructor
+      · intro h
+        rcases h with ⟨i, ⟨ilt, ⟨j, ⟨jmem, h⟩⟩⟩⟩
+        use ⟨i, ilt⟩
+        use ⟨j, jmem⟩
+      · intro h
+        rcases h with ⟨⟨i, ilt⟩, ⟨⟨j, jmem⟩, h⟩⟩
+        use i
+        exact ⟨ilt, (by use j)⟩
+    rw [this]
+    apply isClosed_iUnion_of_finite
+    intro i
+    apply isClosed_iUnion_of_finite
+    intro j
+    exact hn i (Nat.le_of_lt_succ i.2) j
+  have : A ∩ ↑(hC.map (n + 1) j) '' sphere 0 1 = A ∩ (⋃ m, ⋃ (_ : m < n + 1), ⋃ j ∈ J m, ↑(hC.map m j) '' closedBall 0 1) ∩ ↑(hC.map (n + 1) j) '' sphere 0 1 := by
+    rw [inter_assoc, Set.inter_eq_right.2 hJ]
+  rw [this]
+  apply IsClosed.inter closedunion hC.isClosed_map_sphere
 
 lemma isClosed_inter_sphere_succ_of_le_isClosed_inter_closedBall {A : Set X} {n : ℕ} (hn : ∀ m ≤ n, ∀ (j : hC.cell m), IsClosed (A ∩ ↑(hC.map m j) '' closedBall 0 1)) : ∀ (j : hC.cell (n + 1)), IsClosed (A ∩ ↑(hC.map (n + 1) j) '' sphere 0 1) := by
   intro j

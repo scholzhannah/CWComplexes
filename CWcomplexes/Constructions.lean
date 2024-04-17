@@ -1,4 +1,5 @@
 import CWcomplexes.Definition
+import Mathlib.Analysis.NormedSpace.Real
 
 set_option autoImplicit false
 set_option linter.unusedVariables false
@@ -260,3 +261,100 @@ def CWComplex_disjointUnion (disjoint : Disjoint C D) : CWComplex (C ∪ D) wher
       · rw [mem_iUnion] at *
         rcases h with ⟨i, hi⟩
         use Sum.inr i
+
+
+/- This definition is very non-constructive. So I don't know how usefull it is. I fear that a more constructive definition would be too clunky.
+See "Topologie" p. 120 by Klaus Jänich from 2001 -/
+/- Change the Set below to some kind of type of subtypes if that exists.-/
+def CWComplex_subcomplex (I : Π n, Set (hC.cell n)) (closed : IsClosed (⋃ (n : ℕ) (j : I n), hC.map n j '' ball 0 1)) : CWComplex (⋃ (n : ℕ) (j : I n), hC.map n j '' ball 0 1) where
+  cell n := I n
+  map n i := hC.map n i
+  source_eq n i := hC.source_eq n i
+  cont n i := hC.cont n i
+  cont_symm n i := hC.cont_symm n i
+  pairwiseDisjoint := by
+    have := hC.pairwiseDisjoint
+    rw [PairwiseDisjoint, Set.Pairwise] at *
+    intro ⟨n, ni⟩ nmem ⟨m, mi⟩ mmem nnem
+    simp at mi ni
+    have disjoint := @this ⟨n, ni.1⟩ (Set.mem_univ (⟨n, ni.1⟩ : (n : ℕ) × hC.cell n)) ⟨m, mi.1⟩ (Set.mem_univ (⟨m, mi.1⟩ : (n : ℕ) × hC.cell n))
+    have : ({ fst := n, snd := ↑ni } : (n : ℕ) × hC.cell n) ≠ { fst := m, snd := ↑mi } := by
+      simp at nnem
+      simp
+      intro men heq
+      apply nnem men
+      subst men
+      simp at heq
+      apply Subtype.coe_injective at heq
+      simp [heq]
+    exact disjoint this
+  mapsto n i := by
+    rcases hC.mapsto n i with ⟨J, hJ⟩
+    classical
+    let (J' : (m : ℕ) → Set (I m)) := fun m ↦ {x : I m | ↑x ∈ (J m : Set (hC.cell m))}
+    have : ∀ m, Set.Finite (J m).toSet := by
+      intro m
+      simp [Set.Finite.ofFinset (J m)]
+    -- do something to make J' m be a Finset ... I don't know how to work with these types ...
+    sorry
+  closed A := by
+    intro Asub
+    constructor
+    · intro closedA n j
+      exact IsClosed.inter closedA (hC.isClosed_map_closedBall n j)
+    · intro closed
+      have : ⋃ n, ⋃ (j : I n), ↑(hC.map n ↑j) '' ball 0 1 ⊆ C := by
+        simp_rw [← hC.level_top, level, levelaux, top_add]
+        intro x xmem
+        simp only [mem_iUnion, exists_prop] at *
+        rcases xmem with ⟨n, ⟨i, hni⟩⟩
+        exact ⟨n, ⟨ENat.coe_lt_top , ⟨i, (image_mono Metric.ball_subset_closedBall) hni⟩⟩⟩
+      rw [hC.closed A (subset_trans Asub this)]
+      intro n j
+      induction' n using Nat.case_strong_induction_on with n hn
+      · simp [Matrix.empty_eq]
+        by_cases h': {(hC.map 0 j) ![]} ⊆ A
+        · simp [Set.inter_eq_right.2 h', isClosed_singleton]
+        · have : A ∩ {(hC.map 0 j) ![]} = ∅ := by
+            simp only [singleton_subset_iff] at h'
+            simp only [inter_singleton_eq_empty, h', not_false_eq_true]
+          simp only [this, isClosed_empty]
+      · by_cases h : j ∈ I (Nat.succ n)
+        · exact closed (Nat.succ n) ⟨j, h⟩
+        rw [← Metric.sphere_union_ball, image_union, inter_union_distrib_left]
+        apply IsClosed.union
+        · have : ∀ (n : ℕ) i, ∃ I : Π m, Finset (I m), MapsTo (hC.map n i) (sphere 0 1 : Set (Fin n → ℝ)) (⋃ (m < n) (j ∈ I m), hC.map m j '' closedBall 0 1) := by sorry -- How can I just use the statement mapsto?
+          exact hC.isClosed_inter_sphere_succ_of_le_isClosed_inter_closedBall_of_mapsto I hn this j
+        · have h1 : (⋃ (n : ℕ) (j : I n), hC.map n j '' ball 0 1) ∩ ↑(hC.map (Nat.succ n) j) '' ball 0 1 = ∅ := by
+            simp [iUnion_inter]
+            intro m i imem
+            have := hC.pairwiseDisjoint
+            simp only [PairwiseDisjoint, Set.Pairwise, mem_univ, ne_eq, Function.onFun,
+              forall_true_left, Sigma.forall, Sigma.mk.inj_iff, not_and] at this
+            simp only [Set.disjoint_iff_inter_eq_empty] at this
+            apply this
+            intro meqsuccn heqij
+            apply h
+            subst meqsuccn
+            simp only [heq_eq_eq] at heqij
+            subst heqij
+            exact imem
+          have : A ∩ (⋃ (n : ℕ) (j : I n), hC.map n j '' ball 0 1) = A := by
+            rw [inter_eq_left]
+            exact Asub
+          rw [← this, inter_assoc, h1, inter_empty]
+          exact isClosed_empty
+  union := by
+    simp_rw [← Metric.sphere_union_ball, image_union, iUnion_union_distrib, Set.union_eq_right]
+    apply Set.iUnion_subset
+    intro n
+    apply Set.iUnion_subset
+    intro i
+    apply subset_trans (image_mono Metric.sphere_subset_closedBall)
+    rw [← closure_ball 0 (by norm_num)]
+    apply subset_trans (ContinuousOn.image_closure (by rw [closure_ball 0 (by norm_num)]; exact hC.cont n i))
+    rw [IsClosed.closure_subset_iff closed]
+    intro x xmem
+    simp only [mem_iUnion]
+    use n
+    use i
