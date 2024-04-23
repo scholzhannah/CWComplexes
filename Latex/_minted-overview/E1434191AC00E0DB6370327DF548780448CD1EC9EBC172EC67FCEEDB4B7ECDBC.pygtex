@@ -1,0 +1,4 @@
+\begin{Verbatim}[commandchars=\\\{\}]
+\PYG{k+kn}{lemma} \PYG{n}{iUnion\PYGZus{}map\PYGZus{}sphere\PYGZus{}subset\PYGZus{}levelaux} \PYG{o}{(}\PYG{n}{l} \PYG{o}{:} \PYG{n+nb+bp}{ℕ}\PYG{o}{)} \PYG{o}{:}
+  \PYG{err}{⋃} \PYG{o}{(}\PYG{n}{j} \PYG{o}{:} \PYG{n}{hC}\PYG{n+nb+bp}{.}\PYG{n}{cell} \PYG{n}{l}\PYG{o}{),} \PYG{err}{↑}\PYG{o}{(}\PYG{n}{hC}\PYG{n+nb+bp}{.}\PYG{n}{map} \PYG{n}{l} \PYG{n}{j}\PYG{o}{)} \PYG{err}{\PYGZsq{}\PYGZsq{}} \PYG{n}{sphere} \PYG{l+m+mi}{0} \PYG{l+m+mi}{1} \PYG{err}{⊆} \PYG{n}{hC}\PYG{n+nb+bp}{.}\PYG{n}{levelaux} \PYG{n}{l}
+\end{Verbatim}

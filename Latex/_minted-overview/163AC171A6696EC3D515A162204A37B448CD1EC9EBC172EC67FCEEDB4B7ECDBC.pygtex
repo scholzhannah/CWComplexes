@@ -1,0 +1,4 @@
+\begin{Verbatim}[commandchars=\\\{\}]
+\PYG{k+kn}{def} \PYG{n}{CWComplex\PYGZus{}product} \PYG{o}{:} \PYG{n+nb+bp}{@}\PYG{n}{CWComplex} \PYG{o}{(}\PYG{n}{Prod} \PYG{n}{X} \PYG{n}{Y}\PYG{o}{)} \PYG{o}{(}\PYG{n+nb+bp}{@}\PYG{n}{kification} \PYG{o}{(}\PYG{n}{Prod} \PYG{n}{X} \PYG{n}{Y}\PYG{o}{)}
+\PYG{o}{(}\PYG{n+nb+bp}{@}\PYG{n}{instTopologicalSpaceProd} \PYG{n}{X} \PYG{n}{Y} \PYG{n}{t1} \PYG{n}{t2}\PYG{o}{))} \PYG{o}{(}\PYG{n}{Set}\PYG{n+nb+bp}{.}\PYG{n}{prod} \PYG{n}{C} \PYG{n}{D}\PYG{o}{)} \PYG{k+kn}{where}
+\end{Verbatim}

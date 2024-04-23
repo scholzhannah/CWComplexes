@@ -1,0 +1,5 @@
+\begin{Verbatim}[commandchars=\\\{\}]
+\PYG{k+kn}{variable} \PYG{o}{\PYGZob{}}\PYG{n}{X} \PYG{o}{:} \PYG{k+kt}{Type}\PYG{n+nb+bp}{*}\PYG{o}{\PYGZcb{}} \PYG{o}{\PYGZob{}}\PYG{n}{Y} \PYG{o}{:} \PYG{k+kt}{Type}\PYG{n+nb+bp}{*}\PYG{o}{\PYGZcb{}} \PYG{o}{[}\PYG{n}{t1} \PYG{o}{:} \PYG{n}{TopologicalSpace} \PYG{n}{X}\PYG{o}{]} \PYG{o}{[}\PYG{n}{t2} \PYG{o}{:} \PYG{n}{TopologicalSpace} \PYG{n}{Y}\PYG{o}{]}
+\PYG{o}{[}\PYG{n}{T2Space} \PYG{n}{X}\PYG{o}{]} \PYG{o}{[}\PYG{n}{T2Space} \PYG{n}{Y}\PYG{o}{]} \PYG{o}{\PYGZob{}}\PYG{n}{C} \PYG{o}{:} \PYG{n}{Set} \PYG{n}{X}\PYG{o}{\PYGZcb{}} \PYG{o}{\PYGZob{}}\PYG{n}{D} \PYG{o}{:} \PYG{n}{Set} \PYG{n}{Y}\PYG{o}{\PYGZcb{}} \PYG{o}{(}\PYG{n}{hC} \PYG{o}{:} \PYG{n+nb+bp}{@}\PYG{n}{CWComplex} \PYG{n}{X} \PYG{n}{t1} \PYG{n}{C}\PYG{o}{)}
+\PYG{o}{(}\PYG{n}{hD} \PYG{o}{:} \PYG{n+nb+bp}{@}\PYG{n}{CWComplex} \PYG{n}{Y} \PYG{n}{t2} \PYG{n}{D}\PYG{o}{)}
+\end{Verbatim}

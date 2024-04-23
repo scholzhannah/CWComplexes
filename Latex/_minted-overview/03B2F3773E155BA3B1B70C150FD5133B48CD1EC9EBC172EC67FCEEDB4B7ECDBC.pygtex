@@ -1,0 +1,3 @@
+\begin{Verbatim}[commandchars=\\\{\}]
+\PYG{k+kn}{variable} \PYG{o}{\PYGZob{}}\PYG{n}{D} \PYG{o}{:} \PYG{n}{Set} \PYG{n}{X}\PYG{o}{\PYGZcb{}} \PYG{o}{(}\PYG{n}{hD} \PYG{o}{:} \PYG{n}{CWComplex} \PYG{n}{D}\PYG{o}{)}
+\end{Verbatim}

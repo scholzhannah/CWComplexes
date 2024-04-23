@@ -1,0 +1,3 @@
+\begin{Verbatim}[commandchars=\\\{\}]
+\PYG{k+kn}{lemma} \PYG{n}{isDiscrete\PYGZus{}level\PYGZus{}zero} \PYG{o}{\PYGZob{}}\PYG{n}{A} \PYG{o}{:} \PYG{n}{Set} \PYG{n}{X}\PYG{o}{\PYGZcb{}} \PYG{o}{:} \PYG{n}{IsClosed} \PYG{o}{(}\PYG{n}{A} \PYG{err}{∩} \PYG{n}{hC}\PYG{n+nb+bp}{.}\PYG{n}{level} \PYG{l+m+mi}{0}\PYG{o}{)}
+\end{Verbatim}

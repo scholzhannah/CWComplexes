@@ -1,0 +1,15 @@
+\begin{Verbatim}[commandchars=\\\{\}]
+\PYG{k+kn}{def} \PYG{n}{CWComplex\PYGZus{}disjointUnion} \PYG{o}{(}\PYG{n}{disjoint} \PYG{o}{:} \PYG{n}{Disjoint} \PYG{n}{C} \PYG{n}{D}\PYG{o}{)} \PYG{o}{:} \PYG{n}{CWComplex} \PYG{o}{(}\PYG{n}{C} \PYG{err}{∪} \PYG{n}{D}\PYG{o}{)} \PYG{k+kn}{where}
+  \PYG{n}{cell} \PYG{n}{n} \PYG{o}{:=} \PYG{n}{Sum} \PYG{o}{(}\PYG{n}{hC}\PYG{n+nb+bp}{.}\PYG{n}{cell} \PYG{n}{n}\PYG{o}{)} \PYG{o}{(}\PYG{n}{hD}\PYG{n+nb+bp}{.}\PYG{n}{cell} \PYG{n}{n}\PYG{o}{)}
+  \PYG{n}{map} \PYG{n}{n} \PYG{n}{i} \PYG{o}{:=}
+    \PYG{k}{match} \PYG{n}{i} \PYG{k}{with}
+    \PYG{n+nb+bp}{|} \PYG{n}{Sum}\PYG{n+nb+bp}{.}\PYG{n}{inl} \PYG{n}{x} \PYG{n+nb+bp}{=\PYGZgt{}} \PYG{n}{hC}\PYG{n+nb+bp}{.}\PYG{n}{map} \PYG{n}{n} \PYG{n}{x}
+    \PYG{n+nb+bp}{|} \PYG{n}{Sum}\PYG{n+nb+bp}{.}\PYG{n}{inr} \PYG{n}{x} \PYG{n+nb+bp}{=\PYGZgt{}} \PYG{n}{hD}\PYG{n+nb+bp}{.}\PYG{n}{map} \PYG{n}{n} \PYG{n}{x}
+  \PYG{n}{source\PYGZus{}eq} \PYG{n}{n} \PYG{n}{i} \PYG{o}{:=} \PYG{n}{sorry}
+  \PYG{n}{cont} \PYG{n}{n} \PYG{n}{i} \PYG{o}{:=} \PYG{n}{sorry}
+  \PYG{n}{cont\PYGZus{}symm} \PYG{n}{n} \PYG{n}{i} \PYG{o}{:=} \PYG{n}{sorry}
+  \PYG{n}{pairwiseDisjoint} \PYG{o}{:=} \PYG{n}{sorry}
+  \PYG{n}{mapsto} \PYG{n}{n} \PYG{n}{i} \PYG{o}{:=} \PYG{n}{sorry}
+  \PYG{n}{closed} \PYG{n}{A} \PYG{o}{:=} \PYG{n}{sorry}
+  \PYG{n}{union} \PYG{o}{:=} \PYG{n}{sorry}
+\end{Verbatim}

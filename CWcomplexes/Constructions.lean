@@ -7,9 +7,11 @@ noncomputable section
 
 open Metric Set
 
+namespace CWComplex
+
 variable {X : Type*} [t : TopologicalSpace X] [T2Space X] {C : Set X} (hC : CWComplex C)
 
-namespace CWComplex
+section
 
 def CWComplex_level (n : ℕ∞) : CWComplex (hC.level n) where
   cell l := {x : hC.cell l // l < n + 1}
@@ -17,7 +19,6 @@ def CWComplex_level (n : ℕ∞) : CWComplex (hC.level n) where
   source_eq l i := by rw [hC.source_eq]
   cont l i := hC.cont l i
   cont_symm l i := hC.cont_symm l i
-  -- Why doesn't ← Set.image_eta work?
   pairwiseDisjoint := by
     rw [PairwiseDisjoint, Set.Pairwise]
     simp only [mem_univ, ne_eq, forall_true_left, Sigma.forall, Subtype.forall]
@@ -358,3 +359,39 @@ def CWComplex_subcomplex (I : Π n, Set (hC.cell n)) (closed : IsClosed (⋃ (n 
     simp only [mem_iUnion]
     use n
     use i
+
+def CWComplex_finitesubcomplex (m : ℕ) (I : Π (n : ℕ), Finset (hC.cell n)) (finitedim : ∀ n, n > m → I n = ∅) (closed : IsClosed (⋃ (n : ℕ) (j : I n), hC.map n j '' ball 0 1)) : FiniteCWComplex (⋃ (n : ℕ) (j : I n), hC.map n j '' ball 0 1) where
+  cwcomplex := hC.CWComplex_subcomplex (fun n ↦ ↑(I n)) closed
+  finitelevels := by
+    use m
+    rw [← (hC.CWComplex_subcomplex (fun n ↦ ↑(I n)) closed).iUnion_ball_eq_level] -- why can't I just use cwcomplex
+    simp [CWComplex_subcomplex]
+    apply iUnion_congr
+    intro n
+    by_cases h : n > m
+    · simp [finitedim n h]
+    push_neg at h
+    apply Nat.lt_succ_of_le at h
+    rw [← Nat.add_one] at h
+    ext x
+    nth_rewrite 2 [mem_iUnion]
+    rw [exists_prop]
+    norm_cast
+    simp only [h, true_and]
+  finitecells := by
+    intro n
+    simp [CWComplex_subcomplex]
+    exact Finset.Subtype.fintype (I n)
+
+end
+
+section
+
+variable {X : Type*} {Y : Type*} [t1 : TopologicalSpace X] [t2 : TopologicalSpace Y] [T2Space X] [T2Space Y] {C : Set X} {D : Set Y} (hC : @CWComplex X t1 C) (hD : @CWComplex Y t2 D)
+
+
+/- I would like to tell lean to choose the inferred instance over the synthesized instance but I don't know how. -/
+-- def CWComplex_product : @CWComplex (Prod X Y) (@kification (Prod X Y) (@instTopologicalSpaceProd X Y t1 t2)) (Set.prod C D) where
+
+
+end

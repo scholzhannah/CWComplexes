@@ -1,0 +1,7 @@
+\begin{Verbatim}[commandchars=\\\{\}]
+\PYG{k+kn}{def} \PYG{n}{open\PYGZus{}neighbourhood\PYGZus{}aux} \PYG{o}{(}\PYG{n}{ε} \PYG{o}{:} \PYG{o}{(}\PYG{n}{n} \PYG{o}{:} \PYG{n+nb+bp}{ℕ}\PYG{o}{)} \PYG{n+nb+bp}{→} \PYG{o}{(}\PYG{n}{hC}\PYG{n+nb+bp}{.}\PYG{n}{cell} \PYG{n}{n}\PYG{o}{)} \PYG{n+nb+bp}{→} \PYG{o}{\PYGZob{}}\PYG{n}{x} \PYG{o}{:} \PYG{n}{ℝ} \PYG{n+nb+bp}{//} \PYG{n}{x} \PYG{n+nb+bp}{\PYGZgt{}} \PYG{l+m+mi}{0}\PYG{o}{\PYGZcb{})}
+\PYG{o}{(}\PYG{n}{A} \PYG{o}{:} \PYG{n}{Set} \PYG{n}{X}\PYG{o}{)} \PYG{o}{(}\PYG{n}{AsubC} \PYG{o}{:} \PYG{n}{A} \PYG{err}{⊆} \PYG{n}{C}\PYG{o}{)} \PYG{o}{(}\PYG{n}{n} \PYG{o}{:} \PYG{n+nb+bp}{ℕ}\PYG{o}{):} \PYG{n}{Set} \PYG{n}{X} \PYG{o}{:=}
+  \PYG{k}{match} \PYG{n}{n} \PYG{k}{with}
+  \PYG{n+nb+bp}{|} \PYG{l+m+mi}{0} \PYG{n+nb+bp}{=\PYGZgt{}} \PYG{n}{A} \PYG{err}{∩} \PYG{n}{hC}\PYG{n+nb+bp}{.}\PYG{n}{level} \PYG{l+m+mi}{0}
+  \PYG{n+nb+bp}{|} \PYG{n}{Nat}\PYG{n+nb+bp}{.}\PYG{n}{succ} \PYG{n}{m} \PYG{n+nb+bp}{=\PYGZgt{}} \PYG{n}{sorry}
+\end{Verbatim}

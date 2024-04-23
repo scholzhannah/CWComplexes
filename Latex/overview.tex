@@ -1,0 +1,419 @@
+\documentclass[colorinlistoftodos]{article}
+\usepackage{fontspec}
+% switch to a monospace font supporting more Unicode characters
+\setmonofont{FreeMono}
+\usepackage{hyperref}
+\usepackage{minted}
+\usepackage{todonotes}
+\reversemarginpar
+
+
+\setminted[python]{
+    linenos=true,
+    breaklines=true,
+    encoding=utf8,
+    fontsize=\footnotesize,
+    frame=lines
+}
+\usepackage{etoolbox}
+
+\makeatletter
+\AtBeginEnvironment{minted}{\dontdofcolorbox}
+\def\dontdofcolorbox{\renewcommand\fcolorbox[4][]{##4}}
+\makeatother
+
+
+\makeatletter
+\ifwindows
+  \renewcommand{\minted@optlistcl@quote}[2]{%
+    \ifstrempty{#2}{\detokenize{#1}}{\detokenize{#1="#2"}}}
+\else
+  \renewcommand{\minted@optlistcl@quote}[2]{%
+    \ifstrempty{#2}{\detokenize{#1}}{\detokenize{#1='#2'}}}
+\fi
+
+% similar to \minted@def@optcl@switch
+\newcommand{\minted@def@optcl@novalue}[2]{%
+  \define@booleankey{minted@opt@g}{#1}%
+    {\minted@addto@optlistcl{\minted@optlistcl@g}{#2}{}%
+     \@namedef{minted@opt@g:#1}{true}}
+    {\@namedef{minted@opt@g:#1}{false}}
+  \define@booleankey{minted@opt@g@i}{#1}%
+    {\minted@addto@optlistcl{\minted@optlistcl@g@i}{#2}{}%
+     \@namedef{minted@opt@g@i:#1}{true}}
+    {\@namedef{minted@opt@g@i:#1}{false}}
+  \define@booleankey{minted@opt@lang}{#1}%
+    {\minted@addto@optlistcl@lang{minted@optlistcl@lang\minted@lang}{#2}{}%
+     \@namedef{minted@opt@lang\minted@lang:#1}{true}}
+    {\@namedef{minted@opt@lang\minted@lang:#1}{false}}
+  \define@booleankey{minted@opt@lang@i}{#1}%
+    {\minted@addto@optlistcl@lang{minted@optlistcl@lang\minted@lang @i}{#2}{}%
+     \@namedef{minted@opt@lang\minted@lang @i:#1}{true}}
+    {\@namedef{minted@opt@lang\minted@lang @i:#1}{false}}
+  \define@booleankey{minted@opt@cmd}{#1}%
+      {\minted@addto@optlistcl{\minted@optlistcl@cmd}{#2}{}%
+        \@namedef{minted@opt@cmd:#1}{true}}
+      {\@namedef{minted@opt@cmd:#1}{false}}
+}
+\minted@def@optcl@novalue{custom lexer}{-x}
+\makeatother
+
+\newmintinline[lean]{lean4.py:Lean4Lexer}{custom lexer,bgcolor=white, fontsize=\footnotesize}
+\newminted[leancode]{lean4.py:Lean4Lexer}{custom lexer,fontsize=\footnotesize}
+
+\newcommand{\question}[1]{\todo[color=green!40]{#1}}
+\newcommand{\questionsmall}[1]{\todo[color=green!40, size=\footnotesize]{#1}}
+\newcommand{\comment}[1]{\todo[color=lightgray, nolist]{#1}}
+
+\title{overview code CW-Complexes}
+\author{Hannah Scholz}
+\date{April 2024}
+
+\begin{document}
+
+\maketitle
+
+\section{Introduction}
+
+This is a place to keep track of all the statements I already have.
+I will document what still needs to be done, what I am stuck on and why and what I have questions about.
+
+\listoftodos
+
+\section{File: auxiliary}
+
+\begin{itemize}
+  \item Lemma \emph{aux1}
+\begin{leancode}
+lemma aux1 (l : ℕ) {X : Type*} {s : ℕ →  Type*} (Y : (m : ℕ) → s m → Set X):
+    ⋃ m, ⋃ (_ : m < Nat.succ l), ⋃ j, Y m j = 
+    (⋃ (j : s l), Y l j) ∪ ⋃ m, ⋃ (_ : m < l), ⋃ j, Y m j
+\end{leancode}
+  \item Lemma \emph{ENat.coe\_lt\_top}
+\begin{leancode}
+lemma ENat.coe_lt_top {n : ℕ} : ↑n < (⊤ : ℕ∞)
+\end{leancode}
+  \item Definition \emph{kification} \question{Does this already exist and if no is this good?}\todo{Do the proofs.}
+\begin{leancode}
+  def kification {X : Type*} [t : TopologicalSpace X] : TopologicalSpace X where
+  IsOpen A := ∀ (B : t.Compacts), t.IsOpen (A ∩ B)
+  isOpen_univ := sorry
+  isOpen_inter := sorry
+  isOpen_sUnion := sorry
+\end{leancode}
+\end{itemize}
+
+\section{File: Definition}
+
+\begin{itemize}
+  \item Assumption \lean /variable {X : Type*} [t : TopologicalSpace X]/
+  \item Structure \emph{CWCcomplex}
+\begin{leancode}
+structure CWComplex.{u} {X : Type u} [TopologicalSpace X] (C : Set X) where
+  cell (n : ℕ) : Type u
+  map (n : ℕ) (i : cell n) : PartialEquiv (Fin n → ℝ) X
+  source_eq (n : ℕ) (i : cell n) : (map n i).source = closedBall 0 1
+  cont (n : ℕ) (i : cell n) : ContinuousOn (map n i) (closedBall 0 1)
+  cont_symm (n : ℕ) (i : cell n) : ContinuousOn (map n i).symm (map n i).target
+  pairwiseDisjoint :
+    (univ : Set (Σ n, cell n)).PairwiseDisjoint (fun ni ↦ map ni.1 ni.2 '' ball 0 1)
+  mapsto (n : ℕ) (i : cell n) : ∃ I : Π m, Finset (cell m),
+    MapsTo (map n i) (sphere 0 1) (⋃ (m < n) (j ∈ I m), map m j '' closedBall 0 1)
+  closed (A : Set X) (asubc : A ⊆ ↑C) : 
+    IsClosed A ↔ ∀ n j, IsClosed (A ∩ map n j '' closedBall 0 1)
+  union : ⋃ (n : ℕ) (j : cell n), map n j '' closedBall 0 1 = C
+\end{leancode}
+  \item Assumption \lean /variable [T2Space X] {C : Set X} (hC : CWComplex C)/
+  \item Definition \emph{levelaux}
+\begin{leancode}
+def levelaux (n : ℕ∞) : Set X :=
+  ⋃ (m : ℕ) (hm : m < n) (j : hC.cell m), hC.map m j '' closedBall 0 1
+\end{leancode}
+  \item Definition \emph{level}
+\begin{leancode}
+def level (n : ℕ∞) : Set X :=
+  hC.levelaux (n + 1)
+\end{leancode}
+  \item Structure \emph{FiniteCWComplex} \question{Is this a good way to define this?}
+\begin{leancode}
+structure FiniteCWComplex.{u} {X : Type u} [TopologicalSpace X] (C : Set X) where
+  cwcomplex : CWComplex C
+  finitelevels : ∃ (m : ℕ), C = cwcomplex.level m 
+  finitecells (n : ℕ) : Fintype (cwcomplex.cell n)
+\end{leancode}
+  \item Lemma \emph{levelaux\_top}
+\begin{leancode}
+@[simp] lemma levelaux_top : hC.levelaux ⊤ = C
+\end{leancode}
+  \item Lemma \emph{level\_top}
+\begin{leancode}
+@[simp] lemma level_top : hC.level ⊤ = C
+\end{leancode}
+  \item Lemma \emph{iUnion\_map\_sphere\_subset\_levelaux}
+\begin{leancode}
+lemma iUnion_map_sphere_subset_levelaux (l : ℕ) : 
+  ⋃ (j : hC.cell l), ↑(hC.map l j) '' sphere 0 1 ⊆ hC.levelaux l
+\end{leancode}
+  \item Lemma \emph{iUnion\_map\_sphere\_subset\_level}
+\begin{leancode}
+lemma iUnion_map_sphere_subset_level (l : ℕ) :
+  ⋃ (j : hC.cell l), ↑(hC.map l j) '' sphere 0 1 ⊆ hC.levelaux l
+\end{leancode}
+  \item Lemma \emph{levelaux\_subset\_levelaux\_of\_le}
+\begin{leancode}
+lemma levelaux_subset_levelaux_of_le {n m : ℕ∞} (h : m ≤ n) :
+  hC.levelaux m ⊆ hC.levelaux n
+\end{leancode}
+  \item Lemma \emph{level\_subset\_level\_of\_le}
+\begin{leancode}
+lemma level_subset_level_of_le {n m : ℕ∞} (h : m ≤ n) : hC.level m ⊆ hC.level n
+\end{leancode}
+  \item Lemma \emph{iUnion\_levelaux\_eq\_levelaux}
+\begin{leancode}
+lemma iUnion_levelaux_eq_levelaux (n : ℕ∞) : 
+  ⋃ (m : ℕ) (hm : m < n + 1), hC.levelaux m = hC.levelaux n
+\end{leancode}
+  \item Lemma \emph{iUnion\_ball\_eq\_levelaux} \todo{Extraxt lemma (marked in code)}
+\begin{leancode}
+lemma iUnion_ball_eq_levelaux (n : ℕ∞) :
+  ⋃ (m : ℕ) (hm : m < n) (j : hC.cell m), hC.map m j '' ball 0 1 = hC.levelaux n
+\end{leancode}
+  \item Lemma \emph{iUnion\_ball\_eq\_level}
+\begin{leancode}
+lemma iUnion_ball_eq_level (n : ℕ∞) :
+  ⋃ (m : ℕ) (hm : m < n + 1) (j : hC.cell m), hC.map m j '' ball 0 1 = hC.level n
+\end{leancode}
+  \item Lemma \emph{mapsto\_sphere\_levelaux}
+\begin{leancode}
+lemma mapsto_sphere_levelaux (n : ℕ) (j : hC.cell n) (nnezero : n ≠ 0) : 
+  MapsTo (hC.map n j) (sphere 0 1) (hC.levelaux  n)
+\end{leancode}
+  \item Lemma \emph{mapsto\_sphere\_level}
+\begin{leancode}
+lemma mapsto_sphere_level (n : ℕ) (j : hC.cell n) (nnezero : n ≠ 0) : 
+  MapsTo (hC.map n j) (sphere 0 1) (hC.level (Nat.pred n))
+\end{leancode}
+  \item Lemma \emph{exists\_mem\_ball\_of\_mem\_levelaux}
+\begin{leancode}
+lemma exists_mem_ball_of_mem_levelaux {n : ℕ∞} {x : X} (xmemlvl : x ∈ hC.levelaux n) : 
+  ∃ (m : ℕ) (_ : m < n) (j : hC.cell m), x ∈ ↑(hC.map m j) '' ball 0 1
+\end{leancode}
+  \item Lemma \emph{exists\_mem\_ball\_of\_mem\_level}
+\begin{leancode}
+lemma exists_mem_ball_of_mem_level {n : ℕ∞} {x : X} (xmemlvl : x ∈ hC.level n) : 
+  ∃ (m : ℕ) (_ : m ≤ n) (j : hC.cell m), x ∈ ↑(hC.map m j) '' ball 0 1
+\end{leancode}
+  \item Lemma \emph{levelaux\_inter\_image\_closedBall\_eq\_levelaux\_inter\_image\_sphere}
+\begin{leancode}
+lemma levelaux_inter_image_closedBall_eq_levelaux_inter_image_sphere 
+{n : ℕ∞} {m : ℕ}{j : hC.cell m} (nlem : n ≤ m) :
+  hC.levelaux n ∩ ↑(hC.map m j) '' closedBall 0 1 = 
+  hC.levelaux n ∩ ↑(hC.map m j) '' sphere 0 1
+\end{leancode}
+  \item Lemma \emph{level\_inter\_image\_closedBall\_eq\_level\_inter\_image\_sphere}
+\begin{leancode}
+lemma level_inter_image_closedBall_eq_level_inter_image_sphere 
+{n : ℕ∞} {m : ℕ}{j : hC.cell m} (nltm : n < m) : 
+  hC.level n ∩ ↑(hC.map m j) '' closedBall 0 1 = 
+  hC.level n ∩ ↑(hC.map m j) '' sphere 0 1
+\end{leancode}
+  \item Lemma \emph{isClosed\_map\_sphere}
+\begin{leancode}
+lemma isClosed_map_sphere {n : ℕ} {i : hC.cell n} : IsClosed (hC.map n i '' sphere 0 1)
+\end{leancode}
+  \item Lemma \emph{isClosed\_inter\_sphere\_succ\_of\_le\_isClosed\_inter\_closedBall\_of\_mapsto}
+  \todo[caption={Unify this lemma and the next.}, size=\footnotesize]
+  {\textbf{Unify this lemma and the next.}
+  The problem is that in one I have the type (cell n) and in the other (Set (cell n)).
+  I think this will be solved as well if I can solve the subtype of a type problem in CWComplex\_ subcomplex}
+\begin{leancode}
+lemma isClosed_inter_sphere_succ_of_le_isClosed_inter_closedBall_of_mapsto
+{A : Set X} {n : ℕ} (I : (m : ℕ) → Set (hC.cell m))
+(hn : ∀ m ≤ n, ∀ (j : hC.cell m), IsClosed (A ∩ ↑(hC.map m j) '' closedBall 0 1))
+(mapsto : ∀ (n : ℕ) i, ∃ I : Π m, Finset (I m),
+MapsTo (hC.map n i) (sphere 0 1 : Set (Fin n → ℝ))
+(⋃ (m < n) (j ∈ I m), hC.map m j '' closedBall 0 1)) :
+  ∀ (j : hC.cell (n + 1)), IsClosed (A ∩ ↑(hC.map (n + 1) j) '' sphere 0 1)
+\end{leancode}
+  \item Lemma \emph{isClosed\_inter\_sphere\_succ\_of\_le\_isClosed\_inter\_closedBall}
+\begin{leancode}
+  lemma isClosed_inter_sphere_succ_of_le_isClosed_inter_closedBall
+  {A : Set X} {n : ℕ}
+  (hn : ∀ m ≤ n, ∀ (j : hC.cell m), IsClosed (A ∩ ↑(hC.map m j) '' closedBall 0 1)) : 
+  ∀ (j : hC.cell (n + 1)), IsClosed (A ∩ ↑(hC.map (n + 1) j) '' sphere 0 1)
+\end{leancode}
+  \item Lemma \emph{isClosed\_map\_closedBall}
+\begin{leancode}
+lemma isClosed_map_closedBall (n : ℕ) (i : hC.cell n) : 
+  IsClosed (hC.map n i '' closedBall 0 1)
+\end{leancode}
+  \item Lemma \emph{isClosed}
+\begin{leancode}
+lemma isClosed : IsClosed C
+\end{leancode}
+  \item Lemma \emph{levelaux\_succ\_eq\_levelaux\_union\_iUnion}
+\begin{leancode}
+lemma levelaux_succ_eq_levelaux_union_iUnion (n : ℕ) : 
+  hC.levelaux (↑n + 1) = hC.levelaux ↑n ∪ ⋃ (j : hC.cell ↑n), hC.map ↑n j '' closedBall 0 1
+\end{leancode}
+  \item Lemma \emph{level\_succ\_eq\_level\_union\_iUnion}
+\begin{leancode}
+lemma level_succ_eq_level_union_iUnion (n : ℕ) : 
+  hC.level (↑n + 1) = 
+  hC.level ↑n ∪ ⋃ (j : hC.cell (↑n + 1)), hC.map (↑n + 1) j '' closedBall 0 1
+\end{leancode}
+  \item Lemma \emph{map\_closedBall\_subset\_levelaux}
+\begin{leancode}
+lemma map_closedBall_subset_levelaux (n : ℕ) (j : hC.cell n) : 
+  (hC.map n j) '' closedBall 0 1 ⊆ hC.levelaux (n + 1)
+\end{leancode}
+  \item Lemma \emph{map\_closedBall\_subset\_level}
+\begin{leancode}
+lemma map_closedBall_subset_level (n : ℕ) (j : hC.cell n) : 
+  (hC.map n j) '' closedBall 0 1 ⊆ hC.level n
+\end{leancode}
+  \item Lemma \emph{map\_ball\_subset\_levelaux}
+\begin{leancode}
+lemma map_ball_subset_levelaux (n : ℕ) (j : hC.cell n) : 
+  (hC.map n j) '' ball 0 1 ⊆ hC.levelaux (n + 1)
+\end{leancode}
+  \item Lemma \emph{map\_ball\_subset\_level}
+\begin{leancode}
+lemma map_ball_subset_level (n : ℕ) (j : hC.cell n) : 
+  (hC.map n j) '' ball 0 1 ⊆ hC.level n
+\end{leancode}
+  \item Lemma \emph{map\_ball\_subset\_complex}
+\begin{leancode}
+lemma map_ball_subset_complex (n : ℕ) (j : hC.cell n) : 
+  (hC.map n j) '' ball 0 1 ⊆ C
+\end{leancode}
+\end{itemize}
+
+\section{File: Constructions}
+
+\begin{itemize}
+  \item Assumption:
+\begin{leancode}
+variable {X : Type*} [t : TopologicalSpace X] [T2Space X] {C : Set X} (hC : CWComplex C)
+\end{leancode}
+  \item Definition \emph{CWComplex\_level}
+\begin{leancode}
+def CWComplex_level (n : ℕ∞) : CWComplex (hC.level n) where
+  cell l := {x : hC.cell l // l < n + 1}
+  map l i := hC.map l i
+  source_eq l i := sorry
+  cont l i := sorry
+  cont_symm l i := sorry
+  pairwiseDisjoint := sorry
+  mapsto l i := sorry
+  closed A := sorry
+  union := sorry
+\end{leancode}
+  \item Assumption \lean /variable {D : Set X} (hD : CWComplex D)/
+  \item Definition \emph{CWComplex\_disjointUnion}
+\begin{leancode}
+def CWComplex_disjointUnion (disjoint : Disjoint C D) : CWComplex (C ∪ D) where
+  cell n := Sum (hC.cell n) (hD.cell n)
+  map n i :=
+    match i with
+    | Sum.inl x => hC.map n x
+    | Sum.inr x => hD.map n x
+  source_eq n i := sorry
+  cont n i := sorry
+  cont_symm n i := sorry
+  pairwiseDisjoint := sorry
+  mapsto n i := sorry
+  closed A := sorry
+  union := sorry
+\end{leancode}
+  \item Definition \emph{CWComplex\_subcomplex} \questionsmall{Is this definition good? Should this be a structure?} \questionsmall{How can I change the Set below to the type of subtypes?}
+  \questionsmall{How I do the typecasting correctly in mapsto (see code)?}
+\begin{leancode}
+def CWComplex_subcomplex
+(I : Π n, Set (hC.cell n)) (closed : IsClosed (⋃ (n : ℕ) (j : I n), hC.map n j '' ball 0 1)) : 
+CWComplex (⋃ (n : ℕ) (j : I n), hC.map n j '' ball 0 1) where
+  cell n := I n
+  map n i := hC.map n i
+  source_eq n i := sorry
+  cont n i := sorry
+  cont_symm n i := sorry
+  pairwiseDisjoint := sorry
+  mapsto n i := sorry
+  closed A := sorry
+  union := sorry
+\end{leancode}
+  \item Definition \question{specific code question (see code)}
+\begin{leancode}
+def CWComplex_finitesubcomplex (m : ℕ) (I : Π (n : ℕ), Finset (hC.cell n)) 
+(finitedim : ∀ n, n > m → I n = ∅)
+(closed : IsClosed (⋃ (n : ℕ) (j : I n), hC.map n j '' ball 0 1)) :
+FiniteCWComplex (⋃ (n : ℕ) (j : I n), hC.map n j '' ball 0 1) where
+  cwcomplex := sorry
+  finitelevels := sorry
+  finitecells := sorry
+\end{leancode}
+  \item Assumption 
+\begin{leancode}
+variable {X : Type*} {Y : Type*} [t1 : TopologicalSpace X] [t2 : TopologicalSpace Y]
+[T2Space X] [T2Space Y] {C : Set X} {D : Set Y} (hC : @CWComplex X t1 C)
+(hD : @CWComplex Y t2 D)
+\end{leancode}
+  \item Definition \emph{CWComplex\_product} \todo{Make this work and do the proofs!}\question{How do I tell lean to choose the inferred instance over the synthesized instance?}
+  \comment{Floris said to redefine the product first.}
+\begin{leancode}
+def CWComplex_product : @CWComplex (Prod X Y) (@kification (Prod X Y)
+(@instTopologicalSpaceProd X Y t1 t2)) (Set.prod C D) where
+\end{leancode}
+\end{itemize}
+\todo[inline]{Define Quotients.}
+
+\section{File: Lemmas}
+
+
+\begin{itemize}
+  \item Assumption
+\begin{leancode}
+variable {X : Type*} [t : TopologicalSpace X] [T2Space X] {C : Set X} (hC : CWComplex C)
+\end{leancode}
+  \item Lemma \emph{isClosed\_level}
+\begin{leancode}
+lemma isClosed_level (n : ℕ∞) : IsClosed (hC.level n)
+\end{leancode}
+  \item Lemma \emph{isDiscrete\_level\_zero}
+\begin{leancode}
+lemma isDiscrete_level_zero {A : Set X} : IsClosed (A ∩ hC.level 0)
+\end{leancode}
+  \item Lemma \emph{iUnion\_subcomplex} \question{How do I do the typecasts in mapsto?}\todo{Finish the last three proofs.}
+\begin{leancode}
+lemma iUnion_subcomplex (J : Type u) (I : J → Π n, Set (hC.cell n)) 
+(cw : ∀ (l : J), CWComplex (⋃ (n : ℕ) (j : I l n), hC.map n j '' ball 0 1)) : 
+CWComplex (⋃ (l : J) (n : ℕ) (j : I l n), hC.map n j '' ball 0 1) where
+  cell n := ⋃ (l : J), I l n
+  map n i := hC.map n i
+  source_eq n i := sorry
+  cont n i := sorry
+  cont_symm n i := sorry
+  pairwiseDisjoint := sorry
+  mapsto n i := sorry
+  closed A := sorry
+  union := sorry
+\end{leancode}
+  \item Lemma \emph{finite\_iUnion\_finitesubcomplex} \todo{Do the proofs.}
+\begin{leancode}
+lemma finite_iUnion_finitesubcomplex (m : ℕ) (I : Fin m → Π n, Set (hC.cell n))
+(fincw : ∀ (l : Fin m), FiniteCWComplex (⋃ (n : ℕ) (j : I l n), hC.map n j '' ball 0 1)) : 
+FiniteCWComplex (⋃ (l : Fin m) (n : ℕ) (j : I l n), hC.map n j '' ball 0 1) where
+  cwcomplex := sorry
+  finitelevels := sorry
+  finitecells := sorry
+\end{leancode}
+  \item Definition \emph{open\_neighbourhood\_aux} \comment{See Hatcher p. 522. I don't really want to do that know so I'll just leave it here for now.} \todo{Make this work.}
+\begin{leancode}
+def open_neighbourhood_aux (ε : (n : ℕ) → (hC.cell n) → {x : ℝ // x > 0}) 
+(A : Set X) (AsubC : A ⊆ C) (n : ℕ): Set X :=
+  match n with
+  | 0 => A ∩ hC.level 0
+  | Nat.succ m => sorry
+\end{leancode}
+\end{itemize}
+\end{document}

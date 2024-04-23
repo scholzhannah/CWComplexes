@@ -1,0 +1,4 @@
+\begin{Verbatim}[commandchars=\\\{\}]
+\PYG{k+kn}{lemma} \PYG{n}{isClosed\PYGZus{}map\PYGZus{}closedBall} \PYG{o}{(}\PYG{n}{n} \PYG{o}{:} \PYG{n+nb+bp}{ℕ}\PYG{o}{)} \PYG{o}{(}\PYG{n}{i} \PYG{o}{:} \PYG{n}{hC}\PYG{n+nb+bp}{.}\PYG{n}{cell} \PYG{n}{n}\PYG{o}{)} \PYG{o}{:}
+  \PYG{n}{IsClosed} \PYG{o}{(}\PYG{n}{hC}\PYG{n+nb+bp}{.}\PYG{n}{map} \PYG{n}{n} \PYG{n}{i} \PYG{err}{\PYGZsq{}\PYGZsq{}} \PYG{n}{closedBall} \PYG{l+m+mi}{0} \PYG{l+m+mi}{1}\PYG{o}{)}
+\end{Verbatim}

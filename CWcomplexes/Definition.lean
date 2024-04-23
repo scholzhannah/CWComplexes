@@ -4,6 +4,9 @@ import CWcomplexes.auxiliary
   - I don't think the imports should be this way but I don't know what to import in aux.lean to make it work
   - Is there a type of subtypes of a type? See CWcomplex_subcomplex
   - Using statement already proven in definition, see CWcomplex_subcomplex
+  - Does mathlib have k-spaces and k-ification? If not is my definition good?
+  - Should Subcomplexes be their own object so that you don't have to specify how they are built? See iUnion_subcomplex
+  - How do coercions work ????
 -/
 
 set_option autoImplicit false
@@ -48,6 +51,11 @@ def levelaux (n : ℕ∞) : Set X :=
 /- Would it be possible to add a -1 to make induction proofs easier? -/
 def level (n : ℕ∞) : Set X :=
   hC.levelaux (n + 1)
+
+structure FiniteCWComplex.{u} {X : Type u} [TopologicalSpace X] (C : Set X) where
+  cwcomplex : CWComplex C
+  finitelevels : ∃ (m : ℕ), C = cwcomplex.level m --Is this a good way to do this?
+  finitecells (n : ℕ) : Fintype (cwcomplex.cell n)
 
 @[simp] lemma levelaux_top : hC.levelaux ⊤ = C := by
   simp only [levelaux, lt_top_iff_ne_top, ne_eq, ENat.coe_ne_top, not_false_eq_true, iUnion_true, ←

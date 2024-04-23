@@ -1,5 +1,6 @@
 import Mathlib.Topology.IsLocalHomeomorph
 import Mathlib.Topology.Homotopy.HomotopyGroup
+import Mathlib.Topology.Sets.Compacts
 
 set_option autoImplicit false
 set_option linter.unusedVariables false
@@ -30,3 +31,11 @@ lemma aux1 (l : ℕ) {X : Type*} {s : ℕ →  Type*} (Y : (m : ℕ) → s m →
       exact ⟨lt_trans iltl (Nat.lt_succ_self l), h⟩
 
 lemma ENat.coe_lt_top {n : ℕ} : ↑n < (⊤ : ℕ∞) := Ne.lt_top (ENat.coe_ne_top n)
+
+/- The k-ification of a space. I don't know if this is in mathlib yet. Is this definition good?-/
+
+def kification {X : Type*} [t : TopologicalSpace X] : TopologicalSpace X where
+  IsOpen A := ∀ (B : t.Compacts), t.IsOpen (A ∩ B)
+  isOpen_univ := sorry
+  isOpen_inter := sorry
+  isOpen_sUnion := sorry
