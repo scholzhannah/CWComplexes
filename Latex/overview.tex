@@ -63,9 +63,13 @@
 
 \newcommand{\question}[1]{\todo[color=green!40]{#1}}
 \newcommand{\questionsmall}[1]{\todo[color=green!40, size=\footnotesize]{#1}}
+\newcommand{\questionsinline}[1]{\todo[color=green!40, inline]{#1}}
 \newcommand{\comment}[1]{\todo[color=lightgray, nolist]{#1}}
+\newcommand{\commentinline}[1]{\todo[inline, color=lightgray, nolist]{#1}}
+\newcommand{\todonoturgent}[1]{\todo[color=yellow]{#1}}
+\newcommand{\todonoturgentinline}[1]{\todo[inline, color=yellow]{#1}}
 
-\title{overview code CW-Complexes}
+\title{Overview Code CW-Complexes}
 \author{Hannah Scholz}
 \date{April 2024}
 
@@ -78,7 +82,19 @@
 This is a place to keep track of all the statements I already have.
 I will document what still needs to be done, what I am stuck on and why and what I have questions about.
 
+\tableofcontents
+
+\newpage
+
+\todototoc
 \listoftodos
+
+\newpage
+
+\section{General}
+
+\commentinline{Sources for types: Theorem proving in lean, Reference manual, \href{https://raw.githubusercontent.com/blanchette/logical_verification_2023/main/hitchhikers_guide.pdf}{Hitchhiker's guide to proof verification} (sections 4.6, 13.3, 13.4, 13.5)}
+\questionsinline{Should there be instances for CW-Complexes? So that for example with a subcomplex you automatically get the CW-Complex.}
 
 \section{File: auxiliary}
 
@@ -93,10 +109,20 @@ lemma aux1 (l : ℕ) {X : Type*} {s : ℕ →  Type*} (Y : (m : ℕ) → s m →
 \begin{leancode}
 lemma ENat.coe_lt_top {n : ℕ} : ↑n < (⊤ : ℕ∞)
 \end{leancode}
-  \item Definition \emph{kification} \question{Does this already exist and if no is this good?}\todo{Do the proofs.}
+  \item Lemma \emph{sphere\_zero\_dim\_empty}
 \begin{leancode}
-  def kification {X : Type*} [t : TopologicalSpace X] : TopologicalSpace X where
-  IsOpen A := ∀ (B : t.Compacts), t.IsOpen (A ∩ B)
+lemma sphere_zero_dim_empty {X : Type*} {h : PseudoMetricSpace (Fin 0 → X)}:
+  (Metric.sphere ![] 1 : Set (Fin 0 → X)) = ∅
+\end{leancode}
+  \item Definition \emph{kification}
+\begin{leancode}
+def kification (X : Type*) := X
+\end{leancode}
+  \item Instance \emph{instkification}
+\begin{leancode}
+instance instkification {X : Type*} [t : TopologicalSpace X] : 
+TopologicalSpace (kification X) where
+  IsOpen A := IsOpen A := ∀ (B : t.Compacts), ∃ (C: t.Opens), A ∩ B.1 = C.1 ∩ B.1
   isOpen_univ := sorry
   isOpen_inter := sorry
   isOpen_sUnion := sorry
@@ -134,12 +160,26 @@ def levelaux (n : ℕ∞) : Set X :=
 def level (n : ℕ∞) : Set X :=
   hC.levelaux (n + 1)
 \end{leancode}
-  \item Structure \emph{FiniteCWComplex} \question{Is this a good way to define this?}
+\todonoturgentinline{Add CW-Complex of finite type}
+  \item Class \emph{Finite} \question{Should this be a class?}
 \begin{leancode}
-structure FiniteCWComplex.{u} {X : Type u} [TopologicalSpace X] (C : Set X) where
-  cwcomplex : CWComplex C
-  finitelevels : ∃ (m : ℕ), C = cwcomplex.level m 
-  finitecells (n : ℕ) : Fintype (cwcomplex.cell n)
+class Finite.{u} {X : Type u} [TopologicalSpace X] (C : Set X) (cwcomplex : CWComplex C) :
+Prop where
+  finitelevels : ∀ᶠ n in Filter.atTop, IsEmpty (cwcomplex.cell n)
+  finitecells (n : ℕ) : Finite (cwcomplex.cell n)
+\end{leancode}
+  \item Structure \emph{Subcomplex}
+\begin{leancode}
+structure Subcomplex (E : Set X) where
+  I : Π n, Set (hC.cell n)
+  closed : IsClosed E
+  union : E = ⋃ (n : ℕ) (j : I n), hC.map n j '' ball 0 1
+\end{leancode}
+  \item Class 
+\begin{leancode}
+class Subcomplex.Finite (E : Set X) (subcomplex: hC.Subcomplex E) : Prop where
+  finitelevels : ∀ᶠ n in Filter.atTop, IsEmpty (hC.cell n)
+  finitecells (n : ℕ) : _root_.Finite (hC.cell n)
 \end{leancode}
   \item Lemma \emph{levelaux\_top}
 \begin{leancode}
@@ -173,7 +213,7 @@ lemma level_subset_level_of_le {n m : ℕ∞} (h : m ≤ n) : hC.level m ⊆ hC.
 lemma iUnion_levelaux_eq_levelaux (n : ℕ∞) : 
   ⋃ (m : ℕ) (hm : m < n + 1), hC.levelaux m = hC.levelaux n
 \end{leancode}
-  \item Lemma \emph{iUnion\_ball\_eq\_levelaux} \todo{Extraxt lemma (marked in code)}
+  \item Lemma \emph{iUnion\_ball\_eq\_levelaux} \todonoturgent{Extraxt lemma (marked in code)}
 \begin{leancode}
 lemma iUnion_ball_eq_levelaux (n : ℕ∞) :
   ⋃ (m : ℕ) (hm : m < n) (j : hC.cell m), hC.map m j '' ball 0 1 = hC.levelaux n
@@ -222,7 +262,7 @@ lemma level_inter_image_closedBall_eq_level_inter_image_sphere
 lemma isClosed_map_sphere {n : ℕ} {i : hC.cell n} : IsClosed (hC.map n i '' sphere 0 1)
 \end{leancode}
   \item Lemma \emph{isClosed\_inter\_sphere\_succ\_of\_le\_isClosed\_inter\_closedBall\_of\_mapsto}
-  \todo[caption={Unify this lemma and the next.}, size=\footnotesize]
+  \todo[caption={Unify this lemma and the next.}, size=\footnotesize, color=yellow]
   {\textbf{Unify this lemma and the next.}
   The problem is that in one I have the type (cell n) and in the other (Set (cell n)).
   I think this will be solved as well if I can solve the subtype of a type problem in CWComplex\_ subcomplex}
@@ -287,6 +327,37 @@ lemma map_ball_subset_level (n : ℕ) (j : hC.cell n) :
 lemma map_ball_subset_complex (n : ℕ) (j : hC.cell n) : 
   (hC.map n j) '' ball 0 1 ⊆ C
 \end{leancode}
+  \item Lemma \emph{map\_ball\_subset\_map\_closedball}
+\begin{leancode}
+lemma map_ball_subset_map_closedball {n : ℕ} {j : hC.cell n} :
+  hC.map n j '' ball 0 1 ⊆ hC.map n j '' closedBall 0 1
+\end{leancode}
+  \item Lemma \emph{closure\_map\_ball\_eq\_map\_closedball}
+\begin{leancode}
+lemma closure_map_ball_eq_map_closedball {n : ℕ} {j : hC.cell n} : 
+  closure (hC.map n j '' ball 0 1) = hC.map n j '' closedBall 0 1
+\end{leancode}
+  \item Lemma \emph{not\_disjoint\_equal}
+\begin{leancode}
+lemma not_disjoint_equal {n : ℕ} {j : hC.cell n} {m : ℕ} {i : hC.cell m}
+(notdisjoint: ¬ Disjoint (↑(hC.map n j) '' ball 0 1) (↑(hC.map m i) '' ball 0 1)) :
+  (⟨n, j⟩ : (Σ n, hC.cell n)) = ⟨m, i⟩
+\end{leancode}
+  \item Lemma \emph{compact\_inter\_finite} \todo{Finish this. See Hatcher P.A.1}
+\begin{leancode}
+lemma compact_inter_finite (A : t.Compacts) : 
+  _root_.Finite (Σ (m : ℕ), {j : hC.cell m // ¬ Disjoint A.1 (↑(hC.map m j) '' ball 0 1)})
+\end{leancode}
+  \item Lemma \emph{mapsto'}
+\begin{leancode}
+lemma mapsto' (n : ℕ) (i : hC.cell n) : ∃ I : Π m, Finset (hC.cell m),
+  MapsTo (hC.map n i) (sphere 0 1) (⋃ (m < n) (j ∈ I m), hC.map m j '' ball 0 1)
+\end{leancode}
+  \item Lemma \emph{mapsto''} \todonoturgent{Do the proof.}
+\begin{leancode}
+lemma mapsto'' (n :  ℕ) (i : hC.cell n) : _root_.Finite (Σ (m : ℕ), 
+{j : hC.cell m // ¬ Disjoint (↑(hC.map n i) '' sphere 0 1 ) (↑(hC.map m j) '' ball 0 1)} )
+\end{leancode}
 \end{itemize}
 
 \section{File: Constructions}
@@ -326,31 +397,18 @@ def CWComplex_disjointUnion (disjoint : Disjoint C D) : CWComplex (C ∪ D) wher
   closed A := sorry
   union := sorry
 \end{leancode}
-  \item Definition \emph{CWComplex\_subcomplex} \questionsmall{Is this definition good? Should this be a structure?} \questionsmall{How can I change the Set below to the type of subtypes?}
-  \questionsmall{How I do the typecasting correctly in mapsto (see code)?}
+  \item Definition \emph{CWComplex\_subcomplex} \question{I think this should be an instance maybe?}
 \begin{leancode}
-def CWComplex_subcomplex
-(I : Π n, Set (hC.cell n)) (closed : IsClosed (⋃ (n : ℕ) (j : I n), hC.map n j '' ball 0 1)) : 
-CWComplex (⋃ (n : ℕ) (j : I n), hC.map n j '' ball 0 1) where
-  cell n := I n
+def CWComplex_subcomplex (E : Set X) (subcomplex: Subcomplex hC E) : CWComplex E where
+  cell n := subcomplex.I n
   map n i := hC.map n i
   source_eq n i := sorry
   cont n i := sorry
   cont_symm n i := sorry
-  pairwiseDisjoint := sorry
+  pairwiseDisjoint := sorry 
   mapsto n i := sorry
-  closed A := sorry
-  union := sorry
-\end{leancode}
-  \item Definition \question{specific code question (see code)}
-\begin{leancode}
-def CWComplex_finitesubcomplex (m : ℕ) (I : Π (n : ℕ), Finset (hC.cell n)) 
-(finitedim : ∀ n, n > m → I n = ∅)
-(closed : IsClosed (⋃ (n : ℕ) (j : I n), hC.map n j '' ball 0 1)) :
-FiniteCWComplex (⋃ (n : ℕ) (j : I n), hC.map n j '' ball 0 1) where
-  cwcomplex := sorry
-  finitelevels := sorry
-  finitecells := sorry
+  closed A := sorry 
+  union := sorry 
 \end{leancode}
   \item Assumption 
 \begin{leancode}
@@ -358,11 +416,26 @@ variable {X : Type*} {Y : Type*} [t1 : TopologicalSpace X] [t2 : TopologicalSpac
 [T2Space X] [T2Space Y] {C : Set X} {D : Set Y} (hC : @CWComplex X t1 C)
 (hD : @CWComplex Y t2 D)
 \end{leancode}
-  \item Definition \emph{CWComplex\_product} \todo{Make this work and do the proofs!}\question{How do I tell lean to choose the inferred instance over the synthesized instance?}
-  \comment{Floris said to redefine the product first.}
+  \item Definition \emph{Prodkification}
 \begin{leancode}
-def CWComplex_product : @CWComplex (Prod X Y) (@kification (Prod X Y)
-(@instTopologicalSpaceProd X Y t1 t2)) (Set.prod C D) where
+def Prodkification X Y := kification (X × Y)
+\end{leancode}
+  \item Notation \lean /×ₖ/
+\begin{leancode}
+infixr:35 " ×ₖ "  => Prodkification
+\end{leancode}
+  \item Definition \emph{CWComplex\_product} \todo{Make this work and do the proofs!}
+\begin{leancode}
+instance CWComplex_product : @CWComplex (X ×ₖ Y) instprodkification (C ×ˢ D) where
+  cell n := (Σ' (m : ℕ) (l : ℕ) (hml : m + l = n), hC.cell m × hD.cell l)
+  map n i := sorry
+  source_eq n i := sorry
+  cont n i := sorry
+  cont_symm := sorry
+  pairwiseDisjoint := sorry
+  mapsto n i := sorry
+  closed A := sorry
+  union := sorry
 \end{leancode}
 \end{itemize}
 \todo[inline]{Define Quotients.}
@@ -383,20 +456,12 @@ lemma isClosed_level (n : ℕ∞) : IsClosed (hC.level n)
 \begin{leancode}
 lemma isDiscrete_level_zero {A : Set X} : IsClosed (A ∩ hC.level 0)
 \end{leancode}
-  \item Lemma \emph{iUnion\_subcomplex} \question{How do I do the typecasts in mapsto?}\todo{Finish the last three proofs.}
+\todo[inline]{Make the following lemmata work with new definitions}
+  \item Lemma \emph{iUnion\_subcomplex} \comment{Use CWComplex\_ subcomplex}\question{Again I need the indexed sum/disjoint union here.}
 \begin{leancode}
-lemma iUnion_subcomplex (J : Type u) (I : J → Π n, Set (hC.cell n)) 
-(cw : ∀ (l : J), CWComplex (⋃ (n : ℕ) (j : I l n), hC.map n j '' ball 0 1)) : 
-CWComplex (⋃ (l : J) (n : ℕ) (j : I l n), hC.map n j '' ball 0 1) where
-  cell n := ⋃ (l : J), I l n
-  map n i := hC.map n i
-  source_eq n i := sorry
-  cont n i := sorry
-  cont_symm n i := sorry
-  pairwiseDisjoint := sorry
-  mapsto n i := sorry
-  closed A := sorry
-  union := sorry
+lemma iUnion_subcomplex (J : Type u) (I : J → Π n, Set (hC.cell n))
+(cw : ∀ (l : J), CWComplex (⋃ (n : ℕ) (j : I l n), hC.map n j '' ball 0 1)) 
+  : CWComplex (⋃ (l : J) (n : ℕ) (j : I l n), hC.map n j '' ball 0 1)
 \end{leancode}
   \item Lemma \emph{finite\_iUnion\_finitesubcomplex} \todo{Do the proofs.}
 \begin{leancode}

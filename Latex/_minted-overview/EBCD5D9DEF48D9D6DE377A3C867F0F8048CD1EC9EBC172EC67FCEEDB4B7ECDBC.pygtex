@@ -1,0 +1,12 @@
+\begin{Verbatim}[commandchars=\\\{\}]
+\PYG{k+kn}{def} \PYG{n}{CWComplex\PYGZus{}subcomplex} \PYG{o}{(}\PYG{n}{E} \PYG{o}{:} \PYG{n}{Set} \PYG{n}{X}\PYG{o}{)} \PYG{o}{(}\PYG{n}{subcomplex}\PYG{o}{:} \PYG{n}{Subcomplex} \PYG{n}{hC} \PYG{n}{E}\PYG{o}{)} \PYG{o}{:} \PYG{n}{CWComplex} \PYG{n}{E} \PYG{k+kn}{where}
+  \PYG{n}{cell} \PYG{n}{n} \PYG{o}{:=} \PYG{n}{subcomplex}\PYG{n+nb+bp}{.}\PYG{n}{I} \PYG{n}{n}
+  \PYG{n}{map} \PYG{n}{n} \PYG{n}{i} \PYG{o}{:=} \PYG{n}{hC}\PYG{n+nb+bp}{.}\PYG{n}{map} \PYG{n}{n} \PYG{n}{i}
+  \PYG{n}{source\PYGZus{}eq} \PYG{n}{n} \PYG{n}{i} \PYG{o}{:=} \PYG{n}{sorry}
+  \PYG{n}{cont} \PYG{n}{n} \PYG{n}{i} \PYG{o}{:=} \PYG{n}{sorry}
+  \PYG{n}{cont\PYGZus{}symm} \PYG{n}{n} \PYG{n}{i} \PYG{o}{:=} \PYG{n}{sorry}
+  \PYG{n}{pairwiseDisjoint} \PYG{o}{:=} \PYG{n}{sorry}
+  \PYG{n}{mapsto} \PYG{n}{n} \PYG{n}{i} \PYG{o}{:=} \PYG{n}{sorry}
+  \PYG{n}{closed} \PYG{n}{A} \PYG{o}{:=} \PYG{n}{sorry}
+  \PYG{n}{union} \PYG{o}{:=} \PYG{n}{sorry}
+\end{Verbatim}

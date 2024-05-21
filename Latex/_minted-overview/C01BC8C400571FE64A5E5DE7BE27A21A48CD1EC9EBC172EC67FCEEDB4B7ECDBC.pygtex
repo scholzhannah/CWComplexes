@@ -1,0 +1,4 @@
+\begin{Verbatim}[commandchars=\\\{\}]
+\PYG{k+kn}{lemma} \PYG{n}{mapsto\PYGZsq{}\PYGZsq{}} \PYG{o}{(}\PYG{n}{n} \PYG{o}{:}  \PYG{n+nb+bp}{ℕ}\PYG{o}{)} \PYG{o}{(}\PYG{n}{i} \PYG{o}{:} \PYG{n}{hC}\PYG{n+nb+bp}{.}\PYG{n}{cell} \PYG{n}{n}\PYG{o}{)} \PYG{o}{:} \PYG{n+nb+bp}{\PYGZus{}}\PYG{n}{root\PYGZus{}}\PYG{n+nb+bp}{.}\PYG{n}{Finite} \PYG{o}{(}\PYG{err}{Σ} \PYG{o}{(}\PYG{n}{m} \PYG{o}{:} \PYG{n+nb+bp}{ℕ}\PYG{o}{),}
+\PYG{o}{\PYGZob{}}\PYG{n}{j} \PYG{o}{:} \PYG{n}{hC}\PYG{n+nb+bp}{.}\PYG{n}{cell} \PYG{n}{m} \PYG{n+nb+bp}{//} \PYG{n+nb+bp}{¬} \PYG{n}{Disjoint} \PYG{o}{(}\PYG{err}{↑}\PYG{o}{(}\PYG{n}{hC}\PYG{n+nb+bp}{.}\PYG{n}{map} \PYG{n}{n} \PYG{n}{i}\PYG{o}{)} \PYG{err}{\PYGZsq{}\PYGZsq{}} \PYG{n}{sphere} \PYG{l+m+mi}{0} \PYG{l+m+mi}{1} \PYG{o}{)} \PYG{o}{(}\PYG{err}{↑}\PYG{o}{(}\PYG{n}{hC}\PYG{n+nb+bp}{.}\PYG{n}{map} \PYG{n}{m} \PYG{n}{j}\PYG{o}{)} \PYG{err}{\PYGZsq{}\PYGZsq{}} \PYG{n}{ball} \PYG{l+m+mi}{0} \PYG{l+m+mi}{1}\PYG{o}{)\PYGZcb{}} \PYG{o}{)}
+\end{Verbatim}

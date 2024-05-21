@@ -1,0 +1,8 @@
+\begin{Verbatim}[commandchars=\\\{\}]
+\PYG{k+kn}{instance} \PYG{n}{instkification} \PYG{o}{\PYGZob{}}\PYG{n}{X} \PYG{o}{:} \PYG{k+kt}{Type}\PYG{n+nb+bp}{*}\PYG{o}{\PYGZcb{}} \PYG{o}{[}\PYG{n}{t} \PYG{o}{:} \PYG{n}{TopologicalSpace} \PYG{n}{X}\PYG{o}{]} \PYG{o}{:}
+\PYG{n}{TopologicalSpace} \PYG{o}{(}\PYG{n}{kification} \PYG{n}{X}\PYG{o}{)} \PYG{k+kn}{where}
+  \PYG{n}{IsOpen} \PYG{n}{A} \PYG{o}{:=} \PYG{n}{IsOpen} \PYG{n}{A} \PYG{o}{:=} \PYG{n+nb+bp}{∀} \PYG{o}{(}\PYG{n}{B} \PYG{o}{:} \PYG{n}{t}\PYG{n+nb+bp}{.}\PYG{n}{Compacts}\PYG{o}{),} \PYG{n+nb+bp}{∃} \PYG{o}{(}\PYG{n}{C}\PYG{o}{:} \PYG{n}{t}\PYG{n+nb+bp}{.}\PYG{n}{Opens}\PYG{o}{),} \PYG{n}{A} \PYG{err}{∩} \PYG{n}{B}\PYG{n+nb+bp}{.}\PYG{l+m+mi}{1} \PYG{n+nb+bp}{=} \PYG{n}{C}\PYG{n+nb+bp}{.}\PYG{l+m+mi}{1} \PYG{err}{∩} \PYG{n}{B}\PYG{n+nb+bp}{.}\PYG{l+m+mi}{1}
+  \PYG{n}{isOpen\PYGZus{}univ} \PYG{o}{:=} \PYG{n}{sorry}
+  \PYG{n}{isOpen\PYGZus{}inter} \PYG{o}{:=} \PYG{n}{sorry}
+  \PYG{n}{isOpen\PYGZus{}sUnion} \PYG{o}{:=} \PYG{n}{sorry}
+\end{Verbatim}

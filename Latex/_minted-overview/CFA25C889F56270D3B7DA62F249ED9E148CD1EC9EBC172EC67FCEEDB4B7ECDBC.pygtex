@@ -1,0 +1,12 @@
+\begin{Verbatim}[commandchars=\\\{\}]
+\PYG{k+kn}{instance} \PYG{n}{CWComplex\PYGZus{}product} \PYG{o}{:} \PYG{n+nb+bp}{@}\PYG{n}{CWComplex} \PYG{o}{(}\PYG{n}{X} \PYG{n+nb+bp}{×}\PYG{err}{ₖ} \PYG{n}{Y}\PYG{o}{)} \PYG{n}{instprodkification} \PYG{o}{(}\PYG{n}{C} \PYG{n+nb+bp}{×}\PYG{err}{ˢ} \PYG{n}{D}\PYG{o}{)} \PYG{k+kn}{where}
+  \PYG{n}{cell} \PYG{n}{n} \PYG{o}{:=} \PYG{o}{(}\PYG{err}{Σ\PYGZsq{}} \PYG{o}{(}\PYG{n}{m} \PYG{o}{:} \PYG{n+nb+bp}{ℕ}\PYG{o}{)} \PYG{o}{(}\PYG{n}{l} \PYG{o}{:} \PYG{n+nb+bp}{ℕ}\PYG{o}{)} \PYG{o}{(}\PYG{n}{hml} \PYG{o}{:} \PYG{n}{m} \PYG{n+nb+bp}{+} \PYG{n}{l} \PYG{n+nb+bp}{=} \PYG{n}{n}\PYG{o}{),} \PYG{n}{hC}\PYG{n+nb+bp}{.}\PYG{n}{cell} \PYG{n}{m} \PYG{n+nb+bp}{×} \PYG{n}{hD}\PYG{n+nb+bp}{.}\PYG{n}{cell} \PYG{n}{l}\PYG{o}{)}
+  \PYG{n}{map} \PYG{n}{n} \PYG{n}{i} \PYG{o}{:=} \PYG{n}{sorry}
+  \PYG{n}{source\PYGZus{}eq} \PYG{n}{n} \PYG{n}{i} \PYG{o}{:=} \PYG{n}{sorry}
+  \PYG{n}{cont} \PYG{n}{n} \PYG{n}{i} \PYG{o}{:=} \PYG{n}{sorry}
+  \PYG{n}{cont\PYGZus{}symm} \PYG{o}{:=} \PYG{n}{sorry}
+  \PYG{n}{pairwiseDisjoint} \PYG{o}{:=} \PYG{n}{sorry}
+  \PYG{n}{mapsto} \PYG{n}{n} \PYG{n}{i} \PYG{o}{:=} \PYG{n}{sorry}
+  \PYG{n}{closed} \PYG{n}{A} \PYG{o}{:=} \PYG{n}{sorry}
+  \PYG{n}{union} \PYG{o}{:=} \PYG{n}{sorry}
+\end{Verbatim}

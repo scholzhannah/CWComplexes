@@ -263,12 +263,9 @@ def CWComplex_disjointUnion (disjoint : Disjoint C D) : CWComplex (C ∪ D) wher
         rcases h with ⟨i, hi⟩
         use Sum.inr i
 
-
-/- This definition is very non-constructive. So I don't know how usefull it is. I fear that a more constructive definition would be too clunky.
-See "Topologie" p. 120 by Klaus Jänich from 2001 -/
-/- Change the Set below to some kind of type of subtypes if that exists.-/
-def CWComplex_subcomplex (I : Π n, Set (hC.cell n)) (closed : IsClosed (⋃ (n : ℕ) (j : I n), hC.map n j '' ball 0 1)) : CWComplex (⋃ (n : ℕ) (j : I n), hC.map n j '' ball 0 1) where
-  cell n := I n
+/- See "Topologie" p. 120 by Klaus Jänich from 2001 -/
+def CWComplex_subcomplex (E : Set X) (subcomplex: Subcomplex hC E) : CWComplex E where
+  cell n := subcomplex.I n
   map n i := hC.map n i
   source_eq n i := hC.source_eq n i
   cont n i := hC.cont n i
@@ -290,22 +287,51 @@ def CWComplex_subcomplex (I : Π n, Set (hC.cell n)) (closed : IsClosed (⋃ (n 
       simp [heq]
     exact disjoint this
   mapsto n i := by
-    rcases hC.mapsto n i with ⟨J, hJ⟩
-    classical
-    let (J' : (m : ℕ) → Set (I m)) := fun m ↦ {x : I m | ↑x ∈ (J m : Set (hC.cell m))}
-    have : ∀ m, Set.Finite (J m).toSet := by
-      intro m
-      simp [Set.Finite.ofFinset (J m)]
-    -- do something to make J' m be a Finset ... I don't know how to work with these types ...
-    sorry
+    rcases hC.mapsto' n i with ⟨J, hJ⟩
+    let J' m := Finset.preimage (J m) (fun (x : subcomplex.I m) ↦ ↑x) (by simp [InjOn])
+    use J'
+    rw [MapsTo] at *
+    intro x xmem
+    simp only [iUnion_coe_set, mem_iUnion, exists_prop, exists_and_right] at *
+    rcases (hJ xmem) with ⟨m, mltn, j, jmem, mapxmem⟩
+    use m
+    simp only [mltn, true_and]
+    use j
+    constructor
+    · have : j ∈ subcomplex.I m := by
+        have : (hC.map n ↑i) x ∈ E := by
+          have h1: closure (hC.map n i '' ball 0 1) ⊆ E := by
+            simp_rw [IsClosed.closure_subset_iff subcomplex.closed, subcomplex.union]
+            apply Set.subset_iUnion_of_subset n
+            apply Set.subset_iUnion (fun (j : ↑(subcomplex.I n)) ↦ hC.map n ↑j '' ball 0 1) i
+          have h2 : (hC.map n ↑i) x ∈ closure (hC.map n i '' ball 0 1) := by
+            rw [hC.closure_map_ball_eq_map_closedball]
+            apply Set.mem_image_of_mem
+            exact Metric.sphere_subset_closedBall xmem
+          exact h1 h2
+        simp only [subcomplex.union, mem_iUnion, exists_prop] at this
+        rcases this with ⟨l, o, mapxmem'⟩
+        have : ¬ Disjoint (↑(hC.map m j) '' ball 0 1) (↑(hC.map l o) '' ball 0 1) := by
+          rw [Set.not_disjoint_iff]
+          use ((hC.map n i) x)
+        have := hC.not_disjoint_equal this
+        simp at this
+        rcases this with ⟨meql, jeqo⟩
+        subst meql
+        simp at jeqo
+        subst jeqo
+        simp
+      use this
+      simp [J', jmem]
+    · exact hC.map_ball_subset_map_closedball mapxmem
   closed A := by
     intro Asub
     constructor
     · intro closedA n j
       exact IsClosed.inter closedA (hC.isClosed_map_closedBall n j)
     · intro closed
-      have : ⋃ n, ⋃ (j : I n), ↑(hC.map n ↑j) '' ball 0 1 ⊆ C := by
-        simp_rw [← hC.level_top, level, levelaux, top_add]
+      have : E ⊆ C := by
+        simp_rw [subcomplex.union, ← hC.level_top, level, levelaux, top_add]
         intro x xmem
         simp only [mem_iUnion, exists_prop] at *
         rcases xmem with ⟨n, ⟨i, hni⟩⟩
@@ -320,13 +346,13 @@ def CWComplex_subcomplex (I : Π n, Set (hC.cell n)) (closed : IsClosed (⋃ (n 
             simp only [singleton_subset_iff] at h'
             simp only [inter_singleton_eq_empty, h', not_false_eq_true]
           simp only [this, isClosed_empty]
-      · by_cases h : j ∈ I (Nat.succ n)
+      · by_cases h : j ∈ subcomplex.I (Nat.succ n)
         · exact closed (Nat.succ n) ⟨j, h⟩
         rw [← Metric.sphere_union_ball, image_union, inter_union_distrib_left]
         apply IsClosed.union
-        · have : ∀ (n : ℕ) i, ∃ I : Π m, Finset (I m), MapsTo (hC.map n i) (sphere 0 1 : Set (Fin n → ℝ)) (⋃ (m < n) (j ∈ I m), hC.map m j '' closedBall 0 1) := by sorry -- How can I just use the statement mapsto?
-          exact hC.isClosed_inter_sphere_succ_of_le_isClosed_inter_closedBall_of_mapsto I hn this j
-        · have h1 : (⋃ (n : ℕ) (j : I n), hC.map n j '' ball 0 1) ∩ ↑(hC.map (Nat.succ n) j) '' ball 0 1 = ∅ := by
+        · have : ∀ (n : ℕ) i, ∃ I : Π m, Finset (subcomplex.I m), MapsTo (hC.map n i) (sphere 0 1 : Set (Fin n → ℝ)) (⋃ (m < n) (j ∈ I m), hC.map m j '' closedBall 0 1) := by sorry -- How can I just use the statement mapsto?
+          exact hC.isClosed_inter_sphere_succ_of_le_isClosed_inter_closedBall_of_mapsto subcomplex.I hn this j
+        · have h1 : (⋃ (n : ℕ) (j : subcomplex.I n), hC.map n j '' ball 0 1) ∩ ↑(hC.map (Nat.succ n) j) '' ball 0 1 = ∅ := by
             simp [iUnion_inter]
             intro m i imem
             have := hC.pairwiseDisjoint
@@ -340,13 +366,13 @@ def CWComplex_subcomplex (I : Π n, Set (hC.cell n)) (closed : IsClosed (⋃ (n 
             simp only [heq_eq_eq] at heqij
             subst heqij
             exact imem
-          have : A ∩ (⋃ (n : ℕ) (j : I n), hC.map n j '' ball 0 1) = A := by
-            rw [inter_eq_left]
+          have : A ∩ (⋃ (n : ℕ) (j : subcomplex.I n), hC.map n j '' ball 0 1) = A := by
+            rw [inter_eq_left, ← subcomplex.union]
             exact Asub
           rw [← this, inter_assoc, h1, inter_empty]
           exact isClosed_empty
   union := by
-    simp_rw [← Metric.sphere_union_ball, image_union, iUnion_union_distrib, Set.union_eq_right]
+    simp_rw [← Metric.sphere_union_ball, image_union, iUnion_union_distrib, subcomplex.union, Set.union_eq_right]
     apply Set.iUnion_subset
     intro n
     apply Set.iUnion_subset
@@ -354,34 +380,11 @@ def CWComplex_subcomplex (I : Π n, Set (hC.cell n)) (closed : IsClosed (⋃ (n 
     apply subset_trans (image_mono Metric.sphere_subset_closedBall)
     rw [← closure_ball 0 (by norm_num)]
     apply subset_trans (ContinuousOn.image_closure (by rw [closure_ball 0 (by norm_num)]; exact hC.cont n i))
-    rw [IsClosed.closure_subset_iff closed]
+    simp_rw [← subcomplex.union , IsClosed.closure_subset_iff subcomplex.closed]
     intro x xmem
-    simp only [mem_iUnion]
+    simp only [subcomplex.union, mem_iUnion]
     use n
     use i
-
-def CWComplex_finitesubcomplex (m : ℕ) (I : Π (n : ℕ), Finset (hC.cell n)) (finitedim : ∀ n, n > m → I n = ∅) (closed : IsClosed (⋃ (n : ℕ) (j : I n), hC.map n j '' ball 0 1)) : FiniteCWComplex (⋃ (n : ℕ) (j : I n), hC.map n j '' ball 0 1) where
-  cwcomplex := hC.CWComplex_subcomplex (fun n ↦ ↑(I n)) closed
-  finitelevels := by
-    use m
-    rw [← (hC.CWComplex_subcomplex (fun n ↦ ↑(I n)) closed).iUnion_ball_eq_level] -- why can't I just use cwcomplex
-    simp [CWComplex_subcomplex]
-    apply iUnion_congr
-    intro n
-    by_cases h : n > m
-    · simp [finitedim n h]
-    push_neg at h
-    apply Nat.lt_succ_of_le at h
-    rw [← Nat.add_one] at h
-    ext x
-    nth_rewrite 2 [mem_iUnion]
-    rw [exists_prop]
-    norm_cast
-    simp only [h, true_and]
-  finitecells := by
-    intro n
-    simp [CWComplex_subcomplex]
-    exact Finset.Subtype.fintype (I n)
 
 end
 
@@ -389,9 +392,28 @@ section
 
 variable {X : Type*} {Y : Type*} [t1 : TopologicalSpace X] [t2 : TopologicalSpace Y] [T2Space X] [T2Space Y] {C : Set X} {D : Set Y} (hC : @CWComplex X t1 C) (hD : @CWComplex Y t2 D)
 
+def Prodkification X Y := kification (X × Y)
 
-/- I would like to tell lean to choose the inferred instance over the synthesized instance but I don't know how. -/
--- def CWComplex_product : @CWComplex (Prod X Y) (@kification (Prod X Y) (@instTopologicalSpaceProd X Y t1 t2)) (Set.prod C D) where
+infixr:35 " ×ₖ "  => Prodkification
+
+instance instprodkification : TopologicalSpace (X ×ₖ Y) := instkification
+
+-- See Hatcher p. 533
+instance CWComplex_product : @CWComplex (X ×ₖ Y) instprodkification (C ×ˢ D) where
+  cell n := (Σ' (m : ℕ) (l : ℕ) (hml : m + l = n), hC.cell m × hD.cell l)
+  map n i := by
+    rcases i with ⟨m1, m2, rfl, c1, c2⟩
+    sorry
+  source_eq n i := sorry
+  cont n i := sorry
+  cont_symm := sorry
+  pairwiseDisjoint := sorry
+  mapsto n i := sorry
+  closed A := sorry
+  union := sorry
+
+
+infixr:35 " × " => CWComplex_product
 
 
 end

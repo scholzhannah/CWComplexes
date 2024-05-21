@@ -1,0 +1,4 @@
+\begin{Verbatim}[commandchars=\\\{\}]
+\PYG{k+kn}{lemma} \PYG{n}{compact\PYGZus{}inter\PYGZus{}finite} \PYG{o}{(}\PYG{n}{A} \PYG{o}{:} \PYG{n}{t}\PYG{n+nb+bp}{.}\PYG{n}{Compacts}\PYG{o}{)} \PYG{o}{:}
+  \PYG{n+nb+bp}{\PYGZus{}}\PYG{n}{root\PYGZus{}}\PYG{n+nb+bp}{.}\PYG{n}{Finite} \PYG{o}{(}\PYG{err}{Σ} \PYG{o}{(}\PYG{n}{m} \PYG{o}{:} \PYG{n+nb+bp}{ℕ}\PYG{o}{),} \PYG{o}{\PYGZob{}}\PYG{n}{j} \PYG{o}{:} \PYG{n}{hC}\PYG{n+nb+bp}{.}\PYG{n}{cell} \PYG{n}{m} \PYG{n+nb+bp}{//} \PYG{n+nb+bp}{¬} \PYG{n}{Disjoint} \PYG{n}{A}\PYG{n+nb+bp}{.}\PYG{l+m+mi}{1} \PYG{o}{(}\PYG{err}{↑}\PYG{o}{(}\PYG{n}{hC}\PYG{n+nb+bp}{.}\PYG{n}{map} \PYG{n}{m} \PYG{n}{j}\PYG{o}{)} \PYG{err}{\PYGZsq{}\PYGZsq{}} \PYG{n}{ball} \PYG{l+m+mi}{0} \PYG{l+m+mi}{1}\PYG{o}{)\PYGZcb{})}
+\end{Verbatim}

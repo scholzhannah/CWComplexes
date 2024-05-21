@@ -1,0 +1,5 @@
+\begin{Verbatim}[commandchars=\\\{\}]
+\PYG{k+kn}{class} \PYG{n}{Subcomplex}\PYG{n+nb+bp}{.}\PYG{n}{Finite} \PYG{o}{(}\PYG{n}{E} \PYG{o}{:} \PYG{n}{Set} \PYG{n}{X}\PYG{o}{)} \PYG{o}{(}\PYG{n}{subcomplex}\PYG{o}{:} \PYG{n}{hC}\PYG{n+nb+bp}{.}\PYG{n}{Subcomplex} \PYG{n}{E}\PYG{o}{)} \PYG{o}{:} \PYG{k+kt}{Prop} \PYG{k+kn}{where}
+  \PYG{n}{finitelevels} \PYG{o}{:} \PYG{n+nb+bp}{∀}\PYG{err}{ᶠ} \PYG{n}{n} \PYG{k}{in} \PYG{n}{Filter}\PYG{n+nb+bp}{.}\PYG{n}{atTop}\PYG{o}{,} \PYG{n}{IsEmpty} \PYG{o}{(}\PYG{n}{hC}\PYG{n+nb+bp}{.}\PYG{n}{cell} \PYG{n}{n}\PYG{o}{)}
+  \PYG{n}{finitecells} \PYG{o}{(}\PYG{n}{n} \PYG{o}{:} \PYG{n+nb+bp}{ℕ}\PYG{o}{)} \PYG{o}{:} \PYG{n+nb+bp}{\PYGZus{}}\PYG{n}{root\PYGZus{}}\PYG{n+nb+bp}{.}\PYG{n}{Finite} \PYG{o}{(}\PYG{n}{hC}\PYG{n+nb+bp}{.}\PYG{n}{cell} \PYG{n}{n}\PYG{o}{)}
+\end{Verbatim}

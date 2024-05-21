@@ -32,10 +32,36 @@ lemma aux1 (l : ℕ) {X : Type*} {s : ℕ →  Type*} (Y : (m : ℕ) → s m →
 
 lemma ENat.coe_lt_top {n : ℕ} : ↑n < (⊤ : ℕ∞) := Ne.lt_top (ENat.coe_ne_top n)
 
-/- The k-ification of a space. I don't know if this is in mathlib yet. Is this definition good?-/
+lemma sphere_zero_dim_empty {X : Type*} {h : PseudoMetricSpace (Fin 0 → X)}: (Metric.sphere ![] 1 : Set (Fin 0 → X)) = ∅ := by
+  simp [Metric.sphere, Matrix.empty_eq]
 
-def kification {X : Type*} [t : TopologicalSpace X] : TopologicalSpace X where
-  IsOpen A := ∀ (B : t.Compacts), t.IsOpen (A ∩ B)
-  isOpen_univ := sorry
-  isOpen_inter := sorry
-  isOpen_sUnion := sorry
+
+def kification (X : Type*) := X
+
+instance instkification {X : Type*} [t : TopologicalSpace X] : TopologicalSpace (kification X) where
+  IsOpen A := ∀ (B : t.Compacts), ∃ (C: t.Opens), A ∩ B.1 = C.1 ∩ B.1
+  isOpen_univ := fun B ↦ (by use ⟨Set.univ, isOpen_univ⟩)
+  isOpen_inter := by
+    intro A1 A2 h1 h2 B
+    rcases h1 B with ⟨C1, g1⟩
+    rcases h2 B with ⟨C2, g2⟩
+    use ⟨C1.1 ∩ C2.1, IsOpen.inter C1.2 C2.2⟩
+    simp
+    calc
+      A1 ∩ A2 ∩ B.1 = (A1 ∩ B.1) ∩ (A2 ∩ B.1) := by simp [Set.inter_assoc, Set.inter_comm]
+      _ = (C1.1 ∩ B.1) ∩ (C2.1 ∩ B.1) := by rw [g1, g2]
+      _ = C1.1 ∩ C2.1 ∩ B.1 := by simp [← Set.inter_assoc, Set.inter_comm]
+  isOpen_sUnion := by
+    intro s h B
+    simp at h
+    let f := fun (t1 : s) ↦ Classical.choose (h t1 (by simp only [Subtype.coe_prop]) B)
+    use ⟨⋃ (t : s), (f t).1 , isOpen_iUnion (fun t ↦ (f t).2)⟩
+    simp_rw [Set.sUnion_eq_iUnion, Set.iUnion_inter]
+    apply Set.iUnion_congr
+    intro i
+    simp [f]
+    exact Classical.choose_spec (h i (by simp only [Subtype.coe_prop]) B)
+
+def tokification {X : Type*} : X ≃ kification X := ⟨fun x ↦ x, fun x ↦ x, fun _ ↦ rfl, fun _ ↦ rfl⟩
+
+def fromkification {X : Type*} : kification X ≃ X := ⟨fun x ↦ x, fun x ↦ x, fun _ ↦ rfl, fun _ ↦ rfl⟩

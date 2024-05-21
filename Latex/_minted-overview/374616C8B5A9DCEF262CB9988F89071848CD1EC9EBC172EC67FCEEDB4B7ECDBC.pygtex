@@ -1,0 +1,4 @@
+\begin{Verbatim}[commandchars=\\\{\}]
+\PYG{k+kn}{lemma} \PYG{n}{sphere\PYGZus{}zero\PYGZus{}dim\PYGZus{}empty} \PYG{o}{\PYGZob{}}\PYG{n}{X} \PYG{o}{:} \PYG{k+kt}{Type}\PYG{n+nb+bp}{*}\PYG{o}{\PYGZcb{}} \PYG{o}{\PYGZob{}}\PYG{n}{h} \PYG{o}{:} \PYG{n}{PseudoMetricSpace} \PYG{o}{(}\PYG{n}{Fin} \PYG{l+m+mi}{0} \PYG{n+nb+bp}{→} \PYG{n}{X}\PYG{o}{)\PYGZcb{}:}
+  \PYG{o}{(}\PYG{n}{Metric}\PYG{n+nb+bp}{.}\PYG{n}{sphere} \PYG{n+nb+bp}{!}\PYG{o}{[]} \PYG{l+m+mi}{1} \PYG{o}{:} \PYG{n}{Set} \PYG{o}{(}\PYG{n}{Fin} \PYG{l+m+mi}{0} \PYG{n+nb+bp}{→} \PYG{n}{X}\PYG{o}{))} \PYG{n+nb+bp}{=} \PYG{err}{∅}
+\end{Verbatim}

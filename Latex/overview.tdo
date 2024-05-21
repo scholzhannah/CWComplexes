@@ -1,16 +1,14 @@
-\contentsline {todo}{\fcolorbox {black}{green!40}{\textcolor {green!40}{o}}\ Does this already exist and if no is this good?}{2}{section*.2}%
-\contentsline {todo}{\fcolorbox {black}{orange}{\textcolor {orange}{o}}\ Do the proofs.}{2}{section*.3}%
-\contentsline {todo}{\fcolorbox {black}{green!40}{\textcolor {green!40}{o}}\ Is this a good way to define this?}{2}{section*.4}%
-\contentsline {todo}{\fcolorbox {black}{orange}{\textcolor {orange}{o}}\ Extraxt lemma (marked in code)}{3}{section*.5}%
-\contentsline {todo}{\fcolorbox {black}{orange}{\textcolor {orange}{o}}\ Unify this lemma and the next.}{4}{section*.6}%
-\contentsline {todo}{\fcolorbox {black}{green!40}{\textcolor {green!40}{o}}\ Is this definition good? Should this be a structure?}{5}{section*.7}%
-\contentsline {todo}{\fcolorbox {black}{green!40}{\textcolor {green!40}{o}}\ How can I change the Set below to the type of subtypes?}{5}{section*.8}%
-\contentsline {todo}{\fcolorbox {black}{green!40}{\textcolor {green!40}{o}}\ How I do the typecasting correctly in mapsto (see code)?}{5}{section*.9}%
-\contentsline {todo}{\fcolorbox {black}{green!40}{\textcolor {green!40}{o}}\ specific code question (see code)}{6}{section*.10}%
-\contentsline {todo}{\fcolorbox {black}{orange}{\textcolor {orange}{o}}\ Make this work and do the proofs!}{6}{section*.11}%
-\contentsline {todo}{\fcolorbox {black}{green!40}{\textcolor {green!40}{o}}\ How do I tell lean to choose the inferred instance over the synthesized instance?}{6}{section*.12}%
-\contentsline {todo}{\fcolorbox {black}{orange}{\textcolor {orange}{o}}\ Define Quotients.}{6}{section*.13}%
-\contentsline {todo}{\fcolorbox {black}{green!40}{\textcolor {green!40}{o}}\ How do I do the typecasts in mapsto?}{6}{section*.14}%
-\contentsline {todo}{\fcolorbox {black}{orange}{\textcolor {orange}{o}}\ Finish the last three proofs.}{6}{section*.15}%
-\contentsline {todo}{\fcolorbox {black}{orange}{\textcolor {orange}{o}}\ Do the proofs.}{7}{section*.16}%
-\contentsline {todo}{\fcolorbox {black}{orange}{\textcolor {orange}{o}}\ Make this work.}{7}{section*.17}%
+\contentsline {todo}{\fcolorbox {black}{green!40}{\textcolor {green!40}{o}}\ Should there be instances for CW-Complexes? So that for example with a subcomplex you automatically get the CW-Complex.}{3}{section*.3}%
+\contentsline {todo}{\fcolorbox {black}{yellow}{\textcolor {yellow}{o}}\ Add CW-Complex of finite type}{4}{section*.4}%
+\contentsline {todo}{\fcolorbox {black}{green!40}{\textcolor {green!40}{o}}\ Should this be a class?}{4}{section*.5}%
+\contentsline {todo}{\fcolorbox {black}{yellow}{\textcolor {yellow}{o}}\ Extraxt lemma (marked in code)}{5}{section*.6}%
+\contentsline {todo}{\fcolorbox {black}{yellow}{\textcolor {yellow}{o}}\ Unify this lemma and the next.}{6}{section*.7}%
+\contentsline {todo}{\fcolorbox {black}{orange}{\textcolor {orange}{o}}\ Finish this. See Hatcher P.A.1}{7}{section*.8}%
+\contentsline {todo}{\fcolorbox {black}{yellow}{\textcolor {yellow}{o}}\ Do the proof.}{7}{section*.9}%
+\contentsline {todo}{\fcolorbox {black}{green!40}{\textcolor {green!40}{o}}\ I think this should be an instance maybe?}{8}{section*.10}%
+\contentsline {todo}{\fcolorbox {black}{orange}{\textcolor {orange}{o}}\ Make this work and do the proofs!}{8}{section*.11}%
+\contentsline {todo}{\fcolorbox {black}{orange}{\textcolor {orange}{o}}\ Define Quotients.}{8}{section*.12}%
+\contentsline {todo}{\fcolorbox {black}{orange}{\textcolor {orange}{o}}\ Make the following lemmata work with new definitions}{9}{section*.13}%
+\contentsline {todo}{\fcolorbox {black}{green!40}{\textcolor {green!40}{o}}\ Again I need the indexed sum/disjoint union here.}{9}{section*.14}%
+\contentsline {todo}{\fcolorbox {black}{orange}{\textcolor {orange}{o}}\ Do the proofs.}{9}{section*.15}%
+\contentsline {todo}{\fcolorbox {black}{orange}{\textcolor {orange}{o}}\ Make this work.}{9}{section*.16}%

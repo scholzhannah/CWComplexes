@@ -1,13 +1,5 @@
 import CWcomplexes.auxiliary
-
-/- Questions:
-  - I don't think the imports should be this way but I don't know what to import in aux.lean to make it work
-  - Is there a type of subtypes of a type? See CWcomplex_subcomplex
-  - Using statement already proven in definition, see CWcomplex_subcomplex
-  - Does mathlib have k-spaces and k-ification? If not is my definition good?
-  - Should Subcomplexes be their own object so that you don't have to specify how they are built? See iUnion_subcomplex
-  - How do coercions work ????
--/
+import Mathlib.Analysis.NormedSpace.Real
 
 set_option autoImplicit false
 set_option linter.unusedVariables false
@@ -34,8 +26,6 @@ structure CWComplex.{u} {X : Type u} [TopologicalSpace X] (C : Set X) where
   mapsto (n : ℕ) (i : cell n) : ∃ I : Π m, Finset (cell m),
     MapsTo (map n i) (sphere 0 1) (⋃ (m < n) (j ∈ I m), map m j '' closedBall 0 1)
   closed (A : Set X) (asubc : A ⊆ ↑C) : IsClosed A ↔ ∀ n j, IsClosed (A ∩ map n j '' closedBall 0 1)
-  -- I added asubc because if not I don't think the levels are CW-Complexes
-  -- would A : Set C be better?
   union : ⋃ (n : ℕ) (j : cell n), map n j '' closedBall 0 1 = C
 
 variable [T2Space X] {C : Set X} (hC : CWComplex C)
@@ -52,10 +42,22 @@ def levelaux (n : ℕ∞) : Set X :=
 def level (n : ℕ∞) : Set X :=
   hC.levelaux (n + 1)
 
-structure FiniteCWComplex.{u} {X : Type u} [TopologicalSpace X] (C : Set X) where
-  cwcomplex : CWComplex C
-  finitelevels : ∃ (m : ℕ), C = cwcomplex.level m --Is this a good way to do this?
-  finitecells (n : ℕ) : Fintype (cwcomplex.cell n)
+
+-- finite type seperately
+
+class Finite.{u} {X : Type u} [TopologicalSpace X] (C : Set X) (cwcomplex : CWComplex C) : Prop where
+  finitelevels : ∀ᶠ n in Filter.atTop, IsEmpty (cwcomplex.cell n)
+  finitecells (n : ℕ) : Finite (cwcomplex.cell n)
+
+structure Subcomplex (E : Set X) where
+  I : Π n, Set (hC.cell n)
+  closed : IsClosed E
+  union : E = ⋃ (n : ℕ) (j : I n), hC.map n j '' ball 0 1
+
+class Subcomplex.Finite (E : Set X) (subcomplex: hC.Subcomplex E) : Prop where
+  finitelevels : ∀ᶠ n in Filter.atTop, IsEmpty (hC.cell n)
+  finitecells (n : ℕ) : _root_.Finite (hC.cell n)
+
 
 @[simp] lemma levelaux_top : hC.levelaux ⊤ = C := by
   simp only [levelaux, lt_top_iff_ne_top, ne_eq, ENat.coe_ne_top, not_false_eq_true, iUnion_true, ←
@@ -459,6 +461,167 @@ lemma map_ball_subset_level (n : ℕ) (j : hC.cell n) : (hC.map n j) '' ball 0 1
 
 lemma map_ball_subset_complex (n : ℕ) (j : hC.cell n) : (hC.map n j) '' ball 0 1 ⊆ C := by
   apply subset_trans (hC.map_ball_subset_level n j) (by simp_rw [← hC.level_top]; apply hC.level_subset_level_of_le le_top)
+
+lemma map_ball_subset_map_closedball {n : ℕ} {j : hC.cell n} : hC.map n j '' ball 0 1 ⊆ hC.map n j '' closedBall 0 1 := image_mono ball_subset_closedBall
+
+lemma closure_map_ball_eq_map_closedball {n : ℕ} {j : hC.cell n} : closure (hC.map n j '' ball 0 1) = hC.map n j '' closedBall 0 1 := by
+  apply subset_antisymm
+  · rw [IsClosed.closure_subset_iff (hC.isClosed_map_closedBall n j)]
+    exact hC.map_ball_subset_map_closedball
+  · have : ContinuousOn (hC.map n j) (closure (ball 0 1)) := by
+      rw [closure_ball]
+      exact hC.cont n j
+      simp
+    rw [← closure_ball]
+    apply ContinuousOn.image_closure this
+    simp
+
+lemma not_disjoint_equal {n : ℕ} {j : hC.cell n} {m : ℕ} {i : hC.cell m} (notdisjoint: ¬ Disjoint (↑(hC.map n j) '' ball 0 1) (↑(hC.map m i) '' ball 0 1)) :
+(⟨n, j⟩ : (Σ n, hC.cell n)) = ⟨m, i⟩ := by
+  by_contra h'
+  push_neg at h'
+  apply notdisjoint
+  have := hC.pairwiseDisjoint
+  simp only [PairwiseDisjoint, Set.Pairwise, Function.onFun] at this
+  exact @this ⟨n, j⟩ (by simp) ⟨m, i⟩ (by simp) h'
+
+lemma compact_inter_finite (A : t.Compacts) : _root_.Finite (Σ (m : ℕ), {j : hC.cell m // ¬ Disjoint A.1 (↑(hC.map m j) '' ball 0 1)}) := by
+  by_contra h
+  simp only [TopologicalSpace.Compacts.carrier_eq_coe, not_disjoint_iff, SetLike.mem_coe,
+    not_finite_iff_infinite] at h
+  let p (m : Σ (m : ℕ), { j // ∃ x ∈ A, x ∈ ↑(hC.map m j) '' ball 0 1 }) :=
+    Classical.choose (m.2).2
+  have : Set.InjOn p (univ : Set (Σ (m : ℕ), { j // ∃ x ∈ A, x ∈ ↑(hC.map m j) '' ball 0 1 })) := by
+    rw [InjOn]
+    intro ⟨m, j, hj⟩ mjmem ⟨n, i, hi⟩ nimem peqp
+    have hpj : p ⟨m, j, hj⟩ ∈ ↑(hC.map m j) '' ball 0 1 := by simp only [p, (Classical.choose_spec hj).2]
+    have hpi : p ⟨m, j, hj⟩ ∈ ↑(hC.map n i) '' ball 0 1 := by
+      rw [peqp]
+      simp only [p, (Classical.choose_spec hi).2]
+    have : ¬ Disjoint (↑(hC.map m j) '' ball 0 1) (↑(hC.map n i) '' ball 0 1) := by
+      rw [Set.not_disjoint_iff]
+      use p ⟨m, j, hj⟩
+    have := hC.not_disjoint_equal this
+    simp at this
+    rcases this with ⟨meqn, jeqi⟩
+    subst meqn
+    simp only [heq_eq_eq] at jeqi
+    subst jeqi
+    rfl
+  have infuniv : Set.Infinite (univ : Set (Σ (m : ℕ), { j // ∃ x ∈ A, x ∈ ↑(hC.map m j) '' ball 0 1 })) := by
+    rw [infinite_univ_iff]
+    exact h
+  have infpoints := Set.Infinite.image this infuniv
+  let B := A.1 ∩ C
+  have closedB : IsClosed B := IsClosed.inter (IsCompact.isClosed A.2) hC.isClosed
+  have compactB : IsCompact B := IsCompact.of_isClosed_subset A.2 closedB (by simp [B])
+  have discrete : DiscreteTopology ↑(p '' (univ : Set (Σ (m : ℕ), { j // ∃ x ∈ A, x ∈ ↑(hC.map m j) '' ball 0 1 }))) := by
+    simp [discreteTopology_iff_forall_isClosed]
+    intro s
+    simp [instTopologicalSpaceSubtype, isClosed_induced_iff]
+    use s
+    simp [Subtype.val_injective]
+    have ssubc : ↑↑s ⊆ ↑C := by
+      have ssub := Subtype.coe_image_subset ↑(p '' univ) s
+      have subc : p '' univ ⊆ C := by
+        intro x xmem
+        simp only [image_univ, mem_range, Sigma.exists, Subtype.exists] at xmem
+        rcases xmem with ⟨m, j, h', h⟩
+        simp only [← hC.union, mem_iUnion]
+        use m
+        use j
+        simp only [p] at h
+        have := (Classical.choose_spec h').2
+        rw [h] at this
+        exact hC.map_ball_subset_map_closedball this
+      exact subset_trans ssub subc
+    rw [hC.closed s ssubc]
+    intro n j
+    by_cases h' : Subtype.val '' s ∩ ↑(hC.map n j) '' closedBall 0 1 = ∅
+    · simp [h']
+    push_neg at h'
+    rw [Set.nonempty_def] at h'
+    rcases h' with ⟨x, xmems, xmemball⟩
+    have : p '' (univ : Set (Σ (m : ℕ), { j // ∃ x ∈ A, x ∈ ↑(hC.map m j) '' ball 0 1 })) ∩ ↑(hC.map n j) '' closedBall 0 1 = {x} := by -- This doesn't seem to actually be true. See Hatcher
+      apply subset_antisymm
+      · intro y ⟨ymemp,  ymemball⟩
+        simp only [mem_singleton_iff]
+        simp only [p, mem_image] at ymemp
+        rcases ymemp with ⟨⟨l, k, kprop⟩, lkmem, lkh⟩
+        have yprop:= Classical.choose_spec kprop
+        rw [lkh] at yprop
+        sorry
+      · simp only [singleton_subset_iff]
+        exact ⟨(Subtype.coe_image_subset (p '' univ) s) xmems, xmemball⟩
+    sorry
+  have closedimp: IsClosed (p '' (univ : Set (Σ (m : ℕ), { j // ∃ x ∈ A, x ∈ ↑(hC.map m j) '' ball 0 1 }))) := by
+    sorry
+  sorry
+
+lemma mapsto' (n : ℕ) (i : hC.cell n) : ∃ I : Π m, Finset (hC.cell m),
+MapsTo (hC.map n i) (sphere 0 1) (⋃ (m < n) (j ∈ I m), hC.map m j '' ball 0 1) := by
+  induction' n using Nat.case_strong_induction_on with n hn
+  · simp [sphere_zero_dim_empty, MapsTo]
+  · rcases hC.mapsto (Nat.succ n) i with ⟨J, hJ⟩
+    let p (x : Σ' (m : {m : ℕ // m ≤ n}), J m) := Classical.choose (hn x.1 (x.1).2 x.2)
+    let I' m := if mltnsucc : m < Nat.succ n then (J m).toSet ∪ ⋃ (l : {l : ℕ // l ≤ n}) (y : J l), p ⟨⟨l, l.2⟩, y⟩ m else (J m).toSet
+    have : ∀ m, Set.Finite (I' m) := by
+      intro m
+      simp [I']
+      by_cases h : m < Nat.succ n
+      · simp [h]
+        apply Set.finite_iUnion
+        intro ⟨l, llen⟩
+        apply Set.finite_iUnion
+        intro ⟨x, xmem⟩
+        simp only [Finset.finite_toSet]
+      · simp [h]
+    let I m := Set.Finite.toFinset (this m)
+    use I
+    rw [MapsTo] at *
+    intro x xmem
+    have hJ := hJ xmem
+    simp only [mem_iUnion, exists_prop] at *
+    rcases hJ with ⟨l, llen , j, jmem, mapxmem⟩
+    apply Nat.le_of_lt_succ at llen
+    let K := Classical.choose (hn l llen j)
+    let hK := Classical.choose_spec (hn l llen j)
+    rw [MapsTo] at hK
+    simp only [mem_image] at mapxmem
+    rcases mapxmem with ⟨x', x'mem, mapx'⟩
+    rw [← Metric.sphere_union_ball] at x'mem
+    rcases x'mem with x'mem | x'mem
+    · have hK := hK x'mem
+      simp only [mem_iUnion, exists_prop] at hK
+      rcases hK with ⟨m, mltl, o, omem, mapomem⟩
+      use m
+      constructor
+      · exact lt_trans mltl (Nat.lt_succ_of_le llen)
+      use o
+      constructor
+      · simp [I, I', lt_trans mltl (Nat.lt_succ_of_le llen)]
+        right
+        use l
+        use llen
+        use j
+        use jmem
+      rw [← mapx']
+      exact mapomem
+    · use l
+      constructor
+      · exact Nat.lt_succ_of_le llen
+      use j
+      constructor
+      · simp [I, I', Nat.lt_succ_of_le llen]
+        left
+        exact jmem
+      rw [← mapx']
+      exact Set.mem_image_of_mem (hC.map l j) x'mem
+
+
+
+lemma mapsto'' (n :  ℕ) (i : hC.cell n) : _root_.Finite (Σ (m : ℕ), {j : hC.cell m // ¬ Disjoint (↑(hC.map n i) '' sphere 0 1 ) (↑(hC.map m j) '' ball 0 1)} ) := by
+  sorry --derive this from the fact that compact sets meet only finitely many cells
 
 
 /- State some more properties: e.g.

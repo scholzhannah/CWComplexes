@@ -1,4 +1,4 @@
-This is XeTeX, Version 3.141592653-2.6-0.999996 (TeX Live 2024) (preloaded format=xelatex 2024.4.20)  23 APR 2024 09:00
+This is XeTeX, Version 3.141592653-2.6-0.999996 (TeX Live 2024) (preloaded format=xelatex 2024.4.20)  21 MAY 2024 17:13
 entering extended mode
  \write18 enabled.
  file:line:error style messages enabled.
@@ -560,132 +560,140 @@ runsystem(del overview.aex)...executed.
  (./overview.aux)
 \openout1 = `overview.aux'.
 
-LaTeX Font Info:    Checking defaults for OML/cmm/m/it on input line 72.
-LaTeX Font Info:    ... okay on input line 72.
-LaTeX Font Info:    Checking defaults for OMS/cmsy/m/n on input line 72.
-LaTeX Font Info:    ... okay on input line 72.
-LaTeX Font Info:    Checking defaults for OT1/cmr/m/n on input line 72.
-LaTeX Font Info:    ... okay on input line 72.
-LaTeX Font Info:    Checking defaults for T1/cmr/m/n on input line 72.
-LaTeX Font Info:    ... okay on input line 72.
-LaTeX Font Info:    Checking defaults for TS1/cmr/m/n on input line 72.
-LaTeX Font Info:    Trying to load font information for TS1+cmr on input line 72.
+LaTeX Font Info:    Checking defaults for OML/cmm/m/it on input line 76.
+LaTeX Font Info:    ... okay on input line 76.
+LaTeX Font Info:    Checking defaults for OMS/cmsy/m/n on input line 76.
+LaTeX Font Info:    ... okay on input line 76.
+LaTeX Font Info:    Checking defaults for OT1/cmr/m/n on input line 76.
+LaTeX Font Info:    ... okay on input line 76.
+LaTeX Font Info:    Checking defaults for T1/cmr/m/n on input line 76.
+LaTeX Font Info:    ... okay on input line 76.
+LaTeX Font Info:    Checking defaults for TS1/cmr/m/n on input line 76.
+LaTeX Font Info:    Trying to load font information for TS1+cmr on input line 76.
  (c:/texlive/2024/texmf-dist/tex/latex/base/ts1cmr.fd
 File: ts1cmr.fd 2023/04/13 v2.5m Standard LaTeX font definitions
 )
-LaTeX Font Info:    ... okay on input line 72.
-LaTeX Font Info:    Checking defaults for TU/lmr/m/n on input line 72.
-LaTeX Font Info:    ... okay on input line 72.
-LaTeX Font Info:    Checking defaults for OMX/cmex/m/n on input line 72.
-LaTeX Font Info:    ... okay on input line 72.
-LaTeX Font Info:    Checking defaults for U/cmr/m/n on input line 72.
-LaTeX Font Info:    ... okay on input line 72.
-LaTeX Font Info:    Checking defaults for PD1/pdf/m/n on input line 72.
-LaTeX Font Info:    ... okay on input line 72.
-LaTeX Font Info:    Checking defaults for PU/pdf/m/n on input line 72.
-LaTeX Font Info:    ... okay on input line 72.
+LaTeX Font Info:    ... okay on input line 76.
+LaTeX Font Info:    Checking defaults for TU/lmr/m/n on input line 76.
+LaTeX Font Info:    ... okay on input line 76.
+LaTeX Font Info:    Checking defaults for OMX/cmex/m/n on input line 76.
+LaTeX Font Info:    ... okay on input line 76.
+LaTeX Font Info:    Checking defaults for U/cmr/m/n on input line 76.
+LaTeX Font Info:    ... okay on input line 76.
+LaTeX Font Info:    Checking defaults for PD1/pdf/m/n on input line 76.
+LaTeX Font Info:    ... okay on input line 76.
+LaTeX Font Info:    Checking defaults for PU/pdf/m/n on input line 76.
+LaTeX Font Info:    ... okay on input line 76.
 
 Package fontspec Info: Adjusting the maths setup (use [no-math] to avoid
 (fontspec)             this).
 
 \symlegacymaths=\mathgroup4
 LaTeX Font Info:    Overwriting symbol font `legacymaths' in version `bold'
-(Font)                  OT1/cmr/m/n --> OT1/cmr/bx/n on input line 72.
-LaTeX Font Info:    Redeclaring math accent \acute on input line 72.
-LaTeX Font Info:    Redeclaring math accent \grave on input line 72.
-LaTeX Font Info:    Redeclaring math accent \ddot on input line 72.
-LaTeX Font Info:    Redeclaring math accent \tilde on input line 72.
-LaTeX Font Info:    Redeclaring math accent \bar on input line 72.
-LaTeX Font Info:    Redeclaring math accent \breve on input line 72.
-LaTeX Font Info:    Redeclaring math accent \check on input line 72.
-LaTeX Font Info:    Redeclaring math accent \hat on input line 72.
-LaTeX Font Info:    Redeclaring math accent \dot on input line 72.
-LaTeX Font Info:    Redeclaring math accent \mathring on input line 72.
-LaTeX Font Info:    Redeclaring math symbol \colon on input line 72.
-LaTeX Font Info:    Redeclaring math symbol \Gamma on input line 72.
-LaTeX Font Info:    Redeclaring math symbol \Delta on input line 72.
-LaTeX Font Info:    Redeclaring math symbol \Theta on input line 72.
-LaTeX Font Info:    Redeclaring math symbol \Lambda on input line 72.
-LaTeX Font Info:    Redeclaring math symbol \Xi on input line 72.
-LaTeX Font Info:    Redeclaring math symbol \Pi on input line 72.
-LaTeX Font Info:    Redeclaring math symbol \Sigma on input line 72.
-LaTeX Font Info:    Redeclaring math symbol \Upsilon on input line 72.
-LaTeX Font Info:    Redeclaring math symbol \Phi on input line 72.
-LaTeX Font Info:    Redeclaring math symbol \Psi on input line 72.
-LaTeX Font Info:    Redeclaring math symbol \Omega on input line 72.
-LaTeX Font Info:    Redeclaring math symbol \mathdollar on input line 72.
-LaTeX Font Info:    Redeclaring symbol font `operators' on input line 72.
+(Font)                  OT1/cmr/m/n --> OT1/cmr/bx/n on input line 76.
+LaTeX Font Info:    Redeclaring math accent \acute on input line 76.
+LaTeX Font Info:    Redeclaring math accent \grave on input line 76.
+LaTeX Font Info:    Redeclaring math accent \ddot on input line 76.
+LaTeX Font Info:    Redeclaring math accent \tilde on input line 76.
+LaTeX Font Info:    Redeclaring math accent \bar on input line 76.
+LaTeX Font Info:    Redeclaring math accent \breve on input line 76.
+LaTeX Font Info:    Redeclaring math accent \check on input line 76.
+LaTeX Font Info:    Redeclaring math accent \hat on input line 76.
+LaTeX Font Info:    Redeclaring math accent \dot on input line 76.
+LaTeX Font Info:    Redeclaring math accent \mathring on input line 76.
+LaTeX Font Info:    Redeclaring math symbol \colon on input line 76.
+LaTeX Font Info:    Redeclaring math symbol \Gamma on input line 76.
+LaTeX Font Info:    Redeclaring math symbol \Delta on input line 76.
+LaTeX Font Info:    Redeclaring math symbol \Theta on input line 76.
+LaTeX Font Info:    Redeclaring math symbol \Lambda on input line 76.
+LaTeX Font Info:    Redeclaring math symbol \Xi on input line 76.
+LaTeX Font Info:    Redeclaring math symbol \Pi on input line 76.
+LaTeX Font Info:    Redeclaring math symbol \Sigma on input line 76.
+LaTeX Font Info:    Redeclaring math symbol \Upsilon on input line 76.
+LaTeX Font Info:    Redeclaring math symbol \Phi on input line 76.
+LaTeX Font Info:    Redeclaring math symbol \Psi on input line 76.
+LaTeX Font Info:    Redeclaring math symbol \Omega on input line 76.
+LaTeX Font Info:    Redeclaring math symbol \mathdollar on input line 76.
+LaTeX Font Info:    Redeclaring symbol font `operators' on input line 76.
 LaTeX Font Info:    Encoding `OT1' has changed to `TU' for symbol font
-(Font)              `operators' in the math version `normal' on input line 72.
+(Font)              `operators' in the math version `normal' on input line 76.
 LaTeX Font Info:    Overwriting symbol font `operators' in version `normal'
-(Font)                  OT1/cmr/m/n --> TU/lmr/m/n on input line 72.
+(Font)                  OT1/cmr/m/n --> TU/lmr/m/n on input line 76.
 LaTeX Font Info:    Encoding `OT1' has changed to `TU' for symbol font
-(Font)              `operators' in the math version `bold' on input line 72.
+(Font)              `operators' in the math version `bold' on input line 76.
 LaTeX Font Info:    Overwriting symbol font `operators' in version `bold'
-(Font)                  OT1/cmr/bx/n --> TU/lmr/m/n on input line 72.
+(Font)                  OT1/cmr/bx/n --> TU/lmr/m/n on input line 76.
 LaTeX Font Info:    Overwriting symbol font `operators' in version `normal'
-(Font)                  TU/lmr/m/n --> TU/lmr/m/n on input line 72.
+(Font)                  TU/lmr/m/n --> TU/lmr/m/n on input line 76.
 LaTeX Font Info:    Overwriting math alphabet `\mathit' in version `normal'
-(Font)                  OT1/cmr/m/it --> TU/lmr/m/it on input line 72.
+(Font)                  OT1/cmr/m/it --> TU/lmr/m/it on input line 76.
 LaTeX Font Info:    Overwriting math alphabet `\mathbf' in version `normal'
-(Font)                  OT1/cmr/bx/n --> TU/lmr/b/n on input line 72.
+(Font)                  OT1/cmr/bx/n --> TU/lmr/b/n on input line 76.
 LaTeX Font Info:    Overwriting math alphabet `\mathsf' in version `normal'
-(Font)                  OT1/cmss/m/n --> TU/lmss/m/n on input line 72.
+(Font)                  OT1/cmss/m/n --> TU/lmss/m/n on input line 76.
 LaTeX Font Info:    Overwriting math alphabet `\mathtt' in version `normal'
-(Font)                  OT1/cmtt/m/n --> TU/FreeMono(0)/m/n on input line 72.
+(Font)                  OT1/cmtt/m/n --> TU/FreeMono(0)/m/n on input line 76.
 LaTeX Font Info:    Overwriting symbol font `operators' in version `bold'
-(Font)                  TU/lmr/m/n --> TU/lmr/b/n on input line 72.
+(Font)                  TU/lmr/m/n --> TU/lmr/b/n on input line 76.
 LaTeX Font Info:    Overwriting math alphabet `\mathit' in version `bold'
-(Font)                  OT1/cmr/bx/it --> TU/lmr/b/it on input line 72.
+(Font)                  OT1/cmr/bx/it --> TU/lmr/b/it on input line 76.
 LaTeX Font Info:    Overwriting math alphabet `\mathsf' in version `bold'
-(Font)                  OT1/cmss/bx/n --> TU/lmss/b/n on input line 72.
+(Font)                  OT1/cmss/bx/n --> TU/lmss/b/n on input line 76.
 LaTeX Font Info:    Overwriting math alphabet `\mathtt' in version `bold'
-(Font)                  OT1/cmtt/m/n --> TU/FreeMono(0)/b/n on input line 72.
-Package hyperref Info: Link coloring OFF on input line 72.
+(Font)                  OT1/cmtt/m/n --> TU/FreeMono(0)/b/n on input line 76.
+Package hyperref Info: Link coloring OFF on input line 76.
  (./overview.out) (./overview.out)
 \@outlinefile=\write6
 \openout6 = `overview.out'.
 
 LaTeX Font Info:    External font `cmex10' loaded for size
-(Font)              <12> on input line 75.
+(Font)              <12> on input line 79.
 LaTeX Font Info:    External font `cmex10' loaded for size
-(Font)              <8> on input line 75.
+(Font)              <8> on input line 79.
 LaTeX Font Info:    External font `cmex10' loaded for size
-(Font)              <6> on input line 75.
- (./overview.tdo
+(Font)              <6> on input line 79.
+ (./overview.toc)
+\tf@toc=\write7
+\openout7 = `overview.toc'.
+
+ [1
+
+] (./overview.tdo
 LaTeX Font Info:    External font `cmex10' loaded for size
 (Font)              <7> on input line 1.
 LaTeX Font Info:    External font `cmex10' loaded for size
 (Font)              <5> on input line 1.
 )
-\tf@tdo=\write7
-\openout7 = `overview.tdo'.
+\tf@tdo=\write8
+\openout8 = `overview.tdo'.
 
+ [2]
+Package hyperref Info: bookmark level for unknown todo defaults to 0 on input line 97.
 \openout3 = `overview.pyg'.
 
  (./_minted-overview/default.pygstyle) (./_minted-overview/C05A4AEC20801E7660DE96F1167BA15848CD1EC9EBC172EC67FCEEDB4B7ECDBC.pygtex)
 \openout3 = `overview.pyg'.
 
- (./_minted-overview/09F729BB7A26486677F3F2B39017950748CD1EC9EBC172EC67FCEEDB4B7ECDBC.pygtex [1
-
-])
-Package hyperref Info: bookmark level for unknown todo defaults to 0 on input line 96.
+ (./_minted-overview/09F729BB7A26486677F3F2B39017950748CD1EC9EBC172EC67FCEEDB4B7ECDBC.pygtex)
 \openout3 = `overview.pyg'.
 
- (./_minted-overview/429032BDE340322F590DD5301DE77C9C48CD1EC9EBC172EC67FCEEDB4B7ECDBC.pygtex
+ (./_minted-overview/374616C8B5A9DCEF262CB9988F89071848CD1EC9EBC172EC67FCEEDB4B7ECDBC.pygtex)
+\openout3 = `overview.pyg'.
 
-LaTeX Warning: Marginpar on page 2 moved.
+ (./_minted-overview/5F6B8F8ECEBEA3920B2533260FA4442348CD1EC9EBC172EC67FCEEDB4B7ECDBC.pygtex)
+\openout3 = `overview.pyg'.
 
-)
+ (./_minted-overview/48353D3009B2A21CA265C651EA3B31CE48CD1EC9EBC172EC67FCEEDB4B7ECDBC.pygtex)
 \openout4 = `overview.pyg'.
 
  (./_minted-overview/EF7AC81FF2D43C58A3AA1EEC419CBB0F48CD1EC9EBC172EC67FCEEDB4B7ECDBC.pygtex)
 \openout3 = `overview.pyg'.
 
- (./_minted-overview/5FF91E29836AA15119D1398BADCA87D748CD1EC9EBC172EC67FCEEDB4B7ECDBC.pygtex)
+ (./_minted-overview/5FF91E29836AA15119D1398BADCA87D748CD1EC9EBC172EC67FCEEDB4B7ECDBC.pygtex [3])
 \openout4 = `overview.pyg'.
 
- (./_minted-overview/EE982ED146337D780E676ED8E9CDA05648CD1EC9EBC172EC67FCEEDB4B7ECDBC.pygtex)
+
+(./_minted-overview/EE982ED146337D780E676ED8E9CDA05648CD1EC9EBC172EC67FCEEDB4B7ECDBC.pygtex)
 \openout3 = `overview.pyg'.
 
  (./_minted-overview/0CF80644E00CBDCAA40B8A3F4BCF4FAA48CD1EC9EBC172EC67FCEEDB4B7ECDBC.pygtex)
@@ -694,7 +702,17 @@ LaTeX Warning: Marginpar on page 2 moved.
  (./_minted-overview/498B3E102894A5E701492CDFD646D23448CD1EC9EBC172EC67FCEEDB4B7ECDBC.pygtex)
 \openout3 = `overview.pyg'.
 
- (./_minted-overview/64C2F780A09D4E21350CD603311707AC48CD1EC9EBC172EC67FCEEDB4B7ECDBC.pygtex)
+ (./_minted-overview/2D1735A5A7D57E67FC5DA98AD7DFE3F348CD1EC9EBC172EC67FCEEDB4B7ECDBC.pygtex
+Missing character: There is no ᶠ (U+1DA0) in font FreeMono/OT:script=latn;language=dflt;!
+)
+\openout3 = `overview.pyg'.
+
+ (./_minted-overview/9A8EC1E48ACE429B1665F798F6863B2F48CD1EC9EBC172EC67FCEEDB4B7ECDBC.pygtex)
+\openout3 = `overview.pyg'.
+
+ (./_minted-overview/8F3E6D88DF4EAA62B538D27A03FB0D8748CD1EC9EBC172EC67FCEEDB4B7ECDBC.pygtex
+Missing character: There is no ᶠ (U+1DA0) in font FreeMono/OT:script=latn;language=dflt;!
+)
 \openout3 = `overview.pyg'.
 
  (./_minted-overview/9FDF79084EE9488E038940E8E16CB89748CD1EC9EBC172EC67FCEEDB4B7ECDBC.pygtex)
@@ -703,7 +721,7 @@ LaTeX Warning: Marginpar on page 2 moved.
  (./_minted-overview/89508423EE6924284A1A8391764CAFA548CD1EC9EBC172EC67FCEEDB4B7ECDBC.pygtex)
 \openout3 = `overview.pyg'.
 
- (./_minted-overview/E1434191AC00E0DB6370327DF548780448CD1EC9EBC172EC67FCEEDB4B7ECDBC.pygtex [2])
+ (./_minted-overview/E1434191AC00E0DB6370327DF548780448CD1EC9EBC172EC67FCEEDB4B7ECDBC.pygtex)
 \openout3 = `overview.pyg'.
 
  (./_minted-overview/09076DE3642A54C3ECD828D9DF18744F48CD1EC9EBC172EC67FCEEDB4B7ECDBC.pygtex)
@@ -712,7 +730,7 @@ LaTeX Warning: Marginpar on page 2 moved.
  (./_minted-overview/6DEB828D55B682F162066E5638073D4D48CD1EC9EBC172EC67FCEEDB4B7ECDBC.pygtex)
 \openout3 = `overview.pyg'.
 
- (./_minted-overview/32206A7D9027DE992660D2C11CD1556148CD1EC9EBC172EC67FCEEDB4B7ECDBC.pygtex)
+ (./_minted-overview/32206A7D9027DE992660D2C11CD1556148CD1EC9EBC172EC67FCEEDB4B7ECDBC.pygtex [4])
 \openout3 = `overview.pyg'.
 
  (./_minted-overview/2C614F677975500A9AD670DCEAB0C14C48CD1EC9EBC172EC67FCEEDB4B7ECDBC.pygtex)
@@ -737,25 +755,25 @@ LaTeX Warning: Marginpar on page 2 moved.
 \openout3 = `overview.pyg'.
 
  (./_minted-overview/64C1302E5D33FE07E23FF7620A98DBF148CD1EC9EBC172EC67FCEEDB4B7ECDBC.pygtex
-Overfull \hbox (14.46pt too wide) in paragraph at lines 206--1
+Overfull \hbox (14.46pt too wide) in paragraph at lines 246--1
 []\TU/lmr/m/n/10 Lemma \TU/lmr/m/it/10 levelaux_inter_image_closedBall_eq_levelaux_inter_image_sphere 
  []
 
 )
 \openout3 = `overview.pyg'.
 
- (./_minted-overview/84E5F2C0515A949BAF218BDFE71B4D9F48CD1EC9EBC172EC67FCEEDB4B7ECDBC.pygtex [3])
+ (./_minted-overview/84E5F2C0515A949BAF218BDFE71B4D9F48CD1EC9EBC172EC67FCEEDB4B7ECDBC.pygtex)
 \openout3 = `overview.pyg'.
 
  (./_minted-overview/EA3695C7A7E81D503CC3746CE573B98048CD1EC9EBC172EC67FCEEDB4B7ECDBC.pygtex)
 \openout3 = `overview.pyg'.
 
  (./_minted-overview/CDFFF733F7FD00FB1ED485846DF1C8BB48CD1EC9EBC172EC67FCEEDB4B7ECDBC.pygtex
-Overfull \hbox (44.5pt too wide) in paragraph at lines 224--1
+Overfull \hbox (44.5pt too wide) in paragraph at lines 264--1
 []\TU/lmr/m/n/10 Lemma \TU/lmr/m/it/10 isClosed_inter_sphere_succ_of_le_isClosed_inter_closedBall_of_mapsto
  []
 
-)
+[5])
 \openout3 = `overview.pyg'.
 
  (./_minted-overview/9682099F6CB3B446FE46776798BC10CD48CD1EC9EBC172EC67FCEEDB4B7ECDBC.pygtex)
@@ -779,13 +797,31 @@ Overfull \hbox (44.5pt too wide) in paragraph at lines 224--1
  (./_minted-overview/559045446265754D2CB78534236B09AA48CD1EC9EBC172EC67FCEEDB4B7ECDBC.pygtex)
 \openout3 = `overview.pyg'.
 
- (./_minted-overview/01670E0777A30274947D89CEF7A8909048CD1EC9EBC172EC67FCEEDB4B7ECDBC.pygtex [4])
+ (./_minted-overview/01670E0777A30274947D89CEF7A8909048CD1EC9EBC172EC67FCEEDB4B7ECDBC.pygtex)
 \openout3 = `overview.pyg'.
 
  (./_minted-overview/408CC5B5B054CC52FCF81A028677E5AC48CD1EC9EBC172EC67FCEEDB4B7ECDBC.pygtex)
 \openout3 = `overview.pyg'.
 
  (./_minted-overview/505435FD8158EF19A42F55DF508309DB48CD1EC9EBC172EC67FCEEDB4B7ECDBC.pygtex)
+\openout3 = `overview.pyg'.
+
+ (./_minted-overview/6FAA5B0C1145178394CAF84A23A621A148CD1EC9EBC172EC67FCEEDB4B7ECDBC.pygtex [6])
+\openout3 = `overview.pyg'.
+
+ (./_minted-overview/AB347C48619C67E781F714AF58E1D79E48CD1EC9EBC172EC67FCEEDB4B7ECDBC.pygtex)
+\openout3 = `overview.pyg'.
+
+ (./_minted-overview/2C79643DB71A6EBCA259E326E982D56448CD1EC9EBC172EC67FCEEDB4B7ECDBC.pygtex)
+\openout3 = `overview.pyg'.
+
+ (./_minted-overview/CF2860D99900D068AB7B53F23CDD3C2848CD1EC9EBC172EC67FCEEDB4B7ECDBC.pygtex)
+\openout3 = `overview.pyg'.
+
+ (./_minted-overview/DFA0BC3040731D46465EF648ACF2F7C248CD1EC9EBC172EC67FCEEDB4B7ECDBC.pygtex)
+\openout3 = `overview.pyg'.
+
+ (./_minted-overview/C01BC8C400571FE64A5E5DE7BE27A21A48CD1EC9EBC172EC67FCEEDB4B7ECDBC.pygtex)
 \openout3 = `overview.pyg'.
 
  (./_minted-overview/47DF40E11C62656E832C570AF97694B848CD1EC9EBC172EC67FCEEDB4B7ECDBC.pygtex)
@@ -797,36 +833,34 @@ Overfull \hbox (44.5pt too wide) in paragraph at lines 224--1
  (./_minted-overview/03B2F3773E155BA3B1B70C150FD5133B48CD1EC9EBC172EC67FCEEDB4B7ECDBC.pygtex)
 \openout3 = `overview.pyg'.
 
- (./_minted-overview/B6B5DCB2CA8AD723D85C9042B5CEC89448CD1EC9EBC172EC67FCEEDB4B7ECDBC.pygtex)
+ (./_minted-overview/B6B5DCB2CA8AD723D85C9042B5CEC89448CD1EC9EBC172EC67FCEEDB4B7ECDBC.pygtex [7])
 \openout3 = `overview.pyg'.
 
- (./_minted-overview/B312547564759B46087677988FFD696448CD1EC9EBC172EC67FCEEDB4B7ECDBC.pygtex
-
-LaTeX Warning: Marginpar on page 5 moved.
-
-
-LaTeX Warning: Marginpar on page 5 moved.
-
-[5])
-\openout3 = `overview.pyg'.
-
- (./_minted-overview/FBB5437EB227E07D42D7DA524182149B48CD1EC9EBC172EC67FCEEDB4B7ECDBC.pygtex)
+ (./_minted-overview/EBCD5D9DEF48D9D6DE377A3C867F0F8048CD1EC9EBC172EC67FCEEDB4B7ECDBC.pygtex)
 \openout3 = `overview.pyg'.
 
  (./_minted-overview/D59E6D56FE8FA95FFBF11132214916EA48CD1EC9EBC172EC67FCEEDB4B7ECDBC.pygtex)
 \openout3 = `overview.pyg'.
 
- (./_minted-overview/163AC171A6696EC3D515A162204A37B448CD1EC9EBC172EC67FCEEDB4B7ECDBC.pygtex
+ (./_minted-overview/079CD7BC3CB99D639921706484FCDBCB48CD1EC9EBC172EC67FCEEDB4B7ECDBC.pygtex)
+\openout4 = `overview.pyg'.
 
-LaTeX Warning: Marginpar on page 6 moved.
-
-
-LaTeX Warning: Marginpar on page 6 moved.
-
+ (./_minted-overview/E44300271133381A5D127F64C109AB0148CD1EC9EBC172EC67FCEEDB4B7ECDBC.pygtex
+Missing character: There is no ₖ (U+2096) in font FreeMono/OT:script=latn;language=dflt;!
 )
 \openout3 = `overview.pyg'.
 
- (./_minted-overview/47DF40E11C62656E832C570AF97694B848CD1EC9EBC172EC67FCEEDB4B7ECDBC.pygtex)
+ (./_minted-overview/241176673F9A2096FC3AFD9A2A8BC2BC48CD1EC9EBC172EC67FCEEDB4B7ECDBC.pygtex
+Missing character: There is no ₖ (U+2096) in font FreeMono/OT:script=latn;language=dflt;!
+)
+\openout3 = `overview.pyg'.
+
+ (./_minted-overview/CFA25C889F56270D3B7DA62F249ED9E148CD1EC9EBC172EC67FCEEDB4B7ECDBC.pygtex
+Missing character: There is no ₖ (U+2096) in font FreeMono/OT:script=latn;language=dflt;!
+)
+\openout3 = `overview.pyg'.
+
+ (./_minted-overview/47DF40E11C62656E832C570AF97694B848CD1EC9EBC172EC67FCEEDB4B7ECDBC.pygtex [8])
 \openout3 = `overview.pyg'.
 
  (./_minted-overview/0AAA10059F081FD1F49CEDA1F8B7AA7B48CD1EC9EBC172EC67FCEEDB4B7ECDBC.pygtex)
@@ -835,37 +869,41 @@ LaTeX Warning: Marginpar on page 6 moved.
  (./_minted-overview/FE4D32A94E2135985DB0C4B89A03B2BD48CD1EC9EBC172EC67FCEEDB4B7ECDBC.pygtex)
 \openout3 = `overview.pyg'.
 
- (./_minted-overview/2C8A57F7BDF4B4CC6C8C0A98DF4F475A48CD1EC9EBC172EC67FCEEDB4B7ECDBC.pygtex
+ (./_minted-overview/B7BB836D55629E220DD9CDA4E554EBFF48CD1EC9EBC172EC67FCEEDB4B7ECDBC.pygtex
 
-LaTeX Warning: Marginpar on page 6 moved.
+LaTeX Warning: Marginpar on page 9 moved.
 
-[6])
+)
 \openout3 = `overview.pyg'.
 
- (./_minted-overview/A258735F468ECF0D0BBD1C88FA731EBA48CD1EC9EBC172EC67FCEEDB4B7ECDBC.pygtex)
+ (./_minted-overview/A258735F468ECF0D0BBD1C88FA731EBA48CD1EC9EBC172EC67FCEEDB4B7ECDBC.pygtex
+
+LaTeX Warning: Marginpar on page 9 moved.
+
+)
 \openout3 = `overview.pyg'.
 
  (./_minted-overview/34D1C2079246A2813518FE61ECB6A14E48CD1EC9EBC172EC67FCEEDB4B7ECDBC.pygtex
 
-LaTeX Warning: Marginpar on page 7 moved.
+LaTeX Warning: Marginpar on page 9 moved.
 
-) [7] (./overview.aux)
+) [9] (./overview.aux)
  ***********
 LaTeX2e <2023-11-01> patch level 1
 L3 programming layer <2024-03-14>
  ***********
 Package rerunfilecheck Info: File `overview.out' has not changed.
-(rerunfilecheck)             Checksum: 851FB5E899488A67E8F20DE00F4F0D1E;597.
+(rerunfilecheck)             Checksum: E8BB57BEFF0F13A797ED3B0382DF3918;767.
 runsystem(del overview.pyg)...executed.
 
  ) 
 Here is how much of TeX's memory you used:
- 25385 strings out of 474761
- 558890 string characters out of 5761074
- 1947148 words of memory out of 5000000
- 46981 multiletter control sequences out of 15000+600000
+ 25449 strings out of 474761
+ 565697 string characters out of 5761074
+ 1942148 words of memory out of 5000000
+ 47006 multiletter control sequences out of 15000+600000
  561357 words of font info for 70 fonts, out of 8000000 for 9000
  1348 hyphenation exceptions out of 8191
- 117i,8n,121p,628b,1047s stack positions out of 10000i,1000n,20000p,200000b,200000s
+ 117i,8n,121p,660b,1049s stack positions out of 10000i,1000n,20000p,200000b,200000s
 
-Output written on overview.pdf (7 pages).
+Output written on overview.pdf (9 pages).

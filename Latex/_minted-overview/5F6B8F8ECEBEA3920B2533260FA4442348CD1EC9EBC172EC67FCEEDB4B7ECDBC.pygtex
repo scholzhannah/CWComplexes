@@ -1,0 +1,3 @@
+\begin{Verbatim}[commandchars=\\\{\}]
+\PYG{k+kn}{def} \PYG{n}{kification} \PYG{o}{(}\PYG{n}{X} \PYG{o}{:} \PYG{k+kt}{Type}\PYG{n+nb+bp}{*}\PYG{o}{)} \PYG{o}{:=} \PYG{n}{X}
+\end{Verbatim}
