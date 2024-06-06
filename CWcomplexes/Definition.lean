@@ -9,6 +9,9 @@ open Metric Set
 
 variable {X : Type*} [t : TopologicalSpace X]
 
+--think about making this a class and converting stuff into instances
+--examples spheres
+
 /- Characterizing when a set is a CW-complex. See [Hatcher, Proposition A.2].
 Generally we will need `[T2Space X]`.
 Note that we are changing the definition a little bit: we are saying that a subspace `C` of `X` is a
@@ -38,10 +41,26 @@ def levelaux (n : ℕ∞) : Set X :=
   ⋃ (m : ℕ) (hm : m < n) (j : hC.cell m), hC.map m j '' closedBall 0 1
 
 /-- The `n`-th level of a CW-complex, for `n ∈ ℕ ∪ ∞`. -/
-/- Would it be possible to add a -1 to make induction proofs easier? -/
 def level (n : ℕ∞) : Set X :=
   hC.levelaux (n + 1)
 
+lemma levelaux_eq_level_sub_one {n : ℕ∞} (npos : n ≠ 0) : hC.levelaux n = hC.level (n - 1) := by
+  unfold level
+  congrm (hC.levelaux ?_)
+  by_cases ntop : n = ⊤
+  · simp only [ntop, ENat.top_sub_one, top_add]
+  · push_neg at ntop
+    let m := ENat.toNat n
+    have coemn: ↑m = n := ENat.coe_toNat ntop
+    rw [← coemn] at npos ⊢
+    norm_cast at npos ⊢
+    push_neg at npos
+    rw [← Nat.pred_eq_sub_one, ← Nat.succ_eq_add_one]
+    rw [Nat.succ_pred npos]
+
+lemma levelaux_zero_eq_empty : hC.levelaux 0 = ∅ := by
+  unfold levelaux
+  simp only [isEmpty_Prop, not_lt, zero_le, iUnion_of_empty, iUnion_empty]
 
 -- finite type seperately
 
@@ -57,7 +76,6 @@ structure Subcomplex (E : Set X) where
 class Subcomplex.Finite (E : Set X) (subcomplex: hC.Subcomplex E) : Prop where
   finitelevels : ∀ᶠ n in Filter.atTop, IsEmpty (hC.cell n)
   finitecells (n : ℕ) : _root_.Finite (hC.cell n)
-
 
 @[simp] lemma levelaux_top : hC.levelaux ⊤ = C := by
   simp only [levelaux, lt_top_iff_ne_top, ne_eq, ENat.coe_ne_top, not_false_eq_true, iUnion_true, ←
@@ -340,7 +358,6 @@ lemma levelaux_inter_image_closedBall_eq_levelaux_inter_image_sphere {n : ℕ∞
   · intro xmem
     exact ⟨xmem.1,  (Set.image_subset ↑(hC.map m j) Metric.sphere_subset_closedBall) xmem.2⟩
 
-
 lemma level_inter_image_closedBall_eq_level_inter_image_sphere {n : ℕ∞} {m : ℕ}{j : hC.cell m} (nltm : n < m) : hC.level n ∩ ↑(hC.map m j) '' closedBall 0 1 = hC.level n ∩ ↑(hC.map m j) '' sphere 0 1 := by
   apply Order.succ_le_of_lt at nltm
   rw [ENat.succ_def] at nltm
@@ -352,38 +369,6 @@ lemma isClosed_map_sphere {n : ℕ} {i : hC.cell n} : IsClosed (hC.map n i '' sp
   apply IsCompact.image_of_continuousOn
   apply isCompact_sphere
   exact ContinuousOn.mono (hC.cont n i) sphere_subset_closedBall
-
-/- TODO : Unify these two lemmas. The problem is that in one I have the type (cell n) and in the other (Set (cell n)). I think this will be solved as well if I can solve the subtype of a type problem in CWComplex_subcomplex-/
-
-lemma isClosed_inter_sphere_succ_of_le_isClosed_inter_closedBall_of_mapsto {A : Set X} {n : ℕ} (I : (m : ℕ) → Set (hC.cell m)) (hn : ∀ m ≤ n, ∀ (j : hC.cell m), IsClosed (A ∩ ↑(hC.map m j) '' closedBall 0 1)) (mapsto : ∀ (n : ℕ) i, ∃ I : Π m, Finset (I m), MapsTo (hC.map n i) (sphere 0 1 : Set (Fin n → ℝ)) (⋃ (m < n) (j ∈ I m), hC.map m j '' closedBall 0 1)) : ∀ (j : hC.cell (n + 1)), IsClosed (A ∩ ↑(hC.map (n + 1) j) '' sphere 0 1) := by
-  intro j
-  rcases mapsto (n + 1) j with ⟨J, hJ⟩
-  rw [mapsTo'] at hJ
-  have closedunion : IsClosed (A ∩ ⋃ m, ⋃ (_ : m < n + 1), ⋃ j ∈ J m, ↑(hC.map m j) '' closedBall 0 1) := by
-    simp only [inter_iUnion]
-    let N := {m : ℕ // m < n + 1}
-    have : ⋃ i, ⋃ (_ : i < n + 1),  ⋃ (j : I i), ⋃ (_ : j ∈ J i), A ∩ ↑(hC.map i j) '' closedBall 0 1 = ⋃ (i : N), ⋃ (i_1 : J i), A ∩ ↑(hC.map i i_1) '' closedBall 0 1 := by
-      ext x
-      simp only [mem_iUnion, exists_prop]
-      constructor
-      · intro h
-        rcases h with ⟨i, ⟨ilt, ⟨j, ⟨jmem, h⟩⟩⟩⟩
-        use ⟨i, ilt⟩
-        use ⟨j, jmem⟩
-      · intro h
-        rcases h with ⟨⟨i, ilt⟩, ⟨⟨j, jmem⟩, h⟩⟩
-        use i
-        exact ⟨ilt, (by use j)⟩
-    rw [this]
-    apply isClosed_iUnion_of_finite
-    intro i
-    apply isClosed_iUnion_of_finite
-    intro j
-    exact hn i (Nat.le_of_lt_succ i.2) j
-  have : A ∩ ↑(hC.map (n + 1) j) '' sphere 0 1 = A ∩ (⋃ m, ⋃ (_ : m < n + 1), ⋃ j ∈ J m, ↑(hC.map m j) '' closedBall 0 1) ∩ ↑(hC.map (n + 1) j) '' sphere 0 1 := by
-    rw [inter_assoc, Set.inter_eq_right.2 hJ]
-  rw [this]
-  apply IsClosed.inter closedunion hC.isClosed_map_sphere
 
 lemma isClosed_inter_sphere_succ_of_le_isClosed_inter_closedBall {A : Set X} {n : ℕ} (hn : ∀ m ≤ n, ∀ (j : hC.cell m), IsClosed (A ∩ ↑(hC.map m j) '' closedBall 0 1)) : ∀ (j : hC.cell (n + 1)), IsClosed (A ∩ ↑(hC.map (n + 1) j) '' sphere 0 1) := by
   intro j
@@ -414,7 +399,6 @@ lemma isClosed_inter_sphere_succ_of_le_isClosed_inter_closedBall {A : Set X} {n 
     rw [inter_assoc, Set.inter_eq_right.2 hI]
   rw [this]
   apply IsClosed.inter closedunion hC.isClosed_map_sphere
-
 
 lemma isClosed_map_closedBall (n : ℕ) (i : hC.cell n) : IsClosed (hC.map n i '' closedBall 0 1) := by
   apply IsCompact.isClosed
@@ -485,79 +469,12 @@ lemma not_disjoint_equal {n : ℕ} {j : hC.cell n} {m : ℕ} {i : hC.cell m} (no
   simp only [PairwiseDisjoint, Set.Pairwise, Function.onFun] at this
   exact @this ⟨n, j⟩ (by simp) ⟨m, i⟩ (by simp) h'
 
-lemma compact_inter_finite (A : t.Compacts) : _root_.Finite (Σ (m : ℕ), {j : hC.cell m // ¬ Disjoint A.1 (↑(hC.map m j) '' ball 0 1)}) := by
-  by_contra h
-  simp only [TopologicalSpace.Compacts.carrier_eq_coe, not_disjoint_iff, SetLike.mem_coe,
-    not_finite_iff_infinite] at h
-  let p (m : Σ (m : ℕ), { j // ∃ x ∈ A, x ∈ ↑(hC.map m j) '' ball 0 1 }) :=
-    Classical.choose (m.2).2
-  have : Set.InjOn p (univ : Set (Σ (m : ℕ), { j // ∃ x ∈ A, x ∈ ↑(hC.map m j) '' ball 0 1 })) := by
-    rw [InjOn]
-    intro ⟨m, j, hj⟩ mjmem ⟨n, i, hi⟩ nimem peqp
-    have hpj : p ⟨m, j, hj⟩ ∈ ↑(hC.map m j) '' ball 0 1 := by simp only [p, (Classical.choose_spec hj).2]
-    have hpi : p ⟨m, j, hj⟩ ∈ ↑(hC.map n i) '' ball 0 1 := by
-      rw [peqp]
-      simp only [p, (Classical.choose_spec hi).2]
-    have : ¬ Disjoint (↑(hC.map m j) '' ball 0 1) (↑(hC.map n i) '' ball 0 1) := by
-      rw [Set.not_disjoint_iff]
-      use p ⟨m, j, hj⟩
-    have := hC.not_disjoint_equal this
-    simp at this
-    rcases this with ⟨meqn, jeqi⟩
-    subst meqn
-    simp only [heq_eq_eq] at jeqi
-    subst jeqi
-    rfl
-  have infuniv : Set.Infinite (univ : Set (Σ (m : ℕ), { j // ∃ x ∈ A, x ∈ ↑(hC.map m j) '' ball 0 1 })) := by
-    rw [infinite_univ_iff]
-    exact h
-  have infpoints := Set.Infinite.image this infuniv
-  let B := A.1 ∩ C
-  have closedB : IsClosed B := IsClosed.inter (IsCompact.isClosed A.2) hC.isClosed
-  have compactB : IsCompact B := IsCompact.of_isClosed_subset A.2 closedB (by simp [B])
-  have discrete : DiscreteTopology ↑(p '' (univ : Set (Σ (m : ℕ), { j // ∃ x ∈ A, x ∈ ↑(hC.map m j) '' ball 0 1 }))) := by
-    simp [discreteTopology_iff_forall_isClosed]
-    intro s
-    simp [instTopologicalSpaceSubtype, isClosed_induced_iff]
-    use s
-    simp [Subtype.val_injective]
-    have ssubc : ↑↑s ⊆ ↑C := by
-      have ssub := Subtype.coe_image_subset ↑(p '' univ) s
-      have subc : p '' univ ⊆ C := by
-        intro x xmem
-        simp only [image_univ, mem_range, Sigma.exists, Subtype.exists] at xmem
-        rcases xmem with ⟨m, j, h', h⟩
-        simp only [← hC.union, mem_iUnion]
-        use m
-        use j
-        simp only [p] at h
-        have := (Classical.choose_spec h').2
-        rw [h] at this
-        exact hC.map_ball_subset_map_closedball this
-      exact subset_trans ssub subc
-    rw [hC.closed s ssubc]
-    intro n j
-    by_cases h' : Subtype.val '' s ∩ ↑(hC.map n j) '' closedBall 0 1 = ∅
-    · simp [h']
-    push_neg at h'
-    rw [Set.nonempty_def] at h'
-    rcases h' with ⟨x, xmems, xmemball⟩
-    have : p '' (univ : Set (Σ (m : ℕ), { j // ∃ x ∈ A, x ∈ ↑(hC.map m j) '' ball 0 1 })) ∩ ↑(hC.map n j) '' closedBall 0 1 = {x} := by -- This doesn't seem to actually be true. See Hatcher
-      apply subset_antisymm
-      · intro y ⟨ymemp,  ymemball⟩
-        simp only [mem_singleton_iff]
-        simp only [p, mem_image] at ymemp
-        rcases ymemp with ⟨⟨l, k, kprop⟩, lkmem, lkh⟩
-        have yprop:= Classical.choose_spec kprop
-        rw [lkh] at yprop
-        sorry
-      · simp only [singleton_subset_iff]
-        exact ⟨(Subtype.coe_image_subset (p '' univ) s) xmems, xmemball⟩
-    sorry
-  have closedimp: IsClosed (p '' (univ : Set (Σ (m : ℕ), { j // ∃ x ∈ A, x ∈ ↑(hC.map m j) '' ball 0 1 }))) := by
-    sorry
+--not sure if I need this right now but nonetheless good to have
+lemma map_closedBall_inter_map_closedBall_eq_map_ball_inter_map_ball_of_le {n : ℕ} {j : hC.cell n} {m : ℕ} {i : hC.cell m} (ne : (⟨n, j⟩ : (Σ n, hC.cell n)) ≠ ⟨m, i⟩) (mlen : m ≤ n) : hC.map n j '' closedBall 0 1 ∩ hC.map m i '' closedBall 0 1 = hC.map n j '' sphere 0 1 ∩ hC.map m i '' closedBall 0 1 := by
+  rw [← Metric.sphere_union_ball, ← Metric.sphere_union_ball]
   sorry
 
+-- could this proof be simplified using `exists_mem_ball_of_mem_level`?
 lemma mapsto' (n : ℕ) (i : hC.cell n) : ∃ I : Π m, Finset (hC.cell m),
 MapsTo (hC.map n i) (sphere 0 1) (⋃ (m < n) (j ∈ I m), hC.map m j '' ball 0 1) := by
   induction' n using Nat.case_strong_induction_on with n hn
@@ -618,18 +535,5 @@ MapsTo (hC.map n i) (sphere 0 1) (⋃ (m < n) (j ∈ I m), hC.map m j '' ball 0 
       rw [← mapx']
       exact Set.mem_image_of_mem (hC.map l j) x'mem
 
-
-
 lemma mapsto'' (n :  ℕ) (i : hC.cell n) : _root_.Finite (Σ (m : ℕ), {j : hC.cell m // ¬ Disjoint (↑(hC.map n i) '' sphere 0 1 ) (↑(hC.map m j) '' ball 0 1)} ) := by
   sorry --derive this from the fact that compact sets meet only finitely many cells
-
-
-/- State some more properties: e.g.
-* `C` is closed -- done
-* the disjoint union of two CW-complexes (in the same space `X`) is a CW-complex
-  (maybe you need to require that the subspaces are separated by neighborhoods)
--/
-
-/- Define subcomplexes, quotients and products -/
-
-/- Prove some of the results in Hatcher, appendix A. -/

@@ -1,0 +1,3 @@
+\begin{Verbatim}[commandchars=\\\{\}]
+\PYG{k+kn}{lemma} \PYG{n}{levelaux\PYGZus{}zero\PYGZus{}eq\PYGZus{}empty} \PYG{o}{:} \PYG{n}{hC}\PYG{n+nb+bp}{.}\PYG{n}{levelaux} \PYG{l+m+mi}{0} \PYG{n+nb+bp}{=} \PYG{err}{∅}
+\end{Verbatim}

@@ -94,7 +94,8 @@ I will document what still needs to be done, what I am stuck on and why and what
 \section{General}
 
 \commentinline{Sources for types: Theorem proving in lean, Reference manual, \href{https://raw.githubusercontent.com/blanchette/logical_verification_2023/main/hitchhikers_guide.pdf}{Hitchhiker's guide to proof verification} (sections 4.6, 13.3, 13.4, 13.5)}
-\questionsinline{Should there be instances for CW-Complexes? So that for example with a subcomplex you automatically get the CW-Complex.}
+\todo[inline]{Convert CWComplex and Subcomplex to class so that CW-Complex can be an instance. Try if it works.}
+\todo[inline]{Provide basic examples in a seperate file. For example spheres (both different types) and intervals.}
 
 \section{File: auxiliary}
 
@@ -108,6 +109,11 @@ lemma aux1 (l : ℕ) {X : Type*} {s : ℕ →  Type*} (Y : (m : ℕ) → s m →
   \item Lemma \emph{ENat.coe\_lt\_top}
 \begin{leancode}
 lemma ENat.coe_lt_top {n : ℕ} : ↑n < (⊤ : ℕ∞)
+\end{leancode}
+  \item Lemma \emph{isClosed\_inter\_singleton}
+\begin{leancode}
+lemma isClosed_inter_singleton {X : Type*} [TopologicalSpace X] [T1Space X] {A : Set X} 
+{a : X} : IsClosed (A ∩ {a})
 \end{leancode}
   \item Lemma \emph{sphere\_zero\_dim\_empty}
 \begin{leancode}
@@ -127,6 +133,17 @@ TopologicalSpace (kification X) where
   isOpen_inter := sorry
   isOpen_sUnion := sorry
 \end{leancode}
+  \item Definition \emph{tokification}
+\begin{leancode}
+def tokification {X : Type*} : X ≃ kification X := 
+⟨fun x ↦ x, fun x ↦ x, fun _ ↦ rfl, fun _ ↦ rfl⟩
+\end{leancode}
+  \item Definition \emph{fromkification}
+\begin{leancode}
+def fromkification {X : Type*} : kification X ≃ X := 
+⟨fun x ↦ x, fun x ↦ x, fun _ ↦ rfl, fun _ ↦ rfl⟩
+\end{leancode}
+\todo[inline]{Show properties of these maps, continuous etc.}
 \end{itemize}
 
 \section{File: Definition}
@@ -160,6 +177,14 @@ def levelaux (n : ℕ∞) : Set X :=
 def level (n : ℕ∞) : Set X :=
   hC.levelaux (n + 1)
 \end{leancode}
+  \item Lemma \emph{levelaux\_eq\_level\_sub\_one}
+\begin{leancode}
+lemma levelaux_eq_level_sub_one {n : ℕ∞} (npos : n ≠ 0) : hC.levelaux n = hC.level (n - 1)
+\end{leancode}
+  \item Lemma \emph{levelaux\_zero\_eq\_empty}
+\begin{leancode}
+lemma levelaux_zero_eq_empty : hC.levelaux 0 = ∅
+\end{leancode}
 \todonoturgentinline{Add CW-Complex of finite type}
   \item Class \emph{Finite} \question{Should this be a class?}
 \begin{leancode}
@@ -175,7 +200,7 @@ structure Subcomplex (E : Set X) where
   closed : IsClosed E
   union : E = ⋃ (n : ℕ) (j : I n), hC.map n j '' ball 0 1
 \end{leancode}
-  \item Class 
+  \item Class \emph{Subcomplex.Finite}
 \begin{leancode}
 class Subcomplex.Finite (E : Set X) (subcomplex: hC.Subcomplex E) : Prop where
   finitelevels : ∀ᶠ n in Filter.atTop, IsEmpty (hC.cell n)
@@ -213,7 +238,11 @@ lemma level_subset_level_of_le {n m : ℕ∞} (h : m ≤ n) : hC.level m ⊆ hC.
 lemma iUnion_levelaux_eq_levelaux (n : ℕ∞) : 
   ⋃ (m : ℕ) (hm : m < n + 1), hC.levelaux m = hC.levelaux n
 \end{leancode}
-  \item Lemma \emph{iUnion\_ball\_eq\_levelaux} \todonoturgent{Extraxt lemma (marked in code)}
+  \item Lemma \emph{iUnion\_level\_eq\_level}
+\begin{leancode}
+lemma iUnion_level_eq_level (n : ℕ∞) : ⋃ (m : ℕ) (hm : m < n + 1), hC.level m = hC.level n
+\end{leancode}
+  \item Lemma \emph{iUnion\_ball\_eq\_levelaux}
 \begin{leancode}
 lemma iUnion_ball_eq_levelaux (n : ℕ∞) :
   ⋃ (m : ℕ) (hm : m < n) (j : hC.cell m), hC.map m j '' ball 0 1 = hC.levelaux n
@@ -261,26 +290,12 @@ lemma level_inter_image_closedBall_eq_level_inter_image_sphere
 \begin{leancode}
 lemma isClosed_map_sphere {n : ℕ} {i : hC.cell n} : IsClosed (hC.map n i '' sphere 0 1)
 \end{leancode}
-  \item Lemma \emph{isClosed\_inter\_sphere\_succ\_of\_le\_isClosed\_inter\_closedBall\_of\_mapsto}
-  \todo[caption={Unify this lemma and the next.}, size=\footnotesize, color=yellow]
-  {\textbf{Unify this lemma and the next.}
-  The problem is that in one I have the type (cell n) and in the other (Set (cell n)).
-  I think this will be solved as well if I can solve the subtype of a type problem in CWComplex\_ subcomplex}
-\begin{leancode}
-lemma isClosed_inter_sphere_succ_of_le_isClosed_inter_closedBall_of_mapsto
-{A : Set X} {n : ℕ} (I : (m : ℕ) → Set (hC.cell m))
-(hn : ∀ m ≤ n, ∀ (j : hC.cell m), IsClosed (A ∩ ↑(hC.map m j) '' closedBall 0 1))
-(mapsto : ∀ (n : ℕ) i, ∃ I : Π m, Finset (I m),
-MapsTo (hC.map n i) (sphere 0 1 : Set (Fin n → ℝ))
-(⋃ (m < n) (j ∈ I m), hC.map m j '' closedBall 0 1)) :
-  ∀ (j : hC.cell (n + 1)), IsClosed (A ∩ ↑(hC.map (n + 1) j) '' sphere 0 1)
-\end{leancode}
   \item Lemma \emph{isClosed\_inter\_sphere\_succ\_of\_le\_isClosed\_inter\_closedBall}
 \begin{leancode}
-  lemma isClosed_inter_sphere_succ_of_le_isClosed_inter_closedBall
-  {A : Set X} {n : ℕ}
-  (hn : ∀ m ≤ n, ∀ (j : hC.cell m), IsClosed (A ∩ ↑(hC.map m j) '' closedBall 0 1)) : 
-  ∀ (j : hC.cell (n + 1)), IsClosed (A ∩ ↑(hC.map (n + 1) j) '' sphere 0 1)
+lemma isClosed_inter_sphere_succ_of_le_isClosed_inter_closedBall
+{A : Set X} {n : ℕ}
+(hn : ∀ m ≤ n, ∀ (j : hC.cell m), IsClosed (A ∩ ↑(hC.map m j) '' closedBall 0 1)) : 
+∀ (j : hC.cell (n + 1)), IsClosed (A ∩ ↑(hC.map (n + 1) j) '' sphere 0 1)
 \end{leancode}
   \item Lemma \emph{isClosed\_map\_closedBall}
 \begin{leancode}
@@ -343,12 +358,14 @@ lemma not_disjoint_equal {n : ℕ} {j : hC.cell n} {m : ℕ} {i : hC.cell m}
 (notdisjoint: ¬ Disjoint (↑(hC.map n j) '' ball 0 1) (↑(hC.map m i) '' ball 0 1)) :
   (⟨n, j⟩ : (Σ n, hC.cell n)) = ⟨m, i⟩
 \end{leancode}
-  \item Lemma \emph{compact\_inter\_finite} \todo{Finish this. See Hatcher P.A.1}
+  \item Lemma \emph{map\_closedBall\_inter\_map\_closedBall\_eq\_map\_ball\_inter\_map\_ball\_of\_le} \todonoturgent{Do the proof.}
 \begin{leancode}
-lemma compact_inter_finite (A : t.Compacts) : 
-  _root_.Finite (Σ (m : ℕ), {j : hC.cell m // ¬ Disjoint A.1 (↑(hC.map m j) '' ball 0 1)})
+lemma map_closedBall_inter_map_closedBall_eq_map_ball_inter_map_ball_of_le 
+{n : ℕ} {j : hC.cell n} {m : ℕ} {i : hC.cell m} (ne : (⟨n, j⟩ : (Σ n, hC.cell n)) ≠ ⟨m, i⟩) 
+(mlen : m ≤ n) : 
+hC.map n j '' closedBall 0 1 ∩ hC.map m i '' closedBall 0 1 = hC.map n j '' sphere 0 1 ∩ hC.map m i '' closedBall 0 1
 \end{leancode}
-  \item Lemma \emph{mapsto'}
+  \item Lemma \emph{mapsto'}\comment{could this proof be simplified using `exists\_ mem\_ball\_ of\_mem \_level`?}
 \begin{leancode}
 lemma mapsto' (n : ℕ) (i : hC.cell n) : ∃ I : Π m, Finset (hC.cell m),
   MapsTo (hC.map n i) (sphere 0 1) (⋃ (m < n) (j ∈ I m), hC.map m j '' ball 0 1)
@@ -397,7 +414,7 @@ def CWComplex_disjointUnion (disjoint : Disjoint C D) : CWComplex (C ∪ D) wher
   closed A := sorry
   union := sorry
 \end{leancode}
-  \item Definition \emph{CWComplex\_subcomplex} \question{I think this should be an instance maybe?}
+  \item Definition \emph{CWComplex\_subcomplex} 
 \begin{leancode}
 def CWComplex_subcomplex (E : Set X) (subcomplex: Subcomplex hC E) : CWComplex E where
   cell n := subcomplex.I n
@@ -423,6 +440,33 @@ def Prodkification X Y := kification (X × Y)
   \item Notation \lean /×ₖ/
 \begin{leancode}
 infixr:35 " ×ₖ "  => Prodkification
+\end{leancode}
+  \item Definition \emph{prodmap} \todo{Do a composition of to maps, first an equivalence of (Fin m1 -> R) x (Fin m2 -> R) (in auxiliary) and then do Prodmap}
+\begin{leancode}
+def prodmap (m1 : ℕ) (m2 : ℕ) (c1 : hC.cell m1) (c2 : hD.cell m2) : 
+(Fin (m1 + m2) → ℝ) → (X ×ₖ Y) := 
+fun x ↦ ⟨hC.map m1 c1 (fun y ↦ x ⟨y.1, lt_of_lt_of_le y.2 (Nat.le_add_right m1 m2)⟩), 
+hD.map m2 c2 (fun y ↦ x ⟨m1 +y.1, add_lt_add_left y.2 m1⟩)⟩
+\end{leancode}
+  \item Definition \emph{prodinvmap}
+\begin{leancode}
+def prodinvmap (m1 : ℕ) (m2 : ℕ) (c1 : hC.cell m1) (c2 : hD.cell m2) : 
+(X ×ₖ Y) → (Fin (m1 + m2) → ℝ) := 
+fun ⟨x, y⟩ ↦ (fun l ↦ if llt : l < m1 then (hC.map m1 c1).invFun x ⟨l, llt⟩ 
+else (hD.map m2 c2).invFun y ⟨l - m1, Nat.sub_lt_left_of_lt_add (not_lt.1 llt) l.2⟩)
+\end{leancode}
+  \item Definition \emph{mapprodkification} \todo{Finish this}
+\begin{leancode}
+def mapprodkification (m1 : ℕ) (m2 : ℕ) (c1 : hC.cell m1) (c2 : hD.cell m2):
+  PartialEquiv (Fin (m1 + m2) → ℝ) (X ×ₖ Y) where
+    toFun :=  prodmap hC hD m1 m2 c1 c2
+    invFun := prodinvmap hC hD m1 m2 c1 c2
+    source := closedBall 0 1
+    target := (prodmap hC hD m1 m2 c1 c2) '' closedBall 0 1
+    map_source' := sorry
+    map_target' := sorry
+    left_inv' := sorry
+    right_inv' := sorry
 \end{leancode}
   \item Definition \emph{CWComplex\_product} \todo{Make this work and do the proofs!}
 \begin{leancode}
@@ -452,12 +496,32 @@ variable {X : Type*} [t : TopologicalSpace X] [T2Space X] {C : Set X} (hC : CWCo
 \begin{leancode}
 lemma isClosed_level (n : ℕ∞) : IsClosed (hC.level n)
 \end{leancode}
+  \item Lemma \emph{isClosed\_levelaux}
+\begin{leancode}
+lemma isClosed_levelaux (n : ℕ∞) : IsClosed (hC.levelaux n)
+\end{leancode}
+  \item Lemma \emph{closed\_iff\_inter\_levelaux\_closed}
+\begin{leancode}
+lemma closed_iff_inter_levelaux_closed (A : Set X) (asubc : A ⊆ C) : 
+IsClosed A ↔ ∀ (n : ℕ), IsClosed (A ∩ hC.levelaux n)
+\end{leancode}
+  \item Lemma \emph{inter\_levelaux\_succ\_closed\_iff\_inter\_levelaux\_closed\_and\_inter\_closedBall\_closed}
+\begin{leancode}
+lemma inter_levelaux_succ_closed_iff_inter_levelaux_closed_and_inter_closedBall_closed 
+(A : Set X) : IsClosed (A ∩ hC.levelaux (Nat.succ n)) ↔ 
+IsClosed (A ∩ hC.levelaux n) ∧ ∀ (j : hC.cell n), IsClosed (A ∩ hC.map n j '' closedBall 0 1)
+\end{leancode}
   \item Lemma \emph{isDiscrete\_level\_zero}
 \begin{leancode}
 lemma isDiscrete_level_zero {A : Set X} : IsClosed (A ∩ hC.level 0)
+\end{leancode} 
+  \item Lemma \emph{compact\_inter\_finite}
+\begin{leancode}
+lemma compact_inter_finite (A : t.Compacts) : 
+  _root_.Finite (Σ (m : ℕ), {j : hC.cell m // ¬ Disjoint A.1 (↑(hC.map m j) '' ball 0 1)})
 \end{leancode}
 \todo[inline]{Make the following lemmata work with new definitions}
-  \item Lemma \emph{iUnion\_subcomplex} \comment{Use CWComplex\_ subcomplex}\question{Again I need the indexed sum/disjoint union here.}
+  \item Lemma \emph{iUnion\_subcomplex} \comment{Use CWComplex\_ subcomplex}
 \begin{leancode}
 lemma iUnion_subcomplex (J : Type u) (I : J → Π n, Set (hC.cell n))
 (cw : ∀ (l : J), CWComplex (⋃ (n : ℕ) (j : I l n), hC.map n j '' ball 0 1)) 

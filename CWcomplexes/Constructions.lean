@@ -286,7 +286,8 @@ def CWComplex_subcomplex (E : Set X) (subcomplex: Subcomplex hC E) : CWComplex E
       apply Subtype.coe_injective at heq
       simp [heq]
     exact disjoint this
-  mapsto n i := by
+  mapsto := by
+    intro n i
     rcases hC.mapsto' n i with ⟨J, hJ⟩
     let J' m := Finset.preimage (J m) (fun (x : subcomplex.I m) ↦ ↑x) (by simp [InjOn])
     use J'
@@ -350,8 +351,7 @@ def CWComplex_subcomplex (E : Set X) (subcomplex: Subcomplex hC E) : CWComplex E
         · exact closed (Nat.succ n) ⟨j, h⟩
         rw [← Metric.sphere_union_ball, image_union, inter_union_distrib_left]
         apply IsClosed.union
-        · have : ∀ (n : ℕ) i, ∃ I : Π m, Finset (subcomplex.I m), MapsTo (hC.map n i) (sphere 0 1 : Set (Fin n → ℝ)) (⋃ (m < n) (j ∈ I m), hC.map m j '' closedBall 0 1) := by sorry -- How can I just use the statement mapsto?
-          exact hC.isClosed_inter_sphere_succ_of_le_isClosed_inter_closedBall_of_mapsto subcomplex.I hn this j
+        · exact hC.isClosed_inter_sphere_succ_of_le_isClosed_inter_closedBall hn j
         · have h1 : (⋃ (n : ℕ) (j : subcomplex.I n), hC.map n j '' ball 0 1) ∩ ↑(hC.map (Nat.succ n) j) '' ball 0 1 = ∅ := by
             simp [iUnion_inter]
             intro m i imem
@@ -397,6 +397,75 @@ def Prodkification X Y := kification (X × Y)
 infixr:35 " ×ₖ "  => Prodkification
 
 instance instprodkification : TopologicalSpace (X ×ₖ Y) := instkification
+
+-- I feel like the maps shouldn't be defined this way. There should be a sum of maps somewhere...
+-- do the composite of ℝ^m1+m2 to the product and from there the product map arrowcongr
+-- should use Fin m1 + Fin m2 ≃ Fin (m1 + m2)
+-- Prodmap
+-- See Logic.Equiv.Fin
+
+def prodmap (m1 : ℕ) (m2 : ℕ) (c1 : hC.cell m1) (c2 : hD.cell m2) : (Fin (m1 + m2) → ℝ) → (X ×ₖ Y) := fun x ↦ ⟨hC.map m1 c1 (fun y ↦ x ⟨y.1, lt_of_lt_of_le y.2 (Nat.le_add_right m1 m2)⟩), hD.map m2 c2 (fun y ↦ x ⟨m1 +y.1, add_lt_add_left y.2 m1⟩)⟩
+
+def prodinvmap (m1 : ℕ) (m2 : ℕ) (c1 : hC.cell m1) (c2 : hD.cell m2) : (X ×ₖ Y) → (Fin (m1 + m2) → ℝ) := fun ⟨x, y⟩ ↦ (fun l ↦ if llt : l < m1 then (hC.map m1 c1).invFun x ⟨l, llt⟩ else (hD.map m2 c2).invFun y ⟨l - m1, Nat.sub_lt_left_of_lt_add (not_lt.1 llt) l.2⟩)
+
+def mapprodkification (m1 : ℕ) (m2 : ℕ) (c1 : hC.cell m1) (c2 : hD.cell m2):
+PartialEquiv (Fin (m1 + m2) → ℝ) (X ×ₖ Y) where
+  toFun :=  prodmap hC hD m1 m2 c1 c2
+  invFun := prodinvmap hC hD m1 m2 c1 c2
+  source := closedBall 0 1
+  target := (prodmap hC hD m1 m2 c1 c2) '' closedBall 0 1
+  map_source' := by
+    intro x xmem
+    exact Set.mem_image_of_mem (prodmap hC hD m1 m2 c1 c2) xmem
+  map_target' := by
+    intro ⟨x, y⟩ xymem
+    rw [prodinvmap]
+    simp only [PartialEquiv.invFun_as_coe, mem_closedBall, dist_zero_right, norm, nnnorm]
+    norm_cast
+    apply Finset.sup_le
+    intro l _
+    by_cases h : l < m1
+    · have :  x ∈ (hC.map m1 c1).target := by
+        simp only [prodmap, mem_image] at xymem
+        rcases xymem with ⟨z, zmem, hz⟩
+        rw [Prod.mk.injEq] at hz
+        simp only [← PartialEquiv.image_source_eq_target, hC.source_eq, mem_image]
+        let z' := fun (k : Fin m1) ↦ z ⟨k.1, lt_of_lt_of_le k.2 (Nat.le_add_right m1 m2)⟩
+        use z'
+        simp [z', hz.1]
+        simp [norm, nnnorm] at *
+        intro b
+        simp [zmem ⟨b.1, lt_of_lt_of_le b.2 (Nat.le_add_right m1 m2)⟩]
+      have := (hC.map m1 c1).map_target' this
+      simp [hC.source_eq, norm, nnnorm] at this
+      simp [h]
+      exact this ⟨l.1, h⟩
+    · have :  y ∈ (hD.map m2 c2).target := by
+        simp only [prodmap, mem_image] at xymem
+        rcases xymem with ⟨z, zmem, hz⟩
+        rw [Prod.mk.injEq] at hz
+        simp only [← PartialEquiv.image_source_eq_target, hD.source_eq, mem_image]
+        let z' := fun (k : Fin m2) ↦ z ⟨m1 +k.1, add_lt_add_left k.2 m1⟩
+        use z'
+        simp [z', hz.2]
+        simp [norm, nnnorm] at *
+        intro b
+        simp [zmem ⟨m1 + b.1, add_lt_add_left b.2 m1⟩]
+      have := (hD.map m2 c2).map_target' this
+      simp [hD.source_eq, norm, nnnorm] at this
+      simp [h]
+      exact this ⟨l.1 - m1, Nat.sub_lt_left_of_lt_add (not_lt.1 h) l.2⟩
+  left_inv' := by
+    intro x xmem
+    ext l
+    simp [prodmap, prodinvmap]
+    by_cases h: l < m1
+    · simp [h]
+      sorry
+
+    sorry
+  right_inv' := sorry
+
 
 -- See Hatcher p. 533
 instance CWComplex_product : @CWComplex (X ×ₖ Y) instprodkification (C ×ˢ D) where

@@ -1,4 +1,4 @@
-This is XeTeX, Version 3.141592653-2.6-0.999996 (TeX Live 2024) (preloaded format=xelatex 2024.4.20)  21 MAY 2024 17:13
+This is XeTeX, Version 3.141592653-2.6-0.999996 (TeX Live 2024) (preloaded format=xelatex 2024.4.20)  6 JUN 2024 15:25
 entering extended mode
  \write18 enabled.
  file:line:error style messages enabled.
@@ -677,6 +677,9 @@ Package hyperref Info: bookmark level for unknown todo defaults to 0 on input li
  (./_minted-overview/09F729BB7A26486677F3F2B39017950748CD1EC9EBC172EC67FCEEDB4B7ECDBC.pygtex)
 \openout3 = `overview.pyg'.
 
+ (./_minted-overview/55DCD21B3870B4203544F1A1D9BA1AF448CD1EC9EBC172EC67FCEEDB4B7ECDBC.pygtex)
+\openout3 = `overview.pyg'.
+
  (./_minted-overview/374616C8B5A9DCEF262CB9988F89071848CD1EC9EBC172EC67FCEEDB4B7ECDBC.pygtex)
 \openout3 = `overview.pyg'.
 
@@ -684,22 +687,34 @@ Package hyperref Info: bookmark level for unknown todo defaults to 0 on input li
 \openout3 = `overview.pyg'.
 
  (./_minted-overview/48353D3009B2A21CA265C651EA3B31CE48CD1EC9EBC172EC67FCEEDB4B7ECDBC.pygtex)
-\openout4 = `overview.pyg'.
-
- (./_minted-overview/EF7AC81FF2D43C58A3AA1EEC419CBB0F48CD1EC9EBC172EC67FCEEDB4B7ECDBC.pygtex)
 \openout3 = `overview.pyg'.
 
- (./_minted-overview/5FF91E29836AA15119D1398BADCA87D748CD1EC9EBC172EC67FCEEDB4B7ECDBC.pygtex [3])
+ (./_minted-overview/62EED8B6D70F784744B1A547F1AA7DBD48CD1EC9EBC172EC67FCEEDB4B7ECDBC.pygtex)
+\openout3 = `overview.pyg'.
+
+
+(./_minted-overview/5EB9187297AA129B9F798C36E82B8A4348CD1EC9EBC172EC67FCEEDB4B7ECDBC.pygtex)
 \openout4 = `overview.pyg'.
 
+ (./_minted-overview/EF7AC81FF2D43C58A3AA1EEC419CBB0F48CD1EC9EBC172EC67FCEEDB4B7ECDBC.pygtex) [3]
+\openout3 = `overview.pyg'.
 
-(./_minted-overview/EE982ED146337D780E676ED8E9CDA05648CD1EC9EBC172EC67FCEEDB4B7ECDBC.pygtex)
+ (./_minted-overview/5FF91E29836AA15119D1398BADCA87D748CD1EC9EBC172EC67FCEEDB4B7ECDBC.pygtex)
+\openout4 = `overview.pyg'.
+
+ (./_minted-overview/EE982ED146337D780E676ED8E9CDA05648CD1EC9EBC172EC67FCEEDB4B7ECDBC.pygtex)
 \openout3 = `overview.pyg'.
 
  (./_minted-overview/0CF80644E00CBDCAA40B8A3F4BCF4FAA48CD1EC9EBC172EC67FCEEDB4B7ECDBC.pygtex)
 \openout3 = `overview.pyg'.
 
  (./_minted-overview/498B3E102894A5E701492CDFD646D23448CD1EC9EBC172EC67FCEEDB4B7ECDBC.pygtex)
+\openout3 = `overview.pyg'.
+
+ (./_minted-overview/C5F1914833BCCBD8A8DE367F080BDD6548CD1EC9EBC172EC67FCEEDB4B7ECDBC.pygtex)
+\openout3 = `overview.pyg'.
+
+ (./_minted-overview/112967695FE4E52218E52891C5B976CA48CD1EC9EBC172EC67FCEEDB4B7ECDBC.pygtex)
 \openout3 = `overview.pyg'.
 
  (./_minted-overview/2D1735A5A7D57E67FC5DA98AD7DFE3F348CD1EC9EBC172EC67FCEEDB4B7ECDBC.pygtex
@@ -712,7 +727,7 @@ Missing character: There is no ᶠ (U+1DA0) in font FreeMono/OT:script=latn;lang
 
  (./_minted-overview/8F3E6D88DF4EAA62B538D27A03FB0D8748CD1EC9EBC172EC67FCEEDB4B7ECDBC.pygtex
 Missing character: There is no ᶠ (U+1DA0) in font FreeMono/OT:script=latn;language=dflt;!
-)
+[4])
 \openout3 = `overview.pyg'.
 
  (./_minted-overview/9FDF79084EE9488E038940E8E16CB89748CD1EC9EBC172EC67FCEEDB4B7ECDBC.pygtex)
@@ -730,10 +745,13 @@ Missing character: There is no ᶠ (U+1DA0) in font FreeMono/OT:script=latn;lang
  (./_minted-overview/6DEB828D55B682F162066E5638073D4D48CD1EC9EBC172EC67FCEEDB4B7ECDBC.pygtex)
 \openout3 = `overview.pyg'.
 
- (./_minted-overview/32206A7D9027DE992660D2C11CD1556148CD1EC9EBC172EC67FCEEDB4B7ECDBC.pygtex [4])
+ (./_minted-overview/32206A7D9027DE992660D2C11CD1556148CD1EC9EBC172EC67FCEEDB4B7ECDBC.pygtex)
 \openout3 = `overview.pyg'.
 
  (./_minted-overview/2C614F677975500A9AD670DCEAB0C14C48CD1EC9EBC172EC67FCEEDB4B7ECDBC.pygtex)
+\openout3 = `overview.pyg'.
+
+ (./_minted-overview/3F3D5B62A068A2182D00492CCB53CFF448CD1EC9EBC172EC67FCEEDB4B7ECDBC.pygtex)
 \openout3 = `overview.pyg'.
 
  (./_minted-overview/4288BDA171904419E67C742027A4A13248CD1EC9EBC172EC67FCEEDB4B7ECDBC.pygtex)
@@ -751,11 +769,11 @@ Missing character: There is no ᶠ (U+1DA0) in font FreeMono/OT:script=latn;lang
  (./_minted-overview/0B7F723C310DADDA392A82E07D66260948CD1EC9EBC172EC67FCEEDB4B7ECDBC.pygtex)
 \openout3 = `overview.pyg'.
 
- (./_minted-overview/21FF4FAD8B21D18CFA9509F545DE020848CD1EC9EBC172EC67FCEEDB4B7ECDBC.pygtex)
+ (./_minted-overview/21FF4FAD8B21D18CFA9509F545DE020848CD1EC9EBC172EC67FCEEDB4B7ECDBC.pygtex [5])
 \openout3 = `overview.pyg'.
 
  (./_minted-overview/64C1302E5D33FE07E23FF7620A98DBF148CD1EC9EBC172EC67FCEEDB4B7ECDBC.pygtex
-Overfull \hbox (14.46pt too wide) in paragraph at lines 246--1
+Overfull \hbox (14.46pt too wide) in paragraph at lines 275--1
 []\TU/lmr/m/n/10 Lemma \TU/lmr/m/it/10 levelaux_inter_image_closedBall_eq_levelaux_inter_image_sphere 
  []
 
@@ -768,15 +786,7 @@ Overfull \hbox (14.46pt too wide) in paragraph at lines 246--1
  (./_minted-overview/EA3695C7A7E81D503CC3746CE573B98048CD1EC9EBC172EC67FCEEDB4B7ECDBC.pygtex)
 \openout3 = `overview.pyg'.
 
- (./_minted-overview/CDFFF733F7FD00FB1ED485846DF1C8BB48CD1EC9EBC172EC67FCEEDB4B7ECDBC.pygtex
-Overfull \hbox (44.5pt too wide) in paragraph at lines 264--1
-[]\TU/lmr/m/n/10 Lemma \TU/lmr/m/it/10 isClosed_inter_sphere_succ_of_le_isClosed_inter_closedBall_of_mapsto
- []
-
-[5])
-\openout3 = `overview.pyg'.
-
- (./_minted-overview/9682099F6CB3B446FE46776798BC10CD48CD1EC9EBC172EC67FCEEDB4B7ECDBC.pygtex)
+ (./_minted-overview/FA263C242854234C68A746F0E36F75B848CD1EC9EBC172EC67FCEEDB4B7ECDBC.pygtex)
 \openout3 = `overview.pyg'.
 
  (./_minted-overview/D9C80DB0DD04C2CC5AFE40F01EE7DA3648CD1EC9EBC172EC67FCEEDB4B7ECDBC.pygtex)
@@ -794,7 +804,7 @@ Overfull \hbox (44.5pt too wide) in paragraph at lines 264--1
  (./_minted-overview/DF830F7959F33C0DC74F8579009A59B448CD1EC9EBC172EC67FCEEDB4B7ECDBC.pygtex)
 \openout3 = `overview.pyg'.
 
- (./_minted-overview/559045446265754D2CB78534236B09AA48CD1EC9EBC172EC67FCEEDB4B7ECDBC.pygtex)
+ (./_minted-overview/559045446265754D2CB78534236B09AA48CD1EC9EBC172EC67FCEEDB4B7ECDBC.pygtex [6])
 \openout3 = `overview.pyg'.
 
  (./_minted-overview/01670E0777A30274947D89CEF7A8909048CD1EC9EBC172EC67FCEEDB4B7ECDBC.pygtex)
@@ -806,7 +816,7 @@ Overfull \hbox (44.5pt too wide) in paragraph at lines 264--1
  (./_minted-overview/505435FD8158EF19A42F55DF508309DB48CD1EC9EBC172EC67FCEEDB4B7ECDBC.pygtex)
 \openout3 = `overview.pyg'.
 
- (./_minted-overview/6FAA5B0C1145178394CAF84A23A621A148CD1EC9EBC172EC67FCEEDB4B7ECDBC.pygtex [6])
+ (./_minted-overview/6FAA5B0C1145178394CAF84A23A621A148CD1EC9EBC172EC67FCEEDB4B7ECDBC.pygtex)
 \openout3 = `overview.pyg'.
 
  (./_minted-overview/AB347C48619C67E781F714AF58E1D79E48CD1EC9EBC172EC67FCEEDB4B7ECDBC.pygtex)
@@ -815,25 +825,34 @@ Overfull \hbox (44.5pt too wide) in paragraph at lines 264--1
  (./_minted-overview/2C79643DB71A6EBCA259E326E982D56448CD1EC9EBC172EC67FCEEDB4B7ECDBC.pygtex)
 \openout3 = `overview.pyg'.
 
- (./_minted-overview/CF2860D99900D068AB7B53F23CDD3C2848CD1EC9EBC172EC67FCEEDB4B7ECDBC.pygtex)
+ (./_minted-overview/8614A164DB9229739141D787576625C748CD1EC9EBC172EC67FCEEDB4B7ECDBC.pygtex
+Overfull \hbox (60.4pt too wide) in paragraph at lines 361--1
+[]\TU/lmr/m/n/10 Lemma \TU/lmr/m/it/10 map_closedBall_inter_map_closedBall_eq_map_ball_inter_map_ball_of_le
+ []
+
+)
 \openout3 = `overview.pyg'.
 
  (./_minted-overview/DFA0BC3040731D46465EF648ACF2F7C248CD1EC9EBC172EC67FCEEDB4B7ECDBC.pygtex)
 \openout3 = `overview.pyg'.
 
- (./_minted-overview/C01BC8C400571FE64A5E5DE7BE27A21A48CD1EC9EBC172EC67FCEEDB4B7ECDBC.pygtex)
+ (./_minted-overview/C01BC8C400571FE64A5E5DE7BE27A21A48CD1EC9EBC172EC67FCEEDB4B7ECDBC.pygtex
+
+LaTeX Warning: Marginpar on page 7 moved.
+
+)
 \openout3 = `overview.pyg'.
 
  (./_minted-overview/47DF40E11C62656E832C570AF97694B848CD1EC9EBC172EC67FCEEDB4B7ECDBC.pygtex)
 \openout3 = `overview.pyg'.
 
- (./_minted-overview/C9735401A898981BDAD2F17726627B0048CD1EC9EBC172EC67FCEEDB4B7ECDBC.pygtex)
+ (./_minted-overview/C9735401A898981BDAD2F17726627B0048CD1EC9EBC172EC67FCEEDB4B7ECDBC.pygtex [7])
 \openout4 = `overview.pyg'.
 
  (./_minted-overview/03B2F3773E155BA3B1B70C150FD5133B48CD1EC9EBC172EC67FCEEDB4B7ECDBC.pygtex)
 \openout3 = `overview.pyg'.
 
- (./_minted-overview/B6B5DCB2CA8AD723D85C9042B5CEC89448CD1EC9EBC172EC67FCEEDB4B7ECDBC.pygtex [7])
+ (./_minted-overview/B6B5DCB2CA8AD723D85C9042B5CEC89448CD1EC9EBC172EC67FCEEDB4B7ECDBC.pygtex)
 \openout3 = `overview.pyg'.
 
  (./_minted-overview/EBCD5D9DEF48D9D6DE377A3C867F0F8048CD1EC9EBC172EC67FCEEDB4B7ECDBC.pygtex)
@@ -850,7 +869,25 @@ Missing character: There is no ₖ (U+2096) in font FreeMono/OT:script=latn;lang
 )
 \openout3 = `overview.pyg'.
 
- (./_minted-overview/241176673F9A2096FC3AFD9A2A8BC2BC48CD1EC9EBC172EC67FCEEDB4B7ECDBC.pygtex
+ (./_minted-overview/241176673F9A2096FC3AFD9A2A8BC2BC48CD1EC9EBC172EC67FCEEDB4B7ECDBC.pygtex [8]
+Missing character: There is no ₖ (U+2096) in font FreeMono/OT:script=latn;language=dflt;!
+)
+\openout3 = `overview.pyg'.
+
+ (./_minted-overview/C084A0DD8B0CF52D7D66F6F8BB1083FB48CD1EC9EBC172EC67FCEEDB4B7ECDBC.pygtex
+Missing character: There is no ₖ (U+2096) in font FreeMono/OT:script=latn;language=dflt;!
+)
+\openout3 = `overview.pyg'.
+
+ (./_minted-overview/0E0124349121A23BAF42F600CF67AD4148CD1EC9EBC172EC67FCEEDB4B7ECDBC.pygtex
+Missing character: There is no ₖ (U+2096) in font FreeMono/OT:script=latn;language=dflt;!
+)
+\openout3 = `overview.pyg'.
+
+ (./_minted-overview/914BFB81332CD5FF8CA5D3AAF3A4CA0648CD1EC9EBC172EC67FCEEDB4B7ECDBC.pygtex
+
+LaTeX Warning: Marginpar on page 9 moved.
+
 Missing character: There is no ₖ (U+2096) in font FreeMono/OT:script=latn;language=dflt;!
 )
 \openout3 = `overview.pyg'.
@@ -860,34 +897,43 @@ Missing character: There is no ₖ (U+2096) in font FreeMono/OT:script=latn;lang
 )
 \openout3 = `overview.pyg'.
 
- (./_minted-overview/47DF40E11C62656E832C570AF97694B848CD1EC9EBC172EC67FCEEDB4B7ECDBC.pygtex [8])
+ (./_minted-overview/47DF40E11C62656E832C570AF97694B848CD1EC9EBC172EC67FCEEDB4B7ECDBC.pygtex)
 \openout3 = `overview.pyg'.
 
  (./_minted-overview/0AAA10059F081FD1F49CEDA1F8B7AA7B48CD1EC9EBC172EC67FCEEDB4B7ECDBC.pygtex)
 \openout3 = `overview.pyg'.
 
+ (./_minted-overview/B686F3F365C8A5FABE26567E970BD6D148CD1EC9EBC172EC67FCEEDB4B7ECDBC.pygtex [9])
+\openout3 = `overview.pyg'.
+
+ (./_minted-overview/27921EC0FE172D6154573611478AA3B648CD1EC9EBC172EC67FCEEDB4B7ECDBC.pygtex)
+\openout3 = `overview.pyg'.
+
+ (./_minted-overview/4E500EBE2419E3CDC1FB572D594E84F848CD1EC9EBC172EC67FCEEDB4B7ECDBC.pygtex
+Overfull \hbox (90.83pt too wide) in paragraph at lines 508--1
+[]\TU/lmr/m/n/10 Lemma \TU/lmr/m/it/10 inter_levelaux_succ_closed_iff_inter_levelaux_closed_and_inter_closedBall_closed 
+ []
+
+)
+\openout3 = `overview.pyg'.
+
  (./_minted-overview/FE4D32A94E2135985DB0C4B89A03B2BD48CD1EC9EBC172EC67FCEEDB4B7ECDBC.pygtex)
 \openout3 = `overview.pyg'.
 
- (./_minted-overview/B7BB836D55629E220DD9CDA4E554EBFF48CD1EC9EBC172EC67FCEEDB4B7ECDBC.pygtex
-
-LaTeX Warning: Marginpar on page 9 moved.
-
-)
+ (./_minted-overview/CF2860D99900D068AB7B53F23CDD3C2848CD1EC9EBC172EC67FCEEDB4B7ECDBC.pygtex)
 \openout3 = `overview.pyg'.
 
- (./_minted-overview/A258735F468ECF0D0BBD1C88FA731EBA48CD1EC9EBC172EC67FCEEDB4B7ECDBC.pygtex
+ (./_minted-overview/B7BB836D55629E220DD9CDA4E554EBFF48CD1EC9EBC172EC67FCEEDB4B7ECDBC.pygtex)
+\openout3 = `overview.pyg'.
 
-LaTeX Warning: Marginpar on page 9 moved.
-
-)
+ (./_minted-overview/A258735F468ECF0D0BBD1C88FA731EBA48CD1EC9EBC172EC67FCEEDB4B7ECDBC.pygtex)
 \openout3 = `overview.pyg'.
 
  (./_minted-overview/34D1C2079246A2813518FE61ECB6A14E48CD1EC9EBC172EC67FCEEDB4B7ECDBC.pygtex
 
-LaTeX Warning: Marginpar on page 9 moved.
+LaTeX Warning: Marginpar on page 10 moved.
 
-) [9] (./overview.aux)
+) [10] (./overview.aux)
  ***********
 LaTeX2e <2023-11-01> patch level 1
 L3 programming layer <2024-03-14>
@@ -898,12 +944,12 @@ runsystem(del overview.pyg)...executed.
 
  ) 
 Here is how much of TeX's memory you used:
- 25449 strings out of 474761
- 565697 string characters out of 5761074
- 1942148 words of memory out of 5000000
- 47006 multiletter control sequences out of 15000+600000
- 561357 words of font info for 70 fonts, out of 8000000 for 9000
+ 25524 strings out of 474761
+ 572858 string characters out of 5761074
+ 1944148 words of memory out of 5000000
+ 47047 multiletter control sequences out of 15000+600000
+ 561349 words of font info for 69 fonts, out of 8000000 for 9000
  1348 hyphenation exceptions out of 8191
- 117i,8n,121p,660b,1049s stack positions out of 10000i,1000n,20000p,200000b,200000s
+ 117i,8n,121p,794b,1049s stack positions out of 10000i,1000n,20000p,200000b,200000s
 
-Output written on overview.pdf (9 pages).
+Output written on overview.pdf (10 pages).

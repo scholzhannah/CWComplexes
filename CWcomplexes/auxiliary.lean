@@ -32,6 +32,15 @@ lemma aux1 (l : ℕ) {X : Type*} {s : ℕ →  Type*} (Y : (m : ℕ) → s m →
 
 lemma ENat.coe_lt_top {n : ℕ} : ↑n < (⊤ : ℕ∞) := Ne.lt_top (ENat.coe_ne_top n)
 
+lemma isClosed_inter_singleton {X : Type*} [TopologicalSpace X] [T1Space X] {A : Set X} {a : X} : IsClosed (A ∩ {a}) := by
+  by_cases h : a ∈ A
+  · have : A ∩ {a} = {a} := by simp only [Set.inter_eq_right, Set.singleton_subset_iff, h]
+    rw [this]
+    exact isClosed_singleton
+  · have : A ∩ {a} = ∅ := by simp only [Set.inter_singleton_eq_empty, h, not_false_eq_true]
+    rw [this]
+    exact isClosed_empty
+
 lemma sphere_zero_dim_empty {X : Type*} {h : PseudoMetricSpace (Fin 0 → X)}: (Metric.sphere ![] 1 : Set (Fin 0 → X)) = ∅ := by
   simp [Metric.sphere, Matrix.empty_eq]
 
@@ -65,3 +74,5 @@ instance instkification {X : Type*} [t : TopologicalSpace X] : TopologicalSpace 
 def tokification {X : Type*} : X ≃ kification X := ⟨fun x ↦ x, fun x ↦ x, fun _ ↦ rfl, fun _ ↦ rfl⟩
 
 def fromkification {X : Type*} : kification X ≃ X := ⟨fun x ↦ x, fun x ↦ x, fun _ ↦ rfl, fun _ ↦ rfl⟩
+
+-- show properties of these maps

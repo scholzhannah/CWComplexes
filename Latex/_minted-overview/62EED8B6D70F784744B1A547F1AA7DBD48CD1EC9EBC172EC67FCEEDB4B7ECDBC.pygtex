@@ -1,0 +1,4 @@
+\begin{Verbatim}[commandchars=\\\{\}]
+\PYG{k+kn}{def} \PYG{n}{tokification} \PYG{o}{\PYGZob{}}\PYG{n}{X} \PYG{o}{:} \PYG{k+kt}{Type}\PYG{n+nb+bp}{*}\PYG{o}{\PYGZcb{}} \PYG{o}{:} \PYG{n}{X} \PYG{err}{≃} \PYG{n}{kification} \PYG{n}{X} \PYG{o}{:=}
+\PYG{n+nb+bp}{⟨}\PYG{k}{fun} \PYG{n}{x} \PYG{err}{↦} \PYG{n}{x}\PYG{o}{,} \PYG{k}{fun} \PYG{n}{x} \PYG{err}{↦} \PYG{n}{x}\PYG{o}{,} \PYG{k}{fun} \PYG{n+nb+bp}{\PYGZus{}} \PYG{err}{↦} \PYG{n}{rfl}\PYG{o}{,} \PYG{k}{fun} \PYG{n+nb+bp}{\PYGZus{}} \PYG{err}{↦} \PYG{n}{rfl}\PYG{n+nb+bp}{⟩}
+\end{Verbatim}

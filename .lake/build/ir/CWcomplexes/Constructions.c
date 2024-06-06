@@ -13,8 +13,11 @@
 #ifdef __cplusplus
 extern "C" {
 #endif
+LEAN_EXPORT lean_object* l_CWComplex_prodinvmap___rarg(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
 static lean_object* l_CWComplex___aux__CWcomplexes__Constructions______macroRules__CWComplex__term___xd7_u2096____1___closed__3;
+LEAN_EXPORT lean_object* l_CWComplex_mapprodkification___elambda__2___boxed(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
 LEAN_EXPORT lean_object* l_CWComplex_CWComplex__level___elambda__1___boxed(lean_object*, lean_object*, lean_object*);
+LEAN_EXPORT lean_object* l_CWComplex_prodmap___rarg___lambda__1(lean_object*, lean_object*, lean_object*);
 LEAN_EXPORT lean_object* l_CWComplex___aux__CWcomplexes__Constructions______unexpand__CWComplex__CWComplex__product__1(lean_object*, lean_object*, lean_object*);
 static lean_object* l_CWComplex_term___xd7_u2096_____closed__7;
 LEAN_EXPORT lean_object* l_CWComplex___aux__CWcomplexes__Constructions______unexpand__CWComplex__Prodkification__1(lean_object*, lean_object*, lean_object*);
@@ -23,6 +26,7 @@ LEAN_EXPORT lean_object* l_CWComplex___aux__CWcomplexes__Constructions______unex
 static lean_object* l_CWComplex___aux__CWcomplexes__Constructions______macroRules__CWComplex__term___xd7_u2096____1___closed__6;
 LEAN_EXPORT lean_object* l___private_CWcomplexes_Constructions_0__CWComplex_CWComplex__disjointUnion_match__1_splitter___boxed(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
 static lean_object* l_CWComplex___aux__CWcomplexes__Constructions______macroRules__CWComplex__term___xd7____1___closed__6;
+LEAN_EXPORT lean_object* l_CWComplex_mapprodkification___elambda__1(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
 static lean_object* l_CWComplex_term___xd7_u2096_____closed__11;
 static lean_object* l_CWComplex___aux__CWcomplexes__Constructions______macroRules__CWComplex__term___xd7_u2096____1___closed__4;
 static lean_object* l_CWComplex_term___xd7_____closed__6;
@@ -30,6 +34,7 @@ static lean_object* l_CWComplex___aux__CWcomplexes__Constructions______macroRule
 LEAN_EXPORT lean_object* l_CWComplex_CWComplex__level(lean_object*);
 LEAN_EXPORT lean_object* l_CWComplex_CWComplex__level___rarg(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
 lean_object* l_Lean_replaceRef(lean_object*, lean_object*);
+LEAN_EXPORT lean_object* l_CWComplex_mapprodkification___rarg___boxed(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
 static lean_object* l_CWComplex_term___xd7_____closed__1;
 LEAN_EXPORT lean_object* l_CWComplex_CWComplex__subcomplex___elambda__1(lean_object*, lean_object*, lean_object*);
 static lean_object* l_CWComplex_term___xd7_u2096_____closed__3;
@@ -38,16 +43,20 @@ LEAN_EXPORT lean_object* l_CWComplex_CWComplex__product(lean_object*, lean_objec
 uint8_t l_Lean_Syntax_isOfKind(lean_object*, lean_object*);
 static lean_object* l_CWComplex_term___xd7_u2096_____closed__8;
 LEAN_EXPORT lean_object* l_CWComplex_CWComplex__level___elambda__1(lean_object*, lean_object*, lean_object*);
+LEAN_EXPORT lean_object* l_CWComplex_prodmap(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
 static lean_object* l_CWComplex___aux__CWcomplexes__Constructions______macroRules__CWComplex__term___xd7_u2096____1___closed__5;
 LEAN_EXPORT lean_object* l_CWComplex_instprodkification___boxed(lean_object*, lean_object*, lean_object*, lean_object*);
+LEAN_EXPORT lean_object* l_CWComplex_prodmap___rarg(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
 LEAN_EXPORT lean_object* l_CWComplex_term___xd7_u2096__;
 lean_object* lean_sorry(uint8_t);
 LEAN_EXPORT lean_object* l_CWComplex_CWComplex__subcomplex___elambda__1___rarg___boxed(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
 LEAN_EXPORT lean_object* l_CWComplex_CWComplex__subcomplex___elambda__1___boxed(lean_object*, lean_object*, lean_object*);
 static lean_object* l_CWComplex___aux__CWcomplexes__Constructions______macroRules__CWComplex__term___xd7_u2096____1___closed__1;
+LEAN_EXPORT lean_object* l_CWComplex_prodmap___boxed(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
 LEAN_EXPORT lean_object* l_CWComplex_CWComplex__disjointUnion___rarg___boxed(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
 LEAN_EXPORT lean_object* l_CWComplex_CWComplex__subcomplex___rarg(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
 static lean_object* l_CWComplex_term___xd7_____closed__3;
+LEAN_EXPORT lean_object* l_CWComplex_prodmap___rarg___lambda__1___boxed(lean_object*, lean_object*, lean_object*);
 lean_object* l_Lean_SourceInfo_fromRef(lean_object*, uint8_t);
 LEAN_EXPORT lean_object* l_CWComplex_CWComplex__disjointUnion___rarg(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
 static lean_object* l_CWComplex_term___xd7_u2096_____closed__1;
@@ -59,6 +68,7 @@ LEAN_EXPORT lean_object* l_CWComplex_CWComplex__level___elambda__1___rarg(lean_o
 static lean_object* l_CWComplex_term___xd7_u2096_____closed__2;
 lean_object* l_Lean_Syntax_node3(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
 LEAN_EXPORT lean_object* l_CWComplex_term___xd7__;
+LEAN_EXPORT lean_object* l_CWComplex_prodinvmap(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
 lean_object* l_Lean_addMacroScope(lean_object*, lean_object*, lean_object*);
 static lean_object* l_CWComplex___aux__CWcomplexes__Constructions______macroRules__CWComplex__term___xd7_u2096____1___closed__13;
 static lean_object* l_CWComplex___aux__CWcomplexes__Constructions______unexpand__CWComplex__Prodkification__1___closed__1;
@@ -78,21 +88,31 @@ LEAN_EXPORT lean_object* l_CWComplex_CWComplex__disjointUnion(lean_object*);
 static lean_object* l_CWComplex___aux__CWcomplexes__Constructions______macroRules__CWComplex__term___xd7____1___closed__2;
 static lean_object* l_CWComplex___aux__CWcomplexes__Constructions______unexpand__CWComplex__Prodkification__1___closed__2;
 LEAN_EXPORT lean_object* l_CWComplex_CWComplex__subcomplex___rarg___boxed(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
+LEAN_EXPORT lean_object* l_CWComplex_mapprodkification(lean_object*, lean_object*);
 static lean_object* l_CWComplex___aux__CWcomplexes__Constructions______macroRules__CWComplex__term___xd7____1___closed__7;
+LEAN_EXPORT lean_object* l_CWComplex_prodinvmap___boxed(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
 LEAN_EXPORT lean_object* l_CWComplex___aux__CWcomplexes__Constructions______macroRules__CWComplex__term___xd7____1(lean_object*, lean_object*, lean_object*);
+uint8_t lean_nat_dec_lt(lean_object*, lean_object*);
+LEAN_EXPORT lean_object* l_CWComplex_mapprodkification___elambda__2(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
 static lean_object* l_CWComplex_term___xd7_u2096_____closed__12;
 lean_object* l_Lean_Name_mkStr2(lean_object*, lean_object*);
 static lean_object* l_CWComplex_term___xd7_u2096_____closed__10;
+LEAN_EXPORT lean_object* l_CWComplex_mapprodkification___rarg(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
 static lean_object* l_CWComplex___aux__CWcomplexes__Constructions______macroRules__CWComplex__term___xd7____1___closed__8;
+LEAN_EXPORT lean_object* l_CWComplex_mapprodkification___elambda__2___rarg(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
+lean_object* lean_nat_sub(lean_object*, lean_object*);
+LEAN_EXPORT lean_object* l_CWComplex_mapprodkification___elambda__1___rarg(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
 static lean_object* l_CWComplex___aux__CWcomplexes__Constructions______macroRules__CWComplex__term___xd7____1___closed__1;
 static lean_object* l_CWComplex_term___xd7_____closed__2;
 LEAN_EXPORT lean_object* l_CWComplex_CWComplex__level___rarg___boxed(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
 lean_object* l_Lean_Name_mkStr4(lean_object*, lean_object*, lean_object*, lean_object*);
 LEAN_EXPORT lean_object* l_CWComplex_CWComplex__disjointUnion___elambda__1___boxed(lean_object*, lean_object*, lean_object*);
+LEAN_EXPORT lean_object* l_CWComplex_mapprodkification___elambda__1___boxed(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
 static lean_object* l_CWComplex_term___xd7_u2096_____closed__9;
 static lean_object* l_CWComplex___aux__CWcomplexes__Constructions______macroRules__CWComplex__term___xd7_u2096____1___closed__9;
 static lean_object* l_CWComplex_term___xd7_____closed__5;
 static lean_object* l_CWComplex___aux__CWcomplexes__Constructions______macroRules__CWComplex__term___xd7_u2096____1___closed__2;
+lean_object* lean_nat_add(lean_object*, lean_object*);
 static lean_object* l_CWComplex_term___xd7_____closed__4;
 LEAN_EXPORT lean_object* l_CWComplex_instprodkification(lean_object*, lean_object*, lean_object*, lean_object*);
 static lean_object* l_CWComplex___aux__CWcomplexes__Constructions______macroRules__CWComplex__term___xd7____1___closed__5;
@@ -775,6 +795,230 @@ x_5 = l_CWComplex_instprodkification(x_1, x_2, x_3, x_4);
 lean_dec(x_4);
 lean_dec(x_3);
 return x_5;
+}
+}
+LEAN_EXPORT lean_object* l_CWComplex_prodmap___rarg___lambda__1(lean_object* x_1, lean_object* x_2, lean_object* x_3) {
+_start:
+{
+lean_object* x_4; lean_object* x_5; 
+x_4 = lean_nat_add(x_1, x_3);
+x_5 = lean_apply_1(x_2, x_4);
+return x_5;
+}
+}
+LEAN_EXPORT lean_object* l_CWComplex_prodmap___rarg(lean_object* x_1, lean_object* x_2, lean_object* x_3, lean_object* x_4, lean_object* x_5, lean_object* x_6, lean_object* x_7) {
+_start:
+{
+lean_object* x_8; lean_object* x_9; lean_object* x_10; lean_object* x_11; lean_object* x_12; lean_object* x_13; lean_object* x_14; lean_object* x_15; 
+lean_inc(x_3);
+x_8 = lean_apply_2(x_1, x_3, x_5);
+x_9 = lean_ctor_get(x_8, 0);
+lean_inc(x_9);
+lean_dec(x_8);
+lean_inc(x_7);
+x_10 = lean_apply_1(x_9, x_7);
+x_11 = lean_apply_2(x_2, x_4, x_6);
+x_12 = lean_ctor_get(x_11, 0);
+lean_inc(x_12);
+lean_dec(x_11);
+x_13 = lean_alloc_closure((void*)(l_CWComplex_prodmap___rarg___lambda__1___boxed), 3, 2);
+lean_closure_set(x_13, 0, x_3);
+lean_closure_set(x_13, 1, x_7);
+x_14 = lean_apply_1(x_12, x_13);
+x_15 = lean_alloc_ctor(0, 2, 0);
+lean_ctor_set(x_15, 0, x_10);
+lean_ctor_set(x_15, 1, x_14);
+return x_15;
+}
+}
+LEAN_EXPORT lean_object* l_CWComplex_prodmap(lean_object* x_1, lean_object* x_2, lean_object* x_3, lean_object* x_4, lean_object* x_5, lean_object* x_6) {
+_start:
+{
+lean_object* x_7; 
+x_7 = lean_alloc_closure((void*)(l_CWComplex_prodmap___rarg), 7, 0);
+return x_7;
+}
+}
+LEAN_EXPORT lean_object* l_CWComplex_prodmap___rarg___lambda__1___boxed(lean_object* x_1, lean_object* x_2, lean_object* x_3) {
+_start:
+{
+lean_object* x_4; 
+x_4 = l_CWComplex_prodmap___rarg___lambda__1(x_1, x_2, x_3);
+lean_dec(x_3);
+lean_dec(x_1);
+return x_4;
+}
+}
+LEAN_EXPORT lean_object* l_CWComplex_prodmap___boxed(lean_object* x_1, lean_object* x_2, lean_object* x_3, lean_object* x_4, lean_object* x_5, lean_object* x_6) {
+_start:
+{
+lean_object* x_7; 
+x_7 = l_CWComplex_prodmap(x_1, x_2, x_3, x_4, x_5, x_6);
+lean_dec(x_4);
+lean_dec(x_3);
+return x_7;
+}
+}
+LEAN_EXPORT lean_object* l_CWComplex_prodinvmap___rarg(lean_object* x_1, lean_object* x_2, lean_object* x_3, lean_object* x_4, lean_object* x_5, lean_object* x_6, lean_object* x_7, lean_object* x_8) {
+_start:
+{
+lean_object* x_9; lean_object* x_10; uint8_t x_11; 
+x_9 = lean_ctor_get(x_7, 0);
+lean_inc(x_9);
+x_10 = lean_ctor_get(x_7, 1);
+lean_inc(x_10);
+lean_dec(x_7);
+x_11 = lean_nat_dec_lt(x_8, x_3);
+if (x_11 == 0)
+{
+lean_object* x_12; lean_object* x_13; lean_object* x_14; lean_object* x_15; 
+lean_dec(x_9);
+lean_dec(x_5);
+lean_dec(x_1);
+x_12 = lean_apply_2(x_2, x_4, x_6);
+x_13 = lean_ctor_get(x_12, 1);
+lean_inc(x_13);
+lean_dec(x_12);
+x_14 = lean_nat_sub(x_8, x_3);
+lean_dec(x_3);
+lean_dec(x_8);
+x_15 = lean_apply_2(x_13, x_10, x_14);
+return x_15;
+}
+else
+{
+lean_object* x_16; lean_object* x_17; lean_object* x_18; 
+lean_dec(x_10);
+lean_dec(x_6);
+lean_dec(x_4);
+lean_dec(x_2);
+x_16 = lean_apply_2(x_1, x_3, x_5);
+x_17 = lean_ctor_get(x_16, 1);
+lean_inc(x_17);
+lean_dec(x_16);
+x_18 = lean_apply_2(x_17, x_9, x_8);
+return x_18;
+}
+}
+}
+LEAN_EXPORT lean_object* l_CWComplex_prodinvmap(lean_object* x_1, lean_object* x_2, lean_object* x_3, lean_object* x_4, lean_object* x_5, lean_object* x_6) {
+_start:
+{
+lean_object* x_7; 
+x_7 = lean_alloc_closure((void*)(l_CWComplex_prodinvmap___rarg), 8, 0);
+return x_7;
+}
+}
+LEAN_EXPORT lean_object* l_CWComplex_prodinvmap___boxed(lean_object* x_1, lean_object* x_2, lean_object* x_3, lean_object* x_4, lean_object* x_5, lean_object* x_6) {
+_start:
+{
+lean_object* x_7; 
+x_7 = l_CWComplex_prodinvmap(x_1, x_2, x_3, x_4, x_5, x_6);
+lean_dec(x_4);
+lean_dec(x_3);
+return x_7;
+}
+}
+LEAN_EXPORT lean_object* l_CWComplex_mapprodkification___elambda__1___rarg(lean_object* x_1, lean_object* x_2, lean_object* x_3, lean_object* x_4, lean_object* x_5, lean_object* x_6, lean_object* x_7, lean_object* x_8) {
+_start:
+{
+lean_object* x_9; 
+x_9 = l_CWComplex_prodinvmap___rarg(x_1, x_2, x_3, x_4, x_5, x_6, x_7, x_8);
+return x_9;
+}
+}
+LEAN_EXPORT lean_object* l_CWComplex_mapprodkification___elambda__1(lean_object* x_1, lean_object* x_2, lean_object* x_3, lean_object* x_4, lean_object* x_5, lean_object* x_6) {
+_start:
+{
+lean_object* x_7; 
+x_7 = lean_alloc_closure((void*)(l_CWComplex_mapprodkification___elambda__1___rarg), 8, 0);
+return x_7;
+}
+}
+LEAN_EXPORT lean_object* l_CWComplex_mapprodkification___elambda__2___rarg(lean_object* x_1, lean_object* x_2, lean_object* x_3, lean_object* x_4, lean_object* x_5, lean_object* x_6, lean_object* x_7) {
+_start:
+{
+lean_object* x_8; 
+x_8 = l_CWComplex_prodmap___rarg(x_1, x_2, x_3, x_4, x_5, x_6, x_7);
+return x_8;
+}
+}
+LEAN_EXPORT lean_object* l_CWComplex_mapprodkification___elambda__2(lean_object* x_1, lean_object* x_2, lean_object* x_3, lean_object* x_4, lean_object* x_5, lean_object* x_6) {
+_start:
+{
+lean_object* x_7; 
+x_7 = lean_alloc_closure((void*)(l_CWComplex_mapprodkification___elambda__2___rarg), 7, 0);
+return x_7;
+}
+}
+LEAN_EXPORT lean_object* l_CWComplex_mapprodkification___rarg(lean_object* x_1, lean_object* x_2, lean_object* x_3, lean_object* x_4, lean_object* x_5, lean_object* x_6, lean_object* x_7, lean_object* x_8, lean_object* x_9, lean_object* x_10) {
+_start:
+{
+lean_object* x_11; lean_object* x_12; lean_object* x_13; 
+lean_inc(x_10);
+lean_inc(x_9);
+lean_inc(x_8);
+lean_inc(x_7);
+lean_inc(x_6);
+lean_inc(x_5);
+x_11 = lean_alloc_closure((void*)(l_CWComplex_mapprodkification___elambda__2___rarg), 7, 6);
+lean_closure_set(x_11, 0, x_5);
+lean_closure_set(x_11, 1, x_6);
+lean_closure_set(x_11, 2, x_7);
+lean_closure_set(x_11, 3, x_8);
+lean_closure_set(x_11, 4, x_9);
+lean_closure_set(x_11, 5, x_10);
+x_12 = lean_alloc_closure((void*)(l_CWComplex_mapprodkification___elambda__1___rarg), 8, 6);
+lean_closure_set(x_12, 0, x_5);
+lean_closure_set(x_12, 1, x_6);
+lean_closure_set(x_12, 2, x_7);
+lean_closure_set(x_12, 3, x_8);
+lean_closure_set(x_12, 4, x_9);
+lean_closure_set(x_12, 5, x_10);
+x_13 = lean_alloc_ctor(0, 4, 0);
+lean_ctor_set(x_13, 0, x_11);
+lean_ctor_set(x_13, 1, x_12);
+lean_ctor_set(x_13, 2, lean_box(0));
+lean_ctor_set(x_13, 3, lean_box(0));
+return x_13;
+}
+}
+LEAN_EXPORT lean_object* l_CWComplex_mapprodkification(lean_object* x_1, lean_object* x_2) {
+_start:
+{
+lean_object* x_3; 
+x_3 = lean_alloc_closure((void*)(l_CWComplex_mapprodkification___rarg___boxed), 10, 0);
+return x_3;
+}
+}
+LEAN_EXPORT lean_object* l_CWComplex_mapprodkification___elambda__1___boxed(lean_object* x_1, lean_object* x_2, lean_object* x_3, lean_object* x_4, lean_object* x_5, lean_object* x_6) {
+_start:
+{
+lean_object* x_7; 
+x_7 = l_CWComplex_mapprodkification___elambda__1(x_1, x_2, x_3, x_4, x_5, x_6);
+lean_dec(x_4);
+lean_dec(x_3);
+return x_7;
+}
+}
+LEAN_EXPORT lean_object* l_CWComplex_mapprodkification___elambda__2___boxed(lean_object* x_1, lean_object* x_2, lean_object* x_3, lean_object* x_4, lean_object* x_5, lean_object* x_6) {
+_start:
+{
+lean_object* x_7; 
+x_7 = l_CWComplex_mapprodkification___elambda__2(x_1, x_2, x_3, x_4, x_5, x_6);
+lean_dec(x_4);
+lean_dec(x_3);
+return x_7;
+}
+}
+LEAN_EXPORT lean_object* l_CWComplex_mapprodkification___rarg___boxed(lean_object* x_1, lean_object* x_2, lean_object* x_3, lean_object* x_4, lean_object* x_5, lean_object* x_6, lean_object* x_7, lean_object* x_8, lean_object* x_9, lean_object* x_10) {
+_start:
+{
+lean_object* x_11; 
+x_11 = l_CWComplex_mapprodkification___rarg(x_1, x_2, x_3, x_4, x_5, x_6, x_7, x_8, x_9, x_10);
+lean_dec(x_2);
+lean_dec(x_1);
+return x_11;
 }
 }
 LEAN_EXPORT lean_object* l_CWComplex_CWComplex__product(lean_object* x_1, lean_object* x_2, lean_object* x_3, lean_object* x_4, lean_object* x_5, lean_object* x_6, lean_object* x_7, lean_object* x_8, lean_object* x_9, lean_object* x_10) {
