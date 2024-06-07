@@ -19,8 +19,8 @@
 **/_minted*
 **/*.pyg
 
-#shortcut
-**/*.Ink
+## git ignore shortcut folder
+*.lnk
 
 # todonotes
 **/*.tdo
