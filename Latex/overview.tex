@@ -143,7 +143,14 @@ def tokification {X : Type*} : X ≃ kification X :=
 def fromkification {X : Type*} : kification X ≃ X := 
 ⟨fun x ↦ x, fun x ↦ x, fun _ ↦ rfl, fun _ ↦ rfl⟩
 \end{leancode}
-\todo[inline]{Show properties of these maps, continuous etc.}
+  \item Lemma \emph{continuous\_fromkification}
+\begin{leancode}
+lemma continuous_fromkification {X : Type*} [t : TopologicalSpace X] : Continuous (fromkification X)
+\end{leancode}
+  \item Lemma \emph{isopenmap\_tokification}
+\begin{leancode}
+lemma isopenmap_tokification {X : Type*} [t: TopologicalSpace X] : IsOpenMap (tokification X)
+\end{leancode}
 \end{itemize}
 
 \section{File: Definition}
@@ -186,7 +193,7 @@ lemma levelaux_eq_level_sub_one {n : ℕ∞} (npos : n ≠ 0) : hC.levelaux n = 
 lemma levelaux_zero_eq_empty : hC.levelaux 0 = ∅
 \end{leancode}
 \todonoturgentinline{Add CW-Complex of finite type}
-  \item Class \emph{Finite} \question{Should this be a class?}
+  \item Class \emph{Finite}
 \begin{leancode}
 class Finite.{u} {X : Type u} [TopologicalSpace X] (C : Set X) (cwcomplex : CWComplex C) :
 Prop where

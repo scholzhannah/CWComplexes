@@ -1,4 +1,0 @@
-\begin{Verbatim}[commandchars=\\\{\}]
-\PYG{k+kn}{lemma} \PYG{n}{iUnion\PYGZus{}ball\PYGZus{}eq\PYGZus{}levelaux} \PYG{o}{(}\PYG{n}{n} \PYG{o}{:} \PYG{n+nb+bp}{ℕ}\PYG{err}{∞}\PYG{o}{)} \PYG{o}{:}
-  \PYG{err}{⋃} \PYG{o}{(}\PYG{n}{m} \PYG{o}{:} \PYG{n+nb+bp}{ℕ}\PYG{o}{)} \PYG{o}{(}\PYG{n}{hm} \PYG{o}{:} \PYG{n}{m} \PYG{n+nb+bp}{\PYGZlt{}} \PYG{n}{n}\PYG{o}{)} \PYG{o}{(}\PYG{n}{j} \PYG{o}{:} \PYG{n}{hC}\PYG{n+nb+bp}{.}\PYG{n}{cell} \PYG{n}{m}\PYG{o}{),} \PYG{n}{hC}\PYG{n+nb+bp}{.}\PYG{n}{map} \PYG{n}{m} \PYG{n}{j} \PYG{err}{\PYGZsq{}\PYGZsq{}} \PYG{n}{ball} \PYG{l+m+mi}{0} \PYG{l+m+mi}{1} \PYG{n+nb+bp}{=} \PYG{n}{hC}\PYG{n+nb+bp}{.}\PYG{n}{levelaux} \PYG{n}{n}
-\end{Verbatim}

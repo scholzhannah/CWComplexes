@@ -1,5 +1,0 @@
-\begin{Verbatim}[commandchars=\\\{\}]
-\PYG{k+kn}{lemma} \PYG{n}{level\PYGZus{}succ\PYGZus{}eq\PYGZus{}level\PYGZus{}union\PYGZus{}iUnion} \PYG{o}{(}\PYG{n}{n} \PYG{o}{:} \PYG{n+nb+bp}{ℕ}\PYG{o}{)} \PYG{o}{:}
-  \PYG{n}{hC}\PYG{n+nb+bp}{.}\PYG{n}{level} \PYG{o}{(}\PYG{err}{↑}\PYG{n}{n} \PYG{n+nb+bp}{+} \PYG{l+m+mi}{1}\PYG{o}{)} \PYG{n+nb+bp}{=}
-  \PYG{n}{hC}\PYG{n+nb+bp}{.}\PYG{n}{level} \PYG{err}{↑}\PYG{n}{n} \PYG{err}{∪} \PYG{err}{⋃} \PYG{o}{(}\PYG{n}{j} \PYG{o}{:} \PYG{n}{hC}\PYG{n+nb+bp}{.}\PYG{n}{cell} \PYG{o}{(}\PYG{err}{↑}\PYG{n}{n} \PYG{n+nb+bp}{+} \PYG{l+m+mi}{1}\PYG{o}{)),} \PYG{n}{hC}\PYG{n+nb+bp}{.}\PYG{n}{map} \PYG{o}{(}\PYG{err}{↑}\PYG{n}{n} \PYG{n+nb+bp}{+} \PYG{l+m+mi}{1}\PYG{o}{)} \PYG{n}{j} \PYG{err}{\PYGZsq{}\PYGZsq{}} \PYG{n}{closedBall} \PYG{l+m+mi}{0} \PYG{l+m+mi}{1}
-\end{Verbatim}

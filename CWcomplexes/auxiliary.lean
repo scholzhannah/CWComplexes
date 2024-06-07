@@ -71,8 +71,21 @@ instance instkification {X : Type*} [t : TopologicalSpace X] : TopologicalSpace 
     simp [f]
     exact Classical.choose_spec (h i (by simp only [Subtype.coe_prop]) B)
 
-def tokification {X : Type*} : X ≃ kification X := ⟨fun x ↦ x, fun x ↦ x, fun _ ↦ rfl, fun _ ↦ rfl⟩
+def tokification (X : Type*) : X ≃ kification X := ⟨fun x ↦ x, fun x ↦ x, fun _ ↦ rfl, fun _ ↦ rfl⟩
 
-def fromkification {X : Type*} : kification X ≃ X := ⟨fun x ↦ x, fun x ↦ x, fun _ ↦ rfl, fun _ ↦ rfl⟩
+def fromkification (X : Type*) : kification X ≃ X := ⟨fun x ↦ x, fun x ↦ x, fun _ ↦ rfl, fun _ ↦ rfl⟩
 
--- show properties of these maps
+lemma continuous_fromkification {X : Type*} [t : TopologicalSpace X] : Continuous (fromkification X) where
+isOpen_preimage A hA := by
+  unfold fromkification
+  simp only [instkification, Equiv.coe_fn_mk, Set.preimage_id', IsOpen]
+  intro B
+  use ⟨A, hA⟩
+
+lemma isopenmap_tokification {X : Type*} [t: TopologicalSpace X] : IsOpenMap (tokification X) := by
+  unfold IsOpenMap tokification
+  intro A hA
+  simp [instkification, IsOpen]
+  intro B
+  use ⟨A, hA⟩
+  simp only [TopologicalSpace.Opens.coe_mk]

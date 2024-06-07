@@ -1,14 +1,12 @@
 \contentsline {todo}{\fcolorbox {black}{orange}{\textcolor {orange}{o}}\ Convert CWComplex and Subcomplex to class so that CW-Complex can be an instance. Try if it works.}{3}{section*.3}%
 \contentsline {todo}{\fcolorbox {black}{orange}{\textcolor {orange}{o}}\ Provide basic examples in a seperate file. For example spheres (both different types) and intervals.}{3}{section*.4}%
-\contentsline {todo}{\fcolorbox {black}{orange}{\textcolor {orange}{o}}\ Show properties of these maps, continuous etc.}{3}{section*.5}%
-\contentsline {todo}{\fcolorbox {black}{yellow}{\textcolor {yellow}{o}}\ Add CW-Complex of finite type}{4}{section*.6}%
-\contentsline {todo}{\fcolorbox {black}{green!40}{\textcolor {green!40}{o}}\ Should this be a class?}{4}{section*.7}%
-\contentsline {todo}{\fcolorbox {black}{yellow}{\textcolor {yellow}{o}}\ Do the proof.}{7}{section*.8}%
-\contentsline {todo}{\fcolorbox {black}{yellow}{\textcolor {yellow}{o}}\ Do the proof.}{7}{section*.9}%
-\contentsline {todo}{\fcolorbox {black}{orange}{\textcolor {orange}{o}}\ Do a composition of to maps, first an equivalence of (Fin m1 -> R) x (Fin m2 -> R) (in auxiliary) and then do Prodmap}{9}{section*.10}%
-\contentsline {todo}{\fcolorbox {black}{orange}{\textcolor {orange}{o}}\ Finish this}{9}{section*.11}%
-\contentsline {todo}{\fcolorbox {black}{orange}{\textcolor {orange}{o}}\ Make this work and do the proofs!}{9}{section*.12}%
-\contentsline {todo}{\fcolorbox {black}{orange}{\textcolor {orange}{o}}\ Define Quotients.}{9}{section*.13}%
-\contentsline {todo}{\fcolorbox {black}{orange}{\textcolor {orange}{o}}\ Make the following lemmata work with new definitions}{10}{section*.14}%
-\contentsline {todo}{\fcolorbox {black}{orange}{\textcolor {orange}{o}}\ Do the proofs.}{10}{section*.15}%
-\contentsline {todo}{\fcolorbox {black}{orange}{\textcolor {orange}{o}}\ Make this work.}{10}{section*.16}%
+\contentsline {todo}{\fcolorbox {black}{yellow}{\textcolor {yellow}{o}}\ Add CW-Complex of finite type}{4}{section*.5}%
+\contentsline {todo}{\fcolorbox {black}{yellow}{\textcolor {yellow}{o}}\ Do the proof.}{7}{section*.6}%
+\contentsline {todo}{\fcolorbox {black}{yellow}{\textcolor {yellow}{o}}\ Do the proof.}{8}{section*.7}%
+\contentsline {todo}{\fcolorbox {black}{orange}{\textcolor {orange}{o}}\ Do a composition of to maps, first an equivalence of (Fin m1 -> R) x (Fin m2 -> R) (in auxiliary) and then do Prodmap}{9}{section*.8}%
+\contentsline {todo}{\fcolorbox {black}{orange}{\textcolor {orange}{o}}\ Finish this}{9}{section*.9}%
+\contentsline {todo}{\fcolorbox {black}{orange}{\textcolor {orange}{o}}\ Make this work and do the proofs!}{9}{section*.10}%
+\contentsline {todo}{\fcolorbox {black}{orange}{\textcolor {orange}{o}}\ Define Quotients.}{9}{section*.11}%
+\contentsline {todo}{\fcolorbox {black}{orange}{\textcolor {orange}{o}}\ Make the following lemmata work with new definitions}{10}{section*.12}%
+\contentsline {todo}{\fcolorbox {black}{orange}{\textcolor {orange}{o}}\ Do the proofs.}{10}{section*.13}%
+\contentsline {todo}{\fcolorbox {black}{orange}{\textcolor {orange}{o}}\ Make this work.}{10}{section*.14}%

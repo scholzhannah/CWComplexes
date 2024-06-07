@@ -1,4 +1,0 @@
-\begin{Verbatim}[commandchars=\\\{\}]
-\PYG{k+kn}{lemma} \PYG{n}{map\PYGZus{}ball\PYGZus{}subset\PYGZus{}map\PYGZus{}closedball} \PYG{o}{\PYGZob{}}\PYG{n}{n} \PYG{o}{:} \PYG{n+nb+bp}{ℕ}\PYG{o}{\PYGZcb{}} \PYG{o}{\PYGZob{}}\PYG{n}{j} \PYG{o}{:} \PYG{n}{hC}\PYG{n+nb+bp}{.}\PYG{n}{cell} \PYG{n}{n}\PYG{o}{\PYGZcb{}} \PYG{o}{:}
-  \PYG{n}{hC}\PYG{n+nb+bp}{.}\PYG{n}{map} \PYG{n}{n} \PYG{n}{j} \PYG{err}{\PYGZsq{}\PYGZsq{}} \PYG{n}{ball} \PYG{l+m+mi}{0} \PYG{l+m+mi}{1} \PYG{err}{⊆} \PYG{n}{hC}\PYG{n+nb+bp}{.}\PYG{n}{map} \PYG{n}{n} \PYG{n}{j} \PYG{err}{\PYGZsq{}\PYGZsq{}} \PYG{n}{closedBall} \PYG{l+m+mi}{0} \PYG{l+m+mi}{1}
-\end{Verbatim}

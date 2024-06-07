@@ -1,3 +1,0 @@
-\begin{Verbatim}[commandchars=\\\{\}]
-\PYG{k+kn}{variable} \PYG{o}{\PYGZob{}}\PYG{n}{X} \PYG{o}{:} \PYG{k+kt}{Type}\PYG{n+nb+bp}{*}\PYG{o}{\PYGZcb{}} \PYG{o}{[}\PYG{n}{t} \PYG{o}{:} \PYG{n}{TopologicalSpace} \PYG{n}{X}\PYG{o}{]}
-\end{Verbatim}

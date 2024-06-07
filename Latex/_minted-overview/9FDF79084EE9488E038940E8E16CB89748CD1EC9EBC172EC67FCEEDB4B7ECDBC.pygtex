@@ -1,3 +1,0 @@
-\begin{Verbatim}[commandchars=\\\{\}]
-\PYG{n+nb+bp}{@}\PYG{o}{[}\PYG{n}{simp}\PYG{o}{]} \PYG{k+kn}{lemma} \PYG{n}{levelaux\PYGZus{}top} \PYG{o}{:} \PYG{n}{hC}\PYG{n+nb+bp}{.}\PYG{n}{levelaux} \PYG{err}{⊤} \PYG{n+nb+bp}{=} \PYG{n}{C}
-\end{Verbatim}

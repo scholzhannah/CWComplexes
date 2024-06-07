@@ -1,7 +1,0 @@
-\begin{Verbatim}[commandchars=\\\{\}]
-\PYG{x}{theorem funext \PYGZob{}f₁ f₂ : ∀ (x : α), β x\PYGZcb{} (h : ∀ x, f₁ x = f₂ x) : f₁ = f₂ := by}
-\PYG{x}{  show extfunApp (Quotient.mk\PYGZsq{} f₁) = extfunApp (Quotient.mk\PYGZsq{} f₂)}
-\PYG{x}{  apply congrArg}
-\PYG{x}{  apply Quotient.sound}
-\PYG{x}{  exact h}
-\end{Verbatim}

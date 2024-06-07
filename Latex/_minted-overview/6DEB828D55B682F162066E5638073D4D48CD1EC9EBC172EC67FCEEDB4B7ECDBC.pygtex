@@ -1,4 +1,0 @@
-\begin{Verbatim}[commandchars=\\\{\}]
-\PYG{k+kn}{lemma} \PYG{n}{levelaux\PYGZus{}subset\PYGZus{}levelaux\PYGZus{}of\PYGZus{}le} \PYG{o}{\PYGZob{}}\PYG{n}{n} \PYG{n}{m} \PYG{o}{:} \PYG{n+nb+bp}{ℕ}\PYG{err}{∞}\PYG{o}{\PYGZcb{}} \PYG{o}{(}\PYG{n}{h} \PYG{o}{:} \PYG{n}{m} \PYG{n+nb+bp}{≤} \PYG{n}{n}\PYG{o}{)} \PYG{o}{:}
-  \PYG{n}{hC}\PYG{n+nb+bp}{.}\PYG{n}{levelaux} \PYG{n}{m} \PYG{err}{⊆} \PYG{n}{hC}\PYG{n+nb+bp}{.}\PYG{n}{levelaux} \PYG{n}{n}
-\end{Verbatim}

@@ -1,3 +1,0 @@
-\begin{Verbatim}[commandchars=\\\{\}]
-\PYG{k+kn}{infixr}\PYG{o}{:}\PYG{l+m+mi}{35} \PYG{l+s+s2}{\PYGZdq{} ×ₖ \PYGZdq{}}  \PYG{n+nb+bp}{=\PYGZgt{}} \PYG{n}{Prodkification}
-\end{Verbatim}

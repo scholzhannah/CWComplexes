@@ -1,3 +1,0 @@
-\begin{Verbatim}[commandchars=\\\{\}]
-\PYG{k+kn}{lemma} \PYG{n}{ENat}\PYG{n+nb+bp}{.}\PYG{n}{coe\PYGZus{}lt\PYGZus{}top} \PYG{o}{\PYGZob{}}\PYG{n}{n} \PYG{o}{:} \PYG{n+nb+bp}{ℕ}\PYG{o}{\PYGZcb{}} \PYG{o}{:} \PYG{err}{↑}\PYG{n}{n} \PYG{n+nb+bp}{\PYGZlt{}} \PYG{o}{(}\PYG{err}{⊤} \PYG{o}{:} \PYG{n+nb+bp}{ℕ}\PYG{err}{∞}\PYG{o}{)}
-\end{Verbatim}
