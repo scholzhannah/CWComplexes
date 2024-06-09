@@ -5,6 +5,7 @@
 \usepackage{hyperref}
 \usepackage{minted}
 \usepackage{todonotes}
+
 \reversemarginpar
 
 
@@ -145,11 +146,68 @@ def fromkification {X : Type*} : kification X ≃ X :=
 \end{leancode}
   \item Lemma \emph{continuous\_fromkification}
 \begin{leancode}
-lemma continuous_fromkification {X : Type*} [t : TopologicalSpace X] : Continuous (fromkification X)
+lemma continuous_fromkification {X : Type*} [t : TopologicalSpace X] : 
+Continuous (fromkification X)
 \end{leancode}
   \item Lemma \emph{isopenmap\_tokification}
 \begin{leancode}
-lemma isopenmap_tokification {X : Type*} [t: TopologicalSpace X] : IsOpenMap (tokification X)
+lemma isopenmap_tokification {X : Type*} [t: TopologicalSpace X] : 
+IsOpenMap (tokification X)
+\end{leancode}
+  \item Definition \emph{EquivFinReal}
+\begin{leancode}
+def EquivFinReal (m n : ℕ) : (Fin m → ℝ) × (Fin n → ℝ) ≃ (Fin (m + n) → ℝ) := 
+Equiv.trans (Equiv.sumArrowEquivProdArrow _ _ _).symm 
+  (Equiv.arrowCongr finSumFinEquiv (Equiv.refl _))
+\end{leancode}
+  \item Definition \emph{HomeomorphFinReal1}
+\begin{leancode}
+def HomeomorphFinReal1 (m n : ℕ) : (Fin m → ℝ) × (Fin n → ℝ) ≃ₜ (Fin m ⊕ Fin n → ℝ) where
+  toFun := (Equiv.sumArrowEquivProdArrow _ _ _).symm
+  invFun := Equiv.sumArrowEquivProdArrow _ _ _
+  left_inv := sorry
+  right_inv := sorry
+  continuous_toFun := sorry 
+  continuous_invFun := sorry
+\end{leancode}
+  \item Definition \emph{HomeomorphFinReal2}
+\begin{leancode}
+def HomeomorphFinReal2 (m n : ℕ) : (Fin m ⊕ Fin n → ℝ) ≃ₜ (Fin (m + n) → ℝ) where
+  toFun := Equiv.arrowCongr finSumFinEquiv (Equiv.refl _)
+  invFun := (Equiv.arrowCongr finSumFinEquiv (Equiv.refl _)).symm
+  left_inv := sorry
+  right_inv := sorry
+\end{leancode}
+  \item Definition \emph{HomeomorphFinReal}
+\begin{leancode}
+def HomeomorphFinReal (m n : ℕ) : (Fin m → ℝ) × (Fin n → ℝ) ≃ₜ (Fin (m + n) → ℝ) := 
+  Homeomorph.trans (HomeomorphFinReal1 _ _) (HomeomorphFinReal2 _ _)
+\end{leancode}
+  \item Definition \emph{IsometryEquivFinMap1}
+\begin{leancode}
+def IsometryEquivFinMap1 {X: Type*} [PseudoEMetricSpace X] (m n : ℕ) : 
+(Fin m → X) × (Fin n → X) ≃ᵢ (Fin m ⊕ Fin n → X) where
+  toFun := (Equiv.sumArrowEquivProdArrow _ _ _).symm
+  invFun := Equiv.sumArrowEquivProdArrow _ _ _
+  left_inv := sorry
+  right_inv := sorry
+  isometry_toFun := sorry
+\end{leancode}
+  \item Definition \emph{IsometryEquivFinMap2}
+\begin{leancode}
+def IsometryEquivFinMap2 {X: Type*} [PseudoEMetricSpace X] (m n : ℕ) : 
+(Fin m ⊕ Fin n → X) ≃ᵢ (Fin (m + n) → X) where
+  toFun := Equiv.arrowCongr finSumFinEquiv (Equiv.refl _)
+  invFun := (Equiv.arrowCongr finSumFinEquiv (Equiv.refl _)).symm
+  left_inv := sorry
+  right_inv := sorry
+  isometry_toFun := sorry
+\end{leancode}
+  \item Definition \emph{IsometryEquivFinMap}
+\begin{leancode}
+def IsometryEquivFinMap {X : Type*} [MetricSpace X] (m n : ℕ) : 
+(Fin m → X) × (Fin n → X) ≃ᵢ (Fin (m + n) → X) := 
+  IsometryEquiv.trans (IsometryEquivFinMap1 _ _) (IsometryEquivFinMap2 _ _)
 \end{leancode}
 \end{itemize}
 

@@ -408,6 +408,7 @@ def prodmap (m1 : ℕ) (m2 : ℕ) (c1 : hC.cell m1) (c2 : hD.cell m2) : (Fin (m1
 
 def prodinvmap (m1 : ℕ) (m2 : ℕ) (c1 : hC.cell m1) (c2 : hD.cell m2) : (X ×ₖ Y) → (Fin (m1 + m2) → ℝ) := fun ⟨x, y⟩ ↦ (fun l ↦ if llt : l < m1 then (hC.map m1 c1).invFun x ⟨l, llt⟩ else (hD.map m2 c2).invFun y ⟨l - m1, Nat.sub_lt_left_of_lt_add (not_lt.1 llt) l.2⟩)
 
+
 def mapprodkification (m1 : ℕ) (m2 : ℕ) (c1 : hC.cell m1) (c2 : hD.cell m2):
 PartialEquiv (Fin (m1 + m2) → ℝ) (X ×ₖ Y) where
   toFun :=  prodmap hC hD m1 m2 c1 c2
@@ -466,14 +467,22 @@ PartialEquiv (Fin (m1 + m2) → ℝ) (X ×ₖ Y) where
     sorry
   right_inv' := sorry
 
+#check PartialEquiv.prod
+#check Equiv.transPartialEquiv
 
 -- See Hatcher p. 533
 instance CWComplex_product : @CWComplex (X ×ₖ Y) instprodkification (C ×ˢ D) where
   cell n := (Σ' (m : ℕ) (l : ℕ) (hml : m + l = n), hC.cell m × hD.cell l)
-  map n i := by
-    rcases i with ⟨m1, m2, rfl, c1, c2⟩
+  map n i := match i with
+    | ⟨m, l, hmln, j, k⟩ =>
+      hmln ▸ Equiv.transPartialEquiv ((IsometryEquivFinMap m l).symm).toEquiv (PartialEquiv.prod (hC.map m j) (hD.map l k))
+  source_eq n i := by
+    rcases i with  ⟨m, l, hmln, j, k⟩
+    subst hmln
+    ext x
+    simp [Equiv.transPartialEquiv_source, PartialEquiv.prod_source, hC.source_eq m j,
+      hD.source_eq]
     sorry
-  source_eq n i := sorry
   cont n i := sorry
   cont_symm := sorry
   pairwiseDisjoint := sorry
