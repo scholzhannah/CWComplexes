@@ -42,7 +42,7 @@ lemma inter_levelaux_succ_closed_iff_inter_levelaux_closed_and_inter_closedBall_
       exact IsClosed.inter closed (hC.isClosed_levelaux n)
     · intro j
       have : A ∩ levelaux hC ↑(Nat.succ n) ⊆ C := by
-        apply subset_trans (inter_subset_right _ _)
+        apply subset_trans inter_subset_right
         simp_rw [← hC.levelaux_top]
         exact hC.levelaux_subset_levelaux_of_le le_top
       rw [hC.closed (A ∩ levelaux hC ↑(Nat.succ n)) this] at closed
@@ -51,7 +51,7 @@ lemma inter_levelaux_succ_closed_iff_inter_levelaux_closed_and_inter_closedBall_
       exact closed
   · intro ⟨closed1, closed2⟩
     have : A ∩ levelaux hC ↑(Nat.succ n) ⊆ C := by
-      apply subset_trans (inter_subset_right _ _)
+      apply subset_trans inter_subset_right
       simp_rw [← hC.levelaux_top]
       exact hC.levelaux_subset_levelaux_of_le le_top
     rw [hC.closed (A ∩ levelaux hC ↑(Nat.succ n)) this]
@@ -82,7 +82,7 @@ lemma inter_levelaux_succ_closed_iff_inter_levelaux_closed_and_inter_closedBall_
 
 /- The following is one way of stating that `level 0` is discrete. -/
 lemma isDiscrete_level_zero {A : Set X} : IsClosed (A ∩ hC.level 0) := by
-  rw [hC.closed (A ∩ hC.level 0) (subset_trans (Set.inter_subset_right A (hC.level 0)) (by simp_rw [← hC.level_top]; apply hC.level_subset_level_of_le le_top))]
+  rw [hC.closed (A ∩ hC.level 0) (subset_trans Set.inter_subset_right (by simp_rw [← hC.level_top]; apply hC.level_subset_level_of_le le_top))]
   intro n
   induction' n using Nat.case_strong_induction_on with n hn
   · intro j
@@ -257,7 +257,7 @@ lemma compact_inter_finite (A : t.Compacts) : _root_.Finite (Σ (m : ℕ), {j : 
   contradiction
 
 /- I also need the indexed sum of types here. Use subcomplex.-/
-lemma iUnion_subcomplex (J : Type u) (I : J → Π n, Set (hC.cell n)) (cw : ∀ (l : J), CWComplex (⋃ (n : ℕ) (j : I l n), hC.map n j '' ball 0 1)) : CWComplex (⋃ (l : J) (n : ℕ) (j : I l n), hC.map n j '' ball 0 1) := by
+def iUnion_subcomplex (J : Type u) (I : J → Π n, Set (hC.cell n)) (cw : ∀ (l : J), CWComplex (⋃ (n : ℕ) (j : I l n), hC.map n j '' ball 0 1)) : CWComplex (⋃ (l : J) (n : ℕ) (j : I l n), hC.map n j '' ball 0 1) := by
   sorry
 
 

@@ -80,7 +80,7 @@ def CWComplex_level (n : ℕ∞) : CWComplex (hC.level n) where
       · exact h (m + 1) j mlt
       push_neg at mlt
       have nltm : n ≤ Nat.succ m := le_trans (le_add_right le_rfl) mlt
-      have coekn: ↑k = n := ENat.coe_toNat (ne_top_of_le_ne_top (WithTop.nat_ne_top (Nat.succ m)) nltm)
+      have coekn: ↑k = n := ENat.coe_toNat (ne_top_of_le_ne_top (WithTop.natCast_ne_top (Nat.succ m)) nltm)
       rw [← coekn] at asublevel  mlt
       norm_cast at *
       have : A ∩ ↑(hC.map (m + 1) j) '' closedBall 0 1 = A ∩ ↑(hC.map (m + 1) j) '' sphere 0 1 := by
@@ -214,23 +214,23 @@ def CWComplex_disjointUnion (disjoint : Disjoint C D) : CWComplex (C ∪ D) wher
     · intro h
       have : A = (A ∩ C) ∪ (A ∩ D) := by
         calc
-        A = A ∩ (C ∪ A) := (inter_eq_left.2 (subset_union_right C A)).symm
+        A = A ∩ (C ∪ A) := (inter_eq_left.2 subset_union_right).symm
         _ = (A ∪ A ∩ D) ∩ (C ∪ A ∩ D) := by
-          have h1 : A ∪ A ∩ D = A := union_eq_left.2 (Set.inter_subset_left A D)
+          have h1 : A ∪ A ∩ D = A := union_eq_left.2 Set.inter_subset_left
           have h2 : C ∪ A ∩ D = C ∪ A := by
             rw [union_inter_distrib_left, inter_eq_left]
-            apply Set.union_subset (subset_union_left C D) asubcd
+            apply Set.union_subset subset_union_left asubcd
           rw [h1, h2]
         _ = (A ∩ C) ∪ (A ∩ D) := by rw [inter_union_distrib_right]
       rw [this]
       apply IsClosed.union
-      · rw [hC.closed (A ∩ C) (inter_subset_right A C)]
+      · rw [hC.closed (A ∩ C) inter_subset_right]
         intro n j
         have := h n (Sum.inl j)
         simp at this
         rw [inter_right_comm]
         apply IsClosed.inter this hC.isClosed
-      · rw [hD.closed (A ∩ D) (inter_subset_right A D)]
+      · rw [hD.closed (A ∩ D) inter_subset_right]
         intro n j
         have := h n (Sum.inr j)
         simp at this
@@ -480,10 +480,17 @@ instance CWComplex_product : @CWComplex (X ×ₖ Y) instprodkification (C ×ˢ D
     rcases i with  ⟨m, l, hmln, j, k⟩
     subst hmln
     ext x
-    simp [Equiv.transPartialEquiv_source, PartialEquiv.prod_source, hC.source_eq m j,
-      hD.source_eq]
+    simp only [Equiv.transPartialEquiv_source, IsometryEquiv.coe_toEquiv, PartialEquiv.prod_source,
+      hC.source_eq m j, hD.source_eq, mem_preimage, mem_closedBall, dist_zero_right, prod_closedBall_eq_closedBall 0 0, ← Prod.zero_eq_mk]
+    rw [Isometry.norm_map_of_map_zero (IsometryEquiv.isometry (IsometryEquiv.symm (IsometryEquivFinMap m l)))]
+    rw [IsometryEquiv.symm_apply_eq]
+    exact (IsometryEquivFinMapR_zero_eq_zero _ _).symm
+  cont n i := by
+    rcases i with  ⟨m, l, hmln, j, k⟩
+    subst hmln
+    simp
+
     sorry
-  cont n i := sorry
   cont_symm := sorry
   pairwiseDisjoint := sorry
   mapsto n i := sorry

@@ -137,7 +137,8 @@ def IsometryEquivFinMap1 {X: Type*} [PseudoEMetricSpace X] (m n : ℕ) : (Fin m 
     simp only [Equiv.sumArrowEquivProdArrow, Equiv.coe_fn_symm_mk]
     unfold Isometry
     intro ⟨a, b⟩ ⟨c, d⟩
-    simp [PseudoEMetricSpace.toEDist, pseudoEMetricSpacePi, instEDistForAll, Prod.pseudoEMetricSpaceMax]
+    simp only [PseudoEMetricSpace.toEDist, pseudoEMetricSpacePi, Prod.pseudoEMetricSpaceMax,
+      ENNReal.sup_eq_max]
     apply le_antisymm
     · apply Finset.sup_le
       intro p pmem
@@ -175,7 +176,7 @@ def IsometryEquivFinMap2 {X: Type*} [PseudoEMetricSpace X] (m n : ℕ) : (Fin m 
     simp [Equiv.arrowCongr, finSumFinEquiv]
     unfold Isometry
     intro x1 x2
-    simp [PseudoEMetricSpace.toEDist, pseudoEMetricSpacePi, instEDistForAll]
+    simp [PseudoEMetricSpace.toEDist, pseudoEMetricSpacePi]
     apply le_antisymm
     · apply Finset.sup_le
       intro b bmem
@@ -206,4 +207,13 @@ def IsometryEquivFinMap2 {X: Type*} [PseudoEMetricSpace X] (m n : ℕ) : (Fin m 
         rw [this]
         exact @Finset.le_sup _ _ _ _ (Finset.univ : Finset (Fin (m + n))) (fun b ↦ edist (x1 (Fin.addCases Sum.inl Sum.inr b)) (x2 (Fin.addCases Sum.inl Sum.inr b))) ⟨(m + b2: Nat), add_lt_add_left b2.2 _⟩ (Finset.mem_univ _)
 
-def IsometryEquivFinMap {X : Type*} [MetricSpace X] (m n : ℕ) : (Fin m → X) × (Fin n → X) ≃ᵢ (Fin (m + n) → X) := IsometryEquiv.trans (IsometryEquivFinMap1 _ _) (IsometryEquivFinMap2 _ _)
+def IsometryEquivFinMap {X : Type*} [PseudoEMetricSpace X] (m n : ℕ) : (Fin m → X) × (Fin n → X) ≃ᵢ (Fin (m + n) → X) := IsometryEquiv.trans (IsometryEquivFinMap1 _ _) (IsometryEquivFinMap2 _ _)
+
+lemma IsometryEquivFinMapR_zero_eq_zero (m n : ℕ) : @IsometryEquivFinMap ℝ _ m n 0 = 0 := by
+  unfold IsometryEquivFinMap IsometryEquivFinMap1 IsometryEquivFinMap2 Equiv.sumArrowEquivProdArrow Equiv.arrowCongr
+  simp
+
+lemma prod_closedBall_eq_closedBall {X : Type*} [PseudoMetricSpace X] {m n : ℕ} (x : Fin m → X) (y : Fin n → X) : (Metric.closedBall x 1 : Set (Fin m → X)) ×ˢ (Metric.closedBall y 1 : Set (Fin n → X)) = (Metric.closedBall (x, y) 1: Set ((Fin m → X) × (Fin n → X))) := by
+  ext z
+  simp only [Set.mem_prod, Metric.mem_closedBall, PseudoMetricSpace.toDist,
+    Prod.pseudoMetricSpaceMax, sup_le_iff]

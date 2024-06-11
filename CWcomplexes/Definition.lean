@@ -142,7 +142,7 @@ lemma iUnion_levelaux_eq_levelaux (n : ℕ∞) : ⋃ (m : ℕ) (hm : m < n + 1),
       simp
       constructor
       · rw [WithTop.add_lt_top]
-        exact ⟨xmemi.1 , (by apply lt_top_iff_ne_top.2 (WithTop.nat_ne_top 1))⟩
+        exact ⟨xmemi.1 , (by apply lt_top_iff_ne_top.2 (WithTop.natCast_ne_top 1))⟩
       rw [CWComplex.levelaux, mem_iUnion]
       use i
       simp only [mem_iUnion, exists_prop]
@@ -228,7 +228,7 @@ lemma iUnion_ball_eq_levelaux (n : ℕ∞) : ⋃ (m : ℕ) (hm : m < n) (j : hC.
         simp only [mem_iUnion, exists_prop]
         constructor
         · rw [ENat.coe_add, WithTop.add_lt_top]
-          exact ⟨xmemi.1 , (by apply lt_top_iff_ne_top.2 (WithTop.nat_ne_top 1))⟩
+          exact ⟨xmemi.1 , (by apply lt_top_iff_ne_top.2 (WithTop.natCast_ne_top 1))⟩
         · use i
           exact ⟨lt_add_one i, xmemi.2⟩
       · intro x xmem
@@ -236,7 +236,7 @@ lemma iUnion_ball_eq_levelaux (n : ℕ∞) : ⋃ (m : ℕ) (hm : m < n) (j : hC.
         rcases xmem with ⟨_, ⟨_, ⟨i, ⟨_, xmemi⟩⟩⟩⟩
         simp only [mem_iUnion, exists_prop]
         use i
-        exact ⟨(by apply lt_top_iff_ne_top.2 (WithTop.nat_ne_top i)), xmemi⟩
+        exact ⟨(by apply lt_top_iff_ne_top.2 (WithTop.natCast_ne_top i)), xmemi⟩
     rw [this, ← hC.iUnion_levelaux_eq_levelaux ⊤, top_add]
     apply iUnion_congr
     intro i
