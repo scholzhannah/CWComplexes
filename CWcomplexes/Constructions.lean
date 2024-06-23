@@ -398,77 +398,25 @@ infixr:35 " ×ₖ "  => Prodkification
 
 instance instprodkification : TopologicalSpace (X ×ₖ Y) := instkification
 
+lemma prod_map_image_ball {m l : ℕ} {j : hC.cell m} {k : hD.cell l} : (fun a => ((IsometryEquivFinMap m l).symm.transPartialEquiv ((hC.map m j).prod (hD.map l k))) a) '' ball 0 1
+    = (↑(hC.map m j) '' ball 0 1) ×ˢ (↑(hD.map l k) '' ball 0 1) := by
+  rw [Set.prod_image_image_eq, ← PartialEquiv.prod_coe, ← IsometryEquivFinMapR_image_ball, image_image]
+  ext x
+  simp only [Equiv.transPartialEquiv_apply, IsometryEquiv.coe_toEquiv, PartialEquiv.prod_coe,
+    mem_image, mem_ball, dist_zero_right]
+
+lemma prod_map_image_closedball {m l : ℕ} {j : hC.cell m} {k : hD.cell l} : (fun a => ((IsometryEquivFinMap m l).symm.transPartialEquiv ((hC.map m j).prod (hD.map l k))) a) '' closedBall 0 1
+    = (↑(hC.map m j) '' closedBall 0 1) ×ˢ (↑(hD.map l k) '' closedBall 0 1) := by
+  rw [Set.prod_image_image_eq, ← PartialEquiv.prod_coe, ← IsometryEquivFinMapR_image_closedball, image_image]
+  ext x
+  simp only [Equiv.transPartialEquiv_apply, IsometryEquiv.coe_toEquiv, PartialEquiv.prod_coe,
+    mem_image, mem_ball, dist_zero_right]
+
 -- I feel like the maps shouldn't be defined this way. There should be a sum of maps somewhere...
 -- do the composite of ℝ^m1+m2 to the product and from there the product map arrowcongr
 -- should use Fin m1 + Fin m2 ≃ Fin (m1 + m2)
 -- Prodmap
 -- See Logic.Equiv.Fin
-
-def prodmap (m1 : ℕ) (m2 : ℕ) (c1 : hC.cell m1) (c2 : hD.cell m2) : (Fin (m1 + m2) → ℝ) → (X ×ₖ Y) := fun x ↦ ⟨hC.map m1 c1 (fun y ↦ x ⟨y.1, lt_of_lt_of_le y.2 (Nat.le_add_right m1 m2)⟩), hD.map m2 c2 (fun y ↦ x ⟨m1 +y.1, add_lt_add_left y.2 m1⟩)⟩
-
-def prodinvmap (m1 : ℕ) (m2 : ℕ) (c1 : hC.cell m1) (c2 : hD.cell m2) : (X ×ₖ Y) → (Fin (m1 + m2) → ℝ) := fun ⟨x, y⟩ ↦ (fun l ↦ if llt : l < m1 then (hC.map m1 c1).invFun x ⟨l, llt⟩ else (hD.map m2 c2).invFun y ⟨l - m1, Nat.sub_lt_left_of_lt_add (not_lt.1 llt) l.2⟩)
-
-
-def mapprodkification (m1 : ℕ) (m2 : ℕ) (c1 : hC.cell m1) (c2 : hD.cell m2):
-PartialEquiv (Fin (m1 + m2) → ℝ) (X ×ₖ Y) where
-  toFun :=  prodmap hC hD m1 m2 c1 c2
-  invFun := prodinvmap hC hD m1 m2 c1 c2
-  source := closedBall 0 1
-  target := (prodmap hC hD m1 m2 c1 c2) '' closedBall 0 1
-  map_source' := by
-    intro x xmem
-    exact Set.mem_image_of_mem (prodmap hC hD m1 m2 c1 c2) xmem
-  map_target' := by
-    intro ⟨x, y⟩ xymem
-    rw [prodinvmap]
-    simp only [PartialEquiv.invFun_as_coe, mem_closedBall, dist_zero_right, norm, nnnorm]
-    norm_cast
-    apply Finset.sup_le
-    intro l _
-    by_cases h : l < m1
-    · have :  x ∈ (hC.map m1 c1).target := by
-        simp only [prodmap, mem_image] at xymem
-        rcases xymem with ⟨z, zmem, hz⟩
-        rw [Prod.mk.injEq] at hz
-        simp only [← PartialEquiv.image_source_eq_target, hC.source_eq, mem_image]
-        let z' := fun (k : Fin m1) ↦ z ⟨k.1, lt_of_lt_of_le k.2 (Nat.le_add_right m1 m2)⟩
-        use z'
-        simp [z', hz.1]
-        simp [norm, nnnorm] at *
-        intro b
-        simp [zmem ⟨b.1, lt_of_lt_of_le b.2 (Nat.le_add_right m1 m2)⟩]
-      have := (hC.map m1 c1).map_target' this
-      simp [hC.source_eq, norm, nnnorm] at this
-      simp [h]
-      exact this ⟨l.1, h⟩
-    · have :  y ∈ (hD.map m2 c2).target := by
-        simp only [prodmap, mem_image] at xymem
-        rcases xymem with ⟨z, zmem, hz⟩
-        rw [Prod.mk.injEq] at hz
-        simp only [← PartialEquiv.image_source_eq_target, hD.source_eq, mem_image]
-        let z' := fun (k : Fin m2) ↦ z ⟨m1 +k.1, add_lt_add_left k.2 m1⟩
-        use z'
-        simp [z', hz.2]
-        simp [norm, nnnorm] at *
-        intro b
-        simp [zmem ⟨m1 + b.1, add_lt_add_left b.2 m1⟩]
-      have := (hD.map m2 c2).map_target' this
-      simp [hD.source_eq, norm, nnnorm] at this
-      simp [h]
-      exact this ⟨l.1 - m1, Nat.sub_lt_left_of_lt_add (not_lt.1 h) l.2⟩
-  left_inv' := by
-    intro x xmem
-    ext l
-    simp [prodmap, prodinvmap]
-    by_cases h: l < m1
-    · simp [h]
-      sorry
-
-    sorry
-  right_inv' := sorry
-
-#check PartialEquiv.prod
-#check Equiv.transPartialEquiv
 
 -- See Hatcher p. 533
 instance CWComplex_product : @CWComplex (X ×ₖ Y) instprodkification (C ×ˢ D) where
@@ -488,15 +436,84 @@ instance CWComplex_product : @CWComplex (X ×ₖ Y) instprodkification (C ×ˢ D
   cont n i := by
     rcases i with  ⟨m, l, hmln, j, k⟩
     subst hmln
-    simp
+    simp only [Equiv.transPartialEquiv_eq_trans, PartialEquiv.coe_trans]
+    apply @ContinuousOn.comp _ _ _ _ _ instprodkification ↑((hC.map m j).prod (hD.map l k)) _ _ ((closedBall 0 1 : Set (Fin m → ℝ)) ×ˢ (closedBall 0 1 : Set (Fin l → ℝ))) _
+    · apply Continuous.continuousOn
+      rw [Equiv.toPartialEquiv_apply, IsometryEquiv.coe_toEquiv]
+      apply IsometryEquiv.continuous
+    · rw [Set.mapsTo', Equiv.toPartialEquiv_apply, IsometryEquiv.coe_toEquiv,
+        IsometryEquiv.image_closedBall,IsometryEquivFinMap_symmR_zero_eq_zero, closedBall_prod_same, Prod.zero_eq_mk]
+    · apply continuousOn_compact_to_kification (IsCompact.prod (isCompact_closedBall 0 1) (isCompact_closedBall 0 1))
+      exact ContinuousOn.prod_map (hC.cont m j) (hD.cont l k)
+  cont_symm n i:= by
+    rcases i with ⟨m, l, hmln, j, k⟩
+    subst hmln
+    simp only [Equiv.transPartialEquiv_eq_trans, PartialEquiv.coe_trans_symm, Equiv.toPartialEquiv_symm_apply,
+      PartialEquiv.trans_target, PartialEquiv.prod_target, Equiv.toPartialEquiv_target,
+      preimage_univ, inter_univ]
+    apply Continuous.comp_continuousOn
+    · suffices Continuous ⇑(@IsometryEquivFinMap ℝ _ m l) by convert this
+      apply IsometryEquiv.continuous
+    · rw [PartialEquiv.prod_symm]
+      exact from_kification_continuouson_of_continuouson (↑((hC.map m j).symm.prod (hD.map l k).symm)) ((hC.map m j).target ×ˢ (hD.map l k).target) (ContinuousOn.prod_map (hC.cont_symm m j) (hD.cont_symm l k))
+  pairwiseDisjoint := by
+    intro ⟨n1, m, l, hmln1, j, k⟩ _ ⟨n2, p, q, hpqn2, i, o⟩ _ ne
+    subst hmln1 hpqn2
+    unfold Function.onFun
+    simp only
+    rw [prod_map_image_ball, prod_map_image_ball, Set.disjoint_prod]
+    have disjoint1 := hC.pairwiseDisjoint
+    have disjoint2 := hD.pairwiseDisjoint
+    rw [PairwiseDisjoint, Set.Pairwise] at disjoint1 disjoint2
+    have : (⟨m, j⟩ : (n : ℕ) × hC.cell n) ≠ ⟨p, i⟩ ∨ (⟨l, k⟩ : (n : ℕ) × hD.cell n) ≠ ⟨q, o⟩ := by
+      by_contra h
+      push_neg at h
+      apply ne
+      rcases h with ⟨h1, h2⟩
+      simp only [Sigma.mk.inj_iff] at h1 h2
+      rcases h1 with ⟨h11, h12⟩
+      rcases h2 with ⟨h21, h22⟩
+      subst m l
+      simp only [heq_eq_eq] at h12 h22
+      subst j k
+      rfl
+    rcases this with h1 | h2
+    · left
+      exact disjoint1 (Set.mem_univ _) (Set.mem_univ _) h1
+    · right
+      exact disjoint2 (Set.mem_univ _) (Set.mem_univ _) h2
+  mapsto n i := by
+    rcases i with ⟨m, l, hmln, j, k⟩
+    subst hmln
+    simp only
+    rcases hC.mapsto m j with ⟨J1, hJ1⟩
+    rcases hD.mapsto l k with ⟨J2, hJ2⟩
 
     sorry
-  cont_symm := sorry
-  pairwiseDisjoint := sorry
-  mapsto n i := sorry
-  closed A := sorry
-  union := sorry
-
+  closed A := by
+    intro Asub
+    constructor
+    · intro closedA n ⟨m, l, hmln, j, k⟩
+      subst hmln
+      simp only
+      apply IsClosed.inter closedA
+      sorry
+    · sorry
+  union := by
+    have : ⋃ (n : ℕ), ⋃ (j : (m : ℕ) ×' (l : ℕ) ×' (_ : m + l = n) ×' hC.cell m × hD.cell l), (fun a ↦  (j.2.2.fst ▸ (IsometryEquivFinMap j.fst j.2.fst).symm.transPartialEquiv
+        ((hC.map j.fst j.2.2.2.1).prod (hD.map j.2.fst j.2.2.2.2))) a) '' closedBall 0 1 =
+        ⋃ (n : ℕ), ⋃ (j : (m : ℕ) ×' (l : ℕ) ×' (_ : m + l = n) ×' hC.cell m × hD.cell l), (hC.map j.fst j.2.2.2.1 '' closedBall 0 1) ×ˢ (hD.map j.2.fst j.2.2.2.2 '' closedBall 0 1) := by
+      apply Set.iUnion_congr
+      intro n
+      apply Set.iUnion_congr
+      intro ⟨m, l, hmln, j, k⟩
+      subst hmln
+      simp only [prod_map_image_closedball]
+    simp_rw [this, ← hC.union, ← hD.union, Set.prod_iUnion, Set.iUnion_prod_const]
+    ext x
+    simp only [mem_iUnion, mem_prod, PSigma.exists, Prod.exists, exists_and_right, exists_and_left]
+    exact ⟨fun ⟨n, m, l, hnml, j, k, x1mem, x2mem⟩ ↦ ⟨⟨m, ⟨j, x1mem⟩⟩, ⟨l, ⟨k, x2mem⟩⟩⟩,
+      fun ⟨⟨m, j, x1mem⟩, ⟨l, k, x2mem⟩⟩ ↦ ⟨m + l, ⟨m, ⟨l, ⟨rfl, ⟨j, ⟨k, ⟨x1mem, x2mem⟩⟩⟩⟩⟩⟩⟩⟩
 
 infixr:35 " × " => CWComplex_product
 
