@@ -257,8 +257,12 @@ lemma compact_inter_finite (A : t.Compacts) : _root_.Finite (Σ (m : ℕ), {j : 
   contradiction
 
 /- I also need the indexed sum of types here. Use subcomplex.-/
-def iUnion_subcomplex (J : Type u) (I : J → Π n, Set (hC.cell n)) (cw : ∀ (l : J), CWComplex (⋃ (n : ℕ) (j : I l n), hC.map n j '' ball 0 1)) : CWComplex (⋃ (l : J) (n : ℕ) (j : I l n), hC.map n j '' ball 0 1) := by
-  sorry
+def iUnion_subcomplex (J : Type*) (sub : J → Set X) (cw : ∀ (j : J), hC.Subcomplex (sub j)) : hC.Subcomplex (⋃ (j : J), sub j) where
+  I n := ⋃ (j : J), (cw j).I n
+  closed := by
+    sorry
+  union := sorry
+
 
 
 /- A finite union of finite subcomplexes is again a finite subcomplex.-/

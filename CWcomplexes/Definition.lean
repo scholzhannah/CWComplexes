@@ -243,6 +243,15 @@ lemma iUnion_ball_eq_levelaux (n : ℕ∞) : ⋃ (m : ℕ) (hm : m < n) (j : hC.
     norm_cast at hn
     rw [hn]
 
+lemma not_disjoint_equal {n : ℕ} {j : hC.cell n} {m : ℕ} {i : hC.cell m} (notdisjoint: ¬ Disjoint (↑(hC.map n j) '' ball 0 1) (↑(hC.map m i) '' ball 0 1)) :
+(⟨n, j⟩ : (Σ n, hC.cell n)) = ⟨m, i⟩ := by
+  by_contra h'
+  push_neg at h'
+  apply notdisjoint
+  have := hC.pairwiseDisjoint
+  simp only [PairwiseDisjoint, Set.Pairwise, Function.onFun] at this
+  exact @this ⟨n, j⟩ (by simp) ⟨m, i⟩ (by simp) h'
+
 lemma iUnion_ball_eq_level (n : ℕ∞) : ⋃ (m : ℕ) (hm : m < n + 1) (j : hC.cell m), hC.map m j '' ball 0 1 = hC.level n := by
   rw [level]
   exact hC.iUnion_ball_eq_levelaux (n + 1)
@@ -325,36 +334,16 @@ lemma levelaux_inter_image_closedBall_eq_levelaux_inter_image_sphere {n : ℕ∞
     rw [← Metric.sphere_union_ball, image_union] at xmemball
     rcases xmemball with h | h
     · exact h
+    exfalso
     rcases hC.exists_mem_ball_of_mem_levelaux xmemlevel with ⟨l, ⟨llen, ⟨i, xmem⟩⟩⟩
-    have := hC.pairwiseDisjoint
-    rw [PairwiseDisjoint, Set.Pairwise] at this
-    simp only [mem_univ, ne_eq, forall_true_left] at this
-    have h' : ¬  (⟨l, i⟩ : (Σ n, hC.cell n)) = (⟨m, j⟩ : (Σ n, hC.cell n)) := by
-      simp only [Sigma.mk.inj_iff, not_and]
-      have : ¬ l = m := by
-        push_neg
-        apply LT.lt.ne
-        let k := ENat.toNat n
-        have : n < m + 1 := by
-          apply LE.le.trans_lt nlem
-          norm_cast
-          exact lt_add_one m
-        have coekn: ↑k = n := ENat.coe_toNat (LT.lt.ne_top this)
-        rw [← coekn] at nlem
-        rw [← coekn] at llen
-        norm_cast at *
-        exact lt_of_lt_of_le llen nlem
-      simp [this]
-    have := this h'
-    simp [Function.onFun, Disjoint] at this
-    have h1 : {x} ⊆ ↑(hC.map l i) '' ball 0 1 := by
-      simp only [singleton_subset_iff]
-      exact xmem
-    have h2 : {x} ⊆ ↑(hC.map m j) '' ball 0 1 := by
-      simp only [singleton_subset_iff]
-      exact h
-    have := this h1 h2
+    have : ¬ Disjoint (↑(hC.map m j) '' ball 0 1) (↑(hC.map l i) '' ball 0 1) := by
+      rw [not_disjoint_iff]
+      use x
+    have := hC.not_disjoint_equal this
     simp at this
+    rcases this with ⟨eq1, eq2⟩
+    subst m
+    exact (lt_self_iff_false n).1 (lt_of_le_of_lt nlem llen)
   · intro xmem
     exact ⟨xmem.1,  (Set.image_subset ↑(hC.map m j) Metric.sphere_subset_closedBall) xmem.2⟩
 
@@ -459,15 +448,6 @@ lemma closure_map_ball_eq_map_closedball {n : ℕ} {j : hC.cell n} : closure (hC
     rw [← closure_ball]
     apply ContinuousOn.image_closure this
     simp
-
-lemma not_disjoint_equal {n : ℕ} {j : hC.cell n} {m : ℕ} {i : hC.cell m} (notdisjoint: ¬ Disjoint (↑(hC.map n j) '' ball 0 1) (↑(hC.map m i) '' ball 0 1)) :
-(⟨n, j⟩ : (Σ n, hC.cell n)) = ⟨m, i⟩ := by
-  by_contra h'
-  push_neg at h'
-  apply notdisjoint
-  have := hC.pairwiseDisjoint
-  simp only [PairwiseDisjoint, Set.Pairwise, Function.onFun] at this
-  exact @this ⟨n, j⟩ (by simp) ⟨m, i⟩ (by simp) h'
 
 --not sure if I need this right now but nonetheless good to have
 lemma map_closedBall_inter_map_closedBall_eq_map_ball_inter_map_ball_of_le {n : ℕ} {j : hC.cell n} {m : ℕ} {i : hC.cell m} (ne : (⟨n, j⟩ : (Σ n, hC.cell n)) ≠ ⟨m, i⟩) (mlen : m ≤ n) : hC.map n j '' closedBall 0 1 ∩ hC.map m i '' closedBall 0 1 = hC.map n j '' sphere 0 1 ∩ hC.map m i '' closedBall 0 1 := by
