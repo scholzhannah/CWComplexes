@@ -46,6 +46,23 @@ lemma isClosed_inter_singleton {X : Type*} [TopologicalSpace X] [T1Space X] {A :
 lemma sphere_zero_dim_empty {X : Type*} {h : PseudoMetricSpace (Fin 0 → X)}: (Metric.sphere ![] 1 : Set (Fin 0 → X)) = ∅ := by
   simp [Metric.sphere, Matrix.empty_eq]
 
+lemma closed_in_finite {X : Type*} [t : TopologicalSpace X] {ι : Type*} [Finite ι] (A : Set X) (B : ι → Set X) (closed : ∀ i, IsClosed (B i))
+    (closedini : (∀ (i : ι), ∃ (C : t.Closeds), A ∩ B i = C.1 ∩ B i)) : ∃ (C : t.Closeds), A ∩ ⋃ i, B i = C.1 ∩ ⋃ i, B i := by
+  let C' i := B i ∩ (Classical.choose (closedini i)).1
+  let C := ⋃ i, C' i
+  have closedC : IsClosed C := by
+    simp only [C, C']
+    apply isClosed_iUnion_of_finite
+    intro i
+    apply IsClosed.inter (closed i) (Classical.choose (closedini i)).2
+  use ⟨C, closedC⟩
+  simp only [C, C']
+  rw [Set.inter_iUnion, Set.iUnion_inter]
+  apply Set.iUnion_congr
+  intro i
+  rw [Set.inter_comm (B i), Set.inter_assoc, Set.inter_eq_left.2 (Set.subset_iUnion _ i)]
+  exact Classical.choose_spec (closedini i)
+
 
 def kification (X : Type*) := X
 

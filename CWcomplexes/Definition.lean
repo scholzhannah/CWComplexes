@@ -243,6 +243,9 @@ lemma iUnion_ball_eq_levelaux (n : ℕ∞) : ⋃ (m : ℕ) (hm : m < n) (j : hC.
     norm_cast at hn
     rw [hn]
 
+lemma union' : ⋃ (n : ℕ) (j : hC.cell n), hC.map n j '' ball 0 1 = C := by
+  simp only [← hC.levelaux_top, ← hC.iUnion_ball_eq_levelaux, ENat.coe_lt_top, iUnion_true]
+
 lemma not_disjoint_equal {n : ℕ} {j : hC.cell n} {m : ℕ} {i : hC.cell m} (notdisjoint: ¬ Disjoint (↑(hC.map n j) '' ball 0 1) (↑(hC.map m i) '' ball 0 1)) :
 (⟨n, j⟩ : (Σ n, hC.cell n)) = ⟨m, i⟩ := by
   by_contra h'
@@ -388,6 +391,11 @@ lemma isClosed_inter_sphere_succ_of_le_isClosed_inter_closedBall {A : Set X} {n 
     rw [inter_assoc, Set.inter_eq_right.2 hI]
   rw [this]
   apply IsClosed.inter closedunion hC.isClosed_map_sphere
+
+lemma isCompact_map_closedBall (n : ℕ) (i : hC.cell n) : IsCompact (hC.map n i '' closedBall 0 1) := by
+  apply IsCompact.image_of_continuousOn
+  apply isCompact_closedBall
+  exact hC.cont n i
 
 lemma isClosed_map_closedBall (n : ℕ) (i : hC.cell n) : IsClosed (hC.map n i '' closedBall 0 1) := by
   apply IsCompact.isClosed
