@@ -457,11 +457,6 @@ lemma closure_map_ball_eq_map_closedball {n : ℕ} {j : hC.cell n} : closure (hC
     apply ContinuousOn.image_closure this
     simp
 
---not sure if I need this right now but nonetheless good to have
-lemma map_closedBall_inter_map_closedBall_eq_map_ball_inter_map_ball_of_le {n : ℕ} {j : hC.cell n} {m : ℕ} {i : hC.cell m} (ne : (⟨n, j⟩ : (Σ n, hC.cell n)) ≠ ⟨m, i⟩) (mlen : m ≤ n) : hC.map n j '' closedBall 0 1 ∩ hC.map m i '' closedBall 0 1 = hC.map n j '' sphere 0 1 ∩ hC.map m i '' closedBall 0 1 := by
-  rw [← Metric.sphere_union_ball, ← Metric.sphere_union_ball]
-  sorry
-
 -- could this proof be simplified using `exists_mem_ball_of_mem_level`?
 lemma mapsto' (n : ℕ) (i : hC.cell n) : ∃ I : Π m, Finset (hC.cell m),
 MapsTo (hC.map n i) (sphere 0 1) (⋃ (m < n) (j ∈ I m), hC.map m j '' ball 0 1) := by
@@ -522,6 +517,3 @@ MapsTo (hC.map n i) (sphere 0 1) (⋃ (m < n) (j ∈ I m), hC.map m j '' ball 0 
         exact jmem
       rw [← mapx']
       exact Set.mem_image_of_mem (hC.map l j) x'mem
-
-lemma mapsto'' (n :  ℕ) (i : hC.cell n) : _root_.Finite (Σ (m : ℕ), {j : hC.cell m // ¬ Disjoint (↑(hC.map n i) '' sphere 0 1 ) (↑(hC.map m j) '' ball 0 1)} ) := by
-  sorry --derive this from the fact that compact sets meet only finitely many cells

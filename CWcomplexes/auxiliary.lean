@@ -399,6 +399,11 @@ lemma IsometryEquivFinMapR_image_closedball (m n : ℕ) : (IsometryEquivFinMap m
   unfold PseudoMetricSpace.toDist Prod.pseudoMetricSpaceMax
   simp [dist]
 
+
+lemma IsometryEquivFinMapR_image_sphere (m n : ℕ) : (IsometryEquivFinMap m n).symm '' Metric.sphere 0 1 = (Metric.sphere 0 1 : Set (Fin m → ℝ)) ×ˢ (Metric.closedBall 0 1 : Set (Fin n → ℝ)) ∪ (Metric.closedBall 0 1 : Set (Fin m → ℝ)) ×ˢ (Metric.sphere 0 1 : Set (Fin n → ℝ)) := by
+  rw [IsometryEquiv.image_sphere, IsometryEquivFinMap_symmR_zero_eq_zero, sphere_prod]
+  rfl
+
 lemma prod_closedBall_eq_closedBall {X : Type*} [PseudoMetricSpace X] {m n : ℕ} (x : Fin m → X) (y : Fin n → X) : (Metric.closedBall x 1 : Set (Fin m → X)) ×ˢ (Metric.closedBall y 1 : Set (Fin n → X)) = (Metric.closedBall (x, y) 1: Set ((Fin m → X) × (Fin n → X))) := by
   ext z
   simp only [Set.mem_prod, Metric.mem_closedBall, PseudoMetricSpace.toDist,

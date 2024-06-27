@@ -1,4 +1,5 @@
 import CWcomplexes.Lemmas
+import Mathlib.Data.Finset.NatAntidiagonal
 
 
 set_option autoImplicit false
@@ -22,23 +23,18 @@ instance instprodkification : TopologicalSpace (X ×ₖ Y) := instkification
 
 lemma prod_map_image_ball {m l : ℕ} {j : hC.cell m} {k : hD.cell l} : (fun a => ((IsometryEquivFinMap m l).symm.transPartialEquiv ((hC.map m j).prod (hD.map l k))) a) '' ball 0 1
     = (↑(hC.map m j) '' ball 0 1) ×ˢ (↑(hD.map l k) '' ball 0 1) := by
-  rw [Set.prod_image_image_eq, ← PartialEquiv.prod_coe, ← IsometryEquivFinMapR_image_ball, image_image]
-  ext x
-  simp only [Equiv.transPartialEquiv_apply, IsometryEquiv.coe_toEquiv, PartialEquiv.prod_coe,
-    mem_image, mem_ball, dist_zero_right]
+  rw [prod_image_image_eq, ← PartialEquiv.prod_coe, ← IsometryEquivFinMapR_image_ball, image_image]
+  simp only [Equiv.transPartialEquiv_apply, IsometryEquiv.coe_toEquiv, PartialEquiv.prod_coe]
 
 lemma prod_map_image_closedball {m l : ℕ} {j : hC.cell m} {k : hD.cell l} : (fun a => ((IsometryEquivFinMap m l).symm.transPartialEquiv ((hC.map m j).prod (hD.map l k))) a) '' closedBall 0 1
     = (↑(hC.map m j) '' closedBall 0 1) ×ˢ (↑(hD.map l k) '' closedBall 0 1) := by
-  rw [Set.prod_image_image_eq, ← PartialEquiv.prod_coe, ← IsometryEquivFinMapR_image_closedball, image_image]
-  ext x
-  simp only [Equiv.transPartialEquiv_apply, IsometryEquiv.coe_toEquiv, PartialEquiv.prod_coe,
-    mem_image, mem_ball, dist_zero_right]
+  rw [prod_image_image_eq, ← PartialEquiv.prod_coe, ← IsometryEquivFinMapR_image_closedball, image_image]
+  simp only [Equiv.transPartialEquiv_apply, IsometryEquiv.coe_toEquiv, PartialEquiv.prod_coe]
 
--- I feel like the maps shouldn't be defined this way. There should be a sum of maps somewhere...
--- do the composite of ℝ^m1+m2 to the product and from there the product map arrowcongr
--- should use Fin m1 + Fin m2 ≃ Fin (m1 + m2)
--- Prodmap
--- See Logic.Equiv.Fin
+lemma prod_map_image_sphere {m l : ℕ} {j : hC.cell m} {k : hD.cell l} : (fun a => ((IsometryEquivFinMap m l).symm.transPartialEquiv ((hC.map m j).prod (hD.map l k))) a) '' sphere 0 1
+    = (hC.map m j '' (Metric.sphere 0 1 : Set (Fin m → ℝ))) ×ˢ (hD.map l k '' (Metric.closedBall 0 1 : Set (Fin l → ℝ))) ∪ (hC.map m j '' (Metric.closedBall 0 1 : Set (Fin m → ℝ))) ×ˢ (hD.map l k '' (Metric.sphere 0 1 : Set (Fin l → ℝ))) := by
+  simp_rw [prod_image_image_eq, ← PartialEquiv.prod_coe, ← image_union, ← IsometryEquivFinMapR_image_sphere, image_image]
+  simp only [Equiv.transPartialEquiv_apply, IsometryEquiv.coe_toEquiv, PartialEquiv.prod_coe]
 
 -- See Hatcher p. 533
 instance CWComplex_product : @CWComplex (X ×ₖ Y) instprodkification (C ×ˢ D) where
@@ -105,12 +101,55 @@ instance CWComplex_product : @CWComplex (X ×ₖ Y) instprodkification (C ×ˢ D
     · right
       exact disjoint2 (Set.mem_univ _) (Set.mem_univ _) h2
   mapsto n i := by
+    classical
     rcases i with ⟨m, l, hmln, j, k⟩
     subst hmln
     simp only
     rcases hC.mapsto m j with ⟨J1, hJ1⟩
     rcases hD.mapsto l k with ⟨J2, hJ2⟩
-    sorry
+    let J n : Finset (Σ' (k m : ℕ) (h : k + m = n), hC.cell k × hD.cell m) :=
+      ((Finset.antidiagonal n).attach.biUnion fun ⟨(o, p), h⟩ ↦ if h' : p = l then (J1 o ×ˢ {k}).image fun (x, y) ↦ ⟨o, l, by rw [← h']; simpa using h, x, y⟩ else ∅)
+      ∪ ((Finset.antidiagonal n).attach.biUnion fun ⟨(o, p), h⟩ ↦ if h' : o = m then ({j} ×ˢ J2 p).image fun (x, y) ↦ ⟨m, p, by rw [← h']; simpa using h, x, y⟩ else ∅)
+    use J
+    rw [Set.mapsTo'] at hJ1 hJ2 ⊢
+    -- simp only [Equiv.transPartialEquiv_apply, IsometryEquiv.coe_toEquiv, PartialEquiv.prod_coe]
+    intro ⟨x1, x2⟩ xmem
+    rw [prod_map_image_sphere] at xmem
+    rcases xmem with xmem1 | xmem2
+    · rcases xmem1 with ⟨x1mem, x2mem⟩
+      simp only [mem_iUnion, PSigma.exists, Prod.exists]
+      replace hJ1 := hJ1 x1mem
+      simp only [mem_iUnion, exists_prop] at hJ1
+      rcases hJ1 with ⟨o, oltm, p, pmemo, hop⟩
+      use o + l, Nat.add_lt_add_right oltm l, o, l, rfl, p, k
+      have : ⟨o, ⟨l, ⟨rfl, (p, k)⟩⟩⟩ ∈ J (o + l) := by
+        simp only [Finset.singleton_product, Finset.mem_union, Finset.mem_biUnion,
+          Finset.mem_attach, true_and, Subtype.exists, Finset.mem_antidiagonal, Prod.exists, J]
+        left
+        use o, l, rfl
+        simp only [↓reduceDite, Prod.mk.eta, Finset.product_singleton, Finset.mem_image,
+          Finset.mem_map, Function.Embedding.coeFn_mk, PSigma.mk.injEq, heq_eq_eq, true_and,
+          exists_eq_right, Prod.mk.injEq, and_true, pmemo]
+      use this
+      rw [prod_map_image_closedball]
+      exact ⟨hop, x2mem⟩
+    · rcases xmem2 with ⟨x1mem, x2mem⟩
+      simp only [mem_iUnion, PSigma.exists, Prod.exists]
+      replace hJ2 := hJ2 x2mem
+      simp only [mem_iUnion, exists_prop] at hJ2
+      rcases hJ2 with ⟨o, oltl, p, pmemo, hop⟩
+      use m + o, Nat.add_lt_add_left oltl m, m, o, rfl, j, p
+      have : ⟨m, ⟨o, ⟨rfl, (j, p)⟩⟩⟩ ∈ J (m + o) := by
+        simp only [Finset.singleton_product, Finset.mem_union, Finset.mem_biUnion,
+          Finset.mem_attach, true_and, Subtype.exists, Finset.mem_antidiagonal, Prod.exists, J]
+        right
+        use m, o, rfl
+        simp only [↓reduceDite, Prod.mk.eta, Finset.product_singleton, Finset.mem_image,
+          Finset.mem_map, Function.Embedding.coeFn_mk, PSigma.mk.injEq, heq_eq_eq, true_and,
+          exists_eq_right, Prod.mk.injEq, and_true, pmemo]
+      use this
+      rw [prod_map_image_closedball]
+      exact ⟨x1mem, hop⟩
   closed A := by
     intro Asub
     constructor

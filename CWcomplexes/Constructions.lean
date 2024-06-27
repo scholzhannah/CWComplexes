@@ -277,8 +277,7 @@ def CWComplex_subcomplex (E : Set X) (subcomplex: Subcomplex hC E) : CWComplex E
     simp at mi ni
     have disjoint := @this ⟨n, ni.1⟩ (Set.mem_univ (⟨n, ni.1⟩ : (n : ℕ) × hC.cell n)) ⟨m, mi.1⟩ (Set.mem_univ (⟨m, mi.1⟩ : (n : ℕ) × hC.cell n))
     have : ({ fst := n, snd := ↑ni } : (n : ℕ) × hC.cell n) ≠ { fst := m, snd := ↑mi } := by
-      simp at nnem
-      simp
+      simp only [ne_eq, Sigma.mk.inj_iff, not_and] at nnem ⊢
       intro men heq
       apply nnem men
       subst men

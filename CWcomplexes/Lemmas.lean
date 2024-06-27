@@ -256,10 +256,28 @@ lemma compact_inter_finite (A : t.Compacts) : _root_.Finite (Σ (m : ℕ), {j : 
     exact IsCompact.finite compact discrete
   contradiction
 
+-- is this true?
+lemma compact_inter_finite' (A : t.Compacts) : _root_.Finite (Σ (m : ℕ), {j : hC.cell m // ¬ Disjoint A.1 (↑(hC.map m j) '' closedBall 0 1)}) := by
+  sorry
+
 /- I also need the indexed sum of types here. Use subcomplex.-/
 def iUnion_subcomplex (J : Type*) (sub : J → Set X) (cw : ∀ (j : J), hC.Subcomplex (sub j)) : hC.Subcomplex (⋃ (j : J), sub j) where
   I n := ⋃ (j : J), (cw j).I n
   closed := by
+    rw [hC.closed]
+    swap
+    · apply iUnion_subset
+      intro i
+      rw [(cw i).union, iUnion_subset_iff]
+      intro n
+      rw [iUnion_subset_iff]
+      intro j
+      apply map_ball_subset_complex
+    intro n i
+    simp_rw [← (hC.CWComplex_subcomplex (sub _) (cw _)).union]
+    simp only [CWComplex_subcomplex, iUnion_coe_set]
+    have : _root_.Finite (Σ (j: J) (m : ℕ), {j : (cw j).I m // ¬ Disjoint ((hC.map n i) '' closedBall 0 1) (↑(hC.map m j) '' closedBall 0 1)}) := by
+      sorry
     sorry
   union := sorry
 
@@ -294,9 +312,3 @@ lemma finite_iUnion_finitesubcomplex (m : ℕ) (mnezero : m > 0) (I : Fin m → 
     · sorry
   finitecells := sorry
 -/
-
-/- See Hatcher p. 522. I don't really want to do that know so I'll just leave it here for now.-/
-def open_neighbourhood_aux (ε : (n : ℕ) → (hC.cell n) → {x : ℝ // x > 0}) (A : Set X) (AsubC : A ⊆ C) (n : ℕ): Set X :=
-  match n with
-  | 0 => A ∩ hC.level 0
-  | Nat.succ m => sorry
