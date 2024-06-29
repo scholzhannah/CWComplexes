@@ -1,4 +1,5 @@
 import CWcomplexes.Lemmas
+import CWcomplexes.kification
 import Mathlib.Data.Finset.NatAntidiagonal
 
 
@@ -6,7 +7,7 @@ set_option autoImplicit false
 set_option linter.unusedVariables false
 noncomputable section
 
-open Metric Set
+open Metric Set Kification
 
 namespace CWComplex
 
@@ -104,7 +105,6 @@ instance CWComplex_product : @CWComplex (X ×ₖ Y) instprodkification (C ×ˢ D
     classical
     rcases i with ⟨m, l, hmln, j, k⟩
     subst hmln
-    simp only
     rcases hC.mapsto m j with ⟨J1, hJ1⟩
     rcases hD.mapsto l k with ⟨J2, hJ2⟩
     let J n : Finset (Σ' (k m : ℕ) (h : k + m = n), hC.cell k × hD.cell m) :=
@@ -112,7 +112,6 @@ instance CWComplex_product : @CWComplex (X ×ₖ Y) instprodkification (C ×ˢ D
       ∪ ((Finset.antidiagonal n).attach.biUnion fun ⟨(o, p), h⟩ ↦ if h' : o = m then ({j} ×ˢ J2 p).image fun (x, y) ↦ ⟨m, p, by rw [← h']; simpa using h, x, y⟩ else ∅)
     use J
     rw [Set.mapsTo'] at hJ1 hJ2 ⊢
-    -- simp only [Equiv.transPartialEquiv_apply, IsometryEquiv.coe_toEquiv, PartialEquiv.prod_coe]
     intro ⟨x1, x2⟩ xmem
     rw [prod_map_image_sphere] at xmem
     rcases xmem with xmem1 | xmem2
@@ -159,8 +158,7 @@ instance CWComplex_product : @CWComplex (X ×ₖ Y) instprodkification (C ×ˢ D
       rw [prod_map_image_closedball]
       refine IsClosed.mono ?_ kification_le
       exact IsClosed.prod (hC.isClosed_map_closedBall _ _) (hD.isClosed_map_closedBall _ _)
-    · simp only
-      intro hA
+    · intro hA
       rw [@kification.closed_iff _ instTopologicalSpaceProd]
       intro K
       let K' := ((Prod.fst '' K.1) ∩ C) ×ˢ ((Prod.snd '' K.1) ∩ D)
