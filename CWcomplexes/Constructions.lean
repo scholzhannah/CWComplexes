@@ -263,8 +263,9 @@ def CWComplex_disjointUnion (disjoint : Disjoint C D) : CWComplex (C ∪ D) wher
         rcases h with ⟨i, hi⟩
         use Sum.inr i
 
+-- does typeclass inference even work here?
 /- See "Topologie" p. 120 by Klaus Jänich from 2001 -/
-def CWComplex_subcomplex (E : Set X) (subcomplex: Subcomplex hC E) : CWComplex E where
+def CWComplex_subcomplex (E : Set X) (subcomplex: hC.Subcomplex E) : CWComplex E where
   cell n := subcomplex.I n
   map n i := hC.map n i
   source_eq n i := hC.source_eq n i
@@ -339,20 +340,15 @@ def CWComplex_subcomplex (E : Set X) (subcomplex: Subcomplex hC E) : CWComplex E
       rw [hC.closed A (subset_trans Asub this)]
       intro n j
       induction' n using Nat.case_strong_induction_on with n hn
-      · simp [Matrix.empty_eq]
-        by_cases h': {(hC.map 0 j) ![]} ⊆ A
-        · simp [Set.inter_eq_right.2 h', isClosed_singleton]
-        · have : A ∩ {(hC.map 0 j) ![]} = ∅ := by
-            simp only [singleton_subset_iff] at h'
-            simp only [inter_singleton_eq_empty, h', not_false_eq_true]
-          simp only [this, isClosed_empty]
+      · simp only [Matrix.empty_eq, nonempty_closedBall, zero_le_one, Nonempty.image_const]
+        exact isClosed_inter_singleton
       · by_cases h : j ∈ subcomplex.I (Nat.succ n)
         · exact closed (Nat.succ n) ⟨j, h⟩
         rw [← Metric.sphere_union_ball, image_union, inter_union_distrib_left]
         apply IsClosed.union
         · exact hC.isClosed_inter_sphere_succ_of_le_isClosed_inter_closedBall hn j
         · have h1 : (⋃ (n : ℕ) (j : subcomplex.I n), hC.map n j '' ball 0 1) ∩ ↑(hC.map (Nat.succ n) j) '' ball 0 1 = ∅ := by
-            simp [iUnion_inter]
+            simp only [iUnion_coe_set, Nat.succ_eq_add_one, iUnion_inter, iUnion_eq_empty]
             intro m i imem
             have := hC.pairwiseDisjoint
             simp only [PairwiseDisjoint, Set.Pairwise, mem_univ, ne_eq, Function.onFun,

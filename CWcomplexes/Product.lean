@@ -187,24 +187,10 @@ instance CWComplex_product : @CWComplex (X ×ₖ Y) instprodkification (C ×ˢ D
           inter_assoc, inter_eq_right.2 KsubK', inter_comm K.carrier (C ×ˢ D), ← inter_assoc, inter_eq_left.2 Asub]
       let U1 := ⋃ (x : Σ (m : ℕ), {j : hC.cell m // ¬ Disjoint (Prod.fst '' K.1) (hC.map m j '' ball 0 1)}), hC.map x.1 x.2 '' closedBall 0 1
       let U2 := ⋃ (x : Σ (m : ℕ), {j : hD.cell m // ¬ Disjoint (Prod.snd '' K.1) (hD.map m j '' ball 0 1)}), hD.map x.1 x.2 '' closedBall 0 1
-      have sub1 : Prod.fst '' K.1 ∩ C ⊆ U1 := by
-        intro x ⟨xmem1, xmem2⟩
-        simp only [U1, mem_iUnion]
-        simp only [← hC.union', mem_iUnion] at xmem2
-        rcases xmem2 with ⟨m, j, hmj⟩
-        use ⟨m, j, not_disjoint_iff.2 ⟨x, xmem1, hmj⟩⟩
-        exact hC.map_ball_subset_map_closedball hmj
-      have sub2 : Prod.snd '' K.1 ∩ D ⊆ U2 := by
-        intro x ⟨xmem1, xmem2⟩
-        simp only [U2, mem_iUnion]
-        simp only [← hD.union', mem_iUnion] at xmem2
-        rcases xmem2 with ⟨m, j, hmj⟩
-        use ⟨m, j, not_disjoint_iff.2 ⟨x, xmem1, hmj⟩⟩
-        exact hD.map_ball_subset_map_closedball hmj
       have sub : K' ⊆ U1 ×ˢ U2 := by
         simp only [K', prod_subset_prod_iff]
         left
-        exact ⟨sub1, sub2⟩
+        exact ⟨hC.subset_not_disjoint _, hD.subset_not_disjoint _⟩
       suffices ∃ (C_1 : TopologicalSpace.Closeds (X × Y)), A ∩ (U1 ×ˢ U2) = C_1.carrier ∩ (U1 ×ˢ U2) by
         rcases this with ⟨B, hB⟩
         use B

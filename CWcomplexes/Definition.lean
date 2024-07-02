@@ -73,10 +73,6 @@ structure Subcomplex (E : Set X) where
   closed : IsClosed E
   union : E = ⋃ (n : ℕ) (j : I n), hC.map n j '' ball 0 1
 
-class Subcomplex.Finite (E : Set X) (subcomplex: hC.Subcomplex E) : Prop where
-  finitelevels : ∀ᶠ n in Filter.atTop, IsEmpty (hC.cell n)
-  finitecells (n : ℕ) : _root_.Finite (hC.cell n)
-
 @[simp] lemma levelaux_top : hC.levelaux ⊤ = C := by
   simp only [levelaux, lt_top_iff_ne_top, ne_eq, ENat.coe_ne_top, not_false_eq_true, iUnion_true, ←
     hC.union]
@@ -413,6 +409,14 @@ lemma isClosed : IsClosed C := by
   rw [Set.inter_eq_right.2 this]
   exact hC.isClosed_map_closedBall n i
   rfl
+
+/- See "Topologie" p. 120 by Klaus Jänich from 2001 -/
+def Subcomplex' (E : Set X) (I : Π n, Set (hC.cell n))
+    (cw : CWComplex E)
+    (union : E = ⋃ (n : ℕ) (j : I n), hC.map n j '' ball 0 1): hC.Subcomplex E where
+  I := I
+  closed := cw.isClosed
+  union := union
 
 lemma levelaux_succ_eq_levelaux_union_iUnion (n : ℕ) : hC.levelaux (↑n + 1) = hC.levelaux ↑n ∪ ⋃ (j : hC.cell ↑n), hC.map ↑n j '' closedBall 0 1 := by
   simp [CWComplex.levelaux]

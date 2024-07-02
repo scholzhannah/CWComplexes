@@ -256,31 +256,217 @@ lemma compact_inter_finite (A : t.Compacts) : _root_.Finite (Σ (m : ℕ), {j : 
     exact IsCompact.finite compact discrete
   contradiction
 
--- is this true?
-lemma compact_inter_finite' (A : t.Compacts) : _root_.Finite (Σ (m : ℕ), {j : hC.cell m // ¬ Disjoint A.1 (↑(hC.map m j) '' closedBall 0 1)}) := by
-  sorry
+lemma compact_inter_finite_subset (A : t.Compacts) {I : (n : ℕ) → Set (hC.cell n)} : _root_.Finite (Σ (m : ℕ), {j : I m // ¬ Disjoint A.1 (↑(hC.map m j) '' ball 0 1)}) := by
+  let f := fun (x : Σ (m : ℕ), {j : I m // ¬ Disjoint A.1 (↑(hC.map m j) '' ball 0 1)}) ↦ (⟨x.1, ⟨x.2.1, x.2.2⟩⟩ : Σ (m : ℕ), {j : hC.cell m // ¬ Disjoint A.1 (↑(hC.map m j) '' ball 0 1)})
+  apply @Finite.of_injective _ _ (hC.compact_inter_finite A) f
+  unfold Function.Injective
+  intro ⟨x1, x2, x3⟩ ⟨y1, y2, y3⟩ eq
+  simp [f] at eq
+  rcases eq with ⟨rfl, eq⟩
+  simp only [heq_eq_eq, Subtype.mk.injEq, Subtype.val_inj] at eq
+  simp_rw [eq]
 
-/- I also need the indexed sum of types here. Use subcomplex.-/
-def iUnion_subcomplex (J : Type*) (sub : J → Set X) (cw : ∀ (j : J), hC.Subcomplex (sub j)) : hC.Subcomplex (⋃ (j : J), sub j) where
-  I n := ⋃ (j : J), (cw j).I n
+lemma compact_inter_finite' (A : t.Compacts) : _root_.Finite { x : Σ (n : ℕ), hC.cell n // ¬Disjoint A.1 (hC.map x.fst x.snd '' ball 0 1)} := by
+  let f := fun (x : (Σ (m : ℕ), {j : hC.cell m // ¬ Disjoint A.1 (↑(hC.map m j) '' ball 0 1)})) ↦ (⟨⟨x.1, x.2.1⟩, x.2.2⟩ : { x : Σ (n : ℕ), hC.cell n // ¬Disjoint A.1 (hC.map x.fst x.snd '' ball 0 1)})
+  apply @Finite.of_surjective _ _ (hC.compact_inter_finite A) f
+  unfold Function.Surjective
+  intro x
+  use ⟨x.1.1, ⟨x.1.2, x.2⟩⟩
+
+lemma compact_inter_finite_subset' (A : t.Compacts) {I : (n : ℕ) → Set (hC.cell n)} : _root_.Finite {x : Σ (n : ℕ), I n // ¬Disjoint A.1 (hC.map x.fst x.snd '' ball 0 1)} := by
+  let f := fun (x : {x : Σ (n : ℕ), I n // ¬Disjoint A.1 (hC.map x.fst x.snd '' ball 0 1)}) ↦ (⟨⟨x.1.1, x.1.2⟩, x.2⟩ : {x : Σ (n : ℕ), hC.cell n // ¬Disjoint A.1 (hC.map x.fst x.snd '' ball 0 1)})
+  apply @Finite.of_injective _ _ (hC.compact_inter_finite' A) f
+  unfold Function.Injective
+  intro ⟨⟨x1, x2⟩, x3⟩ ⟨⟨y1, y2⟩, y3⟩ eq
+  simp [f] at eq
+  rcases eq with ⟨rfl, eq⟩
+  simp only [heq_eq_eq, Subtype.mk.injEq, Subtype.val_inj] at eq
+  simp_rw [eq]
+
+lemma subset_not_disjoint (A : Set X) : A ∩ C ⊆ ⋃ (x : Σ (m : ℕ), {j : hC.cell m // ¬ Disjoint A (hC.map m j '' ball 0 1)}), hC.map x.1 x.2 '' closedBall 0 1 := by
+  intro x ⟨xmem1, xmem2⟩
+  simp only [mem_iUnion]
+  simp only [← hC.union', mem_iUnion] at xmem2
+  rcases xmem2 with ⟨m, j, hmj⟩
+  use ⟨m, j, not_disjoint_iff.2 ⟨x, xmem1, hmj⟩⟩
+  exact hC.map_ball_subset_map_closedball hmj
+
+lemma subset_not_disjoint' (A : Set X) : A ∩ C ⊆ ⋃ (x : Σ (m : ℕ), {j : hC.cell m // ¬ Disjoint A (hC.map m j '' ball 0 1)}), hC.map x.1 x.2 '' ball 0 1 := by
+  intro x ⟨xmem1, xmem2⟩
+  simp only [mem_iUnion]
+  simp only [← hC.union', mem_iUnion] at xmem2
+  rcases xmem2 with ⟨m, j, hmj⟩
+  use ⟨m, j, not_disjoint_iff.2 ⟨x, xmem1, hmj⟩⟩
+
+/- See "Topologie" p. 120 by Klaus Jänich from 2001 -/
+def Subcomplex'' (E : Set X) (I : Π n, Set (hC.cell n))
+    (mapsto : ∀ (n : ℕ) (i : I n), MapsTo (hC.map n i) (closedBall 0 1) E)
+    (union : E = ⋃ (n : ℕ) (j : I n), hC.map n j '' ball 0 1): hC.Subcomplex E where
+  I := I
   closed := by
-    rw [hC.closed]
-    swap
-    · apply iUnion_subset
-      intro i
-      rw [(cw i).union, iUnion_subset_iff]
+    have EsubC : E ⊆ C := by
+      simp_rw [union, ← hC.union']
+      apply iUnion_mono
       intro n
-      rw [iUnion_subset_iff]
-      intro j
-      apply map_ball_subset_complex
-    intro n i
-    simp_rw [← (hC.CWComplex_subcomplex (sub _) (cw _)).union]
-    simp only [CWComplex_subcomplex, iUnion_coe_set]
-    have : _root_.Finite (Σ (j: J) (m : ℕ), {j : (cw j).I m // ¬ Disjoint ((hC.map n i) '' closedBall 0 1) (↑(hC.map m j) '' closedBall 0 1)}) := by
-      sorry
-    sorry
-  union := sorry
+      apply iUnion_subset
+      intro i
+      apply subset_iUnion_of_subset ↑i
+      rfl
+    rw [hC.closed E EsubC]
+    intro n j
+    have : E ∩ ↑(hC.map n j) '' closedBall 0 1 =
+        (⋃ (x : {x : Σ (n : ℕ), I n // ¬ Disjoint (hC.map n j '' closedBall 0 1) (hC.map x.1 x.2 '' ball 0 1)}),
+        hC.map x.1.1 x.1.2 '' ball 0 1) ∩ ↑(hC.map n j) '' closedBall 0 1 := by
+      rw [union]
+      apply subset_antisymm
+      · simp_rw [iUnion_inter]
+        apply iUnion_subset
+        intro m
+        apply iUnion_subset
+        intro i
+        by_cases h : Disjoint (hC.map n j '' closedBall 0 1) (hC.map m i '' ball 0 1)
+        · rw [disjoint_iff_inter_eq_empty, inter_comm] at h
+          rw [h]
+          exact empty_subset _
+        · apply subset_iUnion_of_subset ⟨⟨m, i⟩, h⟩
+          rfl
+      · apply inter_subset_inter_left
+        apply iUnion_subset
+        intro x
+        apply subset_iUnion_of_subset x.1.1
+        apply subset_iUnion_of_subset x.1.2
+        rfl
+    rw [this]
+    have : (⋃ (x : {x : Σ (n : ℕ), I n // ¬ Disjoint (hC.map n j '' closedBall 0 1) (hC.map x.1 x.2 '' ball 0 1)}),
+        hC.map x.1.1 x.1.2 '' ball 0 1) ∩ ↑(hC.map n j) '' closedBall 0 1 =
+        (⋃ (x : {x : Σ (n : ℕ), I n // ¬ Disjoint (hC.map n j '' closedBall 0 1) (hC.map x.1 x.2 '' ball 0 1)}),
+        hC.map x.1.1 x.1.2 '' closedBall 0 1) ∩ ↑(hC.map n j) '' closedBall 0 1 := by
+      apply subset_antisymm
+      · apply inter_subset_inter_left
+        apply iUnion_mono
+        intro _
+        exact hC.map_ball_subset_map_closedball
+      · rw [← this]
+        apply inter_subset_inter_left
+        apply iUnion_subset
+        intro x
+        replace mapsto:= mapsto x.1.1 x.1.2
+        rw [mapsTo'] at mapsto
+        exact mapsto
+    rw [this]
+    apply IsClosed.inter _ (hC.isClosed_map_closedBall n j)
+    apply @isClosed_iUnion_of_finite _ _ _ (hC.compact_inter_finite_subset' ⟨(hC.map n j '' closedBall 0 1), by exact hC.isCompact_map_closedBall n j⟩)
+    intro _
+    exact hC.isClosed_map_closedBall _ _
+  union := union
 
+lemma iUnion_cells_inter_compact (A : t.Compacts) (I : (n : ℕ) →  Set (hC.cell n)) :
+    ∃ (p : (n : ℕ) → I n → Prop), _root_.Finite (Σ (n : ℕ), {i : I n // p n i}) ∧  (⋃ (n : ℕ) (i : I n), hC.map n i '' ball 0 1) ∩ A.1 =
+    (⋃ (n : ℕ) (i : {i : I n// p n i}), hC.map n i '' ball 0 1) ∩ A.1 := by
+  use fun (n : ℕ) (i : I n) ↦ ¬ Disjoint A.1 (↑(hC.map n i) '' ball 0 1)
+  refine ⟨hC.compact_inter_finite_subset _, ?_⟩
+  calc
+    (⋃ n, ⋃ (i : ↑(I n)), ↑(hC.map n ↑i) '' ball 0 1) ∩ A.1 = (⋃ n, ⋃ (i : I n), ↑(hC.map n ↑i) '' ball 0 1) ∩ C ∩ A.1 := by
+      congr
+      symm
+      simp_rw [Set.inter_eq_left, ← hC.union']
+      apply Set.iUnion_mono''
+      intro n x
+      rw [mem_iUnion, mem_iUnion]
+      intro ⟨i, _⟩
+      use i
+    _ = (⋃ n, ⋃ (i : I n), ↑(hC.map n ↑i) '' ball 0 1) ∩ (A.1 ∩ C) := by
+      rw [inter_assoc, inter_comm C]
+     _ = (⋃ n, ⋃ (i : I n), ↑(hC.map n ↑i) '' ball 0 1) ∩ ((⋃ (x : Σ (m : ℕ), {j : hC.cell m // ¬ Disjoint A.1 (hC.map m j '' ball 0 1)}), hC.map x.1 x.2 '' ball 0 1) ∩ (A.1 ∩ C)) := by
+      congrm (⋃ n, ⋃ (i : I n), ↑(hC.map n ↑i) '' ball 0 1) ∩ ?_
+      symm
+      rw [Set.inter_eq_right]
+      exact hC.subset_not_disjoint' A.1
+    _ = (⋃ n, ⋃ (i : { i : I n // ¬Disjoint A.carrier (↑(hC.map n ↑i) '' ball 0 1) }), ↑(hC.map n ↑↑i) '' ball 0 1) ∩ (A.1 ∩ C) := by
+      rw [← inter_assoc]
+      congrm ?_ ∩ (A.1 ∩ C)
+      ext x
+      simp only [iUnion_coe_set, TopologicalSpace.Compacts.carrier_eq_coe, mem_inter_iff,
+        mem_iUnion, exists_prop, Sigma.exists,
+        Subtype.exists, and_iff_right_iff_imp, forall_exists_index, and_imp]
+      constructor
+      · intro ⟨⟨n, i, imem, xmem1⟩, ⟨m, j, hmj, xmem2⟩⟩
+        have := @not_disjoint_equal _ _ _ hC n i m j (by rw [not_disjoint_iff]; use x)
+        rw [Sigma.mk.inj_iff] at this
+        rcases this with ⟨eq1, eq2⟩
+        subst eq1
+        rw [heq_eq_eq] at eq2
+        subst eq2
+        use n, i
+      · exact fun ⟨n, i, memI, notdisjoint, xmem⟩ ↦ ⟨⟨n, ⟨i, ⟨memI, xmem⟩⟩⟩, ⟨n, ⟨i, ⟨notdisjoint, xmem⟩⟩⟩⟩
+    _ = (⋃ n, ⋃ (i : { i : ↑(I n) // ¬Disjoint A.carrier (↑(hC.map n ↑i) '' ball 0 1) }), ↑(hC.map n ↑↑i) '' ball 0 1) ∩ A.1 := by
+      rw [inter_comm A.carrier, ← inter_assoc]
+      congr
+      simp_rw [Set.inter_eq_left, ← hC.union']
+      apply Set.iUnion_mono''
+      intro n x
+      rw [mem_iUnion, mem_iUnion]
+      intro ⟨i, _⟩
+      use i
+
+--this is quite ugly, probably because `hC.Subcomplex` shouldn't be a lemma
+def subcomplex_iUnion_subcomplex (J : Type*) (sub : J → Set X) (cw : ∀ (j : J), hC.Subcomplex (sub j)) : hC.Subcomplex (⋃ (j : J), sub j) := hC.Subcomplex'' _
+  (fun (n : ℕ) ↦ ⋃ (j : J), (cw j).I n)
+  (by
+    intro n i
+    have imem := i.2
+    rw [mem_iUnion] at imem
+    rcases imem with ⟨j, imemj⟩
+    rcases (hC.CWComplex_subcomplex (sub j) (cw j)).mapsto' n ⟨i, imemj⟩ with ⟨K, hK⟩
+    rw [mapsTo'] at hK ⊢
+    rw [← Metric.sphere_union_ball, image_union]
+    apply union_subset
+    · apply subset_iUnion_of_subset j
+      apply subset_trans hK
+      simp_rw [(cw j).union]
+      apply iUnion_mono
+      intro m
+      apply iUnion_subset
+      intro _
+      apply iUnion_subset
+      intro k
+      apply iUnion_subset
+      intro _
+      apply subset_iUnion_of_subset k
+      rfl
+    · apply subset_iUnion_of_subset j
+      rw [(cw j).union]
+      apply subset_iUnion_of_subset n
+      apply subset_iUnion_of_subset ⟨i, imemj⟩
+      rfl
+    )
+  (by
+    simp_rw [(cw _).union]
+    rw [iUnion_comm]
+    apply iUnion_congr
+    intro n
+    apply subset_antisymm
+    · apply iUnion_subset
+      intro j
+      apply iUnion_subset
+      intro i
+      apply subset_iUnion_of_subset ⟨i, by rw [mem_iUnion]; use j; exact i.2⟩
+      rfl
+    · apply iUnion_subset
+      intro ⟨i, imem⟩
+      rw [mem_iUnion] at imem
+      rcases imem with ⟨j, imem⟩
+      apply subset_iUnion_of_subset j
+      apply subset_iUnion_of_subset ⟨i, imem⟩
+      rfl
+    )
+
+def _finite_subcomplex__finite_iUnion_finite_subcomplex (J : Type*) [_root_.Finite J] (sub : J → Set X) (cw : ∀ (j : J), hC.Subcomplex (sub j))
+    (finite : ∀ (j : J), (hC.CWComplex_subcomplex _ (cw j)).Finite) : (hC.CWComplex_subcomplex _ (hC.subcomplex_iUnion_subcomplex J sub cw)).Finite where
+  finitelevels := by
+    rw [Filter.eventually_iff]
+    sorry
+  finitecells := sorry
 
 
 /- A finite union of finite subcomplexes is again a finite subcomplex.-/
