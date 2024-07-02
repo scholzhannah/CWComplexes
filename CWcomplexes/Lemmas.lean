@@ -34,45 +34,45 @@ lemma inter_levelaux_succ_closed_iff_inter_levelaux_closed_and_inter_closedBall_
   constructor
   · intro closed
     constructor
-    · have : A ∩ levelaux hC n = (A ∩ levelaux hC ↑(Nat.succ n)) ∩ levelaux hC n := by
+    · have : A ∩ levelaux C n = (A ∩ levelaux C ↑(Nat.succ n)) ∩ levelaux C n := by
         rw [inter_assoc]
         congr
-        rw [inter_eq_right.2 (hC.levelaux_subset_levelaux_of_le (by norm_cast; exact Nat.le_succ n))]
+        rw [inter_eq_right.2 (levelaux_subset_levelaux_of_le C (by norm_cast; exact Nat.le_succ n))]
       rw [this]
       exact IsClosed.inter closed (hC.isClosed_levelaux n)
     · intro j
-      have : A ∩ levelaux hC ↑(Nat.succ n) ⊆ C := by
+      have : A ∩ hC.levelaux ↑(Nat.succ n) ⊆ C := by
         apply subset_trans inter_subset_right
         simp_rw [← hC.levelaux_top]
         exact hC.levelaux_subset_levelaux_of_le le_top
-      rw [hC.closed (A ∩ levelaux hC ↑(Nat.succ n)) this] at closed
+      rw [hC.closed (A ∩ hC.levelaux ↑(Nat.succ n)) this] at closed
       replace closed := closed n j
       rw [inter_assoc, Nat.succ_eq_add_one, Nat.cast_add, Nat.cast_one, inter_eq_right.2 (hC.map_closedBall_subset_levelaux n j)] at closed
       exact closed
   · intro ⟨closed1, closed2⟩
-    have : A ∩ levelaux hC ↑(Nat.succ n) ⊆ C := by
+    have : A ∩ levelaux C ↑(Nat.succ n) ⊆ C := by
       apply subset_trans inter_subset_right
       simp_rw [← hC.levelaux_top]
       exact hC.levelaux_subset_levelaux_of_le le_top
-    rw [hC.closed (A ∩ levelaux hC ↑(Nat.succ n)) this]
+    rw [hC.closed (A ∩ hC.levelaux ↑(Nat.succ n)) this]
     intro m j
     induction' m using Nat.case_strong_induction_on with m hm
     · simp [Matrix.empty_eq, isClosed_inter_singleton]
     by_cases msuccltn : Nat.succ m < n
-    · have : ↑(hC.map (Nat.succ m) j) '' closedBall 0 1 ⊆ levelaux hC ↑n := by
+    · have : ↑(hC.map (Nat.succ m) j) '' closedBall 0 1 ⊆ hC.levelaux ↑n := by
         refine subset_trans (hC.map_closedBall_subset_levelaux _ _) (hC.levelaux_subset_levelaux_of_le ?_)
         norm_cast
-      have : A ∩ levelaux hC ↑(Nat.succ n) ∩ ↑(hC.map (Nat.succ m) j) '' closedBall 0 1 = A ∩ levelaux hC ↑n ∩ ↑(hC.map (Nat.succ m) j) '' closedBall 0 1 := by
+      have : A ∩ hC.levelaux ↑(Nat.succ n) ∩ ↑(hC.map (Nat.succ m) j) '' closedBall 0 1 = A ∩ hC.levelaux ↑n ∩ ↑(hC.map (Nat.succ m) j) '' closedBall 0 1 := by
         rw [inter_assoc, inter_assoc]
         congrm A ∩ ?_
         rw [inter_eq_right.2 this]
-        have : ↑(hC.map (Nat.succ m) j) '' closedBall 0 1 ⊆ levelaux hC ↑(Nat.succ n) := subset_trans this (hC.levelaux_subset_levelaux_of_le (by norm_cast; exact Nat.le_succ n))
+        have : ↑(hC.map (Nat.succ m) j) '' closedBall 0 1 ⊆ hC.levelaux ↑(Nat.succ n) := subset_trans this (hC.levelaux_subset_levelaux_of_le (by norm_cast; exact Nat.le_succ n))
         rw [inter_eq_right.2 this]
       rw [this]
       exact IsClosed.inter closed1 (hC.isClosed_map_closedBall _ _)
     by_cases msucceqn : Nat.succ m = n
     · subst msucceqn
-      rw [inter_assoc, inter_comm (levelaux hC ↑(Nat.succ (Nat.succ m))), ← inter_assoc]
+      rw [inter_assoc, inter_comm (hC.levelaux ↑(Nat.succ (Nat.succ m))), ← inter_assoc]
       exact IsClosed.inter (closed2 _) (hC.isClosed_levelaux _)
     have : Nat.succ n ≤ Nat.succ m := by
       push_neg at msuccltn msucceqn
@@ -298,68 +298,6 @@ lemma subset_not_disjoint' (A : Set X) : A ∩ C ⊆ ⋃ (x : Σ (m : ℕ), {j :
   rcases xmem2 with ⟨m, j, hmj⟩
   use ⟨m, j, not_disjoint_iff.2 ⟨x, xmem1, hmj⟩⟩
 
-/- See "Topologie" p. 120 by Klaus Jänich from 2001 -/
-def Subcomplex'' (E : Set X) (I : Π n, Set (hC.cell n))
-    (mapsto : ∀ (n : ℕ) (i : I n), MapsTo (hC.map n i) (closedBall 0 1) E)
-    (union : E = ⋃ (n : ℕ) (j : I n), hC.map n j '' ball 0 1): hC.Subcomplex E where
-  I := I
-  closed := by
-    have EsubC : E ⊆ C := by
-      simp_rw [union, ← hC.union']
-      apply iUnion_mono
-      intro n
-      apply iUnion_subset
-      intro i
-      apply subset_iUnion_of_subset ↑i
-      rfl
-    rw [hC.closed E EsubC]
-    intro n j
-    have : E ∩ ↑(hC.map n j) '' closedBall 0 1 =
-        (⋃ (x : {x : Σ (n : ℕ), I n // ¬ Disjoint (hC.map n j '' closedBall 0 1) (hC.map x.1 x.2 '' ball 0 1)}),
-        hC.map x.1.1 x.1.2 '' ball 0 1) ∩ ↑(hC.map n j) '' closedBall 0 1 := by
-      rw [union]
-      apply subset_antisymm
-      · simp_rw [iUnion_inter]
-        apply iUnion_subset
-        intro m
-        apply iUnion_subset
-        intro i
-        by_cases h : Disjoint (hC.map n j '' closedBall 0 1) (hC.map m i '' ball 0 1)
-        · rw [disjoint_iff_inter_eq_empty, inter_comm] at h
-          rw [h]
-          exact empty_subset _
-        · apply subset_iUnion_of_subset ⟨⟨m, i⟩, h⟩
-          rfl
-      · apply inter_subset_inter_left
-        apply iUnion_subset
-        intro x
-        apply subset_iUnion_of_subset x.1.1
-        apply subset_iUnion_of_subset x.1.2
-        rfl
-    rw [this]
-    have : (⋃ (x : {x : Σ (n : ℕ), I n // ¬ Disjoint (hC.map n j '' closedBall 0 1) (hC.map x.1 x.2 '' ball 0 1)}),
-        hC.map x.1.1 x.1.2 '' ball 0 1) ∩ ↑(hC.map n j) '' closedBall 0 1 =
-        (⋃ (x : {x : Σ (n : ℕ), I n // ¬ Disjoint (hC.map n j '' closedBall 0 1) (hC.map x.1 x.2 '' ball 0 1)}),
-        hC.map x.1.1 x.1.2 '' closedBall 0 1) ∩ ↑(hC.map n j) '' closedBall 0 1 := by
-      apply subset_antisymm
-      · apply inter_subset_inter_left
-        apply iUnion_mono
-        intro _
-        exact hC.map_ball_subset_map_closedball
-      · rw [← this]
-        apply inter_subset_inter_left
-        apply iUnion_subset
-        intro x
-        replace mapsto:= mapsto x.1.1 x.1.2
-        rw [mapsTo'] at mapsto
-        exact mapsto
-    rw [this]
-    apply IsClosed.inter _ (hC.isClosed_map_closedBall n j)
-    apply @isClosed_iUnion_of_finite _ _ _ (hC.compact_inter_finite_subset' ⟨(hC.map n j '' closedBall 0 1), by exact hC.isCompact_map_closedBall n j⟩)
-    intro _
-    exact hC.isClosed_map_closedBall _ _
-  union := union
-
 lemma iUnion_cells_inter_compact (A : t.Compacts) (I : (n : ℕ) →  Set (hC.cell n)) :
     ∃ (p : (n : ℕ) → I n → Prop), _root_.Finite (Σ (n : ℕ), {i : I n // p n i}) ∧  (⋃ (n : ℕ) (i : I n), hC.map n i '' ball 0 1) ∩ A.1 =
     (⋃ (n : ℕ) (i : {i : I n// p n i}), hC.map n i '' ball 0 1) ∩ A.1 := by
@@ -408,93 +346,3 @@ lemma iUnion_cells_inter_compact (A : t.Compacts) (I : (n : ℕ) →  Set (hC.ce
       rw [mem_iUnion, mem_iUnion]
       intro ⟨i, _⟩
       use i
-
---this is quite ugly, probably because `hC.Subcomplex` shouldn't be a lemma
-def subcomplex_iUnion_subcomplex (J : Type*) (sub : J → Set X) (cw : ∀ (j : J), hC.Subcomplex (sub j)) : hC.Subcomplex (⋃ (j : J), sub j) := hC.Subcomplex'' _
-  (fun (n : ℕ) ↦ ⋃ (j : J), (cw j).I n)
-  (by
-    intro n i
-    have imem := i.2
-    rw [mem_iUnion] at imem
-    rcases imem with ⟨j, imemj⟩
-    rcases (hC.CWComplex_subcomplex (sub j) (cw j)).mapsto' n ⟨i, imemj⟩ with ⟨K, hK⟩
-    rw [mapsTo'] at hK ⊢
-    rw [← Metric.sphere_union_ball, image_union]
-    apply union_subset
-    · apply subset_iUnion_of_subset j
-      apply subset_trans hK
-      simp_rw [(cw j).union]
-      apply iUnion_mono
-      intro m
-      apply iUnion_subset
-      intro _
-      apply iUnion_subset
-      intro k
-      apply iUnion_subset
-      intro _
-      apply subset_iUnion_of_subset k
-      rfl
-    · apply subset_iUnion_of_subset j
-      rw [(cw j).union]
-      apply subset_iUnion_of_subset n
-      apply subset_iUnion_of_subset ⟨i, imemj⟩
-      rfl
-    )
-  (by
-    simp_rw [(cw _).union]
-    rw [iUnion_comm]
-    apply iUnion_congr
-    intro n
-    apply subset_antisymm
-    · apply iUnion_subset
-      intro j
-      apply iUnion_subset
-      intro i
-      apply subset_iUnion_of_subset ⟨i, by rw [mem_iUnion]; use j; exact i.2⟩
-      rfl
-    · apply iUnion_subset
-      intro ⟨i, imem⟩
-      rw [mem_iUnion] at imem
-      rcases imem with ⟨j, imem⟩
-      apply subset_iUnion_of_subset j
-      apply subset_iUnion_of_subset ⟨i, imem⟩
-      rfl
-    )
-
-def _finite_subcomplex__finite_iUnion_finite_subcomplex (J : Type*) [_root_.Finite J] (sub : J → Set X) (cw : ∀ (j : J), hC.Subcomplex (sub j))
-    (finite : ∀ (j : J), (hC.CWComplex_subcomplex _ (cw j)).Finite) : (hC.CWComplex_subcomplex _ (hC.subcomplex_iUnion_subcomplex J sub cw)).Finite where
-  finitelevels := by
-    rw [Filter.eventually_iff]
-    sorry
-  finitecells := sorry
-
-
-/- A finite union of finite subcomplexes is again a finite subcomplex.-/
-/-
-lemma finite_iUnion_finitesubcomplex (m : ℕ) (mnezero : m > 0) (I : Fin m → Π n, Set (hC.cell n)) (fincw : ∀ (l : Fin m), FiniteCWComplex (⋃ (n : ℕ) (j : I l n), hC.map n j '' ball 0 1)) : FiniteCWComplex (⋃ (l : Fin m) (n : ℕ) (j : I l n), hC.map n j '' ball 0 1) where
-  cwcomplex := by
-    apply hC.iUnion_subcomplex
-    exact (fun l ↦ (fincw l).cwcomplex)
-  finitelevels := by
-    let max' l := Classical.choose (fincw l).finitelevels
-    let max := Finset.max' (Finset.image (fun l ↦ max' l) (@Finset.univ _ (Fin.fintype m))) (by apply Finset.Nonempty.image (@Finset.univ_nonempty _ _ ((Fin.pos_iff_nonempty).1 mnezero)))
-    use max
-    ext x
-    constructor
-    · intro xmem
-      rw [mem_iUnion] at xmem
-      rcases xmem with ⟨l, xmem⟩
-      simp only [level, levelaux, mem_iUnion, exists_prop]
-      use max' l
-      constructor
-      · norm_cast
-        rw [Nat.add_one]
-        apply Nat.lt_succ_of_le
-        simp [max]
-        apply Finset.le_max'
-        simp
-      · have := Classical.choose_spec (fincw l).finitelevels
-        sorry --maybe I need to make the construction of iUnion_subcomplex explicit to progress with this...
-    · sorry
-  finitecells := sorry
--/

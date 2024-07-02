@@ -9,11 +9,11 @@ open Metric Set
 
 namespace CWComplex
 
-variable {X : Type*} [t : TopologicalSpace X] [T2Space X] {C : Set X} (hC : CWComplex C)
+variable {X : Type*} [t : TopologicalSpace X] [T2Space X] (C : Set X) [hC : CWComplex C]
 
 section
 
-def CWComplex_level (n : ℕ∞) : CWComplex (hC.level n) where
+instance CWComplex_level (n : ℕ∞) : CWComplex (hC.level n) where
   cell l := {x : hC.cell l // l < n + 1}
   map l i := hC.map l i
   source_eq l i := by rw [hC.source_eq]
@@ -115,7 +115,7 @@ def CWComplex_level (n : ℕ∞) : CWComplex (hC.level n) where
 
 variable {D : Set X} (hD : CWComplex D)
 
-def CWComplex_disjointUnion (disjoint : Disjoint C D) : CWComplex (C ∪ D) where
+instance CWComplex_disjointUnion (disjoint : Disjoint C D) : CWComplex (C ∪ D) where
   cell n := Sum (hC.cell n) (hD.cell n)
   map n i :=
     match i with
@@ -262,123 +262,5 @@ def CWComplex_disjointUnion (disjoint : Disjoint C D) : CWComplex (C ∪ D) wher
       · rw [mem_iUnion] at *
         rcases h with ⟨i, hi⟩
         use Sum.inr i
-
--- does typeclass inference even work here?
-/- See "Topologie" p. 120 by Klaus Jänich from 2001 -/
-def CWComplex_subcomplex (E : Set X) (subcomplex: hC.Subcomplex E) : CWComplex E where
-  cell n := subcomplex.I n
-  map n i := hC.map n i
-  source_eq n i := hC.source_eq n i
-  cont n i := hC.cont n i
-  cont_symm n i := hC.cont_symm n i
-  pairwiseDisjoint := by
-    have := hC.pairwiseDisjoint
-    rw [PairwiseDisjoint, Set.Pairwise] at *
-    intro ⟨n, ni⟩ nmem ⟨m, mi⟩ mmem nnem
-    simp at mi ni
-    have disjoint := @this ⟨n, ni.1⟩ (Set.mem_univ (⟨n, ni.1⟩ : (n : ℕ) × hC.cell n)) ⟨m, mi.1⟩ (Set.mem_univ (⟨m, mi.1⟩ : (n : ℕ) × hC.cell n))
-    have : ({ fst := n, snd := ↑ni } : (n : ℕ) × hC.cell n) ≠ { fst := m, snd := ↑mi } := by
-      simp only [ne_eq, Sigma.mk.inj_iff, not_and] at nnem ⊢
-      intro men heq
-      apply nnem men
-      subst men
-      simp at heq
-      apply Subtype.coe_injective at heq
-      simp [heq]
-    exact disjoint this
-  mapsto := by
-    intro n i
-    rcases hC.mapsto' n i with ⟨J, hJ⟩
-    let J' m := Finset.preimage (J m) (fun (x : subcomplex.I m) ↦ ↑x) (by simp [InjOn])
-    use J'
-    rw [MapsTo] at *
-    intro x xmem
-    simp only [iUnion_coe_set, mem_iUnion, exists_prop, exists_and_right] at *
-    rcases (hJ xmem) with ⟨m, mltn, j, jmem, mapxmem⟩
-    use m
-    simp only [mltn, true_and]
-    use j
-    constructor
-    · have : j ∈ subcomplex.I m := by
-        have : (hC.map n ↑i) x ∈ E := by
-          have h1: closure (hC.map n i '' ball 0 1) ⊆ E := by
-            simp_rw [IsClosed.closure_subset_iff subcomplex.closed, subcomplex.union]
-            apply Set.subset_iUnion_of_subset n
-            apply Set.subset_iUnion (fun (j : ↑(subcomplex.I n)) ↦ hC.map n ↑j '' ball 0 1) i
-          have h2 : (hC.map n ↑i) x ∈ closure (hC.map n i '' ball 0 1) := by
-            rw [hC.closure_map_ball_eq_map_closedball]
-            apply Set.mem_image_of_mem
-            exact Metric.sphere_subset_closedBall xmem
-          exact h1 h2
-        simp only [subcomplex.union, mem_iUnion, exists_prop] at this
-        rcases this with ⟨l, o, mapxmem'⟩
-        have : ¬ Disjoint (↑(hC.map m j) '' ball 0 1) (↑(hC.map l o) '' ball 0 1) := by
-          rw [Set.not_disjoint_iff]
-          use ((hC.map n i) x)
-        have := hC.not_disjoint_equal this
-        simp at this
-        rcases this with ⟨meql, jeqo⟩
-        subst meql
-        simp at jeqo
-        subst jeqo
-        simp
-      use this
-      simp [J', jmem]
-    · exact hC.map_ball_subset_map_closedball mapxmem
-  closed A := by
-    intro Asub
-    constructor
-    · intro closedA n j
-      exact IsClosed.inter closedA (hC.isClosed_map_closedBall n j)
-    · intro closed
-      have : E ⊆ C := by
-        simp_rw [subcomplex.union, ← hC.level_top, level, levelaux, top_add]
-        intro x xmem
-        simp only [mem_iUnion, exists_prop] at *
-        rcases xmem with ⟨n, ⟨i, hni⟩⟩
-        exact ⟨n, ⟨ENat.coe_lt_top , ⟨i, (image_mono Metric.ball_subset_closedBall) hni⟩⟩⟩
-      rw [hC.closed A (subset_trans Asub this)]
-      intro n j
-      induction' n using Nat.case_strong_induction_on with n hn
-      · simp only [Matrix.empty_eq, nonempty_closedBall, zero_le_one, Nonempty.image_const]
-        exact isClosed_inter_singleton
-      · by_cases h : j ∈ subcomplex.I (Nat.succ n)
-        · exact closed (Nat.succ n) ⟨j, h⟩
-        rw [← Metric.sphere_union_ball, image_union, inter_union_distrib_left]
-        apply IsClosed.union
-        · exact hC.isClosed_inter_sphere_succ_of_le_isClosed_inter_closedBall hn j
-        · have h1 : (⋃ (n : ℕ) (j : subcomplex.I n), hC.map n j '' ball 0 1) ∩ ↑(hC.map (Nat.succ n) j) '' ball 0 1 = ∅ := by
-            simp only [iUnion_coe_set, Nat.succ_eq_add_one, iUnion_inter, iUnion_eq_empty]
-            intro m i imem
-            have := hC.pairwiseDisjoint
-            simp only [PairwiseDisjoint, Set.Pairwise, mem_univ, ne_eq, Function.onFun,
-              forall_true_left, Sigma.forall, Sigma.mk.inj_iff, not_and] at this
-            simp only [Set.disjoint_iff_inter_eq_empty] at this
-            apply this
-            intro meqsuccn heqij
-            apply h
-            subst meqsuccn
-            simp only [heq_eq_eq] at heqij
-            subst heqij
-            exact imem
-          have : A ∩ (⋃ (n : ℕ) (j : subcomplex.I n), hC.map n j '' ball 0 1) = A := by
-            rw [inter_eq_left, ← subcomplex.union]
-            exact Asub
-          rw [← this, inter_assoc, h1, inter_empty]
-          exact isClosed_empty
-  union := by
-    simp_rw [← Metric.sphere_union_ball, image_union, iUnion_union_distrib, subcomplex.union, Set.union_eq_right]
-    apply Set.iUnion_subset
-    intro n
-    apply Set.iUnion_subset
-    intro i
-    apply subset_trans (image_mono Metric.sphere_subset_closedBall)
-    rw [← closure_ball 0 (by norm_num)]
-    apply subset_trans (ContinuousOn.image_closure (by rw [closure_ball 0 (by norm_num)]; exact hC.cont n i))
-    simp_rw [← subcomplex.union , IsClosed.closure_subset_iff subcomplex.closed]
-    intro x xmem
-    simp only [subcomplex.union, mem_iUnion]
-    use n
-    use i
 
 end

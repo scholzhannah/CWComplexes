@@ -16,7 +16,7 @@ variable {X : Type*} [t : TopologicalSpace X]
 Generally we will need `[T2Space X]`.
 Note that we are changing the definition a little bit: we are saying that a subspace `C` of `X` is a
 `CW-complex`. -/
-structure CWComplex.{u} {X : Type u} [TopologicalSpace X] (C : Set X) where
+class CWComplex.{u} {X : Type u} [TopologicalSpace X] (C : Set X) where
   cell (n : ℕ) : Type u
   map (n : ℕ) (i : cell n) : PartialEquiv (Fin n → ℝ) X
   -- note: "spheres" in `Fin n → ℝ` are actually cubes.
@@ -31,7 +31,7 @@ structure CWComplex.{u} {X : Type u} [TopologicalSpace X] (C : Set X) where
   closed (A : Set X) (asubc : A ⊆ ↑C) : IsClosed A ↔ ∀ n j, IsClosed (A ∩ map n j '' closedBall 0 1)
   union : ⋃ (n : ℕ) (j : cell n), map n j '' closedBall 0 1 = C
 
-variable [T2Space X] {C : Set X} (hC : CWComplex C)
+variable [T2Space X] (C : Set X) [hC : CWComplex C]
 
 namespace CWComplex
 
@@ -64,14 +64,9 @@ lemma levelaux_zero_eq_empty : hC.levelaux 0 = ∅ := by
 
 -- finite type seperately
 
-class Finite.{u} {X : Type u} [TopologicalSpace X] (C : Set X) (cwcomplex : CWComplex C) : Prop where
+class Finite.{u} {X : Type u} [TopologicalSpace X] (C : Set X) [cwcomplex : CWComplex C] : Prop where
   finitelevels : ∀ᶠ n in Filter.atTop, IsEmpty (cwcomplex.cell n)
   finitecells (n : ℕ) : Finite (cwcomplex.cell n)
-
-structure Subcomplex (E : Set X) where
-  I : Π n, Set (hC.cell n)
-  closed : IsClosed E
-  union : E = ⋃ (n : ℕ) (j : I n), hC.map n j '' ball 0 1
 
 @[simp] lemma levelaux_top : hC.levelaux ⊤ = C := by
   simp only [levelaux, lt_top_iff_ne_top, ne_eq, ENat.coe_ne_top, not_false_eq_true, iUnion_true, ←
@@ -409,14 +404,6 @@ lemma isClosed : IsClosed C := by
   rw [Set.inter_eq_right.2 this]
   exact hC.isClosed_map_closedBall n i
   rfl
-
-/- See "Topologie" p. 120 by Klaus Jänich from 2001 -/
-def Subcomplex' (E : Set X) (I : Π n, Set (hC.cell n))
-    (cw : CWComplex E)
-    (union : E = ⋃ (n : ℕ) (j : I n), hC.map n j '' ball 0 1): hC.Subcomplex E where
-  I := I
-  closed := cw.isClosed
-  union := union
 
 lemma levelaux_succ_eq_levelaux_union_iUnion (n : ℕ) : hC.levelaux (↑n + 1) = hC.levelaux ↑n ∪ ⋃ (j : hC.cell ↑n), hC.map ↑n j '' closedBall 0 1 := by
   simp [CWComplex.levelaux]

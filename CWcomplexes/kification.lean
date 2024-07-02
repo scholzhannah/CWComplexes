@@ -150,12 +150,14 @@ lemma continuous_kification_of_continuous {X Y : Type*} [tX : TopologicalSpace X
   intro C
   exact Continuous.continuousOn cont
 
+-- I don't need this right now but this would be a nice property to have since it is very fundamental
 lemma compacts_kification_eq_compacts {X : Type*} [t : TopologicalSpace X] (C : Set X) : IsCompact C  ↔ @IsCompact _ instkification C := by
   constructor
   · intro compact
-
     sorry
   · sorry
+
+-- then show that this the kification is idempotent
 
 --This is probably too complicated with the types but I feel like it would still be useful
 /-
