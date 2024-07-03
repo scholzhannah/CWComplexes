@@ -427,6 +427,9 @@ lemma map_closedBall_subset_level (n : ℕ) (j : hC.cell n) : (hC.map n j) '' cl
   rw [CWComplex.level]
   exact hC.map_closedBall_subset_levelaux n j
 
+lemma map_closedBall_subset_complex (n : ℕ) (j : hC.cell n) : (hC.map n j) '' closedBall 0 1 ⊆ C := by
+  apply subset_trans (hC.map_closedBall_subset_level n j) (by simp_rw [← hC.level_top]; apply hC.level_subset_level_of_le le_top)
+
 lemma map_ball_subset_levelaux (n : ℕ) (j : hC.cell n) : (hC.map n j) '' ball 0 1 ⊆ hC.levelaux (n + 1) := subset_trans (image_mono Metric.ball_subset_closedBall) (hC.map_closedBall_subset_levelaux n j)
 
 lemma map_ball_subset_level (n : ℕ) (j : hC.cell n) : (hC.map n j) '' ball 0 1 ⊆ hC.level n := subset_trans (image_mono Metric.ball_subset_closedBall) (hC.map_closedBall_subset_level n j)
@@ -508,3 +511,65 @@ MapsTo (hC.map n i) (sphere 0 1) (⋃ (m < n) (j ∈ I m), hC.map m j '' ball 0 
         exact jmem
       rw [← mapx']
       exact Set.mem_image_of_mem (hC.map l j) x'mem
+
+lemma finite_of_finite_cells (finite : _root_.Finite (Σ n, hC.cell n)) : Finite C where
+  finitelevels := by
+    by_cases h : IsEmpty (Σ n, hC.cell n)
+    · simp only [Filter.eventually_atTop, ge_iff_le]
+      use 0
+      intro n _
+      simp only [isEmpty_sigma] at h
+      exact h n
+    rw [not_isEmpty_iff] at h
+    have _ := Fintype.ofFinite (Σ n, hC.cell n)
+    classical
+    let A := Finset.image (fun ⟨n, j⟩ ↦ n) (Finset.univ : Finset (Σ n, hC.cell n))
+    have nonempty : A.Nonempty := by
+      simp only [Finset.image_nonempty, A]
+      exact Finset.univ_nonempty
+    let n := A.max' nonempty
+    simp only [Filter.eventually_atTop, ge_iff_le]
+    use n + 1
+    intro m nle
+    by_contra h'
+    have mmem : m ∈ A := by
+      simp only [Finset.mem_image, Finset.mem_univ, true_and, A]
+      simp only [not_isEmpty_iff, ← exists_true_iff_nonempty] at h'
+      rcases h' with ⟨j, _⟩
+      use ⟨m, j⟩
+    have := A.le_max' m mmem
+    simp [n] at nle
+    linarith
+  finitecells := by
+    intro n
+    let f (j : hC.cell n) := (⟨n, j⟩ : Σ n, hC.cell n)
+    apply Finite.of_injective f
+    simp only [Function.Injective]
+    intro i j eq
+    simp only [Sigma.mk.inj_iff, heq_eq_eq, true_and, f] at eq
+    exact eq
+
+lemma finite_cells_of_finite (finite : Finite C) : _root_.Finite (Σ n, hC.cell n) := by
+  have finitelvl := finite.finitelevels
+  have _ := finite.finitecells
+  simp only [Filter.eventually_atTop, ge_iff_le] at finitelvl
+  rcases finitelvl with ⟨n, hn⟩
+  have : ∀ m (j : hC.cell m), m < n := by
+    intro m j
+    by_contra h
+    push_neg at h
+    replace hn := hn m h
+    rw [← not_nonempty_iff, ← exists_true_iff_nonempty] at hn
+    apply hn
+    use j
+  let f : (Σ (m : {m : ℕ // m < n}), hC.cell m) ≃ Σ m, hC.cell m := {
+    toFun := fun ⟨m, j⟩ ↦ ⟨m, j⟩
+    invFun := fun ⟨m, j⟩ ↦ ⟨⟨m, this m j⟩, j⟩
+    left_inv := by simp only [Function.LeftInverse, implies_true]
+    right_inv := by simp only [Function.RightInverse, Function.LeftInverse, Sigma.eta, implies_true]
+  }
+  rw [← Equiv.finite_iff f]
+  apply Finite.instSigma
+
+lemma finite_iff_finite_cells : Finite C ↔ _root_.Finite (Σ n, hC.cell n) :=
+  ⟨hC.finite_cells_of_finite, hC.finite_of_finite_cells⟩

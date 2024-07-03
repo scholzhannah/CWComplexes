@@ -95,9 +95,8 @@ namespace Subcomplex
 def Complex (E : Set X) (C : Set X) [hC : CWComplex C] [hC.Subcomplex E] : Set X := E
 
 -- Is this good notation? Is this used somewhere else?
-infixr:35 " ⇂ "  => Complex
+scoped infixr:35 " ⇂ "  => Complex
 
--- does typeclass inference even work here?
 /- See "Topologie" p. 120 by Klaus Jänich from 2001 -/
 instance CWComplex_subcomplex (E : Set X) [subcomplex : hC.Subcomplex E] : CWComplex (E ⇂ C) where
   cell n := subcomplex.I n
@@ -270,8 +269,8 @@ instance subcomplex_iUnion_subcomplex (J : Type*) (sub : J → Set X) [cw : ∀ 
       rfl
     )
 
-instance _finite_subcomplex__finite_iUnion_finite_subcomplex (J : Type*) [_root_.Finite J] (sub : J → Set X) [cw : ∀ (j : J), hC.Subcomplex (sub j)]
-    (finite : ∀ (j : J), CWComplex.Finite ((sub j) ⇂ C)) : CWComplex.Finite ((⋃ j, sub j) ⇂ C) where
+instance finite_subcomplex__finite_iUnion_finite_subcomplex (J : Type*) [_root_.Finite J] (sub : J → Set X) [cw : ∀ (j : J), hC.Subcomplex (sub j)]
+    (finite : ∀ (j : J), CWComplex.Finite (sub j ⇂ C)) : CWComplex.Finite (⋃ j, sub j ⇂ C) where
   finitelevels := by
     have h j := (finite j).finitelevels
     simp only [Filter.eventually_iff, subcomplex_iUnion_subcomplex, CWComplex_subcomplex, Subcomplex'',
@@ -282,6 +281,85 @@ instance _finite_subcomplex__finite_iUnion_finite_subcomplex (J : Type*) [_root_
     intro n
     simp only [subcomplex_iUnion_subcomplex, Subcomplex'', CWComplex_subcomplex] at h ⊢
     apply Finite.Set.finite_iUnion
+
+instance cellzero (i : hC.cell 0) : hC.Subcomplex (hC.map 0 i '' closedBall 0 1) where
+  I n := {x | HEq (⟨n, x⟩ : Σ n, hC.cell n) (⟨0, i⟩ : Σ n, hC.cell n)}
+  closed := by
+    simp only [Matrix.empty_eq, nonempty_closedBall, zero_le_one, Nonempty.image_const]
+    exact isClosed_singleton
+  union := by
+    apply subset_antisymm
+    · apply subset_iUnion_of_subset 0
+      apply subset_iUnion_of_subset ⟨i, by simp only [heq_eq_eq, Sigma.mk.inj_iff, true_and,
+        setOf_eq_eq_singleton, mem_singleton_iff]⟩
+      simp only [Matrix.empty_eq, nonempty_closedBall, zero_le_one, Nonempty.image_const,
+        nonempty_ball, zero_lt_one, subset_singleton_iff, mem_singleton_iff, imp_self, implies_true]
+    · apply iUnion_subset
+      intro n
+      apply iUnion_subset
+      intro ⟨j, eq⟩
+      simp only [heq_eq_eq, Sigma.mk.inj_iff, mem_setOf_eq] at eq
+      rcases eq with ⟨eq1, eq2⟩
+      subst eq1
+      rw [heq_eq_eq] at eq2
+      subst eq2
+      exact hC.map_ball_subset_map_closedball
+
+instance finite_cellzero (i : hC.cell 0) : CWComplex.Finite ((hC.map 0 i '' closedBall 0 1) ⇂ C) where
+  finitelevels := by
+    simp only [Filter.eventually_atTop, ge_iff_le]
+    use 1
+    intro b leb
+    simp only [cellzero, CWComplex_subcomplex, coe_setOf, mem_setOf_eq, heq_eq_eq, Sigma.mk.inj_iff,
+      isEmpty_subtype, not_and]
+    intro j eq
+    subst eq
+    contradiction
+  finitecells := by
+    intro n
+    simp only [cellzero, CWComplex_subcomplex]
+    by_cases h : n = 0
+    · subst n
+      simp only [heq_eq_eq, Sigma.mk.inj_iff, true_and, setOf_eq_eq_singleton]
+      apply Finite.of_fintype
+    · rw [finite_coe_iff]
+      convert finite_empty
+      apply eq_empty_of_forall_not_mem
+      intro x xmem
+      apply h
+      simp only [heq_eq_eq, Sigma.mk.inj_iff, mem_setOf_eq] at xmem
+      exact xmem.1
+
+-- All of this isn't really even needed for what I'm trying to do
+
+lemma finite_iUnion_subset_Subcomplex_of_cell_subset_Subcomplex (I : (n : ℕ) → Set (hC.cell n)) [_root_.Finite (Σ n, I n)]
+    (cellsubset : ∀ n (i : I n), ∃ (E : Set X) (_ : Subcomplex C E), CWComplex.Finite (E ⇂ C) ∧ hC.map n i '' closedBall 0 1 ⊆ E) :
+    ∃ (E : Set X) (sub : Subcomplex C E), CWComplex.Finite (E ⇂ C) ∧ (⋃ (n : ℕ) (i : I n), hC.map n i '' closedBall 0 1) ⊆ E := by
+  let S n (i : I n) := Classical.choose (cellsubset n i)
+  let hS n (i : I n) := Classical.choose_spec (cellsubset n i)
+  let SC n (i : I n) := Classical.choose (hS n i)
+  let hSC n (i : I n) := Classical.choose_spec (hS n i)
+  use (⋃ (ni : Σ n, I n), S ni.1 ni.2), (Subcomplex.subcomplex_iUnion_subcomplex _ _ _)
+  constructor
+  · apply Subcomplex.finite_subcomplex__finite_iUnion_finite_subcomplex
+    intro ⟨n, i⟩
+    exact (hSC n i).1
+  · apply iUnion_subset
+    intro n
+    apply iUnion_subset
+    intro i
+    apply subset_iUnion_of_subset ⟨n, i⟩
+    exact (hSC n i).2
+
+lemma finite_iUnion_subset_Subcomplex (I : (n : ℕ) → Set (hC.cell n)) [finite : _root_.Finite (Σ n, I n)] :
+    ∃ (E : Set X) (sub : Subcomplex C E), CWComplex.Finite (E ⇂ C) ∧ (⋃ (n : ℕ) (i : I n), hC.map n i '' closedBall 0 1) ⊆ E := by
+  apply finite_iUnion_subset_Subcomplex_of_cell_subset_Subcomplex
+  intro n i
+  induction' n using Nat.case_strong_induction_on with n hn
+  · use (hC.map 0 i '' closedBall 0 1), (Subcomplex.cellzero C _)
+    exact ⟨finite_cellzero C i, by rfl⟩
+
+  sorry
 
 end Subcomplex
 

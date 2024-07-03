@@ -13,7 +13,8 @@ namespace CWComplex
 
 section
 
-variable {X : Type*} {Y : Type*} [t1 : TopologicalSpace X] [t2 : TopologicalSpace Y] [T2Space X] [T2Space Y] {C : Set X} {D : Set Y} (hC : @CWComplex X t1 C) (hD : @CWComplex Y t2 D)
+variable {X : Type*} {Y : Type*} [t1 : TopologicalSpace X] [t2 : TopologicalSpace Y] [T2Space X]
+  [T2Space Y] {C : Set X} {D : Set Y} (hC : CWComplex C) (hD : CWComplex D)
 
 def Prodkification X Y := kification (X × Y)
 
@@ -26,8 +27,9 @@ lemma prod_map_image_ball {m l : ℕ} {j : hC.cell m} {k : hD.cell l} : (fun a =
   rw [prod_image_image_eq, ← PartialEquiv.prod_coe, ← IsometryEquivFinMapR_image_ball, image_image]
   simp only [Equiv.transPartialEquiv_apply, IsometryEquiv.coe_toEquiv, PartialEquiv.prod_coe]
 
-lemma prod_map_image_closedball {m l : ℕ} {j : hC.cell m} {k : hD.cell l} : (fun a => ((IsometryEquivFinMap m l).symm.transPartialEquiv ((hC.map m j).prod (hD.map l k))) a) '' closedBall 0 1
-    = (↑(hC.map m j) '' closedBall 0 1) ×ˢ (↑(hD.map l k) '' closedBall 0 1) := by
+lemma prod_map_image_closedball {m l : ℕ} {j : hC.cell m} {k : hD.cell l} :
+    (fun a => ((IsometryEquivFinMap m l).symm.transPartialEquiv ((hC.map m j).prod (hD.map l k))) a) '' closedBall 0 1 =
+    (↑(hC.map m j) '' closedBall 0 1) ×ˢ (↑(hD.map l k) '' closedBall 0 1) := by
   rw [prod_image_image_eq, ← PartialEquiv.prod_coe, ← IsometryEquivFinMapR_image_closedball, image_image]
   simp only [Equiv.transPartialEquiv_apply, IsometryEquiv.coe_toEquiv, PartialEquiv.prod_coe]
 
@@ -77,8 +79,7 @@ instance CWComplex_product : @CWComplex (X ×ₖ Y) instprodkification (C ×ˢ D
   pairwiseDisjoint := by
     intro ⟨n1, m, l, hmln1, j, k⟩ _ ⟨n2, p, q, hpqn2, i, o⟩ _ ne
     subst hmln1 hpqn2
-    unfold Function.onFun
-    simp only
+    simp only [Function.onFun]
     rw [prod_map_image_ball, prod_map_image_ball, Set.disjoint_prod]
     have disjoint1 := hC.pairwiseDisjoint
     have disjoint2 := hD.pairwiseDisjoint
@@ -184,7 +185,8 @@ instance CWComplex_product : @CWComplex (X ×ₖ Y) instprodkification (C ×ˢ D
         simp only
         rw [inter_assoc, inter_comm (C ×ˢ D), ← inter_eq_right.2 KsubK', ← inter_assoc, hB.symm,
           inter_assoc, inter_eq_right.2 KsubK', inter_comm K.carrier (C ×ˢ D), ← inter_assoc, inter_eq_left.2 Asub]
-      let U1 := ⋃ (x : Σ (m : ℕ), {j : hC.cell m // ¬ Disjoint (Prod.fst '' K.1) (hC.map m j '' ball 0 1)}), hC.map x.1 x.2 '' closedBall 0 1
+      let U1 := ⋃ (x : Σ (m : ℕ), {j : hC.cell m // ¬ Disjoint (Prod.fst '' K.1)
+        (hC.map m j '' ball 0 1)}), hC.map x.1 x.2 '' closedBall 0 1
       let U2 := ⋃ (x : Σ (m : ℕ), {j : hD.cell m // ¬ Disjoint (Prod.snd '' K.1) (hD.map m j '' ball 0 1)}), hD.map x.1 x.2 '' closedBall 0 1
       have sub : K' ⊆ U1 ×ˢ U2 := by
         simp only [K', prod_subset_prod_iff]

@@ -266,7 +266,7 @@ lemma compact_inter_finite_subset (A : t.Compacts) {I : (n : ℕ) → Set (hC.ce
   simp only [heq_eq_eq, Subtype.mk.injEq, Subtype.val_inj] at eq
   simp_rw [eq]
 
-lemma compact_inter_finite' (A : t.Compacts) : _root_.Finite { x : Σ (n : ℕ), hC.cell n // ¬Disjoint A.1 (hC.map x.fst x.snd '' ball 0 1)} := by
+lemma compact_inter_finite' (A : t.Compacts) : _root_.Finite {x : Σ (n : ℕ), hC.cell n // ¬Disjoint A.1 (hC.map x.fst x.snd '' ball 0 1)} := by
   let f := fun (x : (Σ (m : ℕ), {j : hC.cell m // ¬ Disjoint A.1 (↑(hC.map m j) '' ball 0 1)})) ↦ (⟨⟨x.1, x.2.1⟩, x.2.2⟩ : { x : Σ (n : ℕ), hC.cell n // ¬Disjoint A.1 (hC.map x.fst x.snd '' ball 0 1)})
   apply @Finite.of_surjective _ _ (hC.compact_inter_finite A) f
   unfold Function.Surjective
@@ -298,9 +298,33 @@ lemma subset_not_disjoint' (A : Set X) : A ∩ C ⊆ ⋃ (x : Σ (m : ℕ), {j :
   rcases xmem2 with ⟨m, j, hmj⟩
   use ⟨m, j, not_disjoint_iff.2 ⟨x, xmem1, hmj⟩⟩
 
+-- I don't think this is needed right now or ever really
+-- lemma map_closedball_inter_finite_le (n : ℕ)  : _root_.Finite (Σ' (m : ℕ) (_ : m ≤ n), {j : hC.cell m // ¬ Disjoint A.1 (↑(hC.map m j) '' ball 0 1)}) := by
+--   let f := fun (x : {x : Σ' (n : ℕ) (_ ), I n // ¬Disjoint A.1 (hC.map x.fst x.snd '' ball 0 1)}) ↦ (⟨⟨x.1.1, x.1.2⟩, x.2⟩ : {x : Σ (n : ℕ), hC.cell n // ¬Disjoint A.1 (hC.map x.fst x.snd '' ball 0 1)})
+--   apply @Finite.of_injective _ _ (hC.compact_inter_finite' A) f
+--   unfold Function.Injective
+--   intro ⟨⟨x1, x2⟩, x3⟩ ⟨⟨y1, y2⟩, y3⟩ eq
+--   simp [f] at eq
+--   rcases eq with ⟨rfl, eq⟩
+--   simp only [heq_eq_eq, Subtype.mk.injEq, Subtype.val_inj] at eq
+--   simp_rw [eq]
+--   sorry
+
+-- lemma subset_not_disjoint_le (n : ℕ) (i : hC.cell n) : hC.map n i '' closedBall 0 1 ⊆ ⋃ (m : ℕ) (_ : m ≤ n) (j : { j // ¬Disjoint (hC.map n i '' closedBall 0 1) (hC.map m j '' ball 0 1)}), hC.map m j.1 '' closedBall 0 1 := by
+--   apply subset_iUnion_of_subset n
+--   apply subset_iUnion_of_subset (by rfl)
+--   refine subset_iUnion_of_subset ⟨i, ?_⟩ (by rfl)
+--   rw [not_disjoint_iff]
+--   use map n i 0
+--   constructor
+--   · apply mem_image_of_mem
+--     simp only [mem_closedBall, dist_self, zero_le_one]
+--   · apply mem_image_of_mem
+--     simp only [mem_ball, dist_self, zero_lt_one]
+
 lemma iUnion_cells_inter_compact (A : t.Compacts) (I : (n : ℕ) →  Set (hC.cell n)) :
     ∃ (p : (n : ℕ) → I n → Prop), _root_.Finite (Σ (n : ℕ), {i : I n // p n i}) ∧  (⋃ (n : ℕ) (i : I n), hC.map n i '' ball 0 1) ∩ A.1 =
-    (⋃ (n : ℕ) (i : {i : I n// p n i}), hC.map n i '' ball 0 1) ∩ A.1 := by
+    (⋃ (n : ℕ) (i : {i : I n // p n i}), hC.map n i '' ball 0 1) ∩ A.1 := by
   use fun (n : ℕ) (i : I n) ↦ ¬ Disjoint A.1 (↑(hC.map n i) '' ball 0 1)
   refine ⟨hC.compact_inter_finite_subset _, ?_⟩
   calc
@@ -346,3 +370,32 @@ lemma iUnion_cells_inter_compact (A : t.Compacts) (I : (n : ℕ) →  Set (hC.ce
       rw [mem_iUnion, mem_iUnion]
       intro ⟨i, _⟩
       use i
+
+lemma finite_of_compact (compact : IsCompact C) : CWComplex.Finite C := by
+  apply hC.finite_of_finite_cells
+  have : ∀ m (j : hC.cell m), ¬Disjoint C (↑(map m j) '' ball 0 1) := by
+    intro m j
+    rw [disjoint_comm, not_disjoint_iff]
+    use map m j 0
+    have zeromem : map m j 0 ∈ ↑(map m j) '' ball 0 1 := by
+      apply mem_image_of_mem
+      simp only [mem_ball, dist_self, zero_lt_one]
+    refine ⟨zeromem, ?_⟩
+    exact (hC.map_ball_subset_complex m j) zeromem
+  let f : (Σ m, {j : hC.cell m // ¬ Disjoint C (↑(hC.map m j) '' ball 0 1)}) ≃ Σ m, hC.cell m := {
+    toFun := fun ⟨m, j, _⟩ ↦ ⟨m, j⟩
+    invFun := fun ⟨m, j⟩ ↦ ⟨m, j, this m j⟩
+    left_inv := by simp only [Function.LeftInverse, Subtype.coe_eta, Sigma.eta, implies_true]
+    right_inv := by simp only [Function.RightInverse, Function.LeftInverse, Sigma.eta, implies_true]
+  }
+  rw [← Equiv.finite_iff f]
+  exact hC.compact_inter_finite ⟨C, compact⟩
+
+lemma compact_of_finite (finite : CWComplex.Finite C) : IsCompact C := by
+  rw [finite_iff_finite_cells] at finite
+  rw [← hC.union, Set.iUnion_sigma']
+  apply isCompact_iUnion
+  intro ⟨n, i⟩
+  exact isCompact_map_closedBall C n i
+
+lemma compact_iff_finite : IsCompact C ↔ Finite C := ⟨hC.finite_of_compact, hC.compact_of_finite⟩
