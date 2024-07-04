@@ -156,7 +156,7 @@ instance CWComplex_disjointUnion (disjoint : Disjoint C D) : CWComplex (C ∪ D)
     · simp [Function.onFun]
       exact Disjoint.mono (hC.map_ball_subset_complex n cn) (hD.map_ball_subset_complex m cm) disjoint
     rcases cm with cm | cm
-    · simp [Function.onFun]
+    · simp only [Function.onFun]
       rw [disjoint_comm] at disjoint
       exact Disjoint.mono (hD.map_ball_subset_complex n cn) (hC.map_ball_subset_complex m cm) disjoint
     · have := hD.pairwiseDisjoint

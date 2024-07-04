@@ -18,15 +18,25 @@ lemma aux1 (l : ℕ) {X : Type*} {s : ℕ →  Type*} (Y : (m : ℕ) → s m →
 
 lemma ENat.coe_lt_top {n : ℕ} : ↑n < (⊤ : ℕ∞) := Ne.lt_top (ENat.coe_ne_top n)
 
---use Set.subsingleton
-lemma isClosed_inter_singleton {X : Type*} [TopologicalSpace X] [T1Space X] {A : Set X} {a : X} : IsClosed (A ∩ {a}) := by
-  by_cases h : a ∈ A
-  · have : A ∩ {a} = {a} := by simp only [Set.inter_eq_right, Set.singleton_subset_iff, h]
-    rw [this]
-    exact isClosed_singleton
-  · have : A ∩ {a} = ∅ := by simp only [Set.inter_singleton_eq_empty, h, not_false_eq_true]
-    rw [this]
-    exact isClosed_empty
+lemma IsClosed.subsingleton {X : Type*} [TopologicalSpace X] [T1Space X] {A : Set X} (h : A.Subsingleton) :
+    IsClosed A := by
+  rcases Set.Subsingleton.eq_empty_or_singleton h with rfl | ⟨x, rfl⟩
+  · exact isClosed_empty
+  · exact isClosed_singleton
+
+lemma Subsingleton.of_inter_singleton {X : Type*} (A : Set X) (a : X) : (A ∩ {a}).Subsingleton :=
+  Set.subsingleton_of_subset_singleton Set.inter_subset_right
+
+lemma Subsingleton.of_singleton_inter {X : Type*} (A : Set X) (a: X) : ({a} ∩ A).Subsingleton :=
+  Set.subsingleton_of_subset_singleton Set.inter_subset_left
+
+lemma IsClosed.inter_singleton {X : Type*} [TopologicalSpace X] [T1Space X] {A : Set X} {a : X} :
+    IsClosed (A ∩ {a}) :=
+  IsClosed.subsingleton (Subsingleton.of_inter_singleton _ _)
+
+lemma IsClosed.singleton_inter {X : Type*} [TopologicalSpace X] [T1Space X] {A : Set X} {a : X} :
+    IsClosed ({a} ∩ A) :=
+  IsClosed.subsingleton (Subsingleton.of_singleton_inter _ _)
 
 lemma sphere_zero_dim_empty {X : Type*} {h : PseudoMetricSpace (Fin 0 → X)}: (Metric.sphere ![] 1 : Set (Fin 0 → X)) = ∅ := by
   simp only [Metric.sphere, Matrix.empty_eq, dist_self, zero_ne_one, Set.setOf_false]
@@ -65,6 +75,16 @@ lemma inter_eq_inter_iff_compl {X : Type*} {A B C : Set X} : A ∩ B = C ∩ B �
     rw [← Set.not_not_mem, ← @Set.not_not_mem _ x C]
     apply Iff.not
     exact h xmemB
+
+def PartialEquiv.const {X Y : Type*} (x : X) (y : Y) : PartialEquiv X Y where
+  toFun := Function.const X y
+  invFun := Function.const Y x
+  source := {x}
+  target := {y}
+  map_source' := fun _ _ ↦ by rfl
+  map_target' := fun _ _ ↦ by rfl
+  left_inv' := fun x' x'mem  ↦ by rw [Set.eq_of_mem_singleton x'mem]; rfl
+  right_inv' := fun y' y'mem ↦ by rw [Set.eq_of_mem_singleton y'mem]; rfl
 
 def EquivFinMap {X : Type*} (m n : ℕ) : (Fin m → X) × (Fin n → X) ≃ (Fin (m + n) → X) := Equiv.trans (Equiv.sumArrowEquivProdArrow _ _ _).symm (Equiv.arrowCongr finSumFinEquiv (Equiv.refl _))
 
