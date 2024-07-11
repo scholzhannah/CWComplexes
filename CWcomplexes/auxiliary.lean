@@ -10,15 +10,12 @@ noncomputable section
 
 lemma aux1 (l : ℕ) {X : Type*} {s : ℕ →  Type*} (Y : (m : ℕ) → s m → Set X):
     ⋃ m, ⋃ (_ : m < Nat.succ l), ⋃ j, Y m j = (⋃ (j : s l), Y l j) ∪ ⋃ m, ⋃ (_ : m < l), ⋃ j, Y m j := by
-  rw [Set.union_iUnion]
-  simp_rw [Nat.lt_succ_iff, le_iff_lt_or_eq, Set.iUnion_or, Set.union_comm, Set.iUnion_union_distrib]
-  congrm ?_ ∪ ⋃ i, ⋃ (_ : i < l), ⋃ j, Y i j
   ext
-  simp only [Set.iUnion_iUnion_eq_left, Set.mem_iUnion, exists_const]
+  simp [Nat.lt_add_one_iff, le_iff_lt_or_eq, or_and_right, exists_or, or_comm]
 
-lemma ENat.coe_lt_top {n : ℕ} : ↑n < (⊤ : ℕ∞) := Ne.lt_top (ENat.coe_ne_top n)
+lemma ENat.coe_lt_top {n : ℕ} : ↑n < (⊤ : ℕ∞) := (ENat.coe_ne_top n).lt_top
 
---use Set.subsingleton
+-- reformulate using Set.subsingleton
 lemma isClosed_inter_singleton {X : Type*} [TopologicalSpace X] [T1Space X] {A : Set X} {a : X} : IsClosed (A ∩ {a}) := by
   by_cases h : a ∈ A
   · have : A ∩ {a} = {a} := by simp only [Set.inter_eq_right, Set.singleton_subset_iff, h]
@@ -33,48 +30,30 @@ lemma sphere_zero_dim_empty {X : Type*} {h : PseudoMetricSpace (Fin 0 → X)}: (
 
 lemma closed_in_finite {X : Type*} [t : TopologicalSpace X] {ι : Type*} [Finite ι] (A : Set X) (B : ι → Set X) (closed : ∀ i, IsClosed (B i))
     (closedini : (∀ (i : ι), ∃ (C : t.Closeds), A ∩ B i = C.1 ∩ B i)) : ∃ (C : t.Closeds), A ∩ ⋃ i, B i = C.1 ∩ ⋃ i, B i := by
-  let C' i := B i ∩ (Classical.choose (closedini i)).1
+  choose C₀ hC₀ using closedini
+  let C' i := B i ∩ C₀ i
   let C := ⋃ i, C' i
   have closedC : IsClosed C := by
     simp only [C, C']
     apply isClosed_iUnion_of_finite
-    exact fun i ↦ IsClosed.inter (closed i) (Classical.choose (closedini i)).2
+    exact fun i ↦ IsClosed.inter (closed i) (C₀ i).2
   use ⟨C, closedC⟩
   simp only [C, C']
   rw [Set.inter_iUnion, Set.iUnion_inter]
   apply Set.iUnion_congr
   intro i
-  rw [Set.inter_comm (B i), Set.inter_assoc, Set.inter_eq_left.2 (Set.subset_iUnion _ i)]
-  exact Classical.choose_spec (closedini i)
+  rw [Set.inter_comm (B i), Set.inter_assoc, Set.inter_eq_left.2 (Set.subset_iUnion _ i), hC₀]
+  rfl
 
--- I feel like this should be easier then this
 lemma inter_eq_inter_iff_compl {X : Type*} {A B C : Set X} : A ∩ B = C ∩ B ↔ Aᶜ ∩ B = Cᶜ ∩ B := by
-  constructor
-  · intro h
-    ext x
-    replace h := Set.ext_iff.1 h x
-    simp only [Set.mem_inter_iff, Set.mem_compl_iff, and_congr_left_iff] at h ⊢
-    intro xmemB
-    apply Iff.not
-    exact h xmemB
-  · intro h
-    ext x
-    replace h := Set.ext_iff.1 h x
-    simp only [Set.mem_inter_iff, Set.mem_compl_iff, and_congr_left_iff] at h ⊢
-    intro xmemB
-    rw [← Set.not_not_mem, ← @Set.not_not_mem _ x C]
-    apply Iff.not
-    exact h xmemB
+  constructor <;> (intro; simp_all [Set.ext_iff, not_iff_not])
 
 def EquivFinMap {X : Type*} (m n : ℕ) : (Fin m → X) × (Fin n → X) ≃ (Fin (m + n) → X) := Equiv.trans (Equiv.sumArrowEquivProdArrow _ _ _).symm (Equiv.arrowCongr finSumFinEquiv (Equiv.refl _))
 
 def HomeomorphFinMap1 {X: Type*} [TopologicalSpace X] (m n : ℕ) : (Fin m → X) × (Fin n → X) ≃ₜ (Fin m ⊕ Fin n → X) where
-  toFun := (Equiv.sumArrowEquivProdArrow _ _ _).symm
-  invFun := Equiv.sumArrowEquivProdArrow _ _ _
-  left_inv := (Equiv.sumArrowEquivProdArrow _ _ _).right_inv
-  right_inv := (Equiv.sumArrowEquivProdArrow _ _ _).left_inv
+  toEquiv := (Equiv.sumArrowEquivProdArrow _ _ _).symm
   continuous_toFun := by
-    simp only [Equiv.sumArrowEquivProdArrow, Equiv.coe_fn_symm_mk]
+    simp_rw [Equiv.sumArrowEquivProdArrow, Equiv.toFun_as_coe, Equiv.coe_fn_symm_mk]
     apply continuous_pi
     intro i
     rcases i with i1 | i2
@@ -87,12 +66,9 @@ def HomeomorphFinMap1 {X: Type*} [TopologicalSpace X] (m n : ℕ) : (Fin m → X
     continuity --is it better to leave this or replace it by an explicit proof
 
 def HomeomorphFinMap2 {X: Type*} [TopologicalSpace X] (m n : ℕ) : (Fin m ⊕ Fin n → X) ≃ₜ (Fin (m + n) → X) where
-  toFun := Equiv.arrowCongr finSumFinEquiv (Equiv.refl _)
-  invFun := (Equiv.arrowCongr finSumFinEquiv (Equiv.refl _)).symm
-  left_inv := (Equiv.arrowCongr finSumFinEquiv (Equiv.refl _)).left_inv
-  right_inv := (Equiv.arrowCongr finSumFinEquiv (Equiv.refl _)).right_inv
+  toEquiv := Equiv.arrowCongr finSumFinEquiv (Equiv.refl _)
 
-def HomeomorphFinMap {X: Type*} [TopologicalSpace X] (m n : ℕ) : (Fin m → X) × (Fin n → X) ≃ₜ (Fin (m + n) → X) := Homeomorph.trans (HomeomorphFinMap1 _ _) (HomeomorphFinMap2 _ _)
+def HomeomorphFinMap {X: Type*} [TopologicalSpace X] (m n : ℕ) : (Fin m → X) × (Fin n → X) ≃ₜ (Fin (m + n) → X) := (HomeomorphFinMap1 _ _).trans (HomeomorphFinMap2 _ _)
 
 def IsometryEquivFinMap1 {X: Type*} [PseudoEMetricSpace X] (m n : ℕ) : (Fin m → X) × (Fin n → X) ≃ᵢ (Fin m ⊕ Fin n → X) where
   toFun := (Equiv.sumArrowEquivProdArrow _ _ _).symm
@@ -187,6 +163,4 @@ lemma IsometryEquivFinMapR_image_sphere (m n : ℕ) : (IsometryEquivFinMap m n).
   rfl
 
 lemma prod_closedBall_eq_closedBall {X : Type*} [PseudoMetricSpace X] {m n : ℕ} (x : Fin m → X) (y : Fin n → X) : (Metric.closedBall x 1 : Set (Fin m → X)) ×ˢ (Metric.closedBall y 1 : Set (Fin n → X)) = (Metric.closedBall (x, y) 1: Set ((Fin m → X) × (Fin n → X))) := by
-  ext z
-  simp only [Set.mem_prod, Metric.mem_closedBall, PseudoMetricSpace.toDist,
-    Prod.pseudoMetricSpaceMax, sup_le_iff]
+  apply closedBall_prod_same -- found using loogle, query `Metric.closedBall, _ ×ˢ _`. `exact?` also finds this.

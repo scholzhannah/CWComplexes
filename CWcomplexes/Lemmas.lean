@@ -10,6 +10,10 @@ namespace CWComplex
 
 lemma isClosed_level (n : ℕ∞) : IsClosed (hC.level n) := (hC.CWComplex_level n).isClosed
 
+-- does `ℕ∞` have an induction principle with the cases `0` and `k + 1` (using that `⊤ + 1 = ⊤).
+-- that would make this easier, because then you can just use the definition of level instead of
+-- needing `levelaux_eq_level_sub_one`
+-- Or even better: just prove `isClosed_level` and `CWComplex_level` also for `levelaux`
 lemma isClosed_levelaux (n : ℕ∞) : IsClosed (hC.levelaux n) := by
   by_cases nzero : n = 0
   · rw [nzero, hC.levelaux_zero_eq_empty]
