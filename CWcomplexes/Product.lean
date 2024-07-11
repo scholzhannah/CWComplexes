@@ -43,6 +43,8 @@ instance CWComplex_product : @CWComplex (X ×ₖ Y) instprodkification (C ×ˢ D
   cell n := (Σ' (m : ℕ) (l : ℕ) (hml : m + l = n), hC.cell m × hD.cell l)
   map n i := match i with
     | ⟨m, l, hmln, j, k⟩ =>
+      /- Instead of a substitution here it will probably be more convenient to suitably compose with the equivalence
+      `Fin n ≃ Fin (m + l)` (wrapped inside the definition that `→` preserves equivalences). -/
       hmln ▸ Equiv.transPartialEquiv ((IsometryEquivFinMap m l).symm).toEquiv (PartialEquiv.prod (hC.map m j) (hD.map l k))
   source_eq n i := by
     rcases i with  ⟨m, l, hmln, j, k⟩

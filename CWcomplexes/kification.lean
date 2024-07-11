@@ -6,6 +6,16 @@ noncomputable section
 
 namespace Kification
 
+/- I think I already mentioned this:
+it would be great if you define the concept of being a k-space.
+Q: Is that related to `IsCompactlyGenerated` (about complete lattices) in Mathlib? I think not,
+since that notion only captures compact open sets (`TopologicalSpace.Opens.isCompactElement_iff`).
+and then show that
+* `kification` is alaway k-space
+* The `kification` of a k-space is homeomorph to itself
+* you can do `CWComplex_product` if `X × Y` is a k-space.
+* generally try to do most theorems below for k-spaces instead of "the k-ification of X".
+-/
 def kification (X : Type*) := X
 
 instance instkification {X : Type*} [t : TopologicalSpace X] : TopologicalSpace (kification X) where
