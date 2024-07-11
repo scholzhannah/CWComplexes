@@ -10,6 +10,10 @@ namespace CWComplex
 
 lemma isClosed_level (n : ℕ∞) : IsClosed (hC.level n) := (hC.CWComplex_level n).isClosed
 
+-- does `ℕ∞` have an induction principle with the cases `0` and `k + 1` (using that `⊤ + 1 = ⊤).
+-- that would make this easier, because then you can just use the definition of level instead of
+-- needing `levelaux_eq_level_sub_one`
+-- Or even better: just prove `isClosed_level` and `CWComplex_level` also for `levelaux`
 lemma isClosed_levelaux (n : ℕ∞) : IsClosed (hC.levelaux n) := by
   by_cases nzero : n = 0
   · rw [nzero, hC.levelaux_zero_eq_empty]
@@ -116,6 +120,12 @@ lemma isDiscrete_level_zero {A : Set X} : IsClosed (A ∩ hC.level 0) := by
     rw [inter_assoc, hC.level_inter_image_closedBall_eq_level_inter_image_sphere (by norm_cast; exact Nat.zero_lt_succ n), ← inter_assoc]
     exact hC.isClosed_inter_sphere_succ_of_le_isClosed_inter_closedBall hn j
 
+-- I recommend not using `Compacts` or `Closeds`, but just a set with an assumption that it is
+-- compact/closed
+-- I would prove this not by contradiction, but by applying
+-- `IsCompact.elim_finite_subcover`
+-- on the family `fun ⟨n, j⟩ ↦ map n j '' ball 0 1` which covers the compact set `A ∩ C`
+-- I think also removes everything about `DiscreteTopology` in your proof...
 lemma compact_inter_finite (A : t.Compacts) : _root_.Finite (Σ (m : ℕ), {j : hC.cell m // ¬ Disjoint A.1 (↑(hC.map m j) '' ball 0 1)}) := by
   by_contra h
   simp only [TopologicalSpace.Compacts.carrier_eq_coe, not_disjoint_iff, SetLike.mem_coe,

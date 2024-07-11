@@ -114,7 +114,8 @@ instance CWComplex_level (n : ℕ∞) : CWComplex (hC.level n) where
 
 
 variable {D : Set X} (hD : CWComplex D)
-
+-- this instance will never work automatically, since type-class inference will not try to find
+-- the `Disjoint C D` assumption. So just make it a definition instead
 instance CWComplex_disjointUnion (disjoint : Disjoint C D) : CWComplex (C ∪ D) where
   cell n := Sum (hC.cell n) (hD.cell n)
   map n i :=

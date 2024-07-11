@@ -32,8 +32,14 @@ class CWComplex.{u} {X : Type u} [TopologicalSpace X] (C : Set X) where
   union : ⋃ (n : ℕ) (j : cell n), map n j '' closedBall 0 1 = C
 
 variable [T2Space X] (C : Set X) [hC : CWComplex C]
-
+/- Now that `CWComplex` is a class, try to remove `hC` everywhere, and instead make
+`C` explicit if needed (for `map` it's probably fine to have `C` explicit, and have Lean infer `C`
+from the type of `i : cell C n`, though sometimes you might have to give it explicitly with
+`map (C := C)`
+-/
 namespace CWComplex
+
+
 
 /-- A non-standard definition of the levels useful for induction.
   The typical level is defined in terms of levelaux.-/
@@ -44,6 +50,10 @@ def levelaux (n : ℕ∞) : Set X :=
 def level (n : ℕ∞) : Set X :=
   hC.levelaux (n + 1)
 
+-- I recommend to avoid a lemma like this (and subtraction on the natural numbers in general),
+-- if possible.
+-- When you want to apply tris, try to instead rewrite
+-- it to `hC.levelaux (m + 1) = hC.level m` which is true by definition.
 lemma levelaux_eq_level_sub_one {n : ℕ∞} (npos : n ≠ 0) : hC.levelaux n = hC.level (n - 1) := by
   unfold level
   congrm (hC.levelaux ?_)
@@ -75,7 +85,7 @@ class Finite.{u} {X : Type u} [TopologicalSpace X] (C : Set X) [cwcomplex : CWCo
 @[simp] lemma level_top : hC.level ⊤ = C := by
   simp only [level, top_add, levelaux_top]
 
-lemma iUnion_map_sphere_subset_levelaux (l : ℕ) : ⋃ (j : hC.cell l), ↑(hC.map l j) '' sphere 0 1 ⊆ hC.levelaux l := by
+lemma iUnion_map_sphere_subset_levelaux (l : ℕ) : ⋃ (j : hC.cell l), hC.map l j '' sphere 0 1 ⊆ hC.levelaux l := by
   rw [CWComplex.levelaux]
   norm_cast
   intro x xmem
@@ -92,9 +102,12 @@ lemma iUnion_map_sphere_subset_levelaux (l : ℕ) : ⋃ (j : hC.cell l), ↑(hC.
     exact ⟨iltl, ⟨e, ymem⟩⟩
   exact this xmeme
 
+-- fix the statement
 lemma iUnion_map_sphere_subset_level (l : ℕ) : ⋃ (j : hC.cell l), ↑(hC.map l j) '' sphere 0 1 ⊆ hC.levelaux l := by
   simp only [level, iUnion_map_sphere_subset_levelaux]
 
+-- rename: levelaux_mono (the idea is that this statement is equivalent to `Monotone (hC.levelaux)`,
+-- even though you probably don't want to state it like that).
 lemma levelaux_subset_levelaux_of_le {n m : ℕ∞} (h : m ≤ n) : hC.levelaux m ⊆ hC.levelaux n := by
   repeat rw [CWComplex.levelaux]
   intro x xmem
@@ -113,15 +126,9 @@ lemma level_subset_level_of_le {n m : ℕ∞} (h : m ≤ n) : hC.level m ⊆ hC.
 
 lemma iUnion_levelaux_eq_levelaux (n : ℕ∞) : ⋃ (m : ℕ) (hm : m < n + 1), hC.levelaux m = hC.levelaux n := by
   apply subset_antisymm
-  · intro x xmem
-    rw [mem_iUnion] at xmem
-    rcases xmem with ⟨m, xmemm⟩
-    simp at xmemm
-    have h : m ≤ n := by
-      apply Order.le_of_lt_succ
-      rw [ENat.succ_def]
-      exact xmemm.1
-    exact (hC.levelaux_subset_levelaux_of_le h) xmemm.2
+  · simp_rw [iUnion_subset_iff]
+    intros i hi
+    exact levelaux_subset_levelaux_of_le _ (ENat.le_of_lt_add_one hi)
   · intro x xmem
     rw [mem_iUnion]
     by_cases h : n = ⊤
@@ -149,33 +156,44 @@ lemma iUnion_levelaux_eq_levelaux (n : ℕ∞) : ⋃ (m : ℕ) (hm : m < n + 1),
       rw [coemn]
       exact ⟨lt_add_one m, xmem⟩
 
+-- is this really missing? move to auxiliary
+lemma ENat.add_coe_lt_add_coe_right {n m : ℕ∞} {k : ℕ} : n + k < m + k ↔ n < m := by
+  cases' n with n
+  · simp
+  cases' m with m
+  · norm_cast; simp [ENat.coe_lt_top, -Nat.cast_add]
+  · norm_cast; simp_all
+
+-- Here is a different proof, but this was more painful than I thought
 lemma iUnion_level_eq_level (n : ℕ∞) : ⋃ (m : ℕ) (hm : m < n + 1), hC.level m = hC.level n := by
-  ext x
-  rw [mem_iUnion]
+  simp_rw [level, ← iUnion_levelaux_eq_levelaux C (n + 1)]
+  ext; simp
   constructor
-  · intro ⟨i, hi⟩
-    simp only [mem_iUnion, exists_prop] at hi
-    rw [← ENat.succ_def n] at hi
-    exact (hC.level_subset_level_of_le (Order.le_of_lt_succ hi.1)) hi.2
-  · intro xmem
-    by_cases h : n = ⊤
-    · rw [h, hC.level_top, ← hC.union, mem_iUnion] at xmem
-      rcases xmem with ⟨i, xmem⟩
-      use i
-      simp only [h, top_add, Ne.lt_top (ENat.coe_ne_top i), iUnion_true]
-      rw [level, levelaux, mem_iUnion]
-      use i
+  · intro ⟨i, hin, hiC⟩
+    refine ⟨i + 1, ?_, hiC⟩
+    push_cast
+    exact ENat.add_coe_lt_add_coe_right.mpr hin
+  · intro ⟨i, hin, hiC⟩
+    cases' i with i
+    · refine ⟨0, ?_, levelaux_subset_levelaux_of_le C (by norm_num) hiC⟩
       norm_cast
-      rw [mem_iUnion, exists_prop]
-      exact ⟨lt_add_one i, xmem⟩
-    · push_neg at h
-      let m := ENat.toNat n
-      have coemn: ↑m = n := ENat.coe_toNat h
-      use m
-      rw [mem_iUnion, exists_prop, ← coemn]
-      rw [← coemn] at xmem
-      norm_cast
-      exact ⟨lt_add_one m, xmem⟩
+      -- this should be a lemma
+      rw [← ENat.one_le_iff_pos]
+      exact le_add_self
+    · refine ⟨i, ?_, hiC⟩
+      push_cast
+      exact ENat.add_coe_lt_add_coe_right.mp hin
+
+/- separate out some lemmas, e.g.
+hC.map m j '' closedBall 0 1 ⊆ hC.map m j '' ball 0 1 ∪ levelaux C m
+and/or
+levelaux C (m + 1) = levelaux C m ∪ ⋃ (j : hC.cell m), hC.map m j '' closedBall 0 1
+and/or
+levelaux C (m + 1) = levelaux C m ∪ ⋃ (j : hC.cell m), hC.map m j '' ball 0 1
+
+Maybe you're already doing some of that below, without relying on this?
+Also, maybe the induction is a little easier if you just do the hard inclusion by induction (and the easy inclusion without induction)
+-/
 
 /- We can also define the levels using `ball` instead of `closedBall`, using assumption `mapsto`. -/
 lemma iUnion_ball_eq_levelaux (n : ℕ∞) : ⋃ (m : ℕ) (hm : m < n) (j : hC.cell m), hC.map m j '' ball 0 1 = hC.levelaux n := by
@@ -237,6 +255,7 @@ lemma iUnion_ball_eq_levelaux (n : ℕ∞) : ⋃ (m : ℕ) (hm : m < n) (j : hC.
 lemma union' : ⋃ (n : ℕ) (j : hC.cell n), hC.map n j '' ball 0 1 = C := by
   simp only [← hC.levelaux_top, ← hC.iUnion_ball_eq_levelaux, ENat.coe_lt_top, iUnion_true]
 
+-- rename to `eq_cell_of_not_disjoint` or similar
 lemma not_disjoint_equal {n : ℕ} {j : hC.cell n} {m : ℕ} {i : hC.cell m} (notdisjoint: ¬ Disjoint (↑(hC.map n j) '' ball 0 1) (↑(hC.map m i) '' ball 0 1)) :
 (⟨n, j⟩ : (Σ n, hC.cell n)) = ⟨m, i⟩ := by
   by_contra h'
@@ -261,6 +280,11 @@ lemma mapsto_sphere_levelaux (n : ℕ) (j : hC.cell n) (nnezero : n ≠ 0) : Map
   use i
   norm_cast
   exact ⟨iltn, ⟨j, xmem⟩⟩
+
+-- Use the command `#lint` here: it will tell you that `nnezero` is not used in the above proof.
+-- I recommend writing `#lint` at the bottom of each of your files, and looking at the output.
+-- (you can ignore the request for documentation strings, at least until you make a PR to mathlib)
+-- This makes the case distinction in `exists_mem_ball_of_mem_levelaux` unnecessary.
 
 lemma mapsto_sphere_level (n : ℕ) (j : hC.cell n) (nnezero : n ≠ 0) : MapsTo (hC.map n j) (sphere 0 1) (hC.level (Nat.pred n)) := by
   norm_cast
@@ -451,12 +475,15 @@ lemma closure_map_ball_eq_map_closedball {n : ℕ} {j : hC.cell n} : closure (hC
     apply ContinuousOn.image_closure this
     simp
 
+-- I think this proof should be moved up, since it can be used to prove some easier estimates that are used earlier.
+
 -- could this proof be simplified using `exists_mem_ball_of_mem_level`?
 lemma mapsto' (n : ℕ) (i : hC.cell n) : ∃ I : Π m, Finset (hC.cell m),
 MapsTo (hC.map n i) (sphere 0 1) (⋃ (m < n) (j ∈ I m), hC.map m j '' ball 0 1) := by
   induction' n using Nat.case_strong_induction_on with n hn
   · simp [sphere_zero_dim_empty, MapsTo]
   · rcases hC.mapsto (Nat.succ n) i with ⟨J, hJ⟩
+    -- use the `choose` tactic on `hn`
     let p (x : Σ' (m : {m : ℕ // m ≤ n}), J m) := Classical.choose (hn x.1 (x.1).2 x.2)
     let I' m := if mltnsucc : m < Nat.succ n then (J m).toSet ∪ ⋃ (l : {l : ℕ // l ≤ n}) (y : J l), p ⟨⟨l, l.2⟩, y⟩ m else (J m).toSet
     have : ∀ m, Set.Finite (I' m) := by
