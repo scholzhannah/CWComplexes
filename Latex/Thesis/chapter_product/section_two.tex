@@ -1,0 +1,22 @@
+\section{The product of CW-complexes}
+
+\begin{lem}
+    $(X \times Y)_c$ has weak topology,
+    i.e. $A \subseteq (X \times Y)_c$ is closed iff $(Q_i^n \times P_j^m)(D^{n + m}) \cap A$ is closed for all $n, m \in \bN$, $i \in I_n$ and $j \in J_m$.
+\end{lem}
+\begin{proof}~
+    \begin{enumerate}
+        \item["$\Rightarrow$"] Since $D^{n + m}$ is compact, its image is compact and therefore closed. As the intersection of two closed sets $(Q_i^n \times P_j^m)(D^{n + m}) \cap A$ is closed as well.
+        \item["$\Leftarrow$"] We know by definition of the k-ification that $A$ is closed if for every compact set $C \subseteq X \times Y$ $A \cap C$ is closed in $C$.
+        Take such a compact set $C$.
+        The projections $\pr{1}{C}$ and $\pr{2}{C}$ are compact as images of a compact set. 
+        By ? there are finite sets $E \subseteq \{e_i^n \mid n \in \bN, i \in I_n \}$ and $F \subseteq \{f_j^m \mid m \in \bN, j \in J_m \}$ s.t $\pr{1}{C} \subseteq \bigcup_{e \in E} e$ and $\pr{2}{C} \subseteq \bigcup_{f \in F} f$.
+        Thus 
+        \[C \subseteq \pr{1}{C} \times \pr{2}{C} \subseteq \bigcup_{e \in E} e \times \bigcup_{f \in F} f = \bigcup_{e \in E} \bigcup_{f \in F} e \times f.\] 
+        So $C$ is included in a finite union of cells of $(X \times Y)_c$. 
+        Therefore 
+        \[A \cap C = A \cap \left (\bigcup_{e \in E} \bigcup_{f \in F} e \times f \right )\cap C = \left (\bigcup_{e \in E} \bigcup_{f \in F} A \cap (e \times f)\right ) \cap C\] 
+        is closed since by assumption $A \cap (e \times f)$ is closed for every $e$ and $f$ and the intersection is finite. Thus $A \cap C$ is in particular closed in $C$.
+    \qedhere
+    \end{enumerate}
+\end{proof}

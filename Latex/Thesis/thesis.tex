@@ -1,0 +1,242 @@
+\documentclass[paper=a4, fontsize=11pt, BCOR=13mm, DIV=13, headinclude, toc=index, toc=bibliography, english, twoside]{scrreprt}
+% Die verwendete Dokumentenklasse ist scrreprt. Die verwendeten Optionen sind:
+%
+% paper=a4              Papier ist a4.
+% fontsize=11pt         Schrifgröße ist 11.
+% DIV=13                Das Papier wird in d viele Spalten und d' viele Zeilen eingeteilt. Die Werte werden aus DIV berechnet.
+% BCOR=1cm              Definiert den Patz, der auf der Innenseite beim Binden verloren geht.
+% headinclude           sorgt dafür, dass genug Platz für die Header vorhanden ist.
+% toc=index             legt im Inhaltsverzeichnis einen Eintrag für das Stichwortverzeichnis an.
+% toc=bibliography      legt im Inhaltsverzeichnis einen Eintrag für das Literaturverzeichnis an.
+% english               englische Worte wie "Chapter" und "References".
+% twoside               Beidseitiges Dokument, wie in einem Buch.
+
+
+%If you don't want this fancyheaders comment out lines 17 to 24
+% Fancyheader
+\usepackage{fancyhdr}                   % Wie der Name schon sagt, um fancy Header zu generieren.
+\pagestyle{fancy}                       % Fancy Header sollen angezeigt werden
+\renewcommand{\sectionmark}[1]{\markright{\thesection.\ #1}{}}    % Verhindert dass rightmark ausschließlich Grußbuchstaben benutzt
+\fancyhead[LE,RO]{\rightmark}           % Links bei geraden und rechts bei ungeraden Seitenzahlen soll der Name der Section stehen.
+\fancyhead[LO,RE]{}                     % Links bei ungeraden und rechts bei geraden Seitenzahlen soll nichts stehen.
+\fancyfoot[C]{}                         % Keine mittigen Seitenzahlen
+\fancyfoot[LE,RO]{\thepage}             % Seitenzahlen unten in die jeweilige äußere Ecke
+
+
+
+
+
+\setcounter{secnumdepth}{3}     % Nummerierungstiefe (chapter, section, subsection, ...).
+\setcounter{tocdepth}{3}        % Nummerierungstiefe im Inhaltsverzeichn is.
+
+\usepackage[linesnumbered,ruled,vlined]{algorithm2e}    % Algorithmen setzen.
+\usepackage{amsmath,amssymb,amsthm,amsfonts,amsbsy,latexsym}    % "Notwendige" AMS-Math Pakete.
+\usepackage{array}                      % Bessere Tabellen.
+\renewcommand{\arraystretch}{1.15}      % Tabellen bekommen ein wenig mehr Platz.
+\usepackage{bbm}                        % Dicke 1.
+\usepackage[backend=biber, style=alphabetic]{biblatex}  % Gute Erweiterung zu bibtex, Wird für Referenzen benutzt.
+\bibliography{thesis}   % Die verwendeten Referenzen (.bib-Datei)
+\usepackage[hypcap]{caption}            % Damit Hyperrefs bei der figure-Umgebung auf die Figure zeigt statt auf die Caption.
+\usepackage{datetime}                   % Um \today einzustellen.
+\newdateformat{mydate}{\THEDAY{}th \monthname{} \THEYEAR{}}
+\usepackage{diagbox}                    % Diagonale in Tabellen.
+\usepackage{enumitem}                   % Zum Ändern der Nummerierungsumgenung 'enumerate'
+\setlist[enumerate,1]{label=(\roman*)}  % Aufzählungen sind vom Typ 'Klammer auf; kleine römische Zahl; Klammer zu'
+\usepackage[T1]{fontenc}                % Bessere Schrift
+\usepackage{ifthen}                     % Zum checken ob Parameter leer sind.
+\usepackage[utf8]{inputenc}             % utf8 als Eingabeformat.
+\usepackage{lmodern}                    % Bessere Schrift
+\usepackage{listings}                   % Code Listings.
+\usepackage{mathtools}                  % Subscript unter Summen behandeln. Der Befehl lautet \mathclap.
+\usepackage{makeidx}                    % Stichwortverzeichnis.
+\makeindex                              % Stichwortverzeichnis erstellen.
+\renewcommand{\indexname}{Index}        % Name des Index definieren.
+\usepackage{multirow}                   % In Tabellen mehrere Zeilen zu einer machen.
+\usepackage{rotating}                   % Um Figures zu drehen.
+\usepackage{scrhack}                    % Verbessert die Zusammenarbeit von KOMA mit anderen Paketen (z.B, listing).
+\usepackage{stackrel}                   % Symbole übereinander stapeln.
+\usepackage[dvipsnames]{xcolor}         % Gefärbter Text und so.
+\usepackage{tikz}                       % Graphen und kommutative Diagramme. Muss nach xcolor eingebunden werden.
+\usepackage{tikz-cd}                    % Kommutative Diagramme.
+\usepackage{transparent}                % Braucht mal manchmal für inkscape bilder.
+\usetikzlibrary{patterns}               % Zu malen von schraffierten Flächen.
+
+\graphicspath{{pictures/}}              % Pfad in dem die mit Inkscape erstellen Bilder liegen (relativ zum Hauptverzeichnis).
+
+% Workaround, damit keine unnötigen Leerzeichen entstehen.
+\let\oldindexdefn\index
+\renewcommand*{\index}[1]{\oldindexdefn{#1}\ignorespaces}
+\let\oldlabeldefn\label
+\renewcommand*{\label}[1]{\oldlabeldefn{#1}\ignorespaces}
+
+% Workaround, Linebreak nach ldots erlaubt.
+\newcommand{\origldots}{}
+\let\origldots\ldots
+\renewcommand{\ldots}{\allowbreak\origldots}
+
+
+% Symbolverzeichnis
+\usepackage[intoc, english]{nomencl}     % Symbolverzeichnis.
+% intoc                 die Symbolliste in das Inhaltsverzeichnis aufnehmen.
+% english               englische Worte wie "Seite".
+\renewcommand{\nomname}{Symbol Index}   % Definiert die Überschrift des Symbolverzeichnises.
+\renewcommand{\nomlabelwidth}{80pt}     % Platz der einem Symbol gegönnt wird.
+\newcommand{\symbolindex}[4][]{{\nomenclature[#1]{#2}{#3\ifthenelse{\equal{#4}{}}{}{ -- #4}\nomnorefpage}}\ignorespaces}    % Verbesserte Version von "\nomenclature". Erzeugt Symbol Beschreibung - Referenz.
+\renewcommand*{\nompreamble}{\markright{\nomname}}    % Workaround: Fancyhdr schreibt im Symbolverzeichnis sonst den Namen des leztztes Kapitels.
+\makenomenclature                       % Symbolverzeichnis erstellen.
+
+% Anklickbare Referenzen (letztes eingebundenes Paket)
+\usepackage{hyperref}                   % Referenzen innerhalb des Dokuments anklickbar machen. Achtung: Muss das letzte Paket im Präambel sein.
+\hypersetup{                            % Optionen von hyperref Einstellen.
+    colorlinks=true,                    % gefärbte Links an Stelle von Boxen.
+    linkcolor=black,                     % Farbe interner Links.
+    citecolor=black,                     % Farbe von Referenzen.
+    urlcolor=black                       % Farbe von Internetlinks.
+}
+
+%       Makros und Definition der Titelseite
+\makeatletter                           % Um Makros mit @ benutzen zu können. Zum Beispiel @author.
+\newcommand*{\authora}[1]{\def\@authora{#1}}            % Autor
+\newcommand*{\authorb}[1]{\def\@authorb{#1}}            % Autor.
+\newcommand*{\geburtsdatuma}[1]{\def\@geburtsdatuma{#1}}        % Geburtsdatum.
+\newcommand*{\geburtsdatumb}[1]{\def\@geburtsdatumb{#1}}        % Geburtsdatum.
+\newcommand*{\geburtsorta}[1]{\def\@geburtsorta{#1}}    % Gebortsort.
+\newcommand*{\geburtsortb}[1]{\def\@geburtsortb{#1}}    % Gebortsort.
+\newcommand*{\thesentyp}[1]{\def\@thesentyp{#1}}        % Thesentyp z.B. Bachelorarbeit oder Master's Theses.
+\newcommand*{\betreuera}[1]{\def\@betreuera{#1}}          % Betreuer z.B. Lieber Gott
+\newcommand*{\betreuerb}[1]{\def\@betreuerb{#1}}          % zweiter Betreuer z.B. Jesus
+\newcommand*{\institut}[1]{\def\@institut{#1}}          % Institut z.B. Mensa
+
+% Definition der Titelseite.
+\renewcommand\maketitle{
+\KOMAoptions{twoside = false}   % Die Titelseite soll (bis auf Bindekorrektur) mittig auf dem Papier erscheinen.
+\begin{titlepage}       % Definiere die Titelseite wie folgt.
+    \vspace*{\fill}             % Um den Inhalt der Titelseite vertikal zu zentrieren, benutzen wir \vspace*{\fill} [Inhalt] \vspace*{\fill}.
+    \begin{center}
+        \parbox{14cm}{\centering\huge\bfseries \@title \par}\\\vspace{2em}      % Mache eine Paragraphenbox (Titel kann in mehreren Zeilen stehen) der Breite 15cm. Der Inhalt ist zentriert, sehr groß geschrieben, fett und mit Serifen. Anschließend 2 Einheiten Platz.
+        {\Large\@authora}\\\vspace{.3em}                                        % Name des Authors in großer Schrift. Anschließend eine wenig Platz.
+        Born   \@geburtsdatuma \ in \@geburtsorta\\\vspace{2em}                 % Geburtsdatum und Ort. Anschließend zwei Einheit Platz.
+        
+        {\large \@date}\\\vspace{15em}                                          % Datum in mittelgroßer Schrift. Anschließend 15 Einheiten Platz.
+        {\large \@thesentyp}\\\vspace{1em}                                      % Der Text 'Master's Thesis  Mathematics' in großer Schrift. Anschließend eine Einheit Platz.
+        {\large \@betreuera}\\\vspace{1em}  
+         {\large \@betreuerb}\\\vspace{1em} 
+        % Der Text 'Advisor: Prof. Dr. Carl-Friedrich Bödigheimer' in großer Schrift. Anschließend eine Einheit Platz.
+        {\large\scshape \@institut}\\\vspace{9em}                                    % Der Text 'Mathematisches Institut' in großer 'small caps'-Schrift. Anschließend neun Einheit Platz.
+        {\large\scshape Mathematisch-Naturwissenschaftliche Fakultät der}\\\vspace{1em}      % Der Text 'Mathematisch-Naturwissenschaftliche Fakultät der' in großer 'small caps'-Schrift. Anschließend eine Einheit Platz.
+        {\large\scshape Rheinischen Friedrich-Wilhelms-Universität Bonn}             % Der Text 'Rheinischen Friedrich-Wilhelms-Universität Bonn' in großer 'small caps'-Schrift.
+    \end{center}
+    \vspace*{\fill}             % Hier endet der Inhalt des Titelblattes.
+    \clearpage                  % Beende die Seite.
+    
+    \thispagestyle{empty}       % Die zweite Seite einfach nur leer sein. Dazu muss sie frei von Überschriften / Seitenzahlen / ... sein.
+    \null\clearpage             % Beende die Seite. (Dazu ist mindestens ein Zeichen notwendig und dafür verwenden wir das Makro \null.)
+\end{titlepage}         % Ende der Definition der Titelseite.
+\KOMAoptions{twoside}   % Ab hier wieder twoside.
+% Räume Makors auf damit ein weiteres \maketitel, \author, ... nichts mehr produziert.
+\global\let\maketitle\relax
+\global\let\@authora\@empty
+\global\let\@authorb\@empty
+\global\let\@geburtsdatuma\@empty
+\global\let\@geburtsdatumb\@empty
+\global\let\@geburtsorta\@empty
+\global\let\@geburtsortb\@empty
+\global\let\@thesentyp\@empty
+\global\let\@betreuera\@empty
+\global\let\@betreuerb\@empty
+\global\let\@institut\@empty
+\global\let\@date\@empty
+\global\let\@title\@empty
+\global\let\title\relax
+\global\let\authora\relax
+\global\let\authorb\relax
+\global\let\geburtsdatuma\relax
+\global\let\geburtsdatumb\relax
+\global\let\geburtsorta\relax
+\global\let\geburtsortb\relax
+\global\let\thesentyp\relax
+\global\let\betreuera\relax
+\global\let\betreuerb\relax
+\global\let\institut\relax
+\global\let\date\relax
+\global\let\and\relax
+}
+\makeatother
+%       Ende Makros und Definition der Titelseite
+
+
+\authora{your name}           % Verfasser 1
+\geburtsdatuma{your birthday}      % Geburtsdatum.
+\geburtsorta{your birthplace}                  % Gebortsort.
+\thesentyp{Master's Thesis  Mathematics}        % Thesentyp.
+\betreuera{Advisor: Prof.\ Dr.\ Your Advisor}        % Betreuer
+\betreuerb{Second Advisor: Prof.\ Dr.\ Your Advisor} 
+%Second Advisor
+\institut{Institute for Applied Mathematics}      % Institut an dem die Arbeit angefertigt wurde
+\date{12th September 2014\\Last update: \mydate\today}              % Datum der Abgabe der Arbeit.
+\title{Title}        % Titel der Masterarbeit.
+
+
+%       Theoreme
+\theoremstyle{definition}               % Name: dick            Text: normal.
+\newtheorem{defi}{Definition}[section]  % Der Zähler ist defi = Sectionzähler.1 . Sectionzähler soll bei Benutzung von defi nicht erhöht werden.
+\newtheorem*{defi*}{Definition}
+\newtheorem{example}[defi]{Example}
+\newtheorem{notation}[defi]{Notation}
+\newtheorem{rem}[defi]{Remark}
+\newtheorem{defcor}[defi]{Definition/Corollary}
+\newtheorem{defprop}[defi]{Definition/Proposition}
+\newtheorem{defthm}[defi]{Definition/Theorem}
+
+\theoremstyle{plain}
+\newtheorem*{conj}{Conjecture}
+\newtheorem{cor}[defi]{Corollary}
+\newtheorem{lem}[defi]{Lemma}
+\newtheorem{prop}[defi]{Proposition}
+\newtheorem*{prop*}{Proposition}
+\newtheorem{thm}[defi]{Theorem}
+\newtheorem*{thm*}{Theorem}
+
+
+%       Makros
+\input{thesis_macros}
+
+
+\begin{document}
+% Titelseite
+\maketitle              % Titelseite ausgeben
+\setcounter{page}{3}    % Die Titelseite und die darauffolgende leere Seite sollen gefälligst Seite 1 und 2 sein.
+\tableofcontents        % Inhaltsverzeichnis ausgeben
+
+% Einleitung
+\cleardoublepage        % Kapitel immer rechts beginnen
+\input{chapter_introduction/chapter_introduction}
+
+% Modelle für den Modulraum
+\cleardoublepage        % Kapitel immer rechts beginnen
+\input{chapter_one/chapter_one}
+
+% product of CW-complexes
+\cleardoublepage        % Kapitel immer rechts beginnen
+\input{chapter_product/chapter_product.tex}
+
+\cleardoublepage
+\input{chapter_appendix/chapter_appendix}
+
+% Weitere Symbole für das Symbolverzeichnis
+\symbolindex[f]{$F$}{A topological or Riemann surface.}{}
+
+% Symbolverzeichnis
+\cleardoublepage        % Auch diese sollen auf der rechten Seite beginnen
+\printnomenclature      % Symbolverzeichnis ausgeben
+
+% Stichwortverzeichnis
+\cleardoublepage        % Auch diese sollen auf der rechten Seite beginnen
+\printindex             % Stichwortverzeichnis ausgeben
+
+% Referenzen
+\nocite{*}              % Alle Einträge der Bib-Datei sollen in die Referenzen
+\cleardoublepage        % Auch diese sollen auf der rechten Seite beginnen
+\printbibliography      % Bibliographie ausgeben.
+
+\end{document}
