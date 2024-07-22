@@ -40,11 +40,6 @@
 \frame{\titlepage}
 
 \begin{frame}
-\frametitle{Table of Contents}
-\tableofcontents
-\end{frame}
-
-\begin{frame}
 \frametitle{Reminder: Definition of CW-complexes}
 \begin{block}{Definition: CW-complex}
     Let $X$ be a Hausdorff space. 
@@ -52,7 +47,7 @@
     \setbeamertemplate{enumerate items}[default]
     \begin{enumerate}[(i)]
         \item $\restrict{Q_i^n}{\interior{D_i^n}}\colon \interior{D_i^n} \rightarrow Q_i^n(\interior{D_i^n})$ is a homeomorphism. We call $e_i^n \coloneq Q_i^n(\interior{D_i^n})$ an \alert{$n$-cell} (or a cell of dimension $n$).
-        \item For all $m, n \in \N$, $i \in I_n$ and $j \in I_j$, $Q_i^n(\interior{D_i^n})$ and $Q_j^m(\interior{D_j^m})$ are disjoint.
+        \item For all $m, n \in \N$, $i \in I_n$ and $j \in I_m$, $Q_i^n(\interior{D_i^n})$ and $Q_j^m(\interior{D_j^m})$ are disjoint.
         \item For each $n \in \N$, $i \in I_n$, $Q_i^n(\boundary D_i^n)$ is contained in the union of a finite number of cells of dimension less than $n$.
         \item $A \subseteq X$ is closed iff $Q_i^n(D_i^n) \cap A$ is closed for all $n \in \N$ and $i \in I_n$.
         \item $\bigcup_{n \ge 0}\bigcup_{i \in I_n}e_i^n = X$.
@@ -139,10 +134,38 @@ instance CWComplex_product : CWComplex (X := X ×ₖ Y) (C ×ˢ D) where
     \setbeamertemplate{enumerate items}[default]
     % See https://en.wikipedia.org/wiki/Compactly_generated_space#CITEREFWillard2004
     \begin{enumerate}[(i)]
-      \item The cocountable topology on an uncountable space is not a k-space.
+      \item Every non-discrete anti-compact T$_1$ space (e.g. cocountable topology on uncountable set) is not a k-space.
       \item The product of uncountably many copies of $\R$ is not a k-space.
     \end{enumerate}
   \end{block}
 \end{frame}
+
+\begin{frame}
+\frametitle{Proof of continuity}
+  \begin{block}{Lemma (alternate definition of k-ification)}
+    We have
+    \[A \subseteq X_c \text{ closed} \iff A \cap C \text{ closed in } C \text{ for every compact set } C \subseteq X.\]
+
+  \end{block}
+  \begin{block}{Lemma}
+    Let $X$ and $Y$ be topological spaces with $X$ compact. 
+    Let $f \colon X \to Y$ be a continuous.
+    Then $f \colon X \to Y_c$ is continuous.
+  \end{block}
+\end{frame}
+
+\begin{frame}
+\frametitle{Proof of weak topology}
+  \begin{block}{Lemma}
+    Let $X$ be a CW-complex and $C \subseteq X$ a compact set. 
+    Then $C$ is disjoint with all but finitely many cells of $X$.
+  \end{block}
+  \begin{block}{Lemma}
+    $(X \times Y)_c$ has weak topology 
+    i.e. $A \subseteq (X \times Y)_c$ is closed iff $Q_i^n \times P_j^m(D^{n + m}) \cap A$ is closed for all $n, m \in \N$, $i \in I_n$ and $j \in J_m$.
+  \end{block}
+\end{frame}
+
+
 
 \end{document}
