@@ -9,139 +9,125 @@ open Metric Set
 
 namespace CWComplex
 
-variable {X : Type*} [t : TopologicalSpace X] [T2Space X] (C : Set X) [hC : CWComplex C]
+variable {X : Type*} [t : TopologicalSpace X] [T2Space X] (C : Set X) [CWComplex C]
 
 section
 
-instance CWComplex_level (n : ℕ∞) : CWComplex (hC.level n) where
-  cell l := {x : hC.cell l // l < n + 1}
-  map l i := hC.map l i
-  source_eq l i := by rw [hC.source_eq]
-  cont l i := hC.cont l i
-  cont_symm l i := hC.cont_symm l i
+instance CWComplex_levelaux (n : ℕ∞) : CWComplex (levelaux C n) where
+  cell l := {x : cell C l // l < n}
+  map l i := map (C := C) l ↑i
+  source_eq l i := by rw [source_eq]
+  cont l i := cont (C := C) l i
+  cont_symm l i := cont_symm (C := C) l i
   pairwiseDisjoint := by
     rw [PairwiseDisjoint, Set.Pairwise]
-    simp only [mem_univ, ne_eq, forall_true_left, Sigma.forall, Subtype.forall]
+    simp only [mem_univ, ne_eq, true_implies, Sigma.forall, Subtype.forall, Sigma.mk.inj_iff,
+      not_and]
     intro a ja alt b jb blt
-    have := hC.pairwiseDisjoint
-    rw [PairwiseDisjoint, Set.Pairwise] at this
-    simp only [mem_univ, ne_eq, forall_true_left, Sigma.forall, Subtype.forall] at this
-    have := this a ja b jb
+    have disjoint := pairwiseDisjoint (C := C)
+    simp only [PairwiseDisjoint, Set.Pairwise, mem_univ, ne_eq, true_implies, Sigma.forall,
+      Sigma.mk.inj_iff, not_and] at disjoint
+    replace disjoint := disjoint a ja b jb
     intro h
-    simp only [Sigma.mk.inj_iff, not_and] at *
-    apply this
-    by_cases h' : a = b
-    · simp [h']
-      by_contra h''
-      apply h h'
-      rw [Subtype.heq_iff_coe_heq (type_eq_of_heq h'')]
-      simp [h'']
-      rw [h']
-    · simp only [h', IsEmpty.forall_iff]
+    simp only [Sigma.mk.inj_iff, not_and] at disjoint ⊢
+    apply disjoint
+    intro eq1 eq2
+    subst a
+    simp only [heq_eq_eq, Subtype.mk.injEq, true_implies] at h eq2
+    exact h eq2
   mapsto l i := by
-    rcases hC.mapsto l i with ⟨I, hI⟩
+    rcases mapsto (C := C) l i with ⟨I, hI⟩
     rcases i with ⟨i, llt⟩
-    let J := fun (m : ℕ) ↦ (I m).subtype (fun j ↦ m < n + 1)
+    let J := fun (m : ℕ) ↦ (I m).subtype (fun j ↦ m < n)
     use J
-    simp only [mapsTo'] at *
-    apply subset_trans hI
-    apply Set.iUnion_mono''
+    simp only [mapsTo'] at hI ⊢
+    apply subset_trans hI (Set.iUnion_mono'' _)
     intro i x xmem
-    simp only [mem_iUnion, exists_prop] at *
-    constructor
-    · exact xmem.1
+    simp only [mem_iUnion, exists_prop] at xmem ⊢
+    refine ⟨xmem.1, ?_⟩
     rcases xmem with ⟨iltl, ⟨j, ⟨jmemIi, xmem⟩⟩⟩
-    have : (i : ℕ∞) < (l : ℕ∞) := by norm_cast
-    use ⟨j, lt_trans this llt⟩
+    use ⟨j, lt_trans (by norm_cast) llt⟩
     exact ⟨(by simp only [Finset.mem_subtype, jmemIi, J]) , xmem⟩
   closed A := by
     intro asublevel
     have : A ⊆ C := by
-      apply subset_trans
-      exact asublevel
-      simp_rw [← hC.level_top]
-      apply hC.level_subset_level_of_le le_top
-    have := hC.closed A this
-    constructor
-    · intro closedA l j
-      simp [this.1]
-    · intro h
-      simp at h
-      rw [this]
-      intro m
-      induction' m using Nat.case_strong_induction_on with m hm
-      · have : 0 < n + 1 := by simp only [add_pos_iff, zero_lt_one, or_true]
-        intro j
-        exact h Nat.zero j this
-      rw [← Nat.add_one] at *
-      intro j
-      let k := ENat.toNat n
-      by_cases mlt : m + 1 < n + 1
-      · exact h (m + 1) j mlt
-      push_neg at mlt
-      have nltm : n ≤ Nat.succ m := le_trans (le_add_right le_rfl) mlt
-      have coekn: ↑k = n := ENat.coe_toNat (ne_top_of_le_ne_top (WithTop.natCast_ne_top (Nat.succ m)) nltm)
-      rw [← coekn] at asublevel  mlt
-      norm_cast at *
-      have : A ∩ ↑(hC.map (m + 1) j) '' closedBall 0 1 = A ∩ ↑(hC.map (m + 1) j) '' sphere 0 1 := by
-        calc
-          A ∩ ↑(hC.map (m + 1) j) '' closedBall 0 1 = A ∩ (hC.level k ∩ ↑(hC.map (m + 1) j) '' closedBall 0 1) := by rw [← inter_assoc, Set.inter_eq_left.2 asublevel]
-          _ = A ∩ (hC.level k ∩ ↑(hC.map (m + 1) j) '' sphere 0 1) := by
-            have : (m + 1 : ℕ∞) > (k : ℕ∞) := by norm_cast
-            have : hC.level k ∩ ↑(hC.map (m + 1) j) '' closedBall 0 1 = hC.level k ∩ ↑(hC.map (m + 1) j) '' sphere 0 1 := by
-              apply hC.level_inter_image_closedBall_eq_level_inter_image_sphere this
-            rw [this]
-          _ = A ∩ ↑(hC.map (m + 1) j) '' sphere 0 1 := by rw [← inter_assoc, Set.inter_eq_left.2 asublevel]
-      rw [this]
-      exact hC.isClosed_inter_sphere_succ_of_le_isClosed_inter_closedBall hm j
+      apply subset_trans asublevel
+      simp_rw [← level_top]
+      apply levelaux_mono _ le_top
+    have closediff := closed A this
+    refine ⟨fun _ _ _ ↦ by simp only [closediff.1], ?_⟩
+    intro h
+    simp only [Subtype.forall] at h
+    rw [closediff]
+    intro m
+    induction' m using Nat.case_strong_induction_on with m hm
+    · simp only [Matrix.empty_eq, nonempty_closedBall, zero_le_one, Nonempty.image_const]
+      exact fun j => IsClosed.inter_singleton
+    rw [← Nat.add_one]
+    intro j
+    by_cases mlt : m + 1 < n
+    · exact h (m + 1) j mlt
+    push_neg at mlt
+    rw [← ENat.coe_one, ← ENat.coe_add] at mlt
+    let k := ENat.toNat n
+    have coekn: k = n := ENat.coe_toNat (ne_top_of_le_ne_top (WithTop.natCast_ne_top (m + 1)) mlt)
+    rw [← coekn] at asublevel mlt
+    norm_cast at mlt
+    suffices IsClosed (A ∩ map (m + 1) j '' sphere 0 1) by
+      convert this using 1
+      calc
+        A ∩ map (m + 1) j '' closedBall 0 1 = A ∩ (levelaux C k ∩ map (m + 1) j '' closedBall 0 1) :=
+          by rw [← inter_assoc, Set.inter_eq_left.2 asublevel]
+        _ = A ∩ (levelaux C k ∩ map (m + 1) j '' sphere 0 1) := by
+          congrm A ∩ ?_
+          exact levelaux_inter_image_closedBall_eq_levelaux_inter_image_sphere _ (by norm_cast)
+        _ = A ∩ map (m + 1) j '' sphere 0 1 := by rw [← inter_assoc, Set.inter_eq_left.2 asublevel]
+    exact isClosed_inter_sphere_succ_of_le_isClosed_inter_closedBall _ hm j
   union := by
-    rw [CWComplex.level]
     apply Set.iUnion_congr
     intro m
     ext x
     constructor
-    · intro h
-      rw [mem_iUnion] at *
-      rcases h with ⟨⟨i, mlt⟩, hi⟩
+    · intro xmem
+      simp_rw [mem_iUnion] at xmem ⊢
+      rcases xmem with ⟨⟨i, mlt⟩, xmem⟩
       use mlt
-      rw [mem_iUnion]
       use i
-    · intro h
-      rw [mem_iUnion, exists_prop] at *
-      rw [mem_iUnion] at h
-      rcases h with ⟨mlt, ⟨i, hi⟩⟩
+    · intro xmem
+      simp_rw [mem_iUnion, exists_prop] at xmem ⊢
+      rcases xmem with ⟨mlt, ⟨i, hi⟩⟩
       use ⟨i, mlt⟩
 
+instance CWComplex_level (n : ℕ∞) : CWComplex (level C n) := CWComplex_levelaux _ _
 
-variable {D : Set X} (hD : CWComplex D)
+variable {D : Set X} [CWComplex D]
 
 instance CWComplex_disjointUnion (disjoint : Disjoint C D) : CWComplex (C ∪ D) where
-  cell n := Sum (hC.cell n) (hD.cell n)
-  map n i :=
-    match i with
-    | Sum.inl x => hC.map n x
-    | Sum.inr x => hD.map n x
+  cell n := Sum (cell C n) (cell D n)
+  map n i := match i with
+    | Sum.inl x => map n x
+    | Sum.inr x => map n x
   source_eq n i := by
     rcases i with i | i
-    · exact hC.source_eq n i
-    · exact hD.source_eq n i
+    · exact source_eq n i
+    · exact source_eq n i
   cont n i := by
     rcases i with i | i
-    · exact hC.cont n i
-    · exact hD.cont n i
+    · exact cont n i
+    · exact cont n i
   cont_symm n i := by
     rcases i with i | i
-    · exact hC.cont_symm n i
-    · exact hD.cont_symm n i
+    · exact cont_symm n i
+    · exact cont_symm n i
   pairwiseDisjoint := by
     rw [PairwiseDisjoint, Set.Pairwise]
     simp only [mem_univ, ne_eq, forall_true_left]
     intro ⟨n, cn⟩ ⟨m, cm⟩ ne
     rcases cn with cn | cn
     rcases cm with cm | cm
-    · have := hC.pairwiseDisjoint
+    · have := pairwiseDisjoint (C := C)
       simp only [PairwiseDisjoint, Set.Pairwise, mem_univ, ne_eq, forall_true_left] at this
-      have ne' : ¬({ fst := n, snd := cn } : (n : ℕ) × hC.cell n) = { fst := m, snd := cm } := by
+      have ne' : ¬({ fst := n, snd := cn } : (n : ℕ) × cell C n) = { fst := m, snd := cm } := by
         by_contra eq
         apply ne
         simp only [Sigma.mk.inj_iff] at *
@@ -154,14 +140,14 @@ instance CWComplex_disjointUnion (disjoint : Disjoint C D) : CWComplex (C ∪ D)
           rfl
       exact @this ⟨n, cn⟩ ⟨m, cm⟩ ne'
     · simp [Function.onFun]
-      exact Disjoint.mono (hC.map_ball_subset_complex n cn) (hD.map_ball_subset_complex m cm) disjoint
+      exact Disjoint.mono (map_ball_subset_complex _ n cn) (map_ball_subset_complex _ m cm) disjoint
     rcases cm with cm | cm
     · simp only [Function.onFun]
       rw [disjoint_comm] at disjoint
-      exact Disjoint.mono (hD.map_ball_subset_complex n cn) (hC.map_ball_subset_complex m cm) disjoint
-    · have := hD.pairwiseDisjoint
+      exact Disjoint.mono (map_ball_subset_complex _ n cn) (map_ball_subset_complex _ m cm) disjoint
+    · have := pairwiseDisjoint (C := D)
       simp only [PairwiseDisjoint, Set.Pairwise, mem_univ, ne_eq, forall_true_left] at this
-      have ne' : ¬({ fst := n, snd := cn } : (n : ℕ) × hD.cell n) = { fst := m, snd := cm } := by
+      have ne' : ¬({ fst := n, snd := cn } : (n : ℕ) × cell D n) = { fst := m, snd := cm } := by
         by_contra eq
         apply ne
         simp only [Sigma.mk.inj_iff] at *
@@ -175,9 +161,10 @@ instance CWComplex_disjointUnion (disjoint : Disjoint C D) : CWComplex (C ∪ D)
       exact @this ⟨n, cn⟩ ⟨m, cm⟩ ne'
   mapsto n i := by
     rcases i with ic | id
-    · rcases hC.mapsto n ic with ⟨I, hI⟩
+    · rcases mapsto n ic with ⟨I, hI⟩
       classical
-      let J : (m : ℕ) → Finset (hC.cell m ⊕ hD.cell m) := fun (m : ℕ) ↦ Finset.image (fun j ↦ .inl j) (I m)
+      let J : (m : ℕ) → Finset (cell C m ⊕ cell D m) :=
+        fun (m : ℕ) ↦ Finset.image (fun j ↦ .inl j) (I m)
       use J
       rw [mapsTo'] at *
       simp only [J]
@@ -189,9 +176,10 @@ instance CWComplex_disjointUnion (disjoint : Disjoint C D) : CWComplex (C ∪ D)
       simp only [iltn, exists_exists_and_eq_and, true_and]
       use .inl j
       simp only [Finset.mem_image, Sum.inl.injEq, exists_eq_right, jmem, true_and, xmem]
-    · rcases hD.mapsto n id with ⟨I, hI⟩
+    · rcases mapsto n id with ⟨I, hI⟩
       classical
-      let J : (m : ℕ) → Finset (hC.cell m ⊕ hD.cell m) := fun (m : ℕ) ↦ Finset.image (fun j ↦ .inr j) (I m)
+      let J : (m : ℕ) → Finset (cell C m ⊕ cell D m) :=
+        fun (m : ℕ) ↦ Finset.image (fun j ↦ .inr j) (I m)
       use J
       rw [mapsTo'] at *
       simp only [J]
@@ -209,8 +197,8 @@ instance CWComplex_disjointUnion (disjoint : Disjoint C D) : CWComplex (C ∪ D)
     · intro closedA n j
       apply IsClosed.inter closedA
       rcases j with j | j
-      · exact hC.isClosed_map_closedBall n j
-      · exact hD.isClosed_map_closedBall n j
+      · exact isClosed_map_closedBall _ n j
+      · exact isClosed_map_closedBall _ n j
     · intro h
       have : A = (A ∩ C) ∪ (A ∩ D) := by
         calc
@@ -224,20 +212,20 @@ instance CWComplex_disjointUnion (disjoint : Disjoint C D) : CWComplex (C ∪ D)
         _ = (A ∩ C) ∪ (A ∩ D) := by rw [inter_union_distrib_right]
       rw [this]
       apply IsClosed.union
-      · rw [hC.closed (A ∩ C) inter_subset_right]
+      · rw [closed (A ∩ C) inter_subset_right]
         intro n j
         have := h n (Sum.inl j)
         simp at this
         rw [inter_right_comm]
-        apply IsClosed.inter this hC.isClosed
-      · rw [hD.closed (A ∩ D) inter_subset_right]
+        apply IsClosed.inter this (isClosed C)
+      · rw [closed (A ∩ D) inter_subset_right]
         intro n j
         have := h n (Sum.inr j)
         simp at this
         rw [inter_right_comm]
-        apply IsClosed.inter this hD.isClosed
+        apply IsClosed.inter this (isClosed D)
   union := by
-    simp_rw [← hC.union, ← hD.union, ← Set.iUnion_union_distrib]
+    simp_rw [← union (C := C), ← union (C := D), ← Set.iUnion_union_distrib]
     apply Set.iUnion_congr
     intro n
     ext x

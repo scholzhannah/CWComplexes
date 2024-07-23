@@ -56,12 +56,14 @@ lemma kification_le {X : Type*} [t : TopologicalSpace X] : (instkification : Top
   use ⟨A, OpenA⟩
   simp only [TopologicalSpace.Opens.coe_mk]
 
-lemma kification.closed_iff {X : Type*} [t : TopologicalSpace X] {A : Set X} : @IsClosed (kification X) _ A ↔ ∀ (B : t.Compacts), ∃ (C: t.Closeds), A ∩ B.1 = C.1 ∩ B.1 := by
+lemma kification.closed_iff {X : Type*} [t : TopologicalSpace X] {A : Set X} :
+    IsClosed (X := kification X) A ↔ ∀ (B : t.Compacts), ∃ (C: t.Closeds), A ∩ B.1 = C.1 ∩ B.1 := by
   calc
-    @IsClosed (kification X) _ A ↔ @IsOpen (kification X) _ Aᶜ := (@isOpen_compl_iff (kification X) A _).symm
-    _ ↔ ∀ (B : t.Compacts), ∃ (C: t.Opens), Aᶜ ∩ B.1 = C.1 ∩ B.1 := by simp only [IsOpen,
-      instkification, TopologicalSpace.Compacts.carrier_eq_coe,
-      TopologicalSpace.Opens.carrier_eq_coe]
+    IsClosed (X := kification X) A ↔ IsOpen (X := kification X) Aᶜ :=
+      (@isOpen_compl_iff (kification X) A _).symm
+    _ ↔ ∀ (B : t.Compacts), ∃ (C: t.Opens), Aᶜ ∩ B.1 = C.1 ∩ B.1 := by
+      simp only [IsOpen, instkification, TopologicalSpace.Compacts.carrier_eq_coe,
+        TopologicalSpace.Opens.carrier_eq_coe]
     _ ↔ ∀ (B : t.Compacts), ∃ (C: t.Closeds), A ∩ B.1 = C.1 ∩ B.1 := by
       constructor
       · intro h B
@@ -93,40 +95,73 @@ lemma from_kification_continuouson_of_continuouson {X Y : Type*} [tX : Topologic
   exact ⟨(TopologicalSpace.le_def.1 kification_le) u openu, usub⟩
 
 -- proof from Munkres, James Raymond. Topology. 2. ed., Pearson new internat. ed. Harlow: Pearson, 2014. Print. Lemma 46.3
-lemma kification_eq_self_of_WeaklyLocallyCompactSpace {X : Type*} [t : TopologicalSpace X] [WeaklyLocallyCompactSpace X] : instkification = t := by
-  apply le_antisymm
-  · exact kification_le
-  · intro A hA
-    unfold IsOpen instkification at hA
-    simp only [TopologicalSpace.Compacts.carrier_eq_coe, TopologicalSpace.Opens.carrier_eq_coe] at hA
-    simp only [kification]
-    rw [@isOpen_iff_mem_nhds X A t]
-    intro x xmemA
-    rcases WeaklyLocallyCompactSpace.exists_compact_mem_nhds x with ⟨C, compact, Cnhds⟩
-    rw [@mem_nhds_iff X x _ t] at Cnhds ⊢
-    rcases Cnhds with ⟨U, Usub, openU, xmemU⟩
-    use A ∩ U
-    refine ⟨Set.inter_subset_left, ?_, ⟨xmemA, xmemU⟩⟩
-    rcases hA ⟨C, compact⟩ with ⟨⟨V, openV⟩, hV⟩
-    simp only [TopologicalSpace.Compacts.coe_mk, TopologicalSpace.Opens.coe_mk] at hV
-    rw [← Set.inter_eq_right.2 Usub, ← Set.inter_assoc, hV, Set.inter_assoc, Set.inter_eq_right.2 Usub]
-    exact IsOpen.inter openV openU
+lemma kification_eq_self_of_WeaklyLocallyCompactSpace {X : Type*} [t : TopologicalSpace X]
+    [WeaklyLocallyCompactSpace X] : instkification = t := by
+  apply le_antisymm kification_le
+  intro A hA
+  unfold IsOpen instkification at hA
+  simp only [TopologicalSpace.Compacts.carrier_eq_coe, TopologicalSpace.Opens.carrier_eq_coe] at hA
+  simp only [kification]
+  rw [@isOpen_iff_mem_nhds X A t]
+  intro x xmemA
+  rcases WeaklyLocallyCompactSpace.exists_compact_mem_nhds x with ⟨C, compact, Cnhds⟩
+  rw [@mem_nhds_iff X x _ t] at Cnhds ⊢
+  rcases Cnhds with ⟨U, Usub, openU, xmemU⟩
+  use A ∩ U
+  refine ⟨Set.inter_subset_left, ?_, ⟨xmemA, xmemU⟩⟩
+  rcases hA ⟨C, compact⟩ with ⟨⟨V, openV⟩, hV⟩
+  simp only [TopologicalSpace.Compacts.coe_mk, TopologicalSpace.Opens.coe_mk] at hV
+  rw [← Set.inter_eq_right.2 Usub, ← Set.inter_assoc, hV, Set.inter_assoc, Set.inter_eq_right.2 Usub]
+  exact IsOpen.inter openV openU
 
-lemma continuous_compact_to_kification {X Y : Type*} [tX : TopologicalSpace X] [tY : TopologicalSpace Y] (compact : CompactSpace X)
-(f: X → Y) (cont : Continuous f) : @Continuous X Y tX instkification f := by
-  rw [@continuous_iff_isClosed _ _ _ instkification]
+-- proof from https://math.stackexchange.com/questions/2026072/a-first-countable-hausdorff-space-is-compactly-generated
+lemma kification_eq_self_of_SequentialSpace {X : Type*} [t : TopologicalSpace X] [SequentialSpace X]:
+    instkification = t := by
+  apply le_antisymm kification_le
+  rw [TopologicalSpace.le_iff_IsClosed]
+  intro A hA
+  rw [kification.closed_iff] at hA
+  rw [← isSeqClosed_iff_isClosed]
+  by_contra h
+  unfold IsSeqClosed at h
+  push_neg at h
+  rcases h with ⟨x, p, hxA, hfilter, pA⟩
+  have := Filter.Tendsto.isCompact_insert_range hfilter
+  rcases hA ⟨insert p (Set.range x), this⟩ with ⟨C, hC⟩
+  rw [Set.inter_insert_of_not_mem pA, Set.inter_eq_right.2 (Set.range_subset_iff.2 hxA)] at hC
+  have : ¬ IsClosed (Set.range x) := by
+    rw [← isSeqClosed_iff_isClosed, IsSeqClosed]
+    push_neg
+    use x, p
+    refine ⟨fun _ ↦ by simp only [Set.mem_range, exists_apply_eq_apply], hfilter, ?_⟩
+    intro mem
+    apply pA
+    exact Set.range_subset_iff.2 hxA mem
+  apply this
+  rw [hC]
+  apply IsClosed.inter C.closed'
+  rw [← isSeqClosed_iff_isClosed]
+  unfold IsSeqClosed --add a lemma about a sequence together with its limit being sequentially closed
+  sorry
+
+lemma continuous_compact_to_kification {X Y : Type*} [tX : TopologicalSpace X]
+    [tY : TopologicalSpace Y] [CompactSpace X] (f : X → Y) (cont : Continuous f) :
+    Continuous (Y := kification Y) f := by
+  simp_rw [continuous_iff_isClosed]
   intro s closeds
-  rw [@kification.closed_iff _ tY _] at closeds
+  simp_rw [kification.closed_iff, kification] at closeds
   rcases closeds ⟨Set.range f, isCompact_range cont⟩ with ⟨u, hu⟩
-  have : f ⁻¹' s = f ⁻¹' (s ∩ Set.range f) := by
-    rw [Set.preimage_inter, Set.preimage_range, Set.inter_univ]
-  rw [this, hu, Set.preimage_inter, Set.preimage_range, Set.inter_univ]
+  suffices IsClosed (f ⁻¹' (s ∩ Set.range f)) by
+    simpa only [Set.preimage_inter, Set.preimage_range, Set.inter_univ]
+  rw [hu, Set.preimage_inter, Set.preimage_range, Set.inter_univ]
   exact IsClosed.preimage cont u.2
 
-lemma continuousOn_compact_to_kification {X Y : Type*} [tX : TopologicalSpace X] [tY : TopologicalSpace Y] {A : Set X} (compact : IsCompact A)
-(f : X → Y) (conton : ContinuousOn f A) : @ContinuousOn _ _ _ instkification f A := by
+lemma continuousOn_compact_to_kification {X Y : Type*} [tX : TopologicalSpace X]
+    [tY : TopologicalSpace Y] {A : Set X} (compact : IsCompact A)
+    (f : X → Y) (conton : ContinuousOn f A) : @ContinuousOn _ _ _ instkification f A := by
   rw [continuousOn_iff_continuous_restrict] at conton ⊢
-  exact continuous_compact_to_kification (isCompact_iff_compactSpace.1 compact) (A.restrict f) conton
+  have _ := isCompact_iff_compactSpace.1 compact
+  exact continuous_compact_to_kification (A.restrict f) conton
 
 -- proof from Munkres, James Raymond. Topology. 2. ed., Pearson new internat. ed. Harlow: Pearson, 2014. Print. Lemma 46.4
 lemma continuous_kification_of_continuousOn_compact {X Y : Type*} [tX : TopologicalSpace X] [tY : TopologicalSpace Y] (f : X → Y)

@@ -10,7 +10,7 @@ namespace CWComplex
 
 variable {X : Type*} [t : TopologicalSpace X]
 
-instance instCWComplexempty:  CWComplex (∅ : Set X) where
+instance instCWComplexempty : CWComplex (∅ : Set X) where
   cell n := PEmpty
   map n i := by contradiction
   source_eq n i := by contradiction
@@ -97,3 +97,20 @@ instance instCWComplexsingleton (x : X) : CWComplex {x} where
       use 0, default
       simp only [PartialEquiv.const, Function.const_apply, Matrix.zero_empty, nonempty_closedBall,
         zero_le_one, Nonempty.image_const, mem_singleton_iff]
+
+instance instCWComplexinterval (a b : ℝ) :
+    CWComplex (Set.Icc a b) where
+
+  cell :=
+    fun n ↦ match n with
+      | 0 => Fin 2
+      | 1 => Fin 1
+      | (m + 2) => Empty
+  map := sorry
+  source_eq := sorry
+  cont := sorry
+  cont_symm := sorry
+  pairwiseDisjoint := sorry
+  mapsto := sorry
+  closed := sorry
+  union := sorry
