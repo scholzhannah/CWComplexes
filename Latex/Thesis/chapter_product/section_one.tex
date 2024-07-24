@@ -1,10 +1,96 @@
 \section{K-spaces and the k-ification}
 
+Before we can move on to discuss the product of CW-complexes we need to discuss its topology.
+Therefore we will study k-spaces and the k-ification in this section.
+
+A k-space or also called a compactly generated space is defined for our purposes as follows. 
+Note that we mean quasi-compactness when talking about compactness.
+
+\begin{defi}
+    Let $X$ be a topological space. 
+    We call $X$ a k-space if 
+    \[A \subseteq X \text{ is open } \iff \text{for all compact sets } C \subseteq X \text{ the intersection } A \cap C \text{ is open in } C.\]
+\end{defi}
+
+There are a lot of different definitions in the literature. 
+The most popular ones all agree on Hausdorff spaces. 
+An overview of these different notions can be found on Wikipedia \cite{Wikipedia2024}.
+
+It will also be helpful to characterise closed sets in the same way as the open sets: 
+
 \begin{lem}
+    Let $X$ be a k-space. 
+    Then 
+    \[A \subseteq X \text{ is closed } \iff \text{for all compact sets } C \subseteq X \text{ the intersection } A \cap C \text{ is closed in } C.\]
+\end{lem}
+\begin{proof}
+    The forward direction is trivial. 
+    So let $A \subseteq X$ be a set such that for all compact sets $C \subseteq X$ the intersection $A \cap C$ is closed in $C$. 
+    It is enough to show that $\compl{A}$ is open. 
+    By definition of the k-space that is the case if for every compact set $C \subseteq X$ the intersection $\compl{A} \cap C$ is open in $C$. 
+    Take any compact $C \subseteq X$.
+    By assumption $A \cap C$ is closed in $C$.
+    Since $A \cap C$ is the complement of $\compl{A} \cap C$ in $C$, this immediately gives us that $\compl{A} \cap C$ is open in $C$.
+\end{proof}
+
+We also define a way to make any topological space into a k-space which we call the k-ification: 
+
+\begin{defi}
+    Let $X$ be a topological space. 
+    We can define another topological space $X_c$ on the same set by setting
+    \[A \subseteq X_c \text{ is open } \iff \text{for all compact sets } C \subseteq X \text{ the intersection } A \cap C \text{ is open in } C.\]
+\end{defi}
+
+It is easy to see that this gives us a finer topology: 
+
+\begin{lem}\label{lem:finertopology}
+    $A \subseteq X$ is open $\implies A \subseteq X_c$ is open.
+\end{lem}
+
+To show that the k-ification actually fulfils its purpose of turning any space into a k-space, we first need the following lemma:
+
+\begin{lem}\label{lem:compactiffcompact}
+    $A \subseteq X$ is compact $\iff A \subseteq X_c$ is compact.
+\end{lem}
+\begin{proof}
+    For the backward direction notice that \ref{lem:finertopology} is another way of stating that the map $\id \colon X_c \to X$ is continuous. 
+    As the image of a compact set under a continuous map that makes $A \subseteq X$ compact. 
+
+    For the forward direction take $A \subseteq X$ compact. 
+    To show that $A \subseteq X_c$ is compact, take an open cover $(U_i)_{i \in \iota}$ of $A$ in $X_c$. 
+    For every $i \in \iota$ there is by definition of the k-ification an open set $V_i \subseteq X$ such that $V_i \cap A = U_i \cap A$.  
+    $(V_i)_{i \in \iota}$ is an (open) cover of $A$ in $X$: 
+    \[A = A \cap \bigcup_{i \in \iota} U_i = \bigcup_{i \in \iota} (A \cap U_i) = \bigcup_{i \in \iota} (A \cap V_i) = A \cap \bigcup_{i \in \iota} V_i \subseteq \bigcup_{i \in \iota} V_i.\]
+    Thus there is a finite subcover $(V_i)_{i \in \iota'}$ of $A$ in $X$.
+    $(U_i)_{i \in \iota'}$ is now a finite subcover of $A$ in $X_c$: 
+    \[A = A \cap \bigcup_{i \in \iota'} V_i = \bigcup_{i \in \iota'} (A \cap V_i) = \bigcup_{i \in \iota'} (A \cap U_i) = A \cap \bigcup_{i \in \iota'} U_i \subseteq \bigcup_{i \in \iota'} U_i.\]
+\end{proof}
+
+Now we are ready to move on to the promised lemma:
+
+\begin{lem}
+    $X_c$ is a k-space for every topological space $X$.
+\end{lem}
+\begin{proof}
+    We need to show that a set $A \subseteq X_c$ is open iff $A \cap C$ is open in $C$ for every compact set $C \subseteq X_c$. The forward direction is again trivial. 
+    
+    For the backward direction take a set $A \subseteq X_c$ such that for every compact set $C \subseteq X_c$ the intersection $A \cap C$ is open in $C$. 
+    By the definition of the k-ification it is enough to show that for every compact set $C \subseteq X$ the intersection $A \cap C$ is open in $C$. So let $C \subseteq X$ be a compact set. 
+    By \ref{lem:compactiffcompact} $C$ is also compact in $X$.
+    By assumption this means that $A \cap C$ is open in $C \subseteq X_c$ (in the subspace topology of the k-ification). Thus there is an open set $B \subset X_c$ such that $A \cap C = B \cap C$. 
+    By the definition of the k-ification $B \cap C$ is open in $C \subseteq X$. 
+    That means there is an open set $E \subseteq X$ such that $B \cap C = E \cap C$. 
+    But that now gives us $A \cap C = B \cap C = E \cap C$ with which we can conclude that $A \cap C$ is open in $C \subseteq X$ (in the subspace topology of the original topology of X).
+\end{proof}
+
+\begin{lem}\label{lem:kificationkspace}
     Let $X$ be a k-space.
     Then the topologies of $X$ and $X_c$ coincide.
 \end{lem}
 
+\begin{cor}
+    The k-ification is idempotent.
+\end{cor}
 \begin{lem}
     Let $X$ be an anti-compact T$_1$ space.
     Then $X_c$ has discrete topology.
@@ -22,3 +108,6 @@
     Let $X$ be a non-discrete anti-compact T$_1$ space. 
     Then $X$ is not a k-space.
 \end{cor}
+\begin{proof}
+    This follows easily from the previous lemma and \ref{lem:kificationkspace}.
+\end{proof}
