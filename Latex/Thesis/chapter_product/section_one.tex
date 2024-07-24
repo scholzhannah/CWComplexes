@@ -9,7 +9,7 @@ Note that we mean quasi-compactness when talking about compactness.
 \begin{defi}
     Let $X$ be a topological space. 
     We call $X$ a k-space if 
-    \[A \subseteq X \text{ is open } \iff \text{for all compact sets } C \subseteq X \text{ the intersection } A \cap C \text{ is open in } C.\]
+    \[A \subseteq X \text{ is open} \iff \text{for all compact sets } C \subseteq X \text{ the intersection } A \cap C \text{ is open in } C.\]
 \end{defi}
 
 There are a lot of different definitions in the literature. 
@@ -18,10 +18,10 @@ An overview of these different notions can be found on Wikipedia \cite{Wikipedia
 
 It will also be helpful to characterise closed sets in the same way as the open sets: 
 
-\begin{lem}
+\begin{lem}\label{lem:closediffinkspace}
     Let $X$ be a k-space. 
     Then 
-    \[A \subseteq X \text{ is closed } \iff \text{for all compact sets } C \subseteq X \text{ the intersection } A \cap C \text{ is closed in } C.\]
+    \[A \subseteq X \text{ is closed} \iff \text{for all compact sets } C \subseteq X \text{ the intersection } A \cap C \text{ is closed in } C.\]
 \end{lem}
 \begin{proof}
     The forward direction is trivial. 
@@ -38,7 +38,8 @@ We also define a way to make any topological space into a k-space which we call 
 \begin{defi}
     Let $X$ be a topological space. 
     We can define another topological space $X_c$ on the same set by setting
-    \[A \subseteq X_c \text{ is open } \iff \text{for all compact sets } C \subseteq X \text{ the intersection } A \cap C \text{ is open in } C.\]
+    \[A \subseteq X_c \text{ is open} \iff \text{for all compact sets } C \subseteq X \text{ the intersection } A \cap C \text{ is open in } C.\]
+    We call $X_c$ the k-ification of $X$.
 \end{defi}
 
 It is easy to see that this gives us a finer topology: 
@@ -47,14 +48,23 @@ It is easy to see that this gives us a finer topology:
     $A \subseteq X$ is open $\implies A \subseteq X_c$ is open.
 \end{lem}
 
+Again it it useful to characterise the closed sets in the k-ification: 
+
+\begin{lem}
+    $A \subseteq X_c$ is closed $\iff A \cap C$ is closed in $C$ for all compact sets $C \subseteq X$.
+\end{lem}
+\begin{proof}
+    Completely analogue to the proof of lemma \ref{lem:closediffinkspace}.
+\end{proof}
+
 To show that the k-ification actually fulfils its purpose of turning any space into a k-space, we first need the following lemma:
 
 \begin{lem}\label{lem:compactiffcompact}
     $A \subseteq X$ is compact $\iff A \subseteq X_c$ is compact.
 \end{lem}
 \begin{proof}
-    For the backward direction notice that \ref{lem:finertopology} is another way of stating that the map $\id \colon X_c \to X$ is continuous. 
-    As the image of a compact set under a continuous map that makes $A \subseteq X$ compact. 
+    For the backward direction notice that lemma \ref{lem:finertopology} is another way of stating that the map $\id \colon X_c \to X$ is continuous. 
+    As the image of a compact set under a continuous map, that makes $A \subseteq X$ compact. 
 
     For the forward direction take $A \subseteq X$ compact. 
     To show that $A \subseteq X_c$ is compact, take an open cover $(U_i)_{i \in \iota}$ of $A$ in $X_c$. 
@@ -83,14 +93,38 @@ Now we are ready to move on to the promised lemma:
     But that now gives us $A \cap C = B \cap C = E \cap C$ with which we can conclude that $A \cap C$ is open in $C \subseteq X$ (in the subspace topology of the original topology of X).
 \end{proof}
 
+If we already have a k-space, then the k-ification just maintains the topology of our space:
+
 \begin{lem}\label{lem:kificationkspace}
     Let $X$ be a k-space.
     Then the topologies of $X$ and $X_c$ coincide.
 \end{lem}
+\begin{proof}
+    Notice that the characterisation of open sets in $X$ and $X_c$ respectively agree in this setting.
+\end{proof}
 
 \begin{cor}
     The k-ification is idempotent.
 \end{cor}
+
+Now we will characterise continuous maps to and from the k-ification. 
+Going from the k-ification is not a big issue: 
+
+\begin{lem}
+    Let $f \colon X \to Y$ be a continuous map of topological spaces.
+    Then $f \colon X_c \to Y$ is continuous.
+\end{lem}
+\begin{proof}
+    This follows easily from lemma \ref{lem:finertopology}.
+\end{proof}
+
+A more interesting question is when a map to the k-ification is continuous. The following lemma is the first step towards the answer:
+
+\begin{lem}
+    Let $X$ be a compact space and $f \colon X \to Y$ be a continuous map. 
+    Then $f \colon X \to Y_c$ is continuous.
+\end{lem}
+
 \begin{lem}
     Let $X$ be an anti-compact T$_1$ space.
     Then $X_c$ has discrete topology.
@@ -105,9 +139,9 @@ Now we are ready to move on to the promised lemma:
 \end{proof}
 
 \begin{cor}
-    Let $X$ be a non-discrete anti-compact T$_1$ space. 
+    Let $X$ be a non-discrete anti-compact T$_1$ space.
     Then $X$ is not a k-space.
 \end{cor}
 \begin{proof}
-    This follows easily from the previous lemma and \ref{lem:kificationkspace}.
+    This follows easily from the previous lemma and lemma \ref{lem:kificationkspace}.
 \end{proof}
