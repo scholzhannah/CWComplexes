@@ -16,16 +16,17 @@ There are a lot of different definitions in the literature.
 The most popular ones all agree on Hausdorff spaces. 
 An overview of these different notions can be found on Wikipedia \cite{Wikipedia2024}.
 
-It will also be helpful to characterise closed sets in the same way as the open sets: 
+It will also be helpful to characterise k-spaces via closed sets: 
 
 \begin{lem}\label{lem:closediffinkspace}
-    Let $X$ be a k-space. 
-    Then 
+    Let $X$ be a topological space.
+    $X$ is a k-space iff  
     \[A \subseteq X \text{ is closed} \iff \text{for all compact sets } C \subseteq X \text{ the intersection } A \cap C \text{ is closed in } C.\]
 \end{lem}
 \begin{proof}
-    The forward direction is trivial. 
-    So let $A \subseteq X$ be a set such that for all compact sets $C \subseteq X$ the intersection $A \cap C$ is closed in $C$. 
+    We only show that forward direction as the backward direction follows in the same way.
+    Of the equivalence that we now need to show the forward direction is trivial.
+    Thus let $A \subseteq X$ be a set such that for all compact sets $C \subseteq X$ the intersection $A \cap C$ is closed in $C$. 
     It is enough to show that $\compl{A}$ is open. 
     By definition of the k-space that is the case if for every compact set $C \subseteq X$ the intersection $\compl{A} \cap C$ is open in $C$. 
     Take any compact $C \subseteq X$.
@@ -50,7 +51,7 @@ It is easy to see that this gives us a finer topology:
 
 Again it it useful to characterise the closed sets in the k-ification: 
 
-\begin{lem}
+\begin{lem}\label{lem:closediffinkification}
     $A \subseteq X_c$ is closed $\iff A \cap C$ is closed in $C$ for all compact sets $C \subseteq X$.
 \end{lem}
 \begin{proof}
@@ -118,12 +119,153 @@ Going from the k-ification is not a big issue:
     This follows easily from lemma \ref{lem:finertopology}.
 \end{proof}
 
-A more interesting question is when a map to the k-ification is continuous. The following lemma is the first step towards the answer:
+More interesting questions are when a map to the k-ification or a map from a k-ification to a k-ification is continuous. 
+The following two lemmas and proofs that answer these questions are based on lemma 46.4 of \cite{Munkres2014}.
+The next lemma is the first step towards the answer:
 
 \begin{lem}
     Let $X$ be a compact space and $f \colon X \to Y$ be a continuous map. 
     Then $f \colon X \to Y_c$ is continuous.
 \end{lem}
+\begin{proof}
+    We want to show that for every closed $A \subseteq Y_c$ the preimage $\preim{f}{A}$ is closed in $X$.
+    Take any closed set $A \subseteq Y_c$. 
+    We know by lemma \ref{lem:closediffinkification} that $A \cap C$ is closed in $C$ for every compact $C \subseteq Y$.
+    As the image of a compact set $f(X)$ is compact. 
+    Thus $A \cap f(X)$ is closed in $f(X) \subseteq Y$. 
+    By the definition of the subspace topology there is a closed set $B \subseteq Y$ such that $A \cap f(X) = B \cap f(x)$. 
+    Now we have 
+    \[\preim{f}{A} = \preim{f}{A \cap f(X)} = \preim{f}{B \cap f(X)} = \preim{f}{B}\]
+    which is closed as the preimage of a closed set under a continuous map.
+\end{proof}
+
+Now this helps us get the following lemma:
+
+\begin{lem}
+    Let $f \colon X \to Y$ be a map of topological spaces such that for every compact $C \subseteq X$ the restriction $\restrict{f}{C} \colon C \to Y$ is continuous.
+    Then $f \colon X_c \to Y_c$ is continuous.
+\end{lem}
+\begin{proof}
+    The last lemma together with our assumption tells us that for every compact $C \subseteq X$ the restriction $\restrict{f}{C} \colon C \to Y_c$ is continuous.
+    To show the claim take any open $A \subseteq Y_c$.
+    We need to show that $\preim{f}{A} \subseteq X_c$ is open. 
+    By definition of the k-ification this set is open if for all compact sets $C \subseteq X$ the intersection $\preim{f}{A} \cap C$ is open in $C$. 
+    Take any compact set $C \subseteq X$. 
+    As noted above we now know that $\restrict{f}{C} \colon C \to Y_c$ is continuous.
+    Or in other words we know that for every open $B \subseteq Y_c$ there is an open set $E \subseteq X$ such that $\preim{f}{B} \cap C = E \cap C$.
+    Applying this to the set $A \subseteq Y_c$ gives us an open set $E \subseteq X$ such that $\preim{f}{A} \cap C = E \cap C$.
+    But that is just another way of stating that $\preim{f}{A}$ is open in $C \subseteq X$.
+\end{proof}
+
+That yields the following corollary: 
+
+\begin{cor}
+    Let $f \colon X \to Y$ be a continuous map of topological spaces.
+    Then $f \colon X_c \to Y_c$ is continuous.
+\end{cor}
+\begin{proof}
+    This situation trivially fulfils the conditions of the previous lemma.
+\end{proof}
+
+If you look at the discussion of the product of CW-complexes in some topology books, for example \cite{Hatcher2001} and \cite{Lück2005}, you will notice that the k-ification rarely gets discussed in detail. 
+One possible reason for this is that most common spaces that you encounter are already k-spaces.
+Lemma \ref{lem:kificationkspace} then allows you to ignore the k-ification entirely. 
+We will therefore discuss in the remainder of this section which spaces are k-spaces and which are not.
+The first example are weakly locally compact spaces.
+
+\begin{defi}
+    Let $X$ be a topological space.
+    We call $X$ weakly locally compact if every point $x \in X$ has some compact neighbourhood.
+\end{defi}
+
+This property is in some sources just called locally compact.
+The following proof is from Lemma 46.3 in \cite{Munkres2014}.
+
+\begin{lem}
+    Weakly locally compact spaces are k-spaces.
+\end{lem}
+\begin{proof}
+    Let $X$ be a weakly locally compact space. 
+    Let $A \subseteq X$.
+    We need to show that $A$ is open iff $A \cap C$ is open in $C$ for every compact set $C$.
+    The forward direction is trivial. 
+    So assume that that for every compact set $C$ the intersection $A \cap C$ is open in $C$.
+    $A$ is open if it is a neighbourhood of every point $x \in A$.
+    So fix any $x \in A$.
+    Since $X$ is weakly locally compact, $x$ has a compact neighbourhood $C$.
+    By definition of neighbourhoods there is an open set $U \subseteq C$ such that $x \in U$ and we need to find an open set $V \subseteq A$ such that $x \in V$.
+    We show that $A \cap U$ fulfils these conditions. 
+    It is obvious that $A \cap U \subseteq A$ and $x \in A \cap U$. 
+    So it is left to show that $A \cap U$ is open.
+    By assumption $A \cap C$ is open in $C$. 
+    That means that there is an open set $B$ such that $A \cap C = B \cap C$. 
+    This now gives us 
+    \[A \cap U = A \cap C \cap U = B \cap C \cap U = B \cap U\]
+    which is open as the intersection of two open sets. 
+\end{proof}
+
+Another big class of spaces which are k-spaces are sequential spaces. 
+
+\begin{defi}
+    A set $A$ in a topological space $X$ is sequentially closed if for every convergent sequence contained in $A$ its limit point is also in $A$. 
+    The sequential closure of a set $A$ in $X$ is defined as $\seqclosure{A} = \{ x \in X \mid \text{there is a sequence } (a_n)_{n \in \bN} \subseteq A \text{ such that} (a_n)_{n \in \bN} \text{ converges to } x\}$.
+    A sequential space is a space in which all sequentially closed sets are closed.
+\end{defi}
+
+We will need the following characterisation of sequentially closed sets: 
+
+\begin{lem}
+    A set $A \subseteq X$ is sequentially closed iff $A = \seqclosure{A}$.
+\end{lem}
+\begin{proof}
+    This is easy to see from the definitions.
+\end{proof}
+
+The following proof is based on \cite{Scott2016} and Lemma 46.3 in \cite{Munkres2014}. 
+
+\begin{lem}
+    Sequential Spaces are k-spaces.
+\end{lem}
+\begin{proof}
+    Let $X$ be a Sequential Space. 
+    By lemma \ref{lem:closediffinkspace} it is enough to show that 
+    \[A \subseteq X \text{ is closed} \iff \text{for all compact sets } C \subseteq X \text{ the intersection } A \cap C \text{ is closed in } C.\]
+    The forward direction is trivial.
+    Let $A$ be a set such that $A \cap C$ is closed in $C$ for every compact set $C$. 
+    Since $X$ is a sequential space it is enough to show that $A$ is sequentially closed or by the previous lemma $A  = \seqclosure{A}$.
+    The inclusion $A \subseteq \seqclosure{A}$ is obvious. 
+    For the backward inclusion take $x \in \seqclosure{A}$. 
+    We need to show that $x \in A$.
+    By definition there is a sequence $(a_n)_{n \in \bN} \subseteq A$ that converges to $x$. 
+    It is well known (and can be shown directly from the definition of compactness) that the set $\{a_n \mid n \in \bN\} \cup {x}$ is compact as the set of terms of a sequence together with the limit point of that sequence.
+    By assumption that gives us that $A \cap (\{a_n \mid n \in \bN\} \cup {x})$ is closed in $\{a_n \mid n \in \bN\} \cup {x}$. 
+    In other words there is a closed set $B$ such that 
+    \[A \cap (\{a_n \mid n \in \bN\} \cup {x}) = B \cap (\{a_n \mid n \in \bN\} \cup {x}).\]
+    With that we get
+    \[x \in A \iff x \in A \cap (\{a_n \mid n \in \bN\} \cup {x}) = B \cap (\{a_n \mid n \in \bN\} \cup {x}) \iff x \in B\]
+    and for all $n \in \bN$ we get $a_n \in B$ in the exact same way. 
+    Thus $(a_n)_{n \in \bN} \subseteq B$.
+    Since $B$ is in particular sequentially closed this gives us $x \in B$ which is enough by the above equivalence.
+\end{proof}
+
+In particular sequential spaces include metric spaces: 
+
+\begin{lem}
+    Metric spaces are sequential spaces.
+\end{lem}
+\begin{proof}
+    Let $X$ be a metric space and $A$ be a sequentially closed set. 
+    We need to show that that $A$ is closed which is equivalent to $\compl{A}$ being open.
+    Assume towards a contradiction that $\compl{A}$ is not open. 
+    Then there is a point $x \in \compl{A}$ such that for every $n \in \bN$ the open ball $\oball{1/n}{x}$ contains a point $x_n \in A$. 
+    But then we have a sequence $(x_n)_{n \in \bN} \subseteq A$ that converges to $x \in \compl{A}$. Thus $A$ is not sequentially closed. Contradiction. 
+\end{proof}
+
+\begin{cor}
+    Metric spaces are k-spaces.
+\end{cor}
+
+Lastly we will discuss spaces that are not k-spaces:
 
 \begin{lem}
     Let $X$ be an anti-compact T$_1$ space.
@@ -145,3 +287,12 @@ A more interesting question is when a map to the k-ification is continuous. The 
 \begin{proof}
     This follows easily from the previous lemma and lemma \ref{lem:kificationkspace}.
 \end{proof}
+
+That leads us to our first concrete example of a space that is not a k-space: 
+
+\begin{example}
+    Let $X$ be an uncountable set. 
+    Equip $X$ with the cocountable topology, i.e. a set $A \subseteq X$ is open iff ...
+\end{example}
+
+Other examples can be found on $\pi$-base \cite{PiBase2024}.

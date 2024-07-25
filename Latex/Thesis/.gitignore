@@ -24,6 +24,7 @@
 *-blx.aux
 *-blx.bib
 *.run.xml
+*.bbl-SAVE-ERROR
 
 # nomencl
 *.nlg
