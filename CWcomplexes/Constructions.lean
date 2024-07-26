@@ -62,7 +62,7 @@ instance CWComplex_levelaux (n : ℕ∞) : CWComplex (levelaux C n) where
     intro m
     induction' m using Nat.case_strong_induction_on with m hm
     · simp only [Matrix.empty_eq, nonempty_closedBall, zero_le_one, Nonempty.image_const]
-      exact fun j => IsClosed.inter_singleton
+      exact fun _ ↦ isClosed_inter_singleton
     rw [← Nat.add_one]
     intro j
     by_cases mlt : m + 1 < n

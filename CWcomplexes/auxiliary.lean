@@ -24,13 +24,12 @@ lemma ENat.exists_eq_add_one_of_ne_zero {n : ℕ∞} (nzero : n ≠ 0) : ∃ (k 
   by_cases h : n = ⊤
   · use ⊤
     simp only [h, top_add]
-  push_neg at h
-  rw [WithTop.ne_top_iff_exists] at h
+  rw [← ne_eq, WithTop.ne_top_iff_exists] at h
   rcases h with ⟨m, rfl⟩
   rcases Nat.exists_eq_succ_of_ne_zero (n := m) (by intro h; apply nzero; simp only [h,
     WithTop.coe_zero]) with ⟨l, rfl⟩
   use l
-  simp
+  norm_cast
 
 lemma ENat.add_coe_lt_add_coe_right {n m : ℕ∞} {k : ℕ} : n + k < m + k ↔ n < m := by
   cases' n with n
@@ -38,8 +37,6 @@ lemma ENat.add_coe_lt_add_coe_right {n m : ℕ∞} {k : ℕ} : n + k < m + k ↔
   cases' m with m
   · norm_cast; simp [ENat.coe_lt_top, -Nat.cast_add]
   · norm_cast; simp_all
-
-#check TopologicalSpace.le_def
 
 lemma IsOpen_le_iff_isClosed_le {α : Type*} {t : TopologicalSpace α} {s : TopologicalSpace α} :
     @IsOpen _ s ≤ @IsOpen _ t ↔ @IsClosed _ s  ≤ @IsClosed _ t := by
@@ -72,12 +69,12 @@ lemma Subsingleton.singleton_inter {X : Type*} {A : Set X} {a: X} : ({a} ∩ A).
   Set.subsingleton_of_subset_singleton Set.inter_subset_left
 
 -- in mathlib
-lemma IsClosed.inter_singleton {X : Type*} [TopologicalSpace X] [T1Space X] {A : Set X} {a : X} :
+lemma isClosed_inter_singleton {X : Type*} [TopologicalSpace X] [T1Space X] {A : Set X} {a : X} :
     IsClosed (A ∩ {a}) :=
   Subsingleton.inter_singleton.isClosed
 
 -- in mathlib
-lemma IsClosed.singleton_inter {X : Type*} [TopologicalSpace X] [T1Space X] {A : Set X} {a : X} :
+lemma isClosed_singleton_inter {X : Type*} [TopologicalSpace X] [T1Space X] {A : Set X} {a : X} :
     IsClosed ({a} ∩ A) :=
   Subsingleton.singleton_inter.isClosed
 
@@ -106,6 +103,21 @@ lemma closed_in_finite {X : Type*} [t : TopologicalSpace X] {ι : Type*} [Finite
 
 lemma inter_eq_inter_iff_compl {X : Type*} {A B C : Set X} : A ∩ B = C ∩ B ↔ Aᶜ ∩ B = Cᶜ ∩ B := by
   constructor <;> (intro; simp_all [Set.ext_iff, not_iff_not])
+
+lemma open_in_iff_compl_closed_in {X : Type*} [TopologicalSpace X] (A B : Set X) :
+    (∃ (C: TopologicalSpace.Opens X), A ∩ B = C.1 ∩ B) ↔
+    ∃ (C: TopologicalSpace.Closeds X), Aᶜ ∩ B = C.1 ∩ B := by
+  constructor
+  · intro ⟨C, hC⟩
+    use ⟨Cᶜ, isClosed_compl_iff.2 C.2⟩
+    rw [inter_eq_inter_iff_compl]
+    simp_rw [compl_compl]
+    exact hC
+  · intro ⟨C, hC⟩
+    use ⟨Cᶜ, isOpen_compl_iff.2 C.2⟩
+    rw [inter_eq_inter_iff_compl]
+    simp_rw [compl_compl]
+    exact hC
 
 def PartialEquiv.const {X Y : Type*} (x : X) (y : Y) : PartialEquiv X Y where
   toFun := Function.const X y

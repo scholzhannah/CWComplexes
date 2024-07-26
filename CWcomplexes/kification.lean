@@ -8,57 +8,33 @@ class KSpace  (X : Type*) [TopologicalSpace X] where
   isOpen_iff A : IsOpen A ↔
     ∀ (B : TopologicalSpace.Compacts X), ∃ (C : TopologicalSpace.Opens X), A ∩ B.1 = C.1 ∩ B.1
 
-namespace Kification
+namespace KSpace
 
 lemma closed_iff {X : Type*} [TopologicalSpace X] [KSpace X] {A : Set X} :
     IsClosed A ↔ ∀ (B : TopologicalSpace.Compacts X),
-    ∃ (C: TopologicalSpace.Closeds X), A ∩ B.1 = C.1 ∩ B.1 := by
+    ∃ (C: TopologicalSpace.Closeds X), A ∩ B.1 = C.1 ∩ B.1 :=
   calc
-    IsClosed A ↔ IsOpen  Aᶜ := (isOpen_compl_iff).symm
+    IsClosed A ↔ IsOpen  Aᶜ := isOpen_compl_iff.symm
     _ ↔ ∀ (B : TopologicalSpace.Compacts X), ∃ (C: TopologicalSpace.Opens X),
         Aᶜ ∩ B.1 = C.1 ∩ B.1 := KSpace.isOpen_iff Aᶜ
     _ ↔ ∀ (B : TopologicalSpace.Compacts X), ∃ (C: TopologicalSpace.Closeds X),
         A ∩ B.1 = C.1 ∩ B.1 := by
-      constructor
-      · intro h B
-        rcases h B with ⟨O, hO⟩
-        use ⟨Oᶜ, isClosed_compl_iff.2 O.2⟩
-        rw [inter_eq_inter_iff_compl]
-        simp only [TopologicalSpace.Compacts.carrier_eq_coe, TopologicalSpace.Opens.carrier_eq_coe,
-          compl_compl] at hO ⊢
-        exact hO
-      · intro h B
-        rcases h B with ⟨C, hC⟩
-        use ⟨Cᶜ, isOpen_compl_iff.2 C.2⟩
-        rw [inter_eq_inter_iff_compl]
-        simp only [TopologicalSpace.Compacts.carrier_eq_coe, compl_compl] at hC ⊢
-        exact hC
+      congrm ∀ B, ?_
+      nth_rw 2 [← compl_compl A]
+      exact open_in_iff_compl_closed_in Aᶜ B
 
 def kspace_of_closed_iff {X : Type*} [TopologicalSpace X]
     (closed_iff : ∀ (A : Set X), IsClosed A ↔ ∀ (B : TopologicalSpace.Compacts X),
     ∃ (C: TopologicalSpace.Closeds X), A ∩ B.1 = C.1 ∩ B.1) : KSpace X where
-  isOpen_iff := by
-    intro A
+  isOpen_iff := fun A ↦
     calc
     IsOpen A ↔ IsClosed Aᶜ := isClosed_compl_iff.symm
     _ ↔ ∀ (B : TopologicalSpace.Compacts X), ∃ (C: TopologicalSpace.Closeds X),
         Aᶜ ∩ B.1 = C.1 ∩ B.1 := closed_iff Aᶜ
     _ ↔ ∀ (B : TopologicalSpace.Compacts X), ∃ (C: TopologicalSpace.Opens X),
         A ∩ B.1 = C.1 ∩ B.1 := by
-      constructor
-      · intro h B
-        rcases h B with ⟨O, hO⟩
-        use ⟨Oᶜ, isOpen_compl_iff.2 O.2⟩
-        rw [inter_eq_inter_iff_compl]
-        simp only [TopologicalSpace.Compacts.carrier_eq_coe, compl_compl] at hO ⊢
-        exact hO
-      · intro h B
-        rcases h B with ⟨C, hC⟩
-        use ⟨Cᶜ, isClosed_compl_iff.2 C.2⟩
-        rw [inter_eq_inter_iff_compl]
-        simp only [TopologicalSpace.Compacts.carrier_eq_coe, TopologicalSpace.Opens.carrier_eq_coe,
-          compl_compl] at hC ⊢
-        exact hC
+      congrm ∀ B, ?_
+      exact (open_in_iff_compl_closed_in A B).symm
 
 def kification (X : Type*) := X
 
@@ -93,20 +69,9 @@ lemma kification.closed_iff {X : Type*} [t : TopologicalSpace X] {A : Set X} :
       simp only [IsOpen, instkification, TopologicalSpace.Compacts.carrier_eq_coe,
         TopologicalSpace.Opens.carrier_eq_coe]
     _ ↔ ∀ (B : t.Compacts), ∃ (C: t.Closeds), A ∩ B.1 = C.1 ∩ B.1 := by
-      constructor
-      · intro h B
-        rcases h B with ⟨O, hO⟩
-        use ⟨Oᶜ, isClosed_compl_iff.2 O.2⟩
-        rw [inter_eq_inter_iff_compl]
-        simp only [TopologicalSpace.Compacts.carrier_eq_coe, TopologicalSpace.Opens.carrier_eq_coe,
-          compl_compl] at hO ⊢
-        exact hO
-      · intro h B
-        rcases h B with ⟨C, hC⟩
-        use ⟨Cᶜ, isOpen_compl_iff.2 C.2⟩
-        rw [inter_eq_inter_iff_compl]
-        simp only [TopologicalSpace.Compacts.carrier_eq_coe, compl_compl] at hC ⊢
-        exact hC
+      congrm ∀ B, ?_
+      nth_rw 2 [← compl_compl A]
+      exact open_in_iff_compl_closed_in Aᶜ B
 
 def tokification (X : Type*) : X ≃ kification X :=
   ⟨fun x ↦ x, fun x ↦ x, fun _ ↦ rfl, fun _ ↦ rfl⟩
@@ -149,39 +114,35 @@ lemma isCompact_iff_isCompact_tokification_image {X : Type*} [TopologicalSpace X
   intro compactC
   rw [isCompact_iff_finite_subcover]
   intro ι U openU CsubU
-  simp only [IsOpen, instkification, TopologicalSpace.Compacts.carrier_eq_coe,
-    TopologicalSpace.Opens.carrier_eq_coe] at openU
+  unfold IsOpen instkification at openU
   choose U' hU' using openU
   have CsubU' : C ⊆ ⋃ i, U' i ⟨C, compactC⟩ := by
     calc
       C = C ∩ ⋃ i, U i := by
-        simp only [tokification, Equiv.coe_fn_mk, Set.image_id'] at CsubU
+        simp_rw [tokification, Equiv.coe_fn_mk, Set.image_id'] at CsubU
         rw [Set.inter_eq_left.2 CsubU]
-      _ = ⋃ i, C ∩ U i := by rw [Set.inter_iUnion]
+      _ = ⋃ i, C ∩ U i := Set.inter_iUnion _ _
       _ = ⋃ i, C ∩ U' i ⟨C, compactC⟩ := by
         apply Set.iUnion_congr
         intro i
-        replace hU' := hU' i ⟨C, compactC⟩
-        simp only [TopologicalSpace.Compacts.coe_mk] at hU'
-        rw [Set.inter_comm, Set.inter_comm C, hU']
-      _ = C ∩ ⋃ i, U' i ⟨C, compactC⟩ := by rw [Set.inter_iUnion]
+        rw [Set.inter_comm, Set.inter_comm C, hU' i ⟨C, compactC⟩]
+        rfl
+      _ = C ∩ ⋃ i, U' i ⟨C, compactC⟩ := (Set.inter_iUnion _ _).symm
       _ ⊆ ⋃ i, U' i ⟨C, compactC⟩ := Set.inter_subset_right
-  let h := compactC
-  rw [isCompact_iff_finite_subcover] at h
-  rcases h (fun i ↦ U' i ⟨C, compactC⟩) (fun i ↦ (U' i ⟨C, compactC⟩).2) CsubU' with ⟨ι', hι'⟩
+  rcases (isCompact_iff_finite_subcover.1 compactC) (fun i ↦ U' i ⟨C, compactC⟩)
+    (fun i ↦ (U' i ⟨C, compactC⟩).2) CsubU' with ⟨ι', hι'⟩
   use ι'
-  simp only [tokification, Equiv.coe_fn_mk, Set.image_id']
+  simp_rw [tokification, Equiv.coe_fn_mk, Set.image_id']
   calc
-    C = C ∩ ⋃ i ∈ ι', U' i ⟨C, compactC⟩ := by rw [Set.inter_eq_left.2 hι']
+    C = C ∩ ⋃ i ∈ ι', U' i ⟨C, compactC⟩ := (Set.inter_eq_left.2 hι').symm
     _ = ⋃ i ∈ ι', C ∩ U' i ⟨C, compactC⟩ := by simp_rw [Set.inter_iUnion]
     _ = ⋃ i ∈ ι', C ∩ U i := by
       apply Set.iUnion_congr
       intro i
       apply Set.iUnion_congr
       intro _
-      replace hU' := hU' i ⟨C, compactC⟩
-      simp only [TopologicalSpace.Compacts.coe_mk] at hU'
-      rw [Set.inter_comm, Set.inter_comm C, hU']
+      rw [Set.inter_comm, Set.inter_comm C, hU' i ⟨C, compactC⟩]
+      rfl
     _ = C ∩ ⋃ i ∈ ι', U i := by simp_rw [Set.inter_iUnion]
     _ ⊆ ⋃ i ∈ ι', U i := Set.inter_subset_right
 
@@ -195,23 +156,20 @@ instance kspace_kification {X : Type*} [TopologicalSpace X] : KSpace (kification
   isOpen_iff A := by
     refine ⟨fun openA _ ↦ ⟨⟨A, openA⟩, rfl⟩ , ?_⟩
     intro h
-    simp only [IsOpen, instkification, TopologicalSpace.Compacts.carrier_eq_coe,
-      TopologicalSpace.Opens.carrier_eq_coe]
+    unfold IsOpen instkification
     intro C
     rcases h ⟨tokification X '' C.1, (isCompact_iff_isCompact_tokification_image C).1 C.2⟩
       with ⟨⟨E, openE⟩, hE⟩
-    simp only [IsOpen, instkification, TopologicalSpace.Compacts.carrier_eq_coe,
-      TopologicalSpace.Opens.carrier_eq_coe] at openE
+    unfold IsOpen instkification at openE
     rcases openE C with ⟨F, hF⟩
     use F
-    simp only [tokification, Equiv.coe_fn_mk, Set.image_id',
-      TopologicalSpace.Compacts.carrier_eq_coe] at hE
+    simp_rw [tokification, Equiv.coe_fn_mk, Set.image_id'] at hE
     rw [hE, hF]
 
 lemma kification_kspace_eq_self {X :Type*} [t : TopologicalSpace X] [KSpace X] :
     t = instkification := by
   simp_rw [TopologicalSpace.ext_iff, KSpace.isOpen_iff, IsOpen, instkification]
-  exact fun s => trivial
+  exact fun _ ↦ trivial
 
 lemma from_kification_continuous_of_continuous {X Y : Type*} [tX : TopologicalSpace X]
     [tY : TopologicalSpace Y] (f : X → Y) (cont : Continuous f) :
@@ -243,7 +201,7 @@ lemma continuous_compact_to_kification {X Y : Type*} [tX : TopologicalSpace X]
 
 lemma continuousOn_compact_to_kification {X Y : Type*} [tX : TopologicalSpace X]
     [tY : TopologicalSpace Y] {A : Set X} (compact : IsCompact A)
-    (f : X → Y) (conton : ContinuousOn f A) : @ContinuousOn _ _ _ instkification f A := by
+    (f : X → Y) (conton : ContinuousOn f A) : ContinuousOn (Y := kification Y) f A := by
   rw [continuousOn_iff_continuous_restrict] at conton ⊢
   have _ := isCompact_iff_compactSpace.1 compact
   exact continuous_compact_to_kification (A.restrict f) conton
@@ -302,22 +260,20 @@ instance kspace_of_SequentialSpace {X : Type*} [TopologicalSpace X]
   apply isSeqClosed_of_seqClosure_eq
   refine subset_antisymm ?_ subset_seqClosure
   intro p pmem
-  simp_rw [seqClosure, Set.mem_setOf_eq] at pmem
+  rw [seqClosure, Set.mem_setOf_eq] at pmem
   rcases pmem with ⟨x, xmem, tendsto⟩
   rcases hA ⟨insert p (Set.range x), Filter.Tendsto.isCompact_insert_range tendsto⟩ with
     ⟨⟨C, closedC⟩, hC⟩
-  suffices p ∈ A ∩ insert p (Set.range x) by simpa only [Set.mem_inter_iff, Set.mem_insert_iff,
-    Set.mem_range, true_or, and_true]
-  rw [hC]
-  simp_rw [Set.mem_inter_iff, Set.mem_insert_iff, Set.mem_range, true_or, and_true]
-  simp_rw [← isSeqClosed_iff_isClosed, IsSeqClosed] at closedC
-  have xmemC : ∀ n, x n ∈ C := by
-    intro n
-    suffices x n ∈ C ∩ insert p (Set.range x) by simpa only [Set.mem_inter_iff, Set.mem_insert_iff,
-      Set.mem_range, exists_apply_eq_apply, or_true, and_true]
-    rw [← hC]
-    simp_rw [Set.mem_inter_iff, Set.mem_insert_iff, Set.mem_range, exists_apply_eq_apply, or_true,
-      and_true]
-    exact xmem n
-  exact closedC xmemC tendsto
+  suffices p ∈ A ∩ insert p (Set.range x) by
+    simpa only [Set.mem_inter_iff, Set.mem_insert_iff, Set.mem_range, true_or, and_true]
+  rw [hC, Set.mem_inter_iff, Set.mem_insert_iff, Set.mem_range, eq_self, true_or, and_true]
+  rw [← isSeqClosed_iff_isClosed, IsSeqClosed] at closedC
+  refine closedC ?_ tendsto
+  intro n
+  suffices x n ∈ C ∩ insert p (Set.range x) by simpa only [Set.mem_inter_iff, Set.mem_insert_iff,
+    Set.mem_range, exists_apply_eq_apply, or_true, and_true]
+  rw [← hC]
+  simp_rw [Set.mem_inter_iff, Set.mem_insert_iff, Set.mem_range, exists_apply_eq_apply, or_true,
+    and_true]
+  exact xmem n
   )

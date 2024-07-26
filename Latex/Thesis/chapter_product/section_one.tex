@@ -291,8 +291,27 @@ Lastly we will discuss spaces that are not k-spaces:
 That leads us to our first concrete example of a space that is not a k-space: 
 
 \begin{example}
-    Let $X$ be an uncountable set. 
-    Equip $X$ with the cocountable topology, i.e. a set $A \subseteq X$ is open iff ...
+    Let $X$ be any uncountable set.
+    Equip $X$ with the cocountable topology, i.e. let a set $A \subseteq X$ be open iff $A = \varnothing$ or $\compl{A}$ is countable.
+    Then $X$ is not a k-space.
 \end{example}
+\begin{proof}
+    It is easy to see by going through the axioms that the cocountable topology is indeed a topology. 
+    We will now show that this space satisfies the conditions of the previous corollary.
+    $X$ is clearly non-discrete. 
+    To see that $X$ is a T$_1$ space take two distinct points $a$ and $b$. 
+    Now let $A$ be the set $X\setminus \{b\}$. 
+    This set is open since $\{b\}$ is countable and it obviously does not contain $b$. 
+    We lastly need to show that that $X$ is anti-compact. 
+    To do that take any set $A \subseteq X$.
+    Pick an (if possible infinite) countable subset $B \subseteq A$. 
+    Now for every $b \in B$ define $U_b = (X \setminus B) \cup \{b\}$.
+    Since $\compl{U_b} = B \setminus\{b\}$ is countable $U_b$ is open for every $b \in B$.
+    It is also easy to see that $A \subseteq \bigcup_{b \in B}U_b$. 
+    Thus $(U_b)_{b \in B}$ is an open cover of $A$. 
+    But since for every $b \in B$ there is no $b' \in B$ with $b \ne b'$ and $b \in U_{b'}$, $(U_b)_{b \in B}$ cannot have a proper subcover.
+    Therefore $A$ can only be compact if all these possible covers are already finite. 
+    That can only be the case if $B$ and with that $A$ are finite. 
+\end{proof}
 
 Other examples can be found on $\pi$-base \cite{PiBase2024}.

@@ -55,9 +55,9 @@ lemma levelaux_zero_eq_empty : levelaux C 0 = ∅ := by
 
 -- finite type seperately
 
-class Finite.{u} {X : Type u} [TopologicalSpace X] (C : Set X) [cwcomplex : CWComplex C] : Prop where
-  finitelevels : ∀ᶠ n in Filter.atTop, IsEmpty (cwcomplex.cell n)
-  finitecells (n : ℕ) : Finite (cwcomplex.cell n)
+class Finite.{u} {X : Type u} [TopologicalSpace X] (C : Set X) [CWComplex C] : Prop where
+  finitelevels : ∀ᶠ n in Filter.atTop, IsEmpty (cell C n)
+  finitecells (n : ℕ) : Finite (cell C n)
 
 @[simp] lemma levelaux_top : levelaux C ⊤ = C := by
   simp only [levelaux, lt_top_iff_ne_top, ne_eq, ENat.coe_ne_top, not_false_eq_true, iUnion_true, ←

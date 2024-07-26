@@ -79,7 +79,7 @@ instance instCWComplexsingleton (x : X) : CWComplex {x} where
         exact IsClosed.inter closedA isClosed_singleton
       · contradiction
     · intro _
-      exact IsClosed.subsingleton (Set.subsingleton_of_subset_singleton Asub)
+      exact Set.Subsingleton.isClosed (Set.subsingleton_of_subset_singleton Asub)
   union := by
     ext y
     constructor

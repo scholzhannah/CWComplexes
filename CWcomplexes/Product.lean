@@ -7,7 +7,7 @@ set_option autoImplicit false
 set_option linter.unusedVariables false
 noncomputable section
 
-open Metric Set Kification
+open Metric Set KSpace
 
 namespace CWComplex
 

@@ -178,7 +178,7 @@ instance CWComplex_subcomplex (E : Set X) [subcomplex : Subcomplex C E] : CWComp
       intro n j
       induction' n using Nat.case_strong_induction_on with n hn
       · simp only [Matrix.empty_eq, nonempty_closedBall, zero_le_one, Nonempty.image_const]
-        exact IsClosed.inter_singleton
+        exact isClosed_inter_singleton
       · by_cases h : j ∈ subcomplex.I (Nat.succ n)
         · exact closed (Nat.succ n) ⟨j, h⟩
         rw [← Metric.sphere_union_ball, image_union, inter_union_distrib_left]

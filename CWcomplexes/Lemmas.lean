@@ -53,7 +53,7 @@ lemma inter_levelaux_succ_closed_iff_inter_levelaux_closed_and_inter_closedBall_
     rw [closed (A ∩ levelaux C ↑(Nat.succ n)) this]
     intro m j
     induction' m using Nat.case_strong_induction_on with m hm
-    · simp [Matrix.empty_eq, IsClosed.inter_singleton]
+    · simp [Matrix.empty_eq, isClosed_inter_singleton]
     by_cases msuccltn : Nat.succ m < n
     · have : map (Nat.succ m) j '' closedBall 0 1 ⊆ levelaux C n := by
         refine subset_trans (map_closedBall_subset_levelaux _ _ _) (levelaux_mono _ ?_)
