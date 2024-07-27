@@ -16,12 +16,12 @@ instance instCWComplexempty : CWComplex (∅ : Set X) where
   source_eq n i := by contradiction
   cont n i := by contradiction
   cont_symm n i := by contradiction
-  pairwiseDisjoint := by
+  pairwiseDisjoint' := by
     rw [PairwiseDisjoint, Set.Pairwise]
     intro ⟨_, _⟩
     contradiction
   mapsto n i := by contradiction
-  closed A := by
+  closed' A := by
     intro Aempty
     rw [subset_empty_iff] at Aempty
     constructor
@@ -30,7 +30,7 @@ instance instCWComplexempty : CWComplex (∅ : Set X) where
     · intro _
       rw [Aempty]
       exact isClosed_empty
-  union := by simp only [iUnion_of_empty, iUnion_empty]
+  union' := by simp only [iUnion_of_empty, iUnion_empty]
 
 variable [T1Space X]
 
@@ -54,7 +54,7 @@ instance instCWComplexsingleton (x : X) : CWComplex {x} where
   cont_symm n i := match n with
     | 0 => continuousOn_const
     | (m + 1) => by contradiction
-  pairwiseDisjoint := by
+  pairwiseDisjoint' := by
     rw [PairwiseDisjoint, Set.Pairwise]
     intro ⟨n, j⟩ _ ⟨m, i⟩ _ ne
     rcases n with rfl | n
@@ -71,7 +71,7 @@ instance instCWComplexsingleton (x : X) : CWComplex {x} where
       simp only [Matrix.zero_empty, sphere_zero_dim_empty, not_lt_zero', iUnion_of_empty,
         iUnion_empty, mapsTo_empty_iff]
     | (m + 1) => by contradiction
-  closed A Asub := by
+  closed' A Asub := by
     constructor
     · intro closedA n j
       rcases n with rfl | n
@@ -80,7 +80,7 @@ instance instCWComplexsingleton (x : X) : CWComplex {x} where
       · contradiction
     · intro _
       exact Set.Subsingleton.isClosed (Set.subsingleton_of_subset_singleton Asub)
-  union := by
+  union' := by
     ext y
     constructor
     · simp_rw [mem_iUnion]
@@ -110,7 +110,7 @@ instance instCWComplexinterval (a b : ℝ) :
   source_eq := sorry
   cont := sorry
   cont_symm := sorry
-  pairwiseDisjoint := sorry
+  pairwiseDisjoint' := sorry
   mapsto := sorry
-  closed := sorry
-  union := sorry
+  closed' := sorry
+  union' := sorry

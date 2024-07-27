@@ -9,9 +9,6 @@ open Metric Set
 
 variable {X : Type*} [t : TopologicalSpace X]
 
---think about making this a class and converting stuff into instances
---examples spheres
-
 /- Characterizing when a set is a CW-complex. See [Hatcher, Proposition A.2].
 Generally we will need `[T2Space X]`.
 Note that we are changing the definition a little bit: we are saying that a subspace `C` of `X` is a
@@ -24,26 +21,58 @@ class CWComplex.{u} {X : Type u} [TopologicalSpace X] (C : Set X) where
   source_eq (n : ℕ) (i : cell n) : (map n i).source = closedBall 0 1
   cont (n : ℕ) (i : cell n) : ContinuousOn (map n i) (closedBall 0 1)
   cont_symm (n : ℕ) (i : cell n) : ContinuousOn (map n i).symm (map n i).target
-  pairwiseDisjoint :
+  pairwiseDisjoint' :
     (univ : Set (Σ n, cell n)).PairwiseDisjoint (fun ni ↦ map ni.1 ni.2 '' ball 0 1)
   mapsto (n : ℕ) (i : cell n) : ∃ I : Π m, Finset (cell m),
     MapsTo (map n i) (sphere 0 1) (⋃ (m < n) (j ∈ I m), map m j '' closedBall 0 1)
-  -- create lemma with C explicit
-  closed (A : Set X) (asubc : A ⊆ C) : IsClosed A ↔ ∀ n j, IsClosed (A ∩ map n j '' closedBall 0 1)
-  union : ⋃ (n : ℕ) (j : cell n), map n j '' closedBall 0 1 = C
+  closed' (A : Set X) (asubc : A ⊆ C) : IsClosed A ↔ ∀ n j, IsClosed (A ∩ map n j '' closedBall 0 1)
+  union' : ⋃ (n : ℕ) (j : cell n), map n j '' closedBall 0 1 = C
 
 --create constructor if the CWComplex is finite
+
 
 variable [T2Space X] (C : Set X) [CWComplex C]
 
 
-
 namespace CWComplex
+
+def ocell {C : Set X} [CWComplex C] (n : ℕ) (i : cell C n) : Set X := map n i '' ball 0 1
+
+def ccell {C : Set X} [CWComplex C] (n : ℕ) (i : cell C n) : Set X := map n i '' closedBall 0 1
+
+def ecell {C : Set X} [CWComplex C] (n : ℕ) (i : cell C n) : Set X := map n i '' sphere 0 1
+
+lemma pairwiseDisjoint :
+  (univ : Set (Σ n, cell C n)).PairwiseDisjoint (fun ni ↦ ocell ni.1 ni.2) := pairwiseDisjoint'
+
+lemma ecell_subset {C : Set X} [CWComplex C] (n : ℕ) (i : cell C n) : ∃ I : Π m, Finset (cell C m),
+    ecell n i ⊆ (⋃ (m < n) (j ∈ I m), ccell m j) := by
+  rcases mapsto n i with ⟨I, hI⟩
+  use I
+  rw [mapsTo'] at hI
+  exact hI
+
+lemma closed (A : Set X) (asubc : A ⊆ C) :
+    IsClosed A ↔ ∀ n (j : cell C n), IsClosed (A ∩ ccell n j) :=
+  closed' A asubc
+
+lemma union : ⋃ (n : ℕ) (j : cell C n), ccell n j = C := union'
+
+lemma ocell_subset_ccell (n : ℕ) (i : cell C n) : ocell n i ⊆ ccell n i :=
+  image_mono Metric.ball_subset_closedBall
+
+lemma ecell_subset_ccell (n : ℕ) (i : cell C n) : ecell n i ⊆ ccell n i :=
+  image_mono Metric.sphere_subset_closedBall
+
+lemma ecell_union_ocell_eq_ccell (n : ℕ) (i :cell C n) : ecell n i ∪ ocell n i = ccell n i := by
+  simp_rw [ecell, ocell, ccell, ← image_union]
+  congrm map n i '' ?_
+  exact sphere_union_ball
 
 /-- A non-standard definition of the levels useful for induction.
   The typical level is defined in terms of levelaux.-/
 def levelaux (n : ℕ∞) : Set X :=
-  ⋃ (m : ℕ) (hm : m < n) (j : cell C m), map m j '' closedBall 0 1
+  ⋃ (m : ℕ) (hm : m < n) (j : cell C m), ccell m j
 
 /-- The `n`-th level of a CW-complex, for `n ∈ ℕ ∪ ∞`. -/
 def level (n : ℕ∞) : Set X :=
@@ -67,7 +96,7 @@ class Finite.{u} {X : Type u} [TopologicalSpace X] (C : Set X) [CWComplex C] : P
   simp only [level, top_add, levelaux_top]
 
 lemma levelaux_mono {n m : ℕ∞} (h : m ≤ n) : levelaux C m ⊆ levelaux C n := by
-  repeat rw [levelaux]
+  simp_rw [levelaux]
   intro x xmem
   rw [mem_iUnion] at xmem
   rcases xmem with ⟨l , xmeml⟩
@@ -75,15 +104,13 @@ lemma levelaux_mono {n m : ℕ∞} (h : m ≤ n) : levelaux C m ⊆ levelaux C n
   rw [mem_iUnion]
   use l
   simp only [mem_iUnion, exists_prop]
-  constructor
-  · exact lt_of_lt_of_le xmeml.1 h
-  · exact xmeml.2
+  exact ⟨lt_of_lt_of_le xmeml.1 h, xmeml.2⟩
 
 lemma level_mono {n m : ℕ∞} (h : m ≤ n) : level C m ⊆ level C n := by
   simp only [level, levelaux_mono _ (add_le_add_right h 1)]
 
-lemma map_closedBall_subset_levelaux (n : ℕ) (j : cell C n) :
-    map n j '' closedBall 0 1 ⊆ levelaux C (n + 1) := by
+lemma ccell_subset_levelaux (n : ℕ) (j : cell C n) :
+    ccell n j ⊆ levelaux C (n + 1) := by
   rw [levelaux]
   intro x xmem
   simp only [mem_iUnion, exists_prop]
@@ -91,67 +118,78 @@ lemma map_closedBall_subset_levelaux (n : ℕ) (j : cell C n) :
   norm_cast
   exact ⟨lt_add_one n, ⟨j,xmem⟩⟩
 
-lemma map_closedBall_subset_level (n : ℕ) (j : cell C n) :
-    map n j '' closedBall 0 1 ⊆ level C n := by
-  rw [level]
-  exact map_closedBall_subset_levelaux _ n j
+lemma ccell_subset_level (n : ℕ) (j : cell C n) :
+    ccell n j ⊆ level C n := ccell_subset_levelaux _ n j
 
-lemma map_closedBall_subset_complex (n : ℕ) (j : cell C n) : map n j '' closedBall 0 1 ⊆ C := by
-  apply subset_trans (map_closedBall_subset_level _ n j)
+lemma ccell_subset_complex (n : ℕ) (j : cell C n) : ccell n j ⊆ C := by
+  apply subset_trans (ccell_subset_level _ n j)
     (by simp_rw [← level_top]; apply level_mono _ le_top)
 
-lemma map_ball_subset_levelaux (n : ℕ) (j : cell C n) : map n j '' ball 0 1 ⊆ levelaux C (n + 1) :=
-  subset_trans (image_mono Metric.ball_subset_closedBall) (map_closedBall_subset_levelaux _ n j)
+lemma ocell_subset_levelaux (n : ℕ) (j : cell C n) : ocell n j ⊆ levelaux C (n + 1) :=
+  subset_trans (ocell_subset_ccell _ _ _) (ccell_subset_levelaux _ _ _)
 
-lemma map_ball_subset_level (n : ℕ) (j : cell C n) : map n j '' ball 0 1 ⊆ level C n :=
-  subset_trans (image_mono Metric.ball_subset_closedBall) (map_closedBall_subset_level _ n j)
+lemma ocell_subset_level (n : ℕ) (j : cell C n) : ocell n j ⊆ level C n :=
+  subset_trans (ocell_subset_ccell _ _ _) (ccell_subset_level _ _ _)
 
-lemma map_ball_subset_complex (n : ℕ) (j : cell C n) : map n j '' ball 0 1 ⊆ C := by
-  apply subset_trans (map_ball_subset_level _ n j)
+lemma ocell_subset_complex (n : ℕ) (j : cell C n) : map n j '' ball 0 1 ⊆ C := by
+  apply subset_trans (ocell_subset_level _ _ _)
     (by simp_rw [← level_top]; exact level_mono _ le_top)
 
-lemma map_ball_subset_map_closedball {n : ℕ} {j : cell C n} :
-  map n j '' ball 0 1 ⊆ map n j '' closedBall 0 1 := image_mono ball_subset_closedBall
-
-lemma map_sphere_subset_levelaux (n : ℕ) (j : cell C n) :
-    map n j '' sphere 0 1 ⊆  levelaux C n := by
-  rcases mapsto n j with ⟨I, hI⟩
-  rw [Set.mapsTo'] at hI
+lemma ecell_subset_levelaux (n : ℕ) (j : cell C n) :
+    ecell n j ⊆  levelaux C n := by
+  rcases ecell_subset n j with ⟨I, hI⟩
   apply subset_trans hI
   intro x xmem
   simp only [mem_iUnion, exists_prop] at xmem
   rcases xmem with ⟨i, ⟨iltn, ⟨j, ⟨jmemI, xmem⟩⟩⟩⟩
-  simp only [CWComplex.levelaux, mem_iUnion, exists_prop]
+  simp only [levelaux, mem_iUnion, exists_prop]
   use i
   norm_cast
   exact ⟨iltn, ⟨j, xmem⟩⟩
 
-lemma map_sphere_subset_level (n : ℕ) (j : cell C (n + 1)) :
-    map (n + 1) j '' sphere 0 1 ⊆ level C n := map_sphere_subset_levelaux C _ _
+lemma ecell_subset_level (n : ℕ) (j : cell C (n + 1)) :
+    ecell (n + 1) j ⊆ level C n := ecell_subset_levelaux C _ _
 
-lemma iUnion_map_sphere_subset_levelaux (l : ℕ) :
-    ⋃ (j : cell C l), map l j '' sphere 0 1 ⊆ levelaux C l := by
-  rw [CWComplex.levelaux]
-  norm_cast
-  intro x xmem
-  rw [mem_iUnion] at xmem
-  rcases xmem with ⟨e, xmeme⟩
-  rcases mapsto l e with ⟨I, hI⟩
-  apply MapsTo.image_subset at hI
-  apply hI at xmeme
-  suffices ⋃ m, ⋃ (_ : m < l), ⋃ j ∈ I m, map m j '' closedBall 0 1 ⊆
-      ⋃ m, ⋃ (_ : m < l), ⋃ j, map (C := C) m j '' closedBall 0 1 from this xmeme
-  apply iUnion_mono
-  simp only [iUnion_subset_iff]
-  intro i iltl e ememIi y ymem
-  simp only [mem_iUnion, exists_prop]
-  exact ⟨iltl, ⟨e, ymem⟩⟩
+lemma iUnion_ecell_subset_levelaux (l : ℕ) :
+    ⋃ (j : cell C l), ecell l j ⊆ levelaux C l :=
+  iUnion_subset  (fun _ ↦ ecell_subset_levelaux C l _)
 
-lemma iUnion_map_sphere_subset_level (l : ℕ) :
-    ⋃ (j : cell C l), map l j '' sphere 0 1 ⊆ level C l := by
-  unfold level
-  exact subset_trans (iUnion_map_sphere_subset_levelaux C l)
-    (levelaux_mono C le_self_add)
+lemma iUnion_ecell_subset_level (l : ℕ) :
+    ⋃ (j : cell C l), ecell l j ⊆ level C l :=
+  subset_trans (iUnion_ecell_subset_levelaux C l) (levelaux_mono C le_self_add)
+
+lemma isCompact_ccell {n : ℕ} {i : cell C n} : IsCompact (ccell n i) :=
+  IsCompact.image_of_continuousOn (isCompact_closedBall _ _) (cont n i)
+
+lemma isClosed_ccell {n : ℕ} {i : cell C n} : IsClosed (ccell n i) :=
+  IsCompact.isClosed (isCompact_ccell _)
+
+lemma isCompact_ecell {n : ℕ} {i : cell C n} : IsCompact (ecell n i) :=
+  IsCompact.image_of_continuousOn (isCompact_sphere _ _)
+    (ContinuousOn.mono (cont n i) sphere_subset_closedBall)
+
+lemma isClosed_ecell {n : ℕ} {i : cell C n} : IsClosed (ecell n i) :=
+  IsCompact.isClosed (isCompact_ecell _)
+
+lemma closure_ocell_eq_ccell {n : ℕ} {j : cell C n} :
+    closure (ocell n j) = ccell n j := by
+  apply subset_antisymm
+  · rw [IsClosed.closure_subset_iff (isClosed_ccell _)]
+    exact ocell_subset_ccell C n j
+  · have : ContinuousOn (map n j) (closure (ball 0 1)) := by
+      rw [closure_ball 0 (by exact one_ne_zero)]
+      exact cont n j
+    rw [ccell, ← closure_ball 0 (by exact one_ne_zero)]
+    apply ContinuousOn.image_closure this
+
+lemma ccell_zero_eq_singleton {j : cell C 0} : ccell 0 j = {map 0 j ![]} := by
+  simp [ccell, Matrix.empty_eq]
+
+lemma ocell_zero_eq_singleton {j : cell C 0} : ocell 0 j = {map 0 j ![]} := by
+  simp [ocell, Matrix.empty_eq]
+
+lemma ecell_zero_eq_empty {j : cell C 0} : ecell 0 j = ∅ := by
+  simp [ecell, sphere_zero_dim_empty]
 
 lemma iUnion_levelaux_eq_levelaux (n : ℕ∞) :
     ⋃ (m : ℕ) (hm : m < n + 1), levelaux C m = levelaux C n := by
@@ -201,53 +239,47 @@ lemma iUnion_level_eq_level (n : ℕ∞) : ⋃ (m : ℕ) (hm : m < n + 1), level
       push_cast
       exact ENat.add_coe_lt_add_coe_right.mp hin
 
-lemma levelaux_succ_eq_levelaux_union_iUnion (n : ℕ) :
-    levelaux C (n + 1) = levelaux C n ∪ ⋃ (j : cell C n), map n j '' closedBall 0 1 := by
+lemma levelaux_succ_eq_levelaux_union_iUnion_ccell (n : ℕ) :
+    levelaux C (n + 1) = levelaux C n ∪ ⋃ (j : cell C n), ccell n j := by
   simp_rw [levelaux, Nat.cast_lt]
   norm_cast
   rw [Nat.add_one, union_comm]
-  exact aux1 n (fun m j ↦ map m j '' closedBall 0 1)
+  exact aux1 n (fun m j ↦ ccell m j)
 
 lemma level_succ_eq_level_union_iUnion (n : ℕ) :
-    level C (n + 1) = level C n ∪ ⋃ (j : cell C (↑n + 1)), map (↑n + 1) j '' closedBall 0 1 :=
-  levelaux_succ_eq_levelaux_union_iUnion _ (n + 1)
+    level C (n + 1) = level C n ∪ ⋃ (j : cell C (↑n + 1)), ccell (n + 1) j :=
+  levelaux_succ_eq_levelaux_union_iUnion_ccell _ (n + 1)
 
 /- We can also define the levels using `ball` instead of `closedBall`, using assumption `mapsto`. -/
-lemma iUnion_ball_eq_levelaux (n : ℕ∞) :
-    ⋃ (m : ℕ) (hm : m < n) (j : cell C m), map m j '' ball 0 1 = levelaux C n := by
+lemma iUnion_ocell_eq_levelaux (n : ℕ∞) :
+    ⋃ (m : ℕ) (hm : m < n) (j : cell C m), ocell m j = levelaux C n := by
   induction' n using ENat.nat_induction with n hn hn
   · simp [levelaux]
   · norm_cast at hn ⊢
-    rw [aux1 n (fun m j ↦ map m j '' ball 0 1), hn]
+    rw [aux1 n (fun m j ↦ ocell m j), hn]
     nth_rewrite 2 [levelaux]
     symm
     norm_cast
     calc
-      ⋃ m, ⋃ (_ : m < Nat.succ n), ⋃ j, map m j '' closedBall 0 1
-      = (⋃ (j : cell C n), map n j '' closedBall 0 1) ∪
-          ⋃ m, ⋃ (_ : Nat.cast m < ↑n), ⋃ j, map m j '' closedBall 0 1 := by
-        apply aux1 n (fun m j ↦ map m j '' closedBall 0 1)
-      _ = (⋃ (j : cell C n), map n j '' closedBall 0 1) ∪ levelaux C n := by
+      ⋃ m, ⋃ (_ : m < Nat.succ n), ⋃ j, ccell m j
+      = (⋃ (j : cell C n), ccell n j) ∪
+          ⋃ m, ⋃ (_ : m < n), ⋃ j, ccell m j := by
+        apply aux1 n (fun m j ↦ ccell m j)
+      _ = (⋃ (j : cell C n), ccell n j) ∪ levelaux C n := by
         rw [levelaux]
         norm_cast
-      _ = (⋃ (j : cell C n), map n j '' (sphere 0 1 ∪ ball 0 1)) ∪ levelaux C n := by
-        rw [sphere_union_ball]
-      _ = (⋃ (j : cell C n), map n j '' sphere 0 1 ∪ map n j '' ball 0 1) ∪ levelaux C n := by
-        congr
-        apply iUnion_congr
-        intro i
-        rw [image_union]
-      _ = (⋃ (j : cell C n), map n j '' sphere 0 1) ∪
-          (⋃ (j : cell C n), map n j '' ball 0 1) ∪ levelaux C n := by
+      _ = (⋃ (j : cell C n), ecell n j ∪ ocell n j) ∪ levelaux C n := by
+        congrm (⋃ j, ?_) ∪ levelaux C n
+        exact Eq.symm (ecell_union_ocell_eq_ccell C n j)
+      _ = (⋃ (j : cell C n), ecell n j) ∪ (⋃ (j : cell C n), ocell n j) ∪ levelaux C n := by
         rw [iUnion_union_distrib]
-      _ = (⋃ (j : cell C n), map n j '' ball 0 1) ∪
-          ((⋃ (j : cell C n), map n j '' sphere 0 1) ∪ levelaux C n) := by
-        rw [← union_assoc, union_comm (⋃ j, map n j '' sphere 0 1), union_assoc]
-      _ = (⋃ j, map n j '' ball 0 1) ∪ levelaux C n := by
+      _ = (⋃ (j : cell C n), ocell n j) ∪ ((⋃ (j : cell C n), ecell n j) ∪ levelaux C n) := by
+        rw [← union_assoc, union_comm (⋃ j, ecell n j), union_assoc]
+      _ = (⋃ j, ocell n j) ∪ levelaux C n := by
         congr
-        exact union_eq_right.2 (iUnion_map_sphere_subset_levelaux _ n)
-  · have : ⋃ (m : ℕ), ⋃ (_ : ↑m < (⊤ : ℕ∞)), ⋃ (j : cell C m), map m j '' ball 0 1 =
-        ⋃ (n : ℕ) (hn : ↑n < (⊤ : ℕ∞)), ⋃ (m : ℕ) (hm : m < n), ⋃ (j : cell C m), map m j '' ball 0 1 := by -- TODO : extract and generalize this in some way
+        exact union_eq_right.2 (iUnion_ecell_subset_levelaux _ n)
+  · have : ⋃ (m : ℕ), ⋃ (_ : ↑m < (⊤ : ℕ∞)), ⋃ (j : cell C m), ocell m j =
+        ⋃ (n : ℕ) (hn : ↑n < (⊤ : ℕ∞)), ⋃ (m : ℕ) (hm : m < n), ⋃ (j : cell C m), ocell m j := by -- TODO : extract and generalize this in some way
       apply subset_antisymm
       · intro x xmem
         rw [mem_iUnion] at xmem
@@ -273,34 +305,33 @@ lemma iUnion_ball_eq_levelaux (n : ℕ∞) :
     norm_cast at hn
     rw [hn]
 
-lemma union' : ⋃ (n : ℕ) (j : cell C n), map n j '' ball 0 1 = C := by
-  simp only [← levelaux_top, ← iUnion_ball_eq_levelaux, ENat.coe_lt_top, iUnion_true]
+lemma union_ocell : ⋃ (n : ℕ) (j : cell C n), ocell n j = C := by
+  simp only [← levelaux_top, ← iUnion_ocell_eq_levelaux, ENat.coe_lt_top, iUnion_true]
 
-lemma not_disjoint_equal {n : ℕ} {j : cell C n} {m : ℕ} {i : cell C m}
-    (notdisjoint: ¬ Disjoint (map n j '' ball 0 1) (map m i '' ball 0 1)) :
+lemma eq_cell_of_not_disjoint {n : ℕ} {j : cell C n} {m : ℕ} {i : cell C m}
+    (notdisjoint: ¬ Disjoint (ocell n j) (ocell m i)) :
     (⟨n, j⟩ : (Σ n, cell C n)) = ⟨m, i⟩ := by
   by_contra h'
   push_neg at h'
   apply notdisjoint
   have := pairwiseDisjoint (C := C)
   simp only [PairwiseDisjoint, Set.Pairwise, Function.onFun] at this
-  exact this (x := ⟨n, j⟩) (by simp) (y := ⟨m, i⟩) (by simp) h'
+  exact this (x := ⟨n, j⟩) (mem_univ _) (y := ⟨m, i⟩) (mem_univ _) h'
 
-lemma iUnion_ball_eq_level (n : ℕ∞) :
-    ⋃ (m : ℕ) (hm : m < n + 1) (j : cell C m), map m j '' ball 0 1 = level C n := by
-  rw [level]
-  exact iUnion_ball_eq_levelaux _ (n + 1)
+lemma iUnion_ocell_eq_level (n : ℕ∞) :
+    ⋃ (m : ℕ) (hm : m < n + 1) (j : cell C m), ocell m j = level C n :=
+  iUnion_ocell_eq_levelaux _ (n + 1)
 
-lemma exists_mem_ball_of_mem_levelaux {n : ℕ∞} {x : X} (xmemlvl : x ∈ levelaux C n) :
-    ∃ (m : ℕ) (_ : m < n) (j : cell C m), x ∈ map m j '' ball 0 1 := by
+lemma exists_mem_ocell_of_mem_levelaux {n : ℕ∞} {x : X} (xmemlvl : x ∈ levelaux C n) :
+    ∃ (m : ℕ) (_ : m < n) (j : cell C m), x ∈ ocell m j := by
   induction' n using ENat.nat_induction with n hn hn
   · simp [levelaux] at xmemlvl
   · simp only [Nat.cast_succ, levelaux, mem_iUnion, exists_prop] at xmemlvl
     rcases xmemlvl with ⟨m, ⟨mlt, h⟩⟩
     rcases h with ⟨j, xmem⟩
-    rw [← Metric.sphere_union_ball, image_union] at xmem
+    rw [← ecell_union_ocell_eq_ccell] at xmem
     rcases xmem with h | h
-    · apply (map_sphere_subset_levelaux _ m j) at h
+    · apply (ecell_subset_levelaux _ m j) at h
       norm_cast at hn mlt ⊢
       rw [Nat.add_one] at mlt
       rcases hn ((levelaux_mono _ (by norm_cast; exact (Nat.le_of_lt_succ mlt))) h) with ⟨m, hm⟩
@@ -320,59 +351,53 @@ lemma exists_mem_ball_of_mem_levelaux {n : ℕ∞} {x : X} (xmemlvl : x ∈ leve
     simp only [exists_prop]
     exact ⟨lt_trans hm.1 ilttop, hm.2⟩
 
-lemma exists_mem_ball_of_mem_level {n : ℕ∞} {x : X} (xmemlvl : x ∈ level C n) :
-    ∃ (m : ℕ) (_ : m ≤ n) (j : cell C m), x ∈ map m j '' ball 0 1 := by
+lemma exists_mem_ocell_of_mem_level {n : ℕ∞} {x : X} (xmemlvl : x ∈ level C n) :
+    ∃ (m : ℕ) (_ : m ≤ n) (j : cell C m), x ∈ ocell m j := by
   rw [level] at xmemlvl
-  rcases exists_mem_ball_of_mem_levelaux _ xmemlvl with ⟨m, hm⟩
+  rcases exists_mem_ocell_of_mem_levelaux _ xmemlvl with ⟨m, hm⟩
   use m
-  rw [exists_prop] at *
+  rw [exists_prop] at hm ⊢
   exact ⟨ENat.le_of_lt_add_one hm.1, hm.2⟩
 
-lemma levelaux_inter_image_closedBall_eq_levelaux_inter_image_sphere {n : ℕ∞} {m : ℕ}
-    {j : cell C m} (nlem : n ≤ m) : levelaux C n ∩ map m j '' closedBall 0 1 =
-    levelaux C n ∩ map m j '' sphere 0 1 := by
+lemma levelaux_inter_ccell_eq_levelaux_inter_ecell {n : ℕ∞} {m : ℕ}
+    {j : cell C m} (nlem : n ≤ m) : levelaux C n ∩ ccell m j =
+    levelaux C n ∩ ecell m j := by
   ext x
   constructor
   · intro ⟨xmemlevel, xmemball⟩
     refine ⟨xmemlevel, ?_ ⟩
-    rw [← Metric.sphere_union_ball, image_union] at xmemball
+    rw [← ecell_union_ocell_eq_ccell] at xmemball
     rcases xmemball with h | h
     · exact h
     exfalso
-    rcases exists_mem_ball_of_mem_levelaux _ xmemlevel with ⟨l, ⟨llen, ⟨i, xmem⟩⟩⟩
-    have : ¬ Disjoint (map m j '' ball 0 1) (map l i '' ball 0 1) := by
+    rcases exists_mem_ocell_of_mem_levelaux _ xmemlevel with ⟨l, ⟨llen, ⟨i, xmem⟩⟩⟩
+    have : ¬ Disjoint (ocell m j) (ocell l i) := by
       rw [not_disjoint_iff]
       use x
-    have := not_disjoint_equal _ this
+    have := eq_cell_of_not_disjoint _ this
     simp only [Sigma.mk.inj_iff] at this
     rcases this with ⟨eq1, eq2⟩
     subst m
     exact (lt_self_iff_false n).1 (lt_of_le_of_lt nlem llen)
   · intro xmem
-    exact ⟨xmem.1,  (Set.image_subset (map m j) Metric.sphere_subset_closedBall) xmem.2⟩
+    exact ⟨xmem.1,  ecell_subset_ccell _ _ _ xmem.2⟩
 
-lemma level_inter_image_closedBall_eq_level_inter_image_sphere {n : ℕ∞} {m : ℕ}{j : cell C m}
-    (nltm : n < m) : level C n ∩ map m j '' closedBall 0 1 =
-    level C n ∩ map m j '' sphere 0 1 := by
+lemma level_inter_ccell_eq_level_inter_ecell {n : ℕ∞} {m : ℕ} {j : cell C m}
+    (nltm : n < m) : level C n ∩ ccell m j =
+    level C n ∩ ecell m j := by
   apply Order.succ_le_of_lt at nltm
   rw [ENat.succ_def] at nltm
-  simp only [level]
-  exact levelaux_inter_image_closedBall_eq_levelaux_inter_image_sphere _ nltm
+  exact levelaux_inter_ccell_eq_levelaux_inter_ecell _ nltm
 
-lemma isClosed_map_sphere {n : ℕ} {i : cell C n} : IsClosed (map n i '' sphere 0 1) :=
-  IsCompact.isClosed (IsCompact.image_of_continuousOn (isCompact_sphere _ _)
-    (ContinuousOn.mono (cont n i) sphere_subset_closedBall))
-
-lemma isClosed_inter_sphere_succ_of_le_isClosed_inter_closedBall {A : Set X} {n : ℕ}
-  (hn : ∀ m ≤ n, ∀ (j : cell C m), IsClosed (A ∩ map m j '' closedBall 0 1)) :
-  ∀ (j : cell C (n + 1)), IsClosed (A ∩ map (n + 1) j '' sphere 0 1) := by
+lemma isClosed_inter_ecell_succ_of_le_isClosed_inter_ccell {A : Set X} {n : ℕ}
+  (hn : ∀ m ≤ n, ∀ (j : cell C m), IsClosed (A ∩ ccell m j)) :
+  ∀ (j : cell C (n + 1)), IsClosed (A ∩ ecell (n + 1) j) := by
   intro j
-  rcases mapsto (n + 1) j with ⟨I, hI⟩
-  rw [mapsTo'] at hI
-  have closedunion : IsClosed (A ∩ ⋃ m, ⋃ (_ : m < n + 1), ⋃ j ∈ I m, map m j '' closedBall 0 1) := by
+  rcases ecell_subset (n + 1) j with ⟨I, hI⟩
+  have closedunion : IsClosed (A ∩ ⋃ m, ⋃ (_ : m < n + 1), ⋃ j ∈ I m, ccell m j) := by
     simp only [inter_iUnion]
     let N := {m : ℕ // m < n + 1}
-    suffices IsClosed (⋃ (i : N), ⋃ (i_1 : I i), A ∩ map (C := C) i i_1 '' closedBall 0 1) by
+    suffices IsClosed (⋃ (i : N), ⋃ (i_1 : I i), A ∩ ccell (C := C) i i_1) by
       convert this using 1
       ext x
       simp only [mem_iUnion, exists_prop]
@@ -390,41 +415,22 @@ lemma isClosed_inter_sphere_succ_of_le_isClosed_inter_closedBall {A : Set X} {n 
     apply isClosed_iUnion_of_finite
     intro j
     exact hn i (Nat.le_of_lt_succ i.2) j
-  suffices IsClosed (A ∩ (⋃ m, ⋃ (_ : m < n + 1),
-      ⋃ j ∈ I m, map m j '' closedBall 0 1) ∩ map (n + 1) j '' sphere 0 1) by
+  suffices IsClosed (A ∩ (⋃ m, ⋃ (_ : m < n + 1), ⋃ j ∈ I m, ccell m j) ∩ ecell (n + 1) j) by
     simpa [inter_assoc, Set.inter_eq_right.2 hI]
-  apply IsClosed.inter closedunion (isClosed_map_sphere _)
-
-lemma isCompact_map_closedBall (n : ℕ) (i : cell C n) : IsCompact (map n i '' closedBall 0 1) :=
-  IsCompact.image_of_continuousOn (isCompact_closedBall _ _) (cont n i)
-
-lemma isClosed_map_closedBall (n : ℕ) (i : cell C n) : IsClosed (map n i '' closedBall 0 1) :=
-  IsCompact.isClosed (isCompact_map_closedBall _ _ _)
+  apply IsClosed.inter closedunion (isClosed_ecell _)
 
 lemma isClosed : IsClosed C := by
   rw [closed (C := C) _ (by rfl)]
   intros
-  rw [Set.inter_eq_right.2 (map_closedBall_subset_complex _ _ _)]
-  exact isClosed_map_closedBall _ _ _
-
-lemma closure_map_ball_eq_map_closedball {n : ℕ} {j : cell C n} :
-    closure (map n j '' ball 0 1) = map n j '' closedBall 0 1 := by
-  apply subset_antisymm
-  · rw [IsClosed.closure_subset_iff (isClosed_map_closedBall _ n j)]
-    exact map_ball_subset_map_closedball C
-  · have : ContinuousOn (map n j) (closure (ball 0 1)) := by
-      rw [closure_ball 0 (by exact one_ne_zero)]
-      exact cont n j
-    rw [← closure_ball]
-    apply ContinuousOn.image_closure this
-    exact one_ne_zero
+  rw [Set.inter_eq_right.2 (ccell_subset_complex _ _ _)]
+  exact isClosed_ccell C
 
 -- could this proof be simplified using `exists_mem_ball_of_mem_level`?
-lemma mapsto' (n : ℕ) (i : cell C n) : ∃ I : Π m, Finset (cell C m),
-MapsTo (map n i) (sphere 0 1) (⋃ (m < n) (j ∈ I m), map m j '' ball 0 1) := by
+lemma ecell_subset' (n : ℕ) (i : cell C n) : ∃ I : Π m, Finset (cell C m),
+    ecell n i ⊆  (⋃ (m < n) (j ∈ I m), ocell m j) := by
   induction' n using Nat.case_strong_induction_on with n hn
-  · simp [sphere_zero_dim_empty, MapsTo]
-  · rcases mapsto (Nat.succ n) i with ⟨J, hJ⟩
+  · simp [ecell_zero_eq_empty]
+  · rcases ecell_subset (Nat.succ n) i with ⟨J, hJ⟩
     choose p hp using hn
     let I' m := if mltnsucc : m < Nat.succ n then
       (J m).toSet ∪ ⋃ (l : {l : ℕ // l ≤ n}) (y : J l), p l l.2 y m else (J m).toSet
@@ -441,7 +447,6 @@ MapsTo (map n i) (sphere 0 1) (⋃ (m < n) (j ∈ I m), map m j '' ball 0 1) := 
       · simp only [h, ↓reduceIte, Finset.finite_toSet]
     let I m := Set.Finite.toFinset (this m)
     use I
-    rw [MapsTo] at hJ ⊢
     intro x xmem
     replace hJ := hJ xmem
     simp only [mem_iUnion, exists_prop] at hJ ⊢
@@ -449,18 +454,15 @@ MapsTo (map n i) (sphere 0 1) (⋃ (m < n) (j ∈ I m), map m j '' ball 0 1) := 
     apply Nat.le_of_lt_succ at llen
     let K := p l llen j
     let hK := hp l llen j
-    rw [MapsTo] at hK
-    simp only [mem_image] at mapxmem
-    rcases mapxmem with ⟨x', x'mem, mapx'⟩
-    rw [← Metric.sphere_union_ball] at x'mem
-    rcases x'mem with x'mem | x'mem
-    · have hK := hK x'mem
+    rw [← ecell_union_ocell_eq_ccell] at mapxmem
+    rcases mapxmem with mapxmem | mapxmem
+    · have hK := hK mapxmem
       simp only [mem_iUnion, exists_prop] at hK
       rcases hK with ⟨m, mltl, o, omem, mapomem⟩
       use m
       refine ⟨lt_trans mltl (Nat.lt_succ_of_le llen), ?_⟩
       use o
-      refine ⟨?_, by rw [← mapx']; exact mapomem⟩
+      refine ⟨?_, mapomem⟩
       simp only [Nat.succ_eq_add_one, dite_eq_ite, lt_trans mltl (Nat.lt_succ_of_le llen),
         ↓reduceIte, Finite.mem_toFinset, mem_union, Finset.mem_coe, mem_iUnion, Subtype.exists,
         exists_prop, I, I']
@@ -471,7 +473,7 @@ MapsTo (map n i) (sphere 0 1) (⋃ (m < n) (j ∈ I m), map m j '' ball 0 1) := 
     · use l
       refine ⟨Nat.lt_succ_of_le llen, ?_ ⟩
       use j
-      refine ⟨?_, by rw [← mapx']; exact Set.mem_image_of_mem (map l j) x'mem⟩
+      refine ⟨?_, mapxmem⟩
       simp only [Nat.succ_eq_add_one, dite_eq_ite, Nat.lt_succ_of_le llen, ↓reduceIte,
         Finite.mem_toFinset, mem_union, Finset.mem_coe, mem_iUnion, Subtype.exists, exists_prop, I,
         I']

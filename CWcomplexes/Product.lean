@@ -11,6 +11,9 @@ open Metric Set KSpace
 
 namespace CWComplex
 
+-- this needs a masssive refactor
+-- separating out definitions, and lemmas ...
+
 section
 
 variable {X : Type*} {Y : Type*} [t1 : TopologicalSpace X] [t2 : TopologicalSpace Y] [T2Space X]
@@ -91,7 +94,7 @@ instance CWComplex_product : CWComplex (X := X ×ₖ Y) (C ×ˢ D) where
       exact from_kification_continuouson_of_continuouson ((map m j).symm.prod (map l k).symm)
         ((map m j).target ×ˢ (map l k).target)
         (ContinuousOn.prod_map (cont_symm m j) (cont_symm l k))
-  pairwiseDisjoint := by
+  pairwiseDisjoint' := by
     intro ⟨n1, m, l, hmln1, j, k⟩ _ ⟨n2, p, q, hpqn2, i, o⟩ _ ne
     subst hmln1 hpqn2
     simp only [Function.onFun]
@@ -166,7 +169,7 @@ instance CWComplex_product : CWComplex (X := X ×ₖ Y) (C ×ˢ D) where
       use this
       rw [prod_map_image_closedball]
       exact ⟨x1mem, hop⟩
-  closed A := by
+  closed' A := by
     intro Asub
     constructor
     · intro closedA n ⟨m, l, hmln, j, k⟩
@@ -174,7 +177,7 @@ instance CWComplex_product : CWComplex (X := X ×ₖ Y) (C ×ˢ D) where
       apply IsClosed.inter closedA
       rw [prod_map_image_closedball]
       refine IsClosed.mono ?_ kification_le
-      exact IsClosed.prod (isClosed_map_closedBall _ _ _) (isClosed_map_closedBall _ _ _)
+      exact IsClosed.prod (isClosed_ccell _) (isClosed_ccell _)
     · intro hA
       rw [@kification.closed_iff _ instTopologicalSpaceProd]
       intro K
@@ -223,13 +226,12 @@ instance CWComplex_product : CWComplex (X := X ×ₖ Y) (C ×ˢ D) where
         apply @isClosed_iUnion_of_finite _ _ _
           (compact_inter_finite ⟨Prod.fst '' K.1, IsCompact.image K.2 continuous_fst⟩) _
         intro i2
-        apply IsClosed.prod
-          (isClosed_map_closedBall _ i2.1 i2.2.1) (isClosed_map_closedBall _ i1.1 i1.2.1)
+        apply IsClosed.prod (isClosed_ccell _) (isClosed_ccell _)
       intro ⟨m, j, _⟩
       apply @closed_in_finite _ _ _
         (compact_inter_finite ⟨Prod.fst '' K.1, IsCompact.image K.2 continuous_fst⟩) _
       · intro i2
-        apply IsClosed.prod (isClosed_map_closedBall _ i2.1 i2.2.1) (isClosed_map_closedBall _ m j)
+        apply IsClosed.prod (isClosed_ccell _) (isClosed_ccell _)
       intro ⟨n, i, _⟩
       replace hA := hA (n + m) ⟨n, m, rfl, i, j⟩
       rw [prod_map_image_closedball] at hA
@@ -237,10 +239,10 @@ instance CWComplex_product : CWComplex (X := X ×ₖ Y) (C ×ˢ D) where
        TopologicalSpace.Compacts.carrier_eq_coe, TopologicalSpace.Compacts.coe_mk] at hA ⊢
       rw [@kification.closed_iff _ instTopologicalSpaceProd _] at hA
       rcases hA ⟨(map n i '' closedBall 0 1) ×ˢ (map m j '' closedBall 0 1), IsCompact.prod
-        (isCompact_map_closedBall _ n i) (isCompact_map_closedBall _ m j)⟩ with ⟨C1, hC1⟩
+        (isCompact_ccell _) (isCompact_ccell _)⟩ with ⟨C1, hC1⟩
       use C1
       rw [← hC1, inter_assoc, inter_self]
-  union := by
+  union' := by
     have : ⋃ (n : ℕ), ⋃ (j : (m : ℕ) ×' (l : ℕ) ×' (_ : m + l = n) ×' cell C m × cell D l),
         (fun a ↦  (j.2.2.fst ▸ (IsometryEquivFinMap j.fst j.2.fst).symm.transPartialEquiv
         ((map j.fst j.2.2.2.1).prod (map j.2.fst j.2.2.2.2))) a) '' closedBall 0 1 =
