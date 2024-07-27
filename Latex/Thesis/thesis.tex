@@ -37,7 +37,7 @@
 \usepackage[backend=biber, style=alphabetic]{biblatex}  % Gute Erweiterung zu bibtex, Wird für Referenzen benutzt.
 \bibliography{thesis}   % Die verwendeten Referenzen (.bib-Datei)
 \usepackage[hypcap]{caption}            % Damit Hyperrefs bei der figure-Umgebung auf die Figure zeigt statt auf die Caption.
-\usepackage{datetime}                   % Um \today einzustellen.
+\usepackage[nodayofweek]{datetime}                   % Um \today einzustellen.
 \newdateformat{mydate}{\THEDAY{}th \monthname{} \THEYEAR{}}
 \usepackage{diagbox}                    % Diagonale in Tabellen.
 \usepackage{enumitem}                   % Zum Ändern der Nummerierungsumgenung 'enumerate'
@@ -94,88 +94,34 @@
     urlcolor=black                       % Farbe von Internetlinks.
 }
 
-%       Makros und Definition der Titelseite
-\makeatletter                           % Um Makros mit @ benutzen zu können. Zum Beispiel @author.
-\newcommand*{\authora}[1]{\def\@authora{#1}}            % Autor
-\newcommand*{\authorb}[1]{\def\@authorb{#1}}            % Autor.
-\newcommand*{\geburtsdatuma}[1]{\def\@geburtsdatuma{#1}}        % Geburtsdatum.
-\newcommand*{\geburtsdatumb}[1]{\def\@geburtsdatumb{#1}}        % Geburtsdatum.
-\newcommand*{\geburtsorta}[1]{\def\@geburtsorta{#1}}    % Gebortsort.
-\newcommand*{\geburtsortb}[1]{\def\@geburtsortb{#1}}    % Gebortsort.
-\newcommand*{\thesentyp}[1]{\def\@thesentyp{#1}}        % Thesentyp z.B. Bachelorarbeit oder Master's Theses.
-\newcommand*{\betreuera}[1]{\def\@betreuera{#1}}          % Betreuer z.B. Lieber Gott
-\newcommand*{\betreuerb}[1]{\def\@betreuerb{#1}}          % zweiter Betreuer z.B. Jesus
-\newcommand*{\institut}[1]{\def\@institut{#1}}          % Institut z.B. Mensa
+\usepackage{MA_Titlepage}
 
-% Definition der Titelseite.
-\renewcommand\maketitle{
-\KOMAoptions{twoside = false}   % Die Titelseite soll (bis auf Bindekorrektur) mittig auf dem Papier erscheinen.
-\begin{titlepage}       % Definiere die Titelseite wie folgt.
-    \vspace*{\fill}             % Um den Inhalt der Titelseite vertikal zu zentrieren, benutzen wir \vspace*{\fill} [Inhalt] \vspace*{\fill}.
-    \begin{center}
-        \parbox{14cm}{\centering\huge\bfseries \@title \par}\\\vspace{2em}      % Mache eine Paragraphenbox (Titel kann in mehreren Zeilen stehen) der Breite 15cm. Der Inhalt ist zentriert, sehr groß geschrieben, fett und mit Serifen. Anschließend 2 Einheiten Platz.
-        {\Large\@authora}\\\vspace{.3em}                                        % Name des Authors in großer Schrift. Anschließend eine wenig Platz.
-        Born   \@geburtsdatuma \ in \@geburtsorta\\\vspace{2em}                 % Geburtsdatum und Ort. Anschließend zwei Einheit Platz.
-        
-        {\large \@date}\\\vspace{15em}                                          % Datum in mittelgroßer Schrift. Anschließend 15 Einheiten Platz.
-        {\large \@thesentyp}\\\vspace{1em}                                      % Der Text 'Master's Thesis  Mathematics' in großer Schrift. Anschließend eine Einheit Platz.
-        {\large \@betreuera}\\\vspace{1em}  
-         {\large \@betreuerb}\\\vspace{1em} 
-        % Der Text 'Advisor: Prof. Dr. Carl-Friedrich Bödigheimer' in großer Schrift. Anschließend eine Einheit Platz.
-        {\large\scshape \@institut}\\\vspace{9em}                                    % Der Text 'Mathematisches Institut' in großer 'small caps'-Schrift. Anschließend neun Einheit Platz.
-        {\large\scshape Mathematisch-Naturwissenschaftliche Fakultät der}\\\vspace{1em}      % Der Text 'Mathematisch-Naturwissenschaftliche Fakultät der' in großer 'small caps'-Schrift. Anschließend eine Einheit Platz.
-        {\large\scshape Rheinischen Friedrich-Wilhelms-Universität Bonn}             % Der Text 'Rheinischen Friedrich-Wilhelms-Universität Bonn' in großer 'small caps'-Schrift.
-    \end{center}
-    \vspace*{\fill}             % Hier endet der Inhalt des Titelblattes.
-    \clearpage                  % Beende die Seite.
-    
-    \thispagestyle{empty}       % Die zweite Seite einfach nur leer sein. Dazu muss sie frei von Überschriften / Seitenzahlen / ... sein.
-    \null\clearpage             % Beende die Seite. (Dazu ist mindestens ein Zeichen notwendig und dafür verwenden wir das Makro \null.)
-\end{titlepage}         % Ende der Definition der Titelseite.
-\KOMAoptions{twoside}   % Ab hier wieder twoside.
-% Räume Makors auf damit ein weiteres \maketitel, \author, ... nichts mehr produziert.
-\global\let\maketitle\relax
-\global\let\@authora\@empty
-\global\let\@authorb\@empty
-\global\let\@geburtsdatuma\@empty
-\global\let\@geburtsdatumb\@empty
-\global\let\@geburtsorta\@empty
-\global\let\@geburtsortb\@empty
-\global\let\@thesentyp\@empty
-\global\let\@betreuera\@empty
-\global\let\@betreuerb\@empty
-\global\let\@institut\@empty
-\global\let\@date\@empty
-\global\let\@title\@empty
-\global\let\title\relax
-\global\let\authora\relax
-\global\let\authorb\relax
-\global\let\geburtsdatuma\relax
-\global\let\geburtsdatumb\relax
-\global\let\geburtsorta\relax
-\global\let\geburtsortb\relax
-\global\let\thesentyp\relax
-\global\let\betreuera\relax
-\global\let\betreuerb\relax
-\global\let\institut\relax
-\global\let\date\relax
-\global\let\and\relax
-}
-\makeatother
-%       Ende Makros und Definition der Titelseite
+%Name of the author of the thesis 
+\authornew{Hannah Scholz}
+%Date of birth of the Author
+\geburtsdatum{\formatdate{21}{7}{2003}}
+%Place of Birth
+\geburtsort{Bonn, Germany}
+%Date of submission of the thesis
+\date{\formatdate{22}{8}{2024}}
 
+%Name of the Advisor
+% z.B.: Prof. Dr. Peter Koepke
+\betreuer{Advisor: Prof. Dr. Floris van Doorn}
+%name of the second advisor of the thesis
+\zweitgutachter{Second Advisor: Prof. Dr. X Y}
 
-\authora{your name}           % Verfasser 1
-\geburtsdatuma{your birthday}      % Geburtsdatum.
-\geburtsorta{your birthplace}                  % Gebortsort.
-\thesentyp{Master's Thesis  Mathematics}        % Thesentyp.
-\betreuera{Advisor: Prof.\ Dr.\ Your Advisor}        % Betreuer
-\betreuerb{Second Advisor: Prof.\ Dr.\ Your Advisor} 
-%Second Advisor
-\institut{Institute for Applied Mathematics}      % Institut an dem die Arbeit angefertigt wurde
-\date{12th September 2014\\Last update: \mydate\today}              % Datum der Abgabe der Arbeit.
-\title{Title}        % Titel der Masterarbeit.
-
+%Name of the Insitute of the advisor
+%z.B.: Mathematisches Institut
+%\institut{Institut XYZ}
+\institut{Mathematisches Institut}
+%\institut{Institut f\"ur Angewandte Mathematik}
+%\institut{Institut f\"ur Numerische Simulation}
+%\institut{Forschungsinstitut f\"ur Diskrete Mathematik}
+%Title of the thesis 
+\title{Formalisation of CW-complexes}
+%Do not change!
+\ausarbeitungstyp{Bachelor's Thesis  Mathematics}
 
 %       Theoreme
 \theoremstyle{definition}               % Name: dick            Text: normal.
