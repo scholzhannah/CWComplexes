@@ -28,8 +28,6 @@ class CWComplex.{u} {X : Type u} [TopologicalSpace X] (C : Set X) where
   closed' (A : Set X) (asubc : A ⊆ C) : IsClosed A ↔ ∀ n j, IsClosed (A ∩ map n j '' closedBall 0 1)
   union' : ⋃ (n : ℕ) (j : cell n), map n j '' closedBall 0 1 = C
 
---create constructor if the CWComplex is finite
-
 
 variable [T2Space X] (C : Set X) [CWComplex C]
 
@@ -40,6 +38,7 @@ def ocell {C : Set X} [CWComplex C] (n : ℕ) (i : cell C n) : Set X := map n i 
 
 def ccell {C : Set X} [CWComplex C] (n : ℕ) (i : cell C n) : Set X := map n i '' closedBall 0 1
 
+--maybe I should have named this fcell instead? Should I change it?
 def ecell {C : Set X} [CWComplex C] (n : ℕ) (i : cell C n) : Set X := map n i '' sphere 0 1
 
 lemma pairwiseDisjoint :
@@ -82,11 +81,117 @@ lemma levelaux_zero_eq_empty : levelaux C 0 = ∅ := by
   unfold levelaux
   simp only [isEmpty_Prop, not_lt, zero_le, iUnion_of_empty, iUnion_empty]
 
--- finite type seperately
+lemma isCompact_ccell {n : ℕ} {i : cell C n} : IsCompact (ccell n i) :=
+  IsCompact.image_of_continuousOn (isCompact_closedBall _ _) (cont n i)
+
+lemma isClosed_ccell {n : ℕ} {i : cell C n} : IsClosed (ccell n i) := (isCompact_ccell _).isClosed
+
+lemma isCompact_ecell {n : ℕ} {i : cell C n} : IsCompact (ecell n i) :=
+  IsCompact.image_of_continuousOn (isCompact_sphere _ _)
+    (ContinuousOn.mono (cont n i) sphere_subset_closedBall)
+
+lemma isClosed_ecell {n : ℕ} {i : cell C n} : IsClosed (ecell n i) := (isCompact_ecell _).isClosed
+
+lemma closure_ocell_eq_ccell {n : ℕ} {j : cell C n} : closure (ocell n j) = ccell n j := by
+  apply subset_antisymm
+    ((IsClosed.closure_subset_iff (isClosed_ccell _)).2 (ocell_subset_ccell C n j))
+  have : ContinuousOn (map n j) (closure (ball 0 1)) := by
+    rw [closure_ball 0 (by exact one_ne_zero)]
+    exact cont n j
+  rw [ccell, ← closure_ball 0 (by exact one_ne_zero)]
+  apply ContinuousOn.image_closure this
+
+class FiniteDimensional.{u} {X : Type u} [TopologicalSpace X] (C : Set X) [CWComplex C] : Prop where
+  finitelevels : ∀ᶠ n in Filter.atTop, IsEmpty (cell C n)
+
+class FiniteType.{u} {X : Type u} [TopologicalSpace X] (C : Set X) [CWComplex C] : Prop where
+  finitecells (n : ℕ) : Finite (cell C n)
 
 class Finite.{u} {X : Type u} [TopologicalSpace X] (C : Set X) [CWComplex C] : Prop where
   finitelevels : ∀ᶠ n in Filter.atTop, IsEmpty (cell C n)
   finitecells (n : ℕ) : Finite (cell C n)
+
+def CWComplexFiniteType.{u} {X : Type u} [TopologicalSpace X] (C : Set X)
+    (cell : (n : ℕ) → Type u) (map : (n : ℕ)  → (i : cell n) → PartialEquiv (Fin n → ℝ) X)
+    (finitecells : ∀ (n : ℕ), _root_.Finite (cell n))
+    (source_eq : ∀ (n : ℕ) (i : cell n), (map n i).source = closedBall 0 1)
+    (cont : ∀ (n : ℕ) (i : cell n), ContinuousOn (map n i) (closedBall 0 1))
+    (cont_symm : ∀ (n : ℕ) (i : cell n), ContinuousOn (map n i).symm (map n i).target)
+    (pairwiseDisjoint' :
+      (univ : Set (Σ n, cell n)).PairwiseDisjoint (fun ni ↦ map ni.1 ni.2 '' ball 0 1))
+    (mapsto : ∀ (n : ℕ) (i : cell n),
+      MapsTo (map n i) (sphere 0 1) (⋃ (m < n) (j : cell m), map m j '' closedBall 0 1))
+    (closed' :
+      ∀ (A : Set X) (asubc : A ⊆ C),  IsClosed A ↔ ∀ n j, IsClosed (A ∩ map n j '' closedBall 0 1))
+    (union' : ⋃ (n : ℕ) (j : cell n), map n j '' closedBall 0 1 = C) :
+    CWComplex C where
+  cell := cell
+  map := map
+  source_eq := source_eq
+  cont := cont
+  cont_symm := cont_symm
+  pairwiseDisjoint' := pairwiseDisjoint'
+  mapsto n i := by
+    let I m := Finite.toFinset (s := (univ : Set (cell m))) (Set.finite_univ)
+    use I
+    simp only [Finite.mem_toFinset, mem_univ, iUnion_true, I]
+    exact mapsto n i
+  closed' := closed'
+  union' := union'
+
+def CWComplexFinite.{u} {X : Type u} [TopologicalSpace X] [T2Space X] (C : Set X)
+    (cell : (n : ℕ) → Type u) (map : (n : ℕ)  → (i : cell n) → PartialEquiv (Fin n → ℝ) X)
+    (finitelevels : ∀ᶠ n in Filter.atTop, IsEmpty (cell n))
+    (finitecells : ∀ (n : ℕ), _root_.Finite (cell n))
+    (source_eq : ∀ (n : ℕ) (i : cell n), (map n i).source = closedBall 0 1)
+    (cont : ∀ (n : ℕ) (i : cell n), ContinuousOn (map n i) (closedBall 0 1))
+    (cont_symm : ∀ (n : ℕ) (i : cell n), ContinuousOn (map n i).symm (map n i).target)
+    (pairwiseDisjoint' :
+      (univ : Set (Σ n, cell n)).PairwiseDisjoint (fun ni ↦ map ni.1 ni.2 '' ball 0 1))
+    (mapsto : ∀ (n : ℕ) (i : cell n),
+      MapsTo (map n i) (sphere 0 1) (⋃ (m < n) (j : cell m), map m j '' closedBall 0 1))
+    (union' : ⋃ (n : ℕ) (j : cell n), map n j '' closedBall 0 1 = C) :
+    CWComplex C where
+  cell := cell
+  map := map
+  source_eq := source_eq
+  cont := cont
+  cont_symm := cont_symm
+  pairwiseDisjoint' := pairwiseDisjoint'
+  mapsto n i := by
+    let I m := Finite.toFinset (s := (univ : Set (cell m))) (Set.finite_univ)
+    use I
+    simp only [Finite.mem_toFinset, mem_univ, iUnion_true, I]
+    exact mapsto n i
+  closed' A asubc := by
+    constructor
+    · intro closedA n j
+      exact IsClosed.inter closedA
+        (IsCompact.image_of_continuousOn (isCompact_closedBall _ _) (cont n j)).isClosed
+    intro h
+    rw [← inter_eq_left.2 asubc]
+    simp only [Filter.eventually_atTop, ge_iff_le] at finitelevels
+    obtain ⟨N, hN⟩ := finitelevels
+    have union'' : ⋃ (n : {n : ℕ // n < N}), ⋃ j, ↑(map n j) '' closedBall 0 1 = C := by
+      rw [← union', iUnion_subtype]
+      apply iUnion_congr
+      intro n
+      ext x
+      rw [mem_iUnion]
+      refine ⟨fun ⟨_, h⟩ ↦ h, ?_ ⟩
+      intro xmem
+      have : n < N := by
+        by_contra h
+        push_neg at h
+        simp only [hN n h, iUnion_of_empty, mem_empty_iff_false] at xmem
+      use this
+    simp_rw [← union'', inter_iUnion]
+    apply isClosed_iUnion_of_finite
+    intro ⟨n, _⟩
+    apply isClosed_iUnion_of_finite
+    intro i
+    exact h n i
+  union' := union'
 
 @[simp] lemma levelaux_top : levelaux C ⊤ = C := by
   simp only [levelaux, lt_top_iff_ne_top, ne_eq, ENat.coe_ne_top, not_false_eq_true, iUnion_true, ←
@@ -158,30 +263,6 @@ lemma iUnion_ecell_subset_level (l : ℕ) :
     ⋃ (j : cell C l), ecell l j ⊆ level C l :=
   subset_trans (iUnion_ecell_subset_levelaux C l) (levelaux_mono C le_self_add)
 
-lemma isCompact_ccell {n : ℕ} {i : cell C n} : IsCompact (ccell n i) :=
-  IsCompact.image_of_continuousOn (isCompact_closedBall _ _) (cont n i)
-
-lemma isClosed_ccell {n : ℕ} {i : cell C n} : IsClosed (ccell n i) :=
-  IsCompact.isClosed (isCompact_ccell _)
-
-lemma isCompact_ecell {n : ℕ} {i : cell C n} : IsCompact (ecell n i) :=
-  IsCompact.image_of_continuousOn (isCompact_sphere _ _)
-    (ContinuousOn.mono (cont n i) sphere_subset_closedBall)
-
-lemma isClosed_ecell {n : ℕ} {i : cell C n} : IsClosed (ecell n i) :=
-  IsCompact.isClosed (isCompact_ecell _)
-
-lemma closure_ocell_eq_ccell {n : ℕ} {j : cell C n} :
-    closure (ocell n j) = ccell n j := by
-  apply subset_antisymm
-  · rw [IsClosed.closure_subset_iff (isClosed_ccell _)]
-    exact ocell_subset_ccell C n j
-  · have : ContinuousOn (map n j) (closure (ball 0 1)) := by
-      rw [closure_ball 0 (by exact one_ne_zero)]
-      exact cont n j
-    rw [ccell, ← closure_ball 0 (by exact one_ne_zero)]
-    apply ContinuousOn.image_closure this
-
 lemma ccell_zero_eq_singleton {j : cell C 0} : ccell 0 j = {map 0 j ![]} := by
   simp [ccell, Matrix.empty_eq]
 
@@ -249,6 +330,8 @@ lemma levelaux_succ_eq_levelaux_union_iUnion_ccell (n : ℕ) :
 lemma level_succ_eq_level_union_iUnion (n : ℕ) :
     level C (n + 1) = level C n ∪ ⋃ (j : cell C (↑n + 1)), ccell (n + 1) j :=
   levelaux_succ_eq_levelaux_union_iUnion_ccell _ (n + 1)
+
+-- continue here with latex
 
 /- We can also define the levels using `ball` instead of `closedBall`, using assumption `mapsto`. -/
 lemma iUnion_ocell_eq_levelaux (n : ℕ∞) :

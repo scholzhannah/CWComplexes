@@ -8,7 +8,7 @@ Note that we mean quasi-compactness when talking about compactness.
 
 \begin{defi}
     Let $X$ be a topological space. 
-    We call $X$ a k-space if 
+    We call $X$ a \emph{k-space} if 
     \[A \subseteq X \text{ is open} \iff \text{for all compact sets } C \subseteq X \text{ the intersection } A \cap C \text{ is open in } C.\]
 \end{defi}
 
@@ -40,7 +40,7 @@ We also define a way to make any topological space into a k-space which we call 
     Let $X$ be a topological space. 
     We can define another topological space $X_c$ on the same set by setting
     \[A \subseteq X_c \text{ is open} \iff \text{for all compact sets } C \subseteq X \text{ the intersection } A \cap C \text{ is open in } C.\]
-    We call $X_c$ the k-ification of $X$.
+    We call $X_c$ the \emph{k-ification} of $X$.
 \end{defi}
 
 It is easy to see that this gives us a finer topology: 
@@ -175,7 +175,7 @@ The first example are weakly locally compact spaces.
 
 \begin{defi}
     Let $X$ be a topological space.
-    We call $X$ weakly locally compact if every point $x \in X$ has some compact neighbourhood.
+    We call $X$ \emph{weakly locally compact} if every point $x \in X$ has some compact neighbourhood.
 \end{defi}
 
 This property is in some sources just called locally compact.
@@ -207,9 +207,9 @@ The following proof is from Lemma 46.3 in \cite{Munkres2014}.
 Another big class of spaces which are k-spaces are sequential spaces. 
 
 \begin{defi}
-    A set $A$ in a topological space $X$ is sequentially closed if for every convergent sequence contained in $A$ its limit point is also in $A$. 
-    The sequential closure of a set $A$ in $X$ is defined as $\seqclosure{A} = \{ x \in X \mid \text{there is a sequence } (a_n)_{n \in \bN} \subseteq A \text{ such that} (a_n)_{n \in \bN} \text{ converges to } x\}$.
-    A sequential space is a space in which all sequentially closed sets are closed.
+    A set $A$ in a topological space $X$ is \emph{sequentially closed} if for every convergent sequence contained in $A$ its limit point is also in $A$. 
+    The \emph{sequential closure} of a set $A$ in $X$ is defined as $\seqclosure{A} = \{ x \in X \mid \text{there is a sequence } (a_n)_{n \in \bN} \subseteq A \text{ such that} (a_n)_{n \in \bN} \text{ converges to } x\}$.
+    A \emph{sequential space} is a space in which all sequentially closed sets are closed.
 \end{defi}
 
 We will need the following characterisation of sequentially closed sets: 
