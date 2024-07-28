@@ -12,7 +12,15 @@
             "env": {}
         },
         {
-            "name": "makeindex",
+            "name": "biber",
+            "command": "biber",
+            "args": [
+                "%DOC%"
+            ],
+            "env": {}
+        },
+        {
+            "name": "makeindex1",
             "command": "makeindex",
             "args": [
                 "%DOCFILE%.nlo",
@@ -21,14 +29,23 @@
                 "-o",
                 "%DOCFILE%.nls"
             ]
+        },
+        {
+            "name": "makeindex2",
+            "command": "makeindex",
+            "args": [
+                "%DOCFILE%",
+            ]
         }
     ],
     "latex-workshop.latex.recipes": [
         {
-            "name": "pdflatex -> makeindex -> pdflatex * 2",
+            "name": "pdflatex -> biber -> makeindex1 -> makeindex2 -> pdflatex * 2",
             "tools": [
                 "pdflatex",
-                "makeindex",
+                "biber",
+                "makeindex1",
+                "makeindex2",
                 "pdflatex",
                 "pdflatex"
             ]
