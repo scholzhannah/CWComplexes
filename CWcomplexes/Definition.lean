@@ -424,15 +424,12 @@ lemma levelaux_inter_ccell_eq_levelaux_inter_ecell {n : ℕ∞} {m : ℕ}
   · intro xmem
     exact ⟨xmem.1,  ecell_subset_ccell _ _ xmem.2⟩
 
-lemma level_inter_ccell_eq_level_inter_ecell {n : ℕ∞} {m : ℕ} {j : cell C m}
-    (nltm : n < m) : level C n ∩ ccell m j =
-    level C n ∩ ecell m j := by
-  apply Order.succ_le_of_lt at nltm
-  rw [ENat.succ_def] at nltm
-  exact levelaux_inter_ccell_eq_levelaux_inter_ecell nltm
+lemma level_inter_ccell_eq_level_inter_ecell {n : ℕ∞} {m : ℕ} {j : cell C m} (nltm : n < m) :
+    level C n ∩ ccell m j = level C n ∩ ecell m j :=
+  levelaux_inter_ccell_eq_levelaux_inter_ecell (ENat.add_one_le_of_lt nltm)
 
-lemma levelaux_inter_ocell_eq_empty {n : ℕ∞} {m : ℕ}
-    {j : cell C m} (nlem : n ≤ m) : levelaux C n ∩ ocell m j = ∅ := by
+lemma levelaux_inter_ocell_eq_empty {n : ℕ∞} {m : ℕ} {j : cell C m} (nlem : n ≤ m) :
+    levelaux C n ∩ ocell m j = ∅ := by
   simp_rw [← iUnion_ocell_eq_levelaux, iUnion_inter, iUnion_eq_empty]
   intro l llt i
   have ne : (⟨l, i⟩ : Σ n, cell C n) ≠ ⟨m, j⟩ := by
@@ -447,48 +444,41 @@ lemma levelaux_inter_ocell_eq_empty {n : ℕ∞} {m : ℕ}
   simp only [PairwiseDisjoint, Set.Pairwise, Function.onFun, disjoint_iff_inter_eq_empty] at this
   exact this (mem_univ _) (mem_univ _) ne
 
+lemma level_inter_ocell_eq_empty {n : ℕ∞} {m : ℕ} {j : cell C m}  (nltm : n < m) :
+    level C n ∩ ocell m j = ∅ :=
+  levelaux_inter_ocell_eq_empty (ENat.add_one_le_of_lt nltm)
+
 lemma isClosed_inter_ecell_succ_of_le_isClosed_inter_ccell {A : Set X} {n : ℕ}
-  (hn : ∀ m ≤ n, ∀ (j : cell C m), IsClosed (A ∩ ccell m j)) :
-  ∀ (j : cell C (n + 1)), IsClosed (A ∩ ecell (n + 1) j) := by
-  intro j
-  rcases ecell_subset (n + 1) j with ⟨I, hI⟩
-  have closedunion : IsClosed (A ∩ ⋃ m, ⋃ (_ : m < n + 1), ⋃ j ∈ I m, ccell m j) := by
-    simp only [inter_iUnion]
-    let N := {m : ℕ // m < n + 1}
-    suffices IsClosed (⋃ (i : N), ⋃ (i_1 : I i), A ∩ ccell (C := C) i i_1) by
-      convert this using 1
-      ext x
-      simp only [mem_iUnion, exists_prop]
-      constructor
-      · intro h
-        rcases h with ⟨i, ⟨ilt, ⟨j, ⟨jmem, h⟩⟩⟩⟩
-        use ⟨i, ilt⟩
-        use ⟨j, jmem⟩
-      · intro h
-        rcases h with ⟨⟨i, ilt⟩, ⟨⟨j, jmem⟩, h⟩⟩
-        use i
-        exact ⟨ilt, (by use j)⟩
-    apply isClosed_iUnion_of_finite
-    intro i
-    apply isClosed_iUnion_of_finite
-    intro j
-    exact hn i (Nat.le_of_lt_succ i.2) j
-  suffices IsClosed (A ∩ (⋃ m, ⋃ (_ : m < n + 1), ⋃ j ∈ I m, ccell m j) ∩ ecell (n + 1) j) by
-    simpa [inter_assoc, inter_eq_right.2 hI]
-  apply closedunion.inter (isClosed_ecell)
+    (hn : ∀ m ≤ n, ∀ (j : cell C m), IsClosed (A ∩ ccell m j)) (j : cell C (n + 1)) :
+    IsClosed (A ∩ ecell (n + 1) j) := by
+  obtain ⟨I, hI⟩ := ecell_subset (n + 1) j
+  rw [← inter_eq_right.2 hI, ← inter_assoc]
+  refine IsClosed.inter ?_ isClosed_ecell
+  simp_rw [inter_iUnion, ← iUnion_subtype (fun m ↦ m < n + 1) (fun m ↦ ⋃ i ∈ I m, A ∩ ccell m i)]
+  apply isClosed_iUnion_of_finite
+  intro ⟨m, mlt⟩
+  rw [← iUnion_subtype (fun i ↦ i ∈ I m) (fun i ↦ A ∩ ccell (↑m) i.1)]
+  apply isClosed_iUnion_of_finite
+  intro ⟨j, _⟩
+  exact hn m (Nat.le_of_lt_succ mlt) j
 
 lemma strong_induction_isClosed {A : Set X} (asub : A ⊆ C)
-    (step : ∀ n, (∀ m ≤ n, ∀ (j : cell C m), IsClosed (A ∩ ccell m j)) →
-    ∀ (j : cell C (n + 1)), IsClosed (A ∩ ocell (n + 1) j)) :
+    (step : ∀ n (_ : 0 < n), ∀ (j : cell C n),
+    IsClosed (A ∩ ocell n j) ∨ IsClosed (A ∩ ccell n j)) :
     IsClosed A := by
   rw [closed A asub]
   intro n j
   induction' n using Nat.case_strong_induction_on with n hn
   · rw [ccell_zero_eq_singleton]
     exact isClosed_inter_singleton
-  replace step := step n hn j
-  rw [← ecell_union_ocell_eq_ccell, inter_union_distrib_left]
-  exact (isClosed_inter_ecell_succ_of_le_isClosed_inter_ccell hn j).union step
+  replace step := step n.succ (Nat.zero_lt_succ n) j
+  rcases step with step1 | step2
+  · rw [← ecell_union_ocell_eq_ccell, inter_union_distrib_left]
+    exact (isClosed_inter_ecell_succ_of_le_isClosed_inter_ccell hn j).union step1
+  · simp_rw [Nat.succ_eq_add_one]
+    exact step2
+
+-- continue latex here
 
 lemma isClosed : IsClosed C := by
   rw [closed (C := C) _ (by rfl)]

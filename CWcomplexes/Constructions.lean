@@ -57,17 +57,13 @@ instance CWComplex_levelaux (n : ℕ∞) : CWComplex (levelaux C n) where
     refine ⟨fun _ _ _ ↦ by simp only [(closed' A this).1], ?_⟩
     intro h
     simp only [Subtype.forall] at h
-    rw [closed A this]
-    intro m j
-    induction' m using Nat.case_strong_induction_on with m hm
-    · rw [ccell_zero_eq_singleton]
-      exact isClosed_inter_singleton
-    by_cases mlt : m + 1 < n
-    · exact h (m + 1) j mlt
+    apply strong_induction_isClosed this
+    intro m _ j
+    by_cases mlt : m < n
+    · right
+      exact h m j mlt
+    left
     push_neg at mlt
-    rw [← ecell_union_ocell_eq_ccell, inter_union_distrib_left]
-    apply (isClosed_inter_ecell_succ_of_le_isClosed_inter_ccell hm j).union
-    rw [← ENat.coe_one, ← ENat.coe_add] at mlt
     rw [← inter_eq_left.2 asublevel, inter_assoc, levelaux_inter_ocell_eq_empty mlt, inter_empty]
     exact isClosed_empty
   union' := by

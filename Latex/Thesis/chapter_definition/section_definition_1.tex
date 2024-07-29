@@ -32,13 +32,13 @@ In this thesis we will however focus on the historical definition of CW-complexe
     Let $X$ be a Hausdorff space. 
     A \emph{CW-complex} on $X$ consists of a family of indexing sets $(I_n)_{n \in \bN}$ and a family of maps $(Q_i^n\colon D_i^n\rightarrow X)_{n \ge 0, i \in I_n}$ s.t.
     \begin{enumerate}
-        \item $\restrict{Q_i^n}{\interior{D_i^n}}\colon \interior{D_i^n} \rightarrow Q_i^n(\interior{D_i^n})$ is a homeomorphism. We call $\ocell{n}{i} \coloneq Q_i^n(\interior{D_i^n})$ an \emph{(open) $n$-cell} (or a cell of dimension $n$).
+        \item $\restrict{Q_i^n}{\interior{D_i^n}}\colon \interior{D_i^n} \rightarrow Q_i^n(\interior{D_i^n})$ is a homeomorphism. We call $\ocell{n}{i} \coloneq Q_i^n(\interior{D_i^n})$ an \emph{(open) $n$-cell} (or a cell of dimension $n$) and $\ccell{n}{i} \coloneq Q_i^n(D_i^n)$ a \emph{closed $n$-cell}.
         \item For all $n, m \in \bN$, $i \in I_n$ and $j \in I_m$ where $(n, i) \ne (m, j)$ the cells $\ocell{n}{i}$ and $\ocell{m}{j}$ are disjoint.
-        \item For each $n \in \bN$, $i \in I_n$, $Q_i^n(\boundary D_i^n)$ is contained in the union of a finite number of cells of dimension less than $n$.
+        \item For each $n \in \bN$, $i \in I_n$, $Q_i^n(\boundary D_i^n)$ is contained in the union of a finite number of closed cells of dimension less than $n$.
         \item $A \subseteq X$ is closed iff $Q_i^n(D_i^n) \cap A$ is closed for all $n \in \bN$ and $i \in I_n$.
         \item $\bigcup_{n \ge 0}\bigcup_{i \in I_n} Q_i^n(D_i^n) = X$.
     \end{enumerate}
-    We call $Q_i^n$ a \emph{characteristic map}, $\ccell{n}{i} \coloneq Q_i^n(D_i^n)$ a \emph{closed $n$-cell} and we call $\ecell{n}{i} \coloneq Q_i^n(\boundary D_i^n)$ the \emph{edge of the $n$-cell} for any $i$ and $n$.
+    We call $Q_i^n$ a \emph{characteristic map} and $\ecell{n}{i} \coloneq Q_i^n(\boundary D_i^n)$ the \emph{edge of the $n$-cell} for any $i$ and $n$.
     Additionally we define $X_n \coloneq \bigcup_{m < n + 1} \bigcup_{i \in I_m} \ccell{m}{i}$ and call it the \emph{$n$-skeleton} of $X$ for $-1 \le n \le \infty$.
 \end{defi}
 
@@ -174,3 +174,44 @@ This also enables us to write $X$ as a union of open cells:
 \begin{cor}
     $\bigcup_{n \ge 0}\bigcup_{i \in I_n} \ocell{n}{i} = X$.
 \end{cor}
+
+When we want to show that a set $A \subseteq X$ is closed the weak topology (property (iv) in \ref{defi:CWComplex2}) lets us reduce that question to an individual cell. 
+It is then often convenient to do strong induction over the dimension of the cell. 
+We now want to prove a lemma that makes this repeated process easier.
+We first need the following: 
+
+\begin{lem}\label{lem:inductionecellclosed}
+    Let $A \subseteq X$ be a set and $n$ a natural number. 
+    Assume that for every $m \le n$ and $j \in I_m$ the intersection $A \cap \ccell{m}{j}$ is closed.
+    Then $A \cap \ecell{n + 1}{j}$ is closed for every $j \in I_{n + 1}$.
+\end{lem}
+\begin{proof}
+    By closure finiteness of $X$ (property (iii) in \ref{defi:CWComplex2}) there is a set $E$ of cells of dimension lower than $n + 1$ such that $\ecell{n + 1}{j} \subseteq \bigcup_{e \in E}\closure{e}$.
+    This gives us 
+    \[A \cap \ecell{n + 1}{j} = A \cap \bigcup_{e \in E}\closure{e} \cap \ecell{n + 1}{j} = \bigcup_{e \in E}(A \cap \closure{e}) \cap \ecell{n + 1}{j}.\]
+    $\bigcup_{e \in E}(A \cap \closure{e})$ is closed as a finite union of sets that are by assumption closed and $\ecell{n + 1}{j}$ is closed by lemma \ref{lem:ccellclosed}. Therefore the intersection is also closed.
+\end{proof}
+
+Now we can move on to the lemma that we actually want.
+We can think of this lemma as being a weaker condition than the weak topology i.e. property (iv) in \ref{defi:CWComplex2}.
+
+\begin{lem}
+    Let $A \subseteq X$ be a set such that for every $n > 0$ and $j \in I_n$ either $A \cap \ocell{n}{j}$ or $A \cap \ccell{n}{j}$ is closed. 
+    Then $A$ is closed.
+\end{lem}
+\begin{proof}
+    Since $X$ has weak topology, it is enough to show that $A \cap \ccell{n}{j}$ is closed for every $n \in \bN$ and $i \in I_n$.
+    We show this by doing strong induction over $n$.
+    For the base case $n = 0$ notice that $\ccell{0}{j}$ is a singleton and the intersection with a singleton is either that singleton or empty. 
+    As such the intersection is closed in both cases.
+
+    Now let us move on to the induction step. 
+    Assume that for every $m \le n$ the statement already holds. 
+    We now need to show it for $n + 1$.
+    By assumption either $A \cap \ocell{n + 1}{j}$ or $A \cap \ccell{n + 1}{j}$ is closed. The second case is just immediately what we wanted to show. 
+
+    In the first case we can use that $A \cap \ccell{n + 1}{j} = (A \cap \ecell{n + 1}{j}) \cup (A \cap \ocell{n + 1}{j})$.
+    The left part of the union is closed by lemma \ref{lem:inductionecellclosed} applied to the induction hypothesis. 
+    The right part of the union is closed by the assumption of our case. 
+    The union is therefore also closed. 
+\end{proof}
