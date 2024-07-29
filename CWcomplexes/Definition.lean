@@ -29,22 +29,22 @@ class CWComplex.{u} {X : Type u} [TopologicalSpace X] (C : Set X) where
   union' : ⋃ (n : ℕ) (j : cell n), map n j '' closedBall 0 1 = C
 
 
-variable [T2Space X] (C : Set X) [CWComplex C]
+variable [T2Space X] {C : Set X} [CWComplex C]
 
 
 namespace CWComplex
 
-def ocell {C : Set X} [CWComplex C] (n : ℕ) (i : cell C n) : Set X := map n i '' ball 0 1
+def ocell (n : ℕ) (i : cell C n) : Set X := map n i '' ball 0 1
 
-def ccell {C : Set X} [CWComplex C] (n : ℕ) (i : cell C n) : Set X := map n i '' closedBall 0 1
+def ccell (n : ℕ) (i : cell C n) : Set X := map n i '' closedBall 0 1
 
 --maybe I should have named this fcell instead? Should I change it?
-def ecell {C : Set X} [CWComplex C] (n : ℕ) (i : cell C n) : Set X := map n i '' sphere 0 1
+def ecell (n : ℕ) (i : cell C n) : Set X := map n i '' sphere 0 1
 
 lemma pairwiseDisjoint :
   (univ : Set (Σ n, cell C n)).PairwiseDisjoint (fun ni ↦ ocell ni.1 ni.2) := pairwiseDisjoint'
 
-lemma ecell_subset {C : Set X} [CWComplex C] (n : ℕ) (i : cell C n) : ∃ I : Π m, Finset (cell C m),
+lemma ecell_subset (n : ℕ) (i : cell C n) : ∃ I : Π m, Finset (cell C m),
     ecell n i ⊆ (⋃ (m < n) (j ∈ I m), ccell m j) := by
   rcases mapsto n i with ⟨I, hI⟩
   use I
@@ -70,11 +70,11 @@ lemma ecell_union_ocell_eq_ccell (n : ℕ) (i :cell C n) : ecell n i ∪ ocell n
 
 /-- A non-standard definition of the levels useful for induction.
   The typical level is defined in terms of levelaux.-/
-def levelaux (n : ℕ∞) : Set X :=
+def levelaux (C : Set X) [CWComplex C] (n : ℕ∞) : Set X :=
   ⋃ (m : ℕ) (hm : m < n) (j : cell C m), ccell m j
 
 /-- The `n`-th level of a CW-complex, for `n ∈ ℕ ∪ ∞`. -/
-def level (n : ℕ∞) : Set X :=
+def level (C : Set X) [CWComplex C] (n : ℕ∞) : Set X :=
   levelaux C (n + 1)
 
 lemma levelaux_zero_eq_empty : levelaux C 0 = ∅ := by
@@ -82,19 +82,19 @@ lemma levelaux_zero_eq_empty : levelaux C 0 = ∅ := by
   simp only [isEmpty_Prop, not_lt, zero_le, iUnion_of_empty, iUnion_empty]
 
 lemma isCompact_ccell {n : ℕ} {i : cell C n} : IsCompact (ccell n i) :=
-  IsCompact.image_of_continuousOn (isCompact_closedBall _ _) (cont n i)
+  (isCompact_closedBall _ _).image_of_continuousOn (cont n i)
 
-lemma isClosed_ccell {n : ℕ} {i : cell C n} : IsClosed (ccell n i) := (isCompact_ccell _).isClosed
+lemma isClosed_ccell {n : ℕ} {i : cell C n} : IsClosed (ccell n i) := isCompact_ccell.isClosed
 
 lemma isCompact_ecell {n : ℕ} {i : cell C n} : IsCompact (ecell n i) :=
-  IsCompact.image_of_continuousOn (isCompact_sphere _ _)
+  (isCompact_sphere _ _).image_of_continuousOn
     (ContinuousOn.mono (cont n i) sphere_subset_closedBall)
 
-lemma isClosed_ecell {n : ℕ} {i : cell C n} : IsClosed (ecell n i) := (isCompact_ecell _).isClosed
+lemma isClosed_ecell {n : ℕ} {i : cell C n} : IsClosed (ecell n i) := isCompact_ecell.isClosed
 
 lemma closure_ocell_eq_ccell {n : ℕ} {j : cell C n} : closure (ocell n j) = ccell n j := by
   apply subset_antisymm
-    ((IsClosed.closure_subset_iff (isClosed_ccell _)).2 (ocell_subset_ccell C n j))
+    ((IsClosed.closure_subset_iff isClosed_ccell).2 (ocell_subset_ccell n j))
   have : ContinuousOn (map n j) (closure (ball 0 1)) := by
     rw [closure_ball 0 (by exact one_ne_zero)]
     exact cont n j
@@ -212,7 +212,7 @@ lemma levelaux_mono {n m : ℕ∞} (h : m ≤ n) : levelaux C m ⊆ levelaux C n
   exact ⟨lt_of_lt_of_le xmeml.1 h, xmeml.2⟩
 
 lemma level_mono {n m : ℕ∞} (h : m ≤ n) : level C m ⊆ level C n := by
-  simp only [level, levelaux_mono _ (add_le_add_right h 1)]
+  simp only [level, levelaux_mono (add_le_add_right h 1)]
 
 lemma ccell_subset_levelaux (n : ℕ) (j : cell C n) :
     ccell n j ⊆ levelaux C (n + 1) := by
@@ -224,21 +224,21 @@ lemma ccell_subset_levelaux (n : ℕ) (j : cell C n) :
   exact ⟨lt_add_one n, ⟨j,xmem⟩⟩
 
 lemma ccell_subset_level (n : ℕ) (j : cell C n) :
-    ccell n j ⊆ level C n := ccell_subset_levelaux _ n j
+    ccell n j ⊆ level C n := ccell_subset_levelaux n j
 
 lemma ccell_subset_complex (n : ℕ) (j : cell C n) : ccell n j ⊆ C := by
-  apply subset_trans (ccell_subset_level _ n j)
-    (by simp_rw [← level_top]; apply level_mono _ le_top)
+  apply subset_trans (ccell_subset_level n j)
+    (by simp_rw [← level_top]; apply level_mono le_top)
 
 lemma ocell_subset_levelaux (n : ℕ) (j : cell C n) : ocell n j ⊆ levelaux C (n + 1) :=
-  subset_trans (ocell_subset_ccell _ _ _) (ccell_subset_levelaux _ _ _)
+  subset_trans (ocell_subset_ccell _ _) (ccell_subset_levelaux _ _ )
 
 lemma ocell_subset_level (n : ℕ) (j : cell C n) : ocell n j ⊆ level C n :=
-  subset_trans (ocell_subset_ccell _ _ _) (ccell_subset_level _ _ _)
+  subset_trans (ocell_subset_ccell _ _) (ccell_subset_level _ _)
 
 lemma ocell_subset_complex (n : ℕ) (j : cell C n) : map n j '' ball 0 1 ⊆ C := by
-  apply subset_trans (ocell_subset_level _ _ _)
-    (by simp_rw [← level_top]; exact level_mono _ le_top)
+  apply subset_trans (ocell_subset_level _ _)
+    (by simp_rw [← level_top]; exact level_mono le_top)
 
 lemma ecell_subset_levelaux (n : ℕ) (j : cell C n) :
     ecell n j ⊆  levelaux C n := by
@@ -253,15 +253,15 @@ lemma ecell_subset_levelaux (n : ℕ) (j : cell C n) :
   exact ⟨iltn, ⟨j, xmem⟩⟩
 
 lemma ecell_subset_level (n : ℕ) (j : cell C (n + 1)) :
-    ecell (n + 1) j ⊆ level C n := ecell_subset_levelaux C _ _
+    ecell (n + 1) j ⊆ level C n := ecell_subset_levelaux _ _
 
 lemma iUnion_ecell_subset_levelaux (l : ℕ) :
     ⋃ (j : cell C l), ecell l j ⊆ levelaux C l :=
-  iUnion_subset  (fun _ ↦ ecell_subset_levelaux C l _)
+  iUnion_subset  (fun _ ↦ ecell_subset_levelaux l _)
 
 lemma iUnion_ecell_subset_level (l : ℕ) :
     ⋃ (j : cell C l), ecell l j ⊆ level C l :=
-  subset_trans (iUnion_ecell_subset_levelaux C l) (levelaux_mono C le_self_add)
+  subset_trans (iUnion_ecell_subset_levelaux l) (levelaux_mono le_self_add)
 
 lemma ccell_zero_eq_singleton {j : cell C 0} : ccell 0 j = {map 0 j ![]} := by
   simp [ccell, Matrix.empty_eq]
@@ -277,7 +277,7 @@ lemma iUnion_levelaux_eq_levelaux (n : ℕ∞) :
   apply subset_antisymm
   · simp_rw [iUnion_subset_iff]
     intros i hi
-    exact levelaux_mono _ (ENat.le_of_lt_add_one hi)
+    exact levelaux_mono (ENat.le_of_lt_add_one hi)
   · intro x xmem
     rw [mem_iUnion]
     by_cases h : n = ⊤
@@ -304,7 +304,7 @@ lemma iUnion_levelaux_eq_levelaux (n : ℕ∞) :
       exact ⟨lt_add_one m, xmem⟩
 
 lemma iUnion_level_eq_level (n : ℕ∞) : ⋃ (m : ℕ) (hm : m < n + 1), level C m = level C n := by
-  simp_rw [level, ← iUnion_levelaux_eq_levelaux C (n + 1)]
+  simp_rw [level, ← iUnion_levelaux_eq_levelaux (n + 1)]
   ext; simp
   constructor
   · intro ⟨i, hin, hiC⟩
@@ -313,7 +313,7 @@ lemma iUnion_level_eq_level (n : ℕ∞) : ⋃ (m : ℕ) (hm : m < n + 1), level
     exact ENat.add_coe_lt_add_coe_right.mpr hin
   · intro ⟨i, hin, hiC⟩
     cases' i with i
-    · refine ⟨0, ?_, levelaux_mono C (by norm_num) hiC⟩
+    · refine ⟨0, ?_, levelaux_mono (by norm_num) hiC⟩
       norm_cast
       exact ENat.add_one_pos
     · refine ⟨i, ?_, hiC⟩
@@ -324,69 +324,52 @@ lemma levelaux_succ_eq_levelaux_union_iUnion_ccell (n : ℕ) :
     levelaux C (n + 1) = levelaux C n ∪ ⋃ (j : cell C n), ccell n j := by
   simp_rw [levelaux, Nat.cast_lt]
   norm_cast
-  rw [Nat.add_one, union_comm]
-  exact aux1 n (fun m j ↦ ccell m j)
+  rw [Nat.add_one]
+  exact biUnion_lt_succ _ _
 
 lemma level_succ_eq_level_union_iUnion (n : ℕ) :
     level C (n + 1) = level C n ∪ ⋃ (j : cell C (↑n + 1)), ccell (n + 1) j :=
-  levelaux_succ_eq_levelaux_union_iUnion_ccell _ (n + 1)
+  levelaux_succ_eq_levelaux_union_iUnion_ccell (n + 1)
 
--- continue here with latex
-
-/- We can also define the levels using `ball` instead of `closedBall`, using assumption `mapsto`. -/
 lemma iUnion_ocell_eq_levelaux (n : ℕ∞) :
     ⋃ (m : ℕ) (hm : m < n) (j : cell C m), ocell m j = levelaux C n := by
   induction' n using ENat.nat_induction with n hn hn
   · simp [levelaux]
-  · norm_cast at hn ⊢
-    rw [aux1 n (fun m j ↦ ocell m j), hn]
-    nth_rewrite 2 [levelaux]
-    symm
-    norm_cast
-    calc
-      ⋃ m, ⋃ (_ : m < Nat.succ n), ⋃ j, ccell m j
-      = (⋃ (j : cell C n), ccell n j) ∪
-          ⋃ m, ⋃ (_ : m < n), ⋃ j, ccell m j := by
-        apply aux1 n (fun m j ↦ ccell m j)
-      _ = (⋃ (j : cell C n), ccell n j) ∪ levelaux C n := by
+  · calc
+      ⋃ (m : ℕ), ⋃ (_ : (m : ℕ∞) < ↑n.succ), ⋃ (j : cell C m), ocell m j
+      _ = (⋃ m, ⋃ (_ : m < n), ⋃ j, ocell m j) ∪ ⋃ (j : cell C n), ocell n j := by
+        norm_cast
+        exact biUnion_lt_succ _ _
+      _ = levelaux C n ∪ ⋃ (j : cell C n), ocell n j := by
+        rw [← hn]
+        norm_cast
+      _ = levelaux C n ∪ (⋃ (j : cell C n), ecell n j) ∪ ⋃ (j : cell C n), ocell n j := by
+        congr
+        exact (union_eq_left.2 (iUnion_ecell_subset_levelaux n)).symm
+      _ = levelaux C n ∪ ⋃ (j : cell C n), ccell n j := by
+        simp_rw [union_assoc, ← iUnion_union_distrib, ecell_union_ocell_eq_ccell]
+      _ = (⋃ m, ⋃ (_ : m < n), ⋃ (j : cell C m), ccell m j) ∪ ⋃ (j : cell C n), ccell n j := by
         rw [levelaux]
         norm_cast
-      _ = (⋃ (j : cell C n), ecell n j ∪ ocell n j) ∪ levelaux C n := by
-        congrm (⋃ j, ?_) ∪ levelaux C n
-        exact Eq.symm (ecell_union_ocell_eq_ccell C n j)
-      _ = (⋃ (j : cell C n), ecell n j) ∪ (⋃ (j : cell C n), ocell n j) ∪ levelaux C n := by
-        rw [iUnion_union_distrib]
-      _ = (⋃ (j : cell C n), ocell n j) ∪ ((⋃ (j : cell C n), ecell n j) ∪ levelaux C n) := by
-        rw [← union_assoc, union_comm (⋃ j, ecell n j), union_assoc]
-      _ = (⋃ j, ocell n j) ∪ levelaux C n := by
-        congr
-        exact union_eq_right.2 (iUnion_ecell_subset_levelaux _ n)
-  · have : ⋃ (m : ℕ), ⋃ (_ : ↑m < (⊤ : ℕ∞)), ⋃ (j : cell C m), ocell m j =
-        ⋃ (n : ℕ) (hn : ↑n < (⊤ : ℕ∞)), ⋃ (m : ℕ) (hm : m < n), ⋃ (j : cell C m), ocell m j := by -- TODO : extract and generalize this in some way
-      apply subset_antisymm
-      · intro x xmem
-        rw [mem_iUnion] at xmem
-        rcases xmem with ⟨i, xmemi⟩
-        simp only [mem_iUnion, exists_prop] at xmemi
-        rw [mem_iUnion]
-        use i + 1
-        simp only [mem_iUnion, exists_prop]
-        constructor
-        · rw [ENat.coe_add, WithTop.add_lt_top]
-          exact ⟨xmemi.1 , (by apply lt_top_iff_ne_top.2 (WithTop.natCast_ne_top 1))⟩
-        · use i
-          exact ⟨lt_add_one i, xmemi.2⟩
-      · intro x xmem
-        simp only [mem_iUnion, exists_prop] at xmem
-        rcases xmem with ⟨_, ⟨_, ⟨i, ⟨_, xmemi⟩⟩⟩⟩
-        simp only [mem_iUnion, exists_prop]
-        use i
-        exact ⟨(by apply lt_top_iff_ne_top.2 (WithTop.natCast_ne_top i)), xmemi⟩
-    rw [this, ← iUnion_levelaux_eq_levelaux _ ⊤, top_add]
-    apply iUnion_congr
-    intro i
-    norm_cast at hn
-    rw [hn]
+      _ = levelaux C n.succ := by
+        unfold levelaux
+        norm_cast
+        exact (biUnion_lt_succ _ _).symm
+  · calc
+      ⋃ (m : ℕ), ⋃ (_ : (m : ℕ∞) < ⊤), ⋃ j, ocell m j
+      _ = ⋃ m, ⋃ (j : cell C m), ocell m j := by
+        simp_rw [ENat.coe_lt_top, iUnion_true]
+      _ = ⋃ m, ⋃ l, ⋃ (_ : l < m), ⋃ (j : cell C l), ocell l j := (biUnion_lt_eq_iUnion _).symm
+      _ = ⋃ (m : ℕ), levelaux C m := by
+        apply iUnion_congr
+        intro n
+        norm_cast at hn
+        exact hn n
+      _ = ⋃ m, ⋃ l, ⋃ (_ : l < m), ⋃ (j : cell C l), ccell l j := by
+        unfold levelaux
+        norm_cast
+      _ = ⋃ m, ⋃ (j : cell C m), ccell m j := biUnion_lt_eq_iUnion _
+      _ = levelaux C ⊤ := by rw [levelaux_top, union]
 
 lemma union_ocell : ⋃ (n : ℕ) (j : cell C n), ocell n j = C := by
   simp only [← levelaux_top, ← iUnion_ocell_eq_levelaux, ENat.coe_lt_top, iUnion_true]
@@ -403,45 +386,21 @@ lemma eq_cell_of_not_disjoint {n : ℕ} {j : cell C n} {m : ℕ} {i : cell C m}
 
 lemma iUnion_ocell_eq_level (n : ℕ∞) :
     ⋃ (m : ℕ) (hm : m < n + 1) (j : cell C m), ocell m j = level C n :=
-  iUnion_ocell_eq_levelaux _ (n + 1)
+  iUnion_ocell_eq_levelaux (n + 1)
 
 lemma exists_mem_ocell_of_mem_levelaux {n : ℕ∞} {x : X} (xmemlvl : x ∈ levelaux C n) :
     ∃ (m : ℕ) (_ : m < n) (j : cell C m), x ∈ ocell m j := by
-  induction' n using ENat.nat_induction with n hn hn
-  · simp [levelaux] at xmemlvl
-  · simp only [Nat.cast_succ, levelaux, mem_iUnion, exists_prop] at xmemlvl
-    rcases xmemlvl with ⟨m, ⟨mlt, h⟩⟩
-    rcases h with ⟨j, xmem⟩
-    rw [← ecell_union_ocell_eq_ccell] at xmem
-    rcases xmem with h | h
-    · apply (ecell_subset_levelaux _ m j) at h
-      norm_cast at hn mlt ⊢
-      rw [Nat.add_one] at mlt
-      rcases hn ((levelaux_mono _ (by norm_cast; exact (Nat.le_of_lt_succ mlt))) h) with ⟨m, hm⟩
-      simp only [exists_prop] at hm
-      use m
-      simp only [exists_prop]
-      exact ⟨lt_of_lt_of_le hm.1 (Nat.le_succ n), hm.2⟩
-    · use m
-      simp only [Nat.cast_succ, exists_prop]
-      exact ⟨mlt, ⟨j, h⟩⟩
-  · rw [← iUnion_levelaux_eq_levelaux] at xmemlvl
-    simp at xmemlvl
-    rcases xmemlvl with ⟨i, ⟨ilttop, xmemlvli⟩⟩
-    rcases (hn i xmemlvli) with ⟨m, hm⟩
-    simp only [exists_prop] at hm
-    use m
-    simp only [exists_prop]
-    exact ⟨lt_trans hm.1 ilttop, hm.2⟩
+  simp_rw [← iUnion_ocell_eq_levelaux, mem_iUnion] at xmemlvl
+  obtain ⟨m, mltn, j, _⟩ := xmemlvl
+  use m,  mltn, j
 
 lemma exists_mem_ocell_of_mem_level {n : ℕ∞} {x : X} (xmemlvl : x ∈ level C n) :
     ∃ (m : ℕ) (_ : m ≤ n) (j : cell C m), x ∈ ocell m j := by
   rw [level] at xmemlvl
-  rcases exists_mem_ocell_of_mem_levelaux _ xmemlvl with ⟨m, hm⟩
-  use m
-  rw [exists_prop] at hm ⊢
-  exact ⟨ENat.le_of_lt_add_one hm.1, hm.2⟩
+  rcases exists_mem_ocell_of_mem_levelaux xmemlvl with ⟨m, mlen, _⟩
+  use m, ENat.le_of_lt_add_one mlen
 
+-- should this go in the thesis?
 lemma levelaux_inter_ccell_eq_levelaux_inter_ecell {n : ℕ∞} {m : ℕ}
     {j : cell C m} (nlem : n ≤ m) : levelaux C n ∩ ccell m j =
     levelaux C n ∩ ecell m j := by
@@ -453,24 +412,40 @@ lemma levelaux_inter_ccell_eq_levelaux_inter_ecell {n : ℕ∞} {m : ℕ}
     rcases xmemball with h | h
     · exact h
     exfalso
-    rcases exists_mem_ocell_of_mem_levelaux _ xmemlevel with ⟨l, ⟨llen, ⟨i, xmem⟩⟩⟩
+    rcases exists_mem_ocell_of_mem_levelaux xmemlevel with ⟨l, ⟨llen, ⟨i, xmem⟩⟩⟩
     have : ¬ Disjoint (ocell m j) (ocell l i) := by
       rw [not_disjoint_iff]
       use x
-    have := eq_cell_of_not_disjoint _ this
+    have := eq_cell_of_not_disjoint this
     simp only [Sigma.mk.inj_iff] at this
     rcases this with ⟨eq1, eq2⟩
     subst m
     exact (lt_self_iff_false n).1 (lt_of_le_of_lt nlem llen)
   · intro xmem
-    exact ⟨xmem.1,  ecell_subset_ccell _ _ _ xmem.2⟩
+    exact ⟨xmem.1,  ecell_subset_ccell _ _ xmem.2⟩
 
 lemma level_inter_ccell_eq_level_inter_ecell {n : ℕ∞} {m : ℕ} {j : cell C m}
     (nltm : n < m) : level C n ∩ ccell m j =
     level C n ∩ ecell m j := by
   apply Order.succ_le_of_lt at nltm
   rw [ENat.succ_def] at nltm
-  exact levelaux_inter_ccell_eq_levelaux_inter_ecell _ nltm
+  exact levelaux_inter_ccell_eq_levelaux_inter_ecell nltm
+
+lemma levelaux_inter_ocell_eq_empty {n : ℕ∞} {m : ℕ}
+    {j : cell C m} (nlem : n ≤ m) : levelaux C n ∩ ocell m j = ∅ := by
+  simp_rw [← iUnion_ocell_eq_levelaux, iUnion_inter, iUnion_eq_empty]
+  intro l llt i
+  have ne : (⟨l, i⟩ : Σ n, cell C n) ≠ ⟨m, j⟩ := by
+    intro eq
+    rw [Sigma.mk.inj_iff] at eq
+    obtain ⟨eq1, eq2⟩ := eq
+    subst l
+    simp at eq2
+    subst i
+    exact LT.lt.false (LT.lt.trans_le llt nlem)
+  have := pairwiseDisjoint (C := C)
+  simp only [PairwiseDisjoint, Set.Pairwise, Function.onFun, disjoint_iff_inter_eq_empty] at this
+  exact this (mem_univ _) (mem_univ _) ne
 
 lemma isClosed_inter_ecell_succ_of_le_isClosed_inter_ccell {A : Set X} {n : ℕ}
   (hn : ∀ m ≤ n, ∀ (j : cell C m), IsClosed (A ∩ ccell m j)) :
@@ -499,14 +474,27 @@ lemma isClosed_inter_ecell_succ_of_le_isClosed_inter_ccell {A : Set X} {n : ℕ}
     intro j
     exact hn i (Nat.le_of_lt_succ i.2) j
   suffices IsClosed (A ∩ (⋃ m, ⋃ (_ : m < n + 1), ⋃ j ∈ I m, ccell m j) ∩ ecell (n + 1) j) by
-    simpa [inter_assoc, Set.inter_eq_right.2 hI]
-  apply IsClosed.inter closedunion (isClosed_ecell _)
+    simpa [inter_assoc, inter_eq_right.2 hI]
+  apply closedunion.inter (isClosed_ecell)
+
+lemma strong_induction_isClosed {A : Set X} (asub : A ⊆ C)
+    (step : ∀ n, (∀ m ≤ n, ∀ (j : cell C m), IsClosed (A ∩ ccell m j)) →
+    ∀ (j : cell C (n + 1)), IsClosed (A ∩ ocell (n + 1) j)) :
+    IsClosed A := by
+  rw [closed A asub]
+  intro n j
+  induction' n using Nat.case_strong_induction_on with n hn
+  · rw [ccell_zero_eq_singleton]
+    exact isClosed_inter_singleton
+  replace step := step n hn j
+  rw [← ecell_union_ocell_eq_ccell, inter_union_distrib_left]
+  exact (isClosed_inter_ecell_succ_of_le_isClosed_inter_ccell hn j).union step
 
 lemma isClosed : IsClosed C := by
   rw [closed (C := C) _ (by rfl)]
   intros
-  rw [Set.inter_eq_right.2 (ccell_subset_complex _ _ _)]
-  exact isClosed_ccell C
+  rw [Set.inter_eq_right.2 (ccell_subset_complex _ _)]
+  exact isClosed_ccell
 
 -- could this proof be simplified using `exists_mem_ball_of_mem_level`?
 lemma ecell_subset' (n : ℕ) (i : cell C n) : ∃ I : Π m, Finset (cell C m),
@@ -623,4 +611,4 @@ lemma finite_cells_of_finite (finite : Finite C) : _root_.Finite (Σ n, cell C n
   apply Finite.instSigma
 
 lemma finite_iff_finite_cells : Finite C ↔ _root_.Finite (Σ n, cell C n) :=
-  ⟨finite_cells_of_finite _, finite_of_finite_cells _⟩
+  ⟨finite_cells_of_finite, finite_of_finite_cells⟩

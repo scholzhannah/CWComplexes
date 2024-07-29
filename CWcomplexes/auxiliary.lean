@@ -8,11 +8,11 @@ set_option autoImplicit false
 set_option linter.unusedVariables false
 noncomputable section
 
--- this lemma should probably not exists seperately but only in the relevant proofs
-lemma aux1 (l : ℕ) {X : Type*} {s : ℕ →  Type*} (Y : (m : ℕ) → s m → Set X):
-    ⋃ m, ⋃ (_ : m < Nat.succ l), ⋃ j, Y m j =
-    (⋃ (j : s l), Y l j) ∪ ⋃ m, ⋃ (_ : m < l), ⋃ j, Y m j := by
-  simp [Nat.lt_add_one_iff, le_iff_lt_or_eq, or_and_right, exists_or, or_comm]
+lemma biUnion_lt_eq_iUnion {X : Type*} (I : ℕ → Set X) :
+    ⋃ (n : ℕ) (m : ℕ) (_ : m < n), I m  = ⋃ (n : ℕ), I n := by
+  ext x
+  simp_rw [Set.mem_iUnion]
+  exact ⟨fun ⟨_, m, _, xmem⟩ ↦ ⟨m, xmem⟩, fun ⟨n, xmem⟩ ↦  ⟨n + 1, n, lt_add_one n, xmem⟩⟩
 
 lemma ENat.coe_lt_top {n : ℕ} : ↑n < (⊤ : ℕ∞) := Ne.lt_top (ENat.coe_ne_top n)
 

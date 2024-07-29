@@ -17,12 +17,12 @@ lemma closed_iff_inter_levelaux_closed (A : Set X) (asubc : A ⊆ C) :
   · intro closedA n
     exact IsClosed.inter closedA (isClosed_levelaux n)
   · intro h
-    rw [closed _ A asubc]
+    rw [closed A asubc]
     intro n j
     suffices IsClosed (A ∩ levelaux C (n + 1) ∩ ccell n j) by
-      rw [(Set.inter_eq_right.2 (ccell_subset_levelaux _ n j)).symm, ← inter_assoc]
+      rw [(Set.inter_eq_right.2 (ccell_subset_levelaux n j)).symm, ← inter_assoc]
       exact this
-    exact IsClosed.inter (h (n + 1)) (isClosed_ccell _)
+    exact IsClosed.inter (h (n + 1)) isClosed_ccell
 
 lemma inter_levelaux_succ_closed_iff_inter_levelaux_closed_and_inter_ccell_closed (A : Set X) :
     IsClosed (A ∩ levelaux C (Nat.succ n)) ↔ IsClosed (A ∩ levelaux C n) ∧
@@ -33,39 +33,39 @@ lemma inter_levelaux_succ_closed_iff_inter_levelaux_closed_and_inter_ccell_close
     · suffices IsClosed ((A ∩ levelaux C ↑(Nat.succ n)) ∩ levelaux C n) by
         convert this using 1
         rw [inter_assoc,
-          inter_eq_right.2 (levelaux_mono C (by norm_cast; exact Nat.le_succ n))]
+          inter_eq_right.2 (levelaux_mono (by norm_cast; exact Nat.le_succ n))]
       exact IsClosed.inter closed (isClosed_levelaux n)
     · intro j
       have : A ∩ levelaux C ↑(Nat.succ n) ⊆ C := by
         apply subset_trans inter_subset_right
-        simp_rw [← levelaux_top C]
-        exact levelaux_mono _ le_top
-      rw [CWComplex.closed _ (A ∩ levelaux C ↑(Nat.succ n)) this] at closed
+        simp_rw [← levelaux_top (C := C)]
+        exact levelaux_mono le_top
+      rw [CWComplex.closed (A ∩ levelaux C ↑(Nat.succ n)) this] at closed
       replace closed := closed n j
       rw [inter_assoc, Nat.succ_eq_add_one, Nat.cast_add, Nat.cast_one,
-        inter_eq_right.2 (ccell_subset_levelaux _ n j)] at closed
+        inter_eq_right.2 (ccell_subset_levelaux n j)] at closed
       exact closed
   · intro ⟨closed1, closed2⟩
     have : A ∩ levelaux C ↑(Nat.succ n) ⊆ C := by
       apply subset_trans inter_subset_right
       simp_rw [← levelaux_top (C := C)]
-      exact levelaux_mono _ le_top
-    rw [closed _ (A ∩ levelaux C ↑(Nat.succ n)) this]
+      exact levelaux_mono le_top
+    rw [closed (A ∩ levelaux C ↑(Nat.succ n)) this]
     intro m j
     induction' m using Nat.case_strong_induction_on with m hm
     · simp [ccell_zero_eq_singleton, isClosed_inter_singleton]
     by_cases msuccltn : Nat.succ m < n
     · have ccellsublevelaux : ccell (Nat.succ m) j ⊆ levelaux C n :=
-        subset_trans (ccell_subset_levelaux _ _ _) (levelaux_mono _ (by norm_cast))
+        subset_trans (ccell_subset_levelaux _ _) (levelaux_mono (by norm_cast))
       suffices IsClosed (A ∩ levelaux C n ∩ ccell (Nat.succ m) j) by
         convert this using 1
         rw [inter_assoc, inter_assoc]
         congrm A ∩ ?_
         rw [inter_eq_right.2 ccellsublevelaux]
         have : ccell (Nat.succ m) j ⊆ levelaux C (Nat.succ n) :=
-          subset_trans ccellsublevelaux (levelaux_mono _ (by norm_cast; exact Nat.le_succ n))
+          subset_trans ccellsublevelaux (levelaux_mono (by norm_cast; exact Nat.le_succ n))
         rw [inter_eq_right.2 this]
-      exact IsClosed.inter closed1 (isClosed_ccell _ )
+      exact IsClosed.inter closed1 isClosed_ccell
     by_cases msucceqn : Nat.succ m = n
     · subst msucceqn
       rw [inter_assoc, inter_comm (levelaux _ (Nat.succ (Nat.succ m))), ← inter_assoc]
@@ -73,26 +73,26 @@ lemma inter_levelaux_succ_closed_iff_inter_levelaux_closed_and_inter_ccell_close
     have : Nat.succ n ≤ Nat.succ m := by
       push_neg at msuccltn msucceqn
       exact LE.le.lt_of_ne msuccltn msucceqn.symm
-    rw [inter_assoc, levelaux_inter_ccell_eq_levelaux_inter_ecell _ (by norm_cast),
+    rw [inter_assoc, levelaux_inter_ccell_eq_levelaux_inter_ecell (by norm_cast),
        ← inter_assoc]
-    exact isClosed_inter_ecell_succ_of_le_isClosed_inter_ccell _ hm _
+    exact isClosed_inter_ecell_succ_of_le_isClosed_inter_ccell hm _
 
 /- The following is one way of stating that `level 0` is discrete. -/
 lemma isDiscrete_level_zero {A : Set X} : IsClosed (A ∩ level C 0) := by
-  rw [closed C (A ∩ level C 0) (subset_trans Set.inter_subset_right
-    (by simp_rw [← level_top C]; apply level_mono _ le_top))]
+  rw [closed (C := C) (A ∩ level C 0) (subset_trans Set.inter_subset_right
+    (by simp_rw [← level_top (C := C)]; apply level_mono le_top))]
   intro n
   induction' n using Nat.case_strong_induction_on with n hn
   · intro j
-    have := Set.inter_eq_right.2 (ccell_subset_level _ 0 j)
+    have := Set.inter_eq_right.2 (ccell_subset_level 0 j)
     norm_cast at this
     rw [inter_assoc, this, ccell_zero_eq_singleton]
     exact isClosed_inter_singleton
   · rw [← Nat.add_one]
     intro j
-    rw [inter_assoc, level_inter_ccell_eq_level_inter_ecell _
+    rw [inter_assoc, level_inter_ccell_eq_level_inter_ecell
       (by norm_cast; exact Nat.zero_lt_succ n), ← inter_assoc]
-    exact isClosed_inter_ecell_succ_of_le_isClosed_inter_ccell _ hn j
+    exact isClosed_inter_ecell_succ_of_le_isClosed_inter_ccell hn j
 
 lemma compact_inter_finite (A : t.Compacts) :
   _root_.Finite (Σ (m : ℕ), {j : cell C m // ¬ Disjoint A.1 (ocell m j)}) := by
@@ -109,7 +109,7 @@ lemma compact_inter_finite (A : t.Compacts) :
     have : ¬ Disjoint (ocell m j) (ocell n i) := by
       rw [Set.not_disjoint_iff]
       use p ⟨m, j, hj⟩
-    have := eq_cell_of_not_disjoint _ this
+    have := eq_cell_of_not_disjoint this
     simp only [Sigma.mk.inj_iff] at this
     rcases this with ⟨meqn, jeqi⟩
     subst meqn
@@ -136,7 +136,7 @@ lemma compact_inter_finite (A : t.Compacts) :
         simp only [p] at h
         have := (Classical.choose_spec h').2
         rw [h] at this
-        exact ocell_subset_ccell _ _ _ this
+        exact ocell_subset_ccell _ _ this
       exact subset_trans ssub subc
     rw [closed_iff_inter_levelaux_closed (C := C) s ssubc]
     intro n
@@ -150,7 +150,7 @@ lemma compact_inter_finite (A : t.Compacts) :
     apply IsClosed.union
     · suffices IsClosed (Subtype.val '' s ∩ levelaux C n ∩ ecell n j) by
         simpa only [inter_assoc, inter_eq_right.2 (ecell_subset_levelaux C n j)]
-      exact IsClosed.inter (hn n (le_refl _)) (isClosed_ecell _)
+      exact IsClosed.inter (hn n (le_refl _)) isClosed_ecell
     · by_cases empty : Subtype.val '' s ∩ ocell n j = ∅
       · rw [empty]
         exact isClosed_empty
@@ -173,7 +173,7 @@ lemma compact_inter_finite (A : t.Compacts) :
         rw [not_disjoint_iff]
         use x
         exact ⟨xprop.2, xmemball⟩
-      have := eq_cell_of_not_disjoint C this
+      have := eq_cell_of_not_disjoint this
       simp only [Sigma.mk.inj_iff] at this
       rcases this with ⟨h1, h2⟩
       subst y1
@@ -194,7 +194,7 @@ lemma compact_inter_finite (A : t.Compacts) :
             rw [not_disjoint_iff]
             use x'
             exact ⟨x'prop.2, x'memball⟩
-          have := eq_cell_of_not_disjoint C this
+          have := eq_cell_of_not_disjoint this
           simp only [Sigma.mk.inj_iff] at this
           rcases this with ⟨h1, h2⟩
           subst y'1
@@ -269,7 +269,7 @@ lemma subset_not_disjoint (A : Set X) : A ∩ C ⊆ ⋃ (x : Σ (m : ℕ),
   simp only [← union_ocell, mem_iUnion] at xmem2
   rcases xmem2 with ⟨m, j, hmj⟩
   use ⟨m, j, not_disjoint_iff.2 ⟨x, xmem1, hmj⟩⟩
-  exact ocell_subset_ccell _ _ _ hmj
+  exact ocell_subset_ccell _ _ hmj
 
 lemma subset_not_disjoint' (A : Set X) : A ∩ C ⊆ ⋃ (x : Σ (m : ℕ),
     {j : cell C m // ¬ Disjoint A (ocell m j)}), ocell (C := C) x.1 x.2 := by
@@ -367,7 +367,7 @@ lemma finite_of_compact (compact : IsCompact C) : CWComplex.Finite C := by
       apply mem_image_of_mem
       simp only [mem_ball, dist_self, zero_lt_one]
     refine ⟨zeromem, ?_⟩
-    exact (ocell_subset_complex _ m j) zeromem
+    exact (ocell_subset_complex m j) zeromem
   let f : (Σ m, {j : cell C m // ¬ Disjoint C (ocell m j)}) ≃ Σ m, cell C m := {
     toFun := fun ⟨m, j, _⟩ ↦ ⟨m, j⟩
     invFun := fun ⟨m, j⟩ ↦ ⟨m, j, this m j⟩
@@ -382,6 +382,6 @@ lemma compact_of_finite (finite : CWComplex.Finite C) : IsCompact C := by
   rw [← union (C := C), Set.iUnion_sigma']
   apply isCompact_iUnion
   intro ⟨n, i⟩
-  exact isCompact_ccell C
+  exact isCompact_ccell
 
 lemma compact_iff_finite : IsCompact C ↔ Finite C := ⟨finite_of_compact, compact_of_finite⟩

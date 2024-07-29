@@ -53,36 +53,23 @@ instance CWComplex_levelaux (n : ℕ∞) : CWComplex (levelaux C n) where
     have : A ⊆ C := by
       apply subset_trans asublevel
       simp_rw [← level_top]
-      apply levelaux_mono _ le_top
-    have closediff := closed' A this
-    refine ⟨fun _ _ _ ↦ by simp only [closediff.1], ?_⟩
+      apply levelaux_mono le_top
+    refine ⟨fun _ _ _ ↦ by simp only [(closed' A this).1], ?_⟩
     intro h
     simp only [Subtype.forall] at h
-    rw [closediff]
-    intro m
+    rw [closed A this]
+    intro m j
     induction' m using Nat.case_strong_induction_on with m hm
-    · simp only [Matrix.empty_eq, nonempty_closedBall, zero_le_one, Nonempty.image_const]
-      exact fun _ ↦ isClosed_inter_singleton
-    rw [← Nat.add_one]
-    intro j
+    · rw [ccell_zero_eq_singleton]
+      exact isClosed_inter_singleton
     by_cases mlt : m + 1 < n
     · exact h (m + 1) j mlt
     push_neg at mlt
+    rw [← ecell_union_ocell_eq_ccell, inter_union_distrib_left]
+    apply (isClosed_inter_ecell_succ_of_le_isClosed_inter_ccell hm j).union
     rw [← ENat.coe_one, ← ENat.coe_add] at mlt
-    let k := ENat.toNat n
-    have coekn: k = n := ENat.coe_toNat (ne_top_of_le_ne_top (WithTop.natCast_ne_top (m + 1)) mlt)
-    rw [← coekn] at asublevel mlt
-    norm_cast at mlt
-    suffices IsClosed (A ∩ map (m + 1) j '' sphere 0 1) by
-      convert this using 1
-      calc
-        A ∩ map (m + 1) j '' closedBall 0 1 = A ∩ (levelaux C k ∩ map (m + 1) j '' closedBall 0 1) :=
-          by rw [← inter_assoc, Set.inter_eq_left.2 asublevel]
-        _ = A ∩ (levelaux C k ∩ map (m + 1) j '' sphere 0 1) := by
-          congrm A ∩ ?_
-          exact levelaux_inter_ccell_eq_levelaux_inter_ecell _ (by norm_cast)
-        _ = A ∩ map (m + 1) j '' sphere 0 1 := by rw [← inter_assoc, Set.inter_eq_left.2 asublevel]
-    exact isClosed_inter_ecell_succ_of_le_isClosed_inter_ccell _ hm j
+    rw [← inter_eq_left.2 asublevel, inter_assoc, levelaux_inter_ocell_eq_empty mlt, inter_empty]
+    exact isClosed_empty
   union' := by
     apply Set.iUnion_congr
     intro m
@@ -142,11 +129,11 @@ instance CWComplex_disjointUnion (disjoint : Disjoint C D) : CWComplex (C ∪ D)
           rfl
       exact @this ⟨n, cn⟩ ⟨m, cm⟩ ne'
     · simp [Function.onFun]
-      exact Disjoint.mono (ocell_subset_complex _ n cn) (ocell_subset_complex _ m cm) disjoint
+      exact Disjoint.mono (ocell_subset_complex n cn) (ocell_subset_complex m cm) disjoint
     rcases cm with cm | cm
     · simp only [Function.onFun]
       rw [disjoint_comm] at disjoint
-      exact Disjoint.mono (ocell_subset_complex _ n cn) (ocell_subset_complex _ m cm) disjoint
+      exact Disjoint.mono (ocell_subset_complex n cn) (ocell_subset_complex m cm) disjoint
     · have := pairwiseDisjoint (C := D)
       simp only [PairwiseDisjoint, Set.Pairwise, mem_univ, ne_eq, forall_true_left] at this
       have ne' : ¬({ fst := n, snd := cn } : (n : ℕ) × cell D n) = { fst := m, snd := cm } := by
@@ -199,8 +186,8 @@ instance CWComplex_disjointUnion (disjoint : Disjoint C D) : CWComplex (C ∪ D)
     · intro closedA n j
       apply IsClosed.inter closedA
       rcases j with j | j
-      · exact isClosed_ccell _
-      · exact isClosed_ccell _
+      · exact isClosed_ccell
+      · exact isClosed_ccell
     · intro h
       have : A = (A ∩ C) ∪ (A ∩ D) := by
         calc
@@ -219,13 +206,13 @@ instance CWComplex_disjointUnion (disjoint : Disjoint C D) : CWComplex (C ∪ D)
         have := h n (Sum.inl j)
         simp at this
         rw [inter_right_comm]
-        apply IsClosed.inter this (isClosed C)
+        apply IsClosed.inter this isClosed
       · rw [closed' (A ∩ D) inter_subset_right]
         intro n j
         have := h n (Sum.inr j)
         simp at this
         rw [inter_right_comm]
-        apply IsClosed.inter this (isClosed D)
+        apply IsClosed.inter this isClosed
   union' := by
     simp_rw [← union (C := C), ← union (C := D), ← Set.iUnion_union_distrib]
     apply Set.iUnion_congr

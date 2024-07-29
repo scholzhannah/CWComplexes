@@ -39,12 +39,14 @@ In this thesis we will however focus on the historical definition of CW-complexe
         \item $\bigcup_{n \ge 0}\bigcup_{i \in I_n} Q_i^n(D_i^n) = X$.
     \end{enumerate}
     We call $Q_i^n$ a \emph{characteristic map}, $\ccell{n}{i} \coloneq Q_i^n(D_i^n)$ a \emph{closed $n$-cell} and we call $\ecell{n}{i} \coloneq Q_i^n(\boundary D_i^n)$ the \emph{edge of the $n$-cell} for any $i$ and $n$.
-    Additionally we define $X_n \coloneq \bigcup_{m \le n} \bigcup_{i \in I_n} \ccell{n}{i}$ and call it the \emph{$n$-skeleton} of $X$ for $-1 \le n \le \infty$.
+    Additionally we define $X_n \coloneq \bigcup_{m < n + 1} \bigcup_{i \in I_m} \ccell{m}{i}$ and call it the \emph{$n$-skeleton} of $X$ for $-1 \le n \le \infty$.
 \end{defi}
 
 \symbolindex{$\ocell{n}{}$}{An (open) $n$-cell, i.e. $\ocell{n}{} \coloneq Q^n(\interior{D^n})$. See definition \ref{defi:CWComplex2}.}{}
 \symbolindex{$\ccell{n}{}$}{A closed $n$-cell, i.e. $\ccell{n}{} \coloneq Q^n(D^n)$. See definition \ref{defi:CWComplex2}.}{}
 \symbolindex{$\ecell{n}{}$}{The edge of an $n$-cell, i.e. $\ecell{n}{} \coloneq Q^n(\boundary D^n)$. See definition \ref{defi:CWComplex2}.}{}
+
+For the rest of the chapter let $X$ be a CW-complex.
 
 \begin{rem}
     Property (iii) in the above definition is called \emph{closure finiteness}. 
@@ -129,3 +131,46 @@ If we already know that the CW-complex we want to construct will be finite or of
     which by assumption is a finite union of closed sets, making $A$ closed.
 \end{proof}
 
+We can also think about the $n$-skeletons as being made up of open cells: 
+
+\begin{lem}
+    $X_n = \bigcup_{m < n + 1}\bigcup_{i \in I_m} \ocell{m}{i}$ for every $-1 \le n \le \infty$.
+\end{lem}
+\begin{proof}
+    We show this by induction over $-1 \le n \le \infty$. 
+    For the base case assume that $n = -1$.
+    Then we get $X_n = \bigcup_{m < 0}\bigcup_{i \in I_m}\ccell{m}{i} = \varnothing = \bigcup_{m < 0}\bigcup_{i \in I_m} \ocell{m}{i}$.
+
+    For the induction step assume that that the statement is true for $n$.
+    We now show that it also holds for $n + 1$.
+    \begin{equation*}
+        \begin{split}
+            X_{n + 1} &= \bigcup_{m < n + 2}\bigcup_{i \in I_m} \ccell{m}{i} \\ 
+            &=\bigcup_{i \in I_{n + 1}}\ccell{n+1}{i} \cup \bigcup_{m < n + 1}\bigcup_{i \in I_m} \ccell{m}{i} \\
+            &= \bigcup_{i \in I_{n + 1}}\ccell{n+1}{i} \cup X_n \\
+            &\stackrel{(1)}{=} \bigcup_{i \in I_{n + 1}}\ccell{n+1}{i} \cup \bigcup_{m < n + 1}\bigcup_{i \in I_m} \ocell{m}{i} \\ 
+            &= \bigcup_{i \in I_{n + 1}}\ocell{n+1}{i} \cup \bigcup_{i \in I_{n + 1}}\ecell{n+1}{i} \cup \bigcup_{m < n + 1}\bigcup_{i \in I_m} \ocell{m}{i} \\
+            &\stackrel{(2)}{=} \bigcup_{i \in I_{n + 1}}\ocell{n+1}{i} \cup \bigcup_{m < n + 1}\bigcup_{i \in I_m} \ocell{m}{i} \\
+            &= \bigcup_{m < n + 2}\bigcup_{i \in I_m} \ocell{m}{i} 
+        \end{split}
+    \end{equation*}
+    Where (1) holds by induction and (2) holds by closure finiteness (property (iii) in definition \ref{defi:CWComplex2}).
+
+    Now we can move on to the case $n = \infty$.
+    \begin{equation*}
+        \begin{split}
+            X_{\infty} &= \bigcup_{m < \infty + 1}\bigcup_{i \in I_m}\ccell{m}{i} \\
+            &= \bigcup_{m < \infty + 1}\bigcup_{l < m + 1}\bigcup_{i \in I_l}\ccell{l}{i} \\
+            &= \bigcup_{m < \infty + 1} X_m \\ 
+            &\stackrel{(1)}{=} \bigcup_{m < \infty + 1}\bigcup_{l < m + 1}\bigcup_{i \in I_l}\ocell{l}{i} \\
+            &= \bigcup_{m < \infty + 1}\bigcup_{i \in I_m}\ccell{m}{i} 
+        \end{split}
+    \end{equation*}
+    Where (1) holds by induction.
+\end{proof}
+
+This also enables us to write $X$ as a union of open cells:
+
+\begin{cor}
+    $\bigcup_{n \ge 0}\bigcup_{i \in I_n} \ocell{n}{i} = X$.
+\end{cor}
