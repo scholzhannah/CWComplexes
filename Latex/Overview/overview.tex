@@ -104,7 +104,7 @@ I will document what still needs to be done, what I am stuck on and why and what
   \item Lemma \emph{aux1}
 \begin{leancode}
 lemma aux1 (l : ℕ) {X : Type*} {s : ℕ →  Type*} (Y : (m : ℕ) → s m → Set X):
-    ⋃ m, ⋃ (_ : m < Nat.succ l), ⋃ j, Y m j = 
+    ⋃ m, ⋃ (_ : m < Nat.succ l), ⋃ j, Y m j =
     (⋃ (j : s l), Y l j) ∪ ⋃ m, ⋃ (_ : m < l), ⋃ j, Y m j
 \end{leancode}
   \item Lemma \emph{ENat.coe\_lt\_top}
@@ -113,7 +113,7 @@ lemma ENat.coe_lt_top {n : ℕ} : ↑n < (⊤ : ℕ∞)
 \end{leancode}
   \item Lemma \emph{isClosed\_inter\_singleton}
 \begin{leancode}
-lemma isClosed_inter_singleton {X : Type*} [TopologicalSpace X] [T1Space X] {A : Set X} 
+lemma isClosed_inter_singleton {X : Type*} [TopologicalSpace X] [T1Space X] {A : Set X}
 {a : X} : IsClosed (A ∩ {a})
 \end{leancode}
   \item Lemma \emph{sphere\_zero\_dim\_empty}
@@ -127,7 +127,7 @@ def kification (X : Type*) := X
 \end{leancode}
   \item Instance \emph{instkification}
 \begin{leancode}
-instance instkification {X : Type*} [t : TopologicalSpace X] : 
+instance instkification {X : Type*} [t : TopologicalSpace X] :
 TopologicalSpace (kification X) where
   IsOpen A := IsOpen A := ∀ (B : t.Compacts), ∃ (C: t.Opens), A ∩ B.1 = C.1 ∩ B.1
   isOpen_univ := sorry
@@ -136,28 +136,28 @@ TopologicalSpace (kification X) where
 \end{leancode}
   \item Definition \emph{tokification}
 \begin{leancode}
-def tokification {X : Type*} : X ≃ kification X := 
+def tokification {X : Type*} : X ≃ kification X :=
 ⟨fun x ↦ x, fun x ↦ x, fun _ ↦ rfl, fun _ ↦ rfl⟩
 \end{leancode}
   \item Definition \emph{fromkification}
 \begin{leancode}
-def fromkification {X : Type*} : kification X ≃ X := 
+def fromkification {X : Type*} : kification X ≃ X :=
 ⟨fun x ↦ x, fun x ↦ x, fun _ ↦ rfl, fun _ ↦ rfl⟩
 \end{leancode}
   \item Lemma \emph{continuous\_fromkification}
 \begin{leancode}
-lemma continuous_fromkification {X : Type*} [t : TopologicalSpace X] : 
+lemma continuous_fromkification {X : Type*} [t : TopologicalSpace X] :
 Continuous (fromkification X)
 \end{leancode}
   \item Lemma \emph{isopenmap\_tokification}
 \begin{leancode}
-lemma isopenmap_tokification {X : Type*} [t: TopologicalSpace X] : 
+lemma isopenmap_tokification {X : Type*} [t: TopologicalSpace X] :
 IsOpenMap (tokification X)
 \end{leancode}
   \item Definition \emph{EquivFinReal}
 \begin{leancode}
-def EquivFinReal (m n : ℕ) : (Fin m → ℝ) × (Fin n → ℝ) ≃ (Fin (m + n) → ℝ) := 
-Equiv.trans (Equiv.sumArrowEquivProdArrow _ _ _).symm 
+def EquivFinReal (m n : ℕ) : (Fin m → ℝ) × (Fin n → ℝ) ≃ (Fin (m + n) → ℝ) :=
+Equiv.trans (Equiv.sumArrowEquivProdArrow _ _ _).symm
   (Equiv.arrowCongr finSumFinEquiv (Equiv.refl _))
 \end{leancode}
   \item Definition \emph{HomeomorphFinReal1}
@@ -167,7 +167,7 @@ def HomeomorphFinReal1 (m n : ℕ) : (Fin m → ℝ) × (Fin n → ℝ) ≃ₜ (
   invFun := Equiv.sumArrowEquivProdArrow _ _ _
   left_inv := sorry
   right_inv := sorry
-  continuous_toFun := sorry 
+  continuous_toFun := sorry
   continuous_invFun := sorry
 \end{leancode}
   \item Definition \emph{HomeomorphFinReal2}
@@ -180,12 +180,12 @@ def HomeomorphFinReal2 (m n : ℕ) : (Fin m ⊕ Fin n → ℝ) ≃ₜ (Fin (m + 
 \end{leancode}
   \item Definition \emph{HomeomorphFinReal}
 \begin{leancode}
-def HomeomorphFinReal (m n : ℕ) : (Fin m → ℝ) × (Fin n → ℝ) ≃ₜ (Fin (m + n) → ℝ) := 
+def HomeomorphFinReal (m n : ℕ) : (Fin m → ℝ) × (Fin n → ℝ) ≃ₜ (Fin (m + n) → ℝ) :=
   Homeomorph.trans (HomeomorphFinReal1 _ _) (HomeomorphFinReal2 _ _)
 \end{leancode}
   \item Definition \emph{IsometryEquivFinMap1}
 \begin{leancode}
-def IsometryEquivFinMap1 {X: Type*} [PseudoEMetricSpace X] (m n : ℕ) : 
+def IsometryEquivFinMap1 {X: Type*} [PseudoEMetricSpace X] (m n : ℕ) :
 (Fin m → X) × (Fin n → X) ≃ᵢ (Fin m ⊕ Fin n → X) where
   toFun := (Equiv.sumArrowEquivProdArrow _ _ _).symm
   invFun := Equiv.sumArrowEquivProdArrow _ _ _
@@ -195,7 +195,7 @@ def IsometryEquivFinMap1 {X: Type*} [PseudoEMetricSpace X] (m n : ℕ) :
 \end{leancode}
   \item Definition \emph{IsometryEquivFinMap2}
 \begin{leancode}
-def IsometryEquivFinMap2 {X: Type*} [PseudoEMetricSpace X] (m n : ℕ) : 
+def IsometryEquivFinMap2 {X: Type*} [PseudoEMetricSpace X] (m n : ℕ) :
 (Fin m ⊕ Fin n → X) ≃ᵢ (Fin (m + n) → X) where
   toFun := Equiv.arrowCongr finSumFinEquiv (Equiv.refl _)
   invFun := (Equiv.arrowCongr finSumFinEquiv (Equiv.refl _)).symm
@@ -205,8 +205,8 @@ def IsometryEquivFinMap2 {X: Type*} [PseudoEMetricSpace X] (m n : ℕ) :
 \end{leancode}
   \item Definition \emph{IsometryEquivFinMap}
 \begin{leancode}
-def IsometryEquivFinMap {X : Type*} [MetricSpace X] (m n : ℕ) : 
-(Fin m → X) × (Fin n → X) ≃ᵢ (Fin (m + n) → X) := 
+def IsometryEquivFinMap {X : Type*} [MetricSpace X] (m n : ℕ) :
+(Fin m → X) × (Fin n → X) ≃ᵢ (Fin (m + n) → X) :=
   IsometryEquiv.trans (IsometryEquivFinMap1 _ _) (IsometryEquivFinMap2 _ _)
 \end{leancode}
 \end{itemize}
@@ -227,7 +227,7 @@ structure CWComplex.{u} {X : Type u} [TopologicalSpace X] (C : Set X) where
     (univ : Set (Σ n, cell n)).PairwiseDisjoint (fun ni ↦ map ni.1 ni.2 '' ball 0 1)
   mapsto (n : ℕ) (i : cell n) : ∃ I : Π m, Finset (cell m),
     MapsTo (map n i) (sphere 0 1) (⋃ (m < n) (j ∈ I m), map m j '' closedBall 0 1)
-  closed (A : Set X) (asubc : A ⊆ ↑C) : 
+  closed (A : Set X) (asubc : A ⊆ ↑C) :
     IsClosed A ↔ ∀ n j, IsClosed (A ∩ map n j '' closedBall 0 1)
   union : ⋃ (n : ℕ) (j : cell n), map n j '' closedBall 0 1 = C
 \end{leancode}
@@ -256,7 +256,7 @@ lemma levelaux_zero_eq_empty : hC.levelaux 0 = ∅
 class Finite.{u} {X : Type u} [TopologicalSpace X] (C : Set X) (cwcomplex : CWComplex C) :
 Prop where
   finitelevels : ∀ᶠ n in Filter.atTop, IsEmpty (cwcomplex.cell n)
-  finitecells (n : ℕ) : Finite (cwcomplex.cell n)
+  finitcellFrontiers (n : ℕ) : Finite (cwcomplex.cell n)
 \end{leancode}
   \item Structure \emph{Subcomplex}
 \begin{leancode}
@@ -269,7 +269,7 @@ structure Subcomplex (E : Set X) where
 \begin{leancode}
 class Subcomplex.Finite (E : Set X) (subcomplex: hC.Subcomplex E) : Prop where
   finitelevels : ∀ᶠ n in Filter.atTop, IsEmpty (hC.cell n)
-  finitecells (n : ℕ) : _root_.Finite (hC.cell n)
+  finitcellFrontiers (n : ℕ) : _root_.Finite (hC.cell n)
 \end{leancode}
   \item Lemma \emph{levelaux\_top}
 \begin{leancode}
@@ -281,7 +281,7 @@ class Subcomplex.Finite (E : Set X) (subcomplex: hC.Subcomplex E) : Prop where
 \end{leancode}
   \item Lemma \emph{iUnion\_map\_sphere\_subset\_levelaux}
 \begin{leancode}
-lemma iUnion_map_sphere_subset_levelaux (l : ℕ) : 
+lemma iUnion_map_sphere_subset_levelaux (l : ℕ) :
   ⋃ (j : hC.cell l), ↑(hC.map l j) '' sphere 0 1 ⊆ hC.levelaux l
 \end{leancode}
   \item Lemma \emph{iUnion\_map\_sphere\_subset\_level}
@@ -300,7 +300,7 @@ lemma level_subset_level_of_le {n m : ℕ∞} (h : m ≤ n) : hC.level m ⊆ hC.
 \end{leancode}
   \item Lemma \emph{iUnion\_levelaux\_eq\_levelaux}
 \begin{leancode}
-lemma iUnion_levelaux_eq_levelaux (n : ℕ∞) : 
+lemma iUnion_levelaux_eq_levelaux (n : ℕ∞) :
   ⋃ (m : ℕ) (hm : m < n + 1), hC.levelaux m = hC.levelaux n
 \end{leancode}
   \item Lemma \emph{iUnion\_level\_eq\_level}
@@ -319,36 +319,36 @@ lemma iUnion_ball_eq_level (n : ℕ∞) :
 \end{leancode}
   \item Lemma \emph{mapsto\_sphere\_levelaux}
 \begin{leancode}
-lemma mapsto_sphere_levelaux (n : ℕ) (j : hC.cell n) (nnezero : n ≠ 0) : 
+lemma mapsto_sphere_levelaux (n : ℕ) (j : hC.cell n) (nnezero : n ≠ 0) :
   MapsTo (hC.map n j) (sphere 0 1) (hC.levelaux  n)
 \end{leancode}
   \item Lemma \emph{mapsto\_sphere\_level}
 \begin{leancode}
-lemma mapsto_sphere_level (n : ℕ) (j : hC.cell n) (nnezero : n ≠ 0) : 
+lemma mapsto_sphere_level (n : ℕ) (j : hC.cell n) (nnezero : n ≠ 0) :
   MapsTo (hC.map n j) (sphere 0 1) (hC.level (Nat.pred n))
 \end{leancode}
   \item Lemma \emph{exists\_mem\_ball\_of\_mem\_levelaux}
 \begin{leancode}
-lemma exists_mem_ball_of_mem_levelaux {n : ℕ∞} {x : X} (xmemlvl : x ∈ hC.levelaux n) : 
+lemma exists_mem_ball_of_mem_levelaux {n : ℕ∞} {x : X} (xmemlvl : x ∈ hC.levelaux n) :
   ∃ (m : ℕ) (_ : m < n) (j : hC.cell m), x ∈ ↑(hC.map m j) '' ball 0 1
 \end{leancode}
   \item Lemma \emph{exists\_mem\_ball\_of\_mem\_level}
 \begin{leancode}
-lemma exists_mem_ball_of_mem_level {n : ℕ∞} {x : X} (xmemlvl : x ∈ hC.level n) : 
+lemma exists_mem_ball_of_mem_level {n : ℕ∞} {x : X} (xmemlvl : x ∈ hC.level n) :
   ∃ (m : ℕ) (_ : m ≤ n) (j : hC.cell m), x ∈ ↑(hC.map m j) '' ball 0 1
 \end{leancode}
   \item Lemma \emph{levelaux\_inter\_image\_closedBall\_eq\_levelaux\_inter\_image\_sphere}
 \begin{leancode}
-lemma levelaux_inter_image_closedBall_eq_levelaux_inter_image_sphere 
+lemma levelaux_inter_image_closedBall_eq_levelaux_inter_image_sphere
 {n : ℕ∞} {m : ℕ}{j : hC.cell m} (nlem : n ≤ m) :
-  hC.levelaux n ∩ ↑(hC.map m j) '' closedBall 0 1 = 
+  hC.levelaux n ∩ ↑(hC.map m j) '' closedBall 0 1 =
   hC.levelaux n ∩ ↑(hC.map m j) '' sphere 0 1
 \end{leancode}
   \item Lemma \emph{level\_inter\_image\_closedBall\_eq\_level\_inter\_image\_sphere}
 \begin{leancode}
-lemma level_inter_image_closedBall_eq_level_inter_image_sphere 
-{n : ℕ∞} {m : ℕ}{j : hC.cell m} (nltm : n < m) : 
-  hC.level n ∩ ↑(hC.map m j) '' closedBall 0 1 = 
+lemma level_inter_image_closedBall_eq_level_inter_image_sphere
+{n : ℕ∞} {m : ℕ}{j : hC.cell m} (nltm : n < m) :
+  hC.level n ∩ ↑(hC.map m j) '' closedBall 0 1 =
   hC.level n ∩ ↑(hC.map m j) '' sphere 0 1
 \end{leancode}
   \item Lemma \emph{isClosed\_map\_sphere}
@@ -359,12 +359,12 @@ lemma isClosed_map_sphere {n : ℕ} {i : hC.cell n} : IsClosed (hC.map n i '' sp
 \begin{leancode}
 lemma isClosed_inter_sphere_succ_of_le_isClosed_inter_closedBall
 {A : Set X} {n : ℕ}
-(hn : ∀ m ≤ n, ∀ (j : hC.cell m), IsClosed (A ∩ ↑(hC.map m j) '' closedBall 0 1)) : 
+(hn : ∀ m ≤ n, ∀ (j : hC.cell m), IsClosed (A ∩ ↑(hC.map m j) '' closedBall 0 1)) :
 ∀ (j : hC.cell (n + 1)), IsClosed (A ∩ ↑(hC.map (n + 1) j) '' sphere 0 1)
 \end{leancode}
   \item Lemma \emph{isClosed\_map\_closedBall}
 \begin{leancode}
-lemma isClosed_map_closedBall (n : ℕ) (i : hC.cell n) : 
+lemma isClosed_map_closedBall (n : ℕ) (i : hC.cell n) :
   IsClosed (hC.map n i '' closedBall 0 1)
 \end{leancode}
   \item Lemma \emph{isClosed}
@@ -373,38 +373,38 @@ lemma isClosed : IsClosed C
 \end{leancode}
   \item Lemma \emph{levelaux\_succ\_eq\_levelaux\_union\_iUnion}
 \begin{leancode}
-lemma levelaux_succ_eq_levelaux_union_iUnion (n : ℕ) : 
+lemma levelaux_succ_eq_levelaux_union_iUnion (n : ℕ) :
   hC.levelaux (↑n + 1) = hC.levelaux ↑n ∪ ⋃ (j : hC.cell ↑n), hC.map ↑n j '' closedBall 0 1
 \end{leancode}
   \item Lemma \emph{level\_succ\_eq\_level\_union\_iUnion}
 \begin{leancode}
-lemma level_succ_eq_level_union_iUnion (n : ℕ) : 
-  hC.level (↑n + 1) = 
+lemma level_succ_eq_level_union_iUnion (n : ℕ) :
+  hC.level (↑n + 1) =
   hC.level ↑n ∪ ⋃ (j : hC.cell (↑n + 1)), hC.map (↑n + 1) j '' closedBall 0 1
 \end{leancode}
   \item Lemma \emph{map\_closedBall\_subset\_levelaux}
 \begin{leancode}
-lemma map_closedBall_subset_levelaux (n : ℕ) (j : hC.cell n) : 
+lemma map_closedBall_subset_levelaux (n : ℕ) (j : hC.cell n) :
   (hC.map n j) '' closedBall 0 1 ⊆ hC.levelaux (n + 1)
 \end{leancode}
   \item Lemma \emph{map\_closedBall\_subset\_level}
 \begin{leancode}
-lemma map_closedBall_subset_level (n : ℕ) (j : hC.cell n) : 
+lemma map_closedBall_subset_level (n : ℕ) (j : hC.cell n) :
   (hC.map n j) '' closedBall 0 1 ⊆ hC.level n
 \end{leancode}
   \item Lemma \emph{map\_ball\_subset\_levelaux}
 \begin{leancode}
-lemma map_ball_subset_levelaux (n : ℕ) (j : hC.cell n) : 
+lemma map_ball_subset_levelaux (n : ℕ) (j : hC.cell n) :
   (hC.map n j) '' ball 0 1 ⊆ hC.levelaux (n + 1)
 \end{leancode}
   \item Lemma \emph{map\_ball\_subset\_level}
 \begin{leancode}
-lemma map_ball_subset_level (n : ℕ) (j : hC.cell n) : 
+lemma map_ball_subset_level (n : ℕ) (j : hC.cell n) :
   (hC.map n j) '' ball 0 1 ⊆ hC.level n
 \end{leancode}
   \item Lemma \emph{map\_ball\_subset\_complex}
 \begin{leancode}
-lemma map_ball_subset_complex (n : ℕ) (j : hC.cell n) : 
+lemma map_ball_subset_complex (n : ℕ) (j : hC.cell n) :
   (hC.map n j) '' ball 0 1 ⊆ C
 \end{leancode}
   \item Lemma \emph{map\_ball\_subset\_map\_closedball}
@@ -414,7 +414,7 @@ lemma map_ball_subset_map_closedball {n : ℕ} {j : hC.cell n} :
 \end{leancode}
   \item Lemma \emph{closure\_map\_ball\_eq\_map\_closedball}
 \begin{leancode}
-lemma closure_map_ball_eq_map_closedball {n : ℕ} {j : hC.cell n} : 
+lemma closure_map_ball_eq_map_closedball {n : ℕ} {j : hC.cell n} :
   closure (hC.map n j '' ball 0 1) = hC.map n j '' closedBall 0 1
 \end{leancode}
   \item Lemma \emph{not\_disjoint\_equal}
@@ -425,9 +425,9 @@ lemma not_disjoint_equal {n : ℕ} {j : hC.cell n} {m : ℕ} {i : hC.cell m}
 \end{leancode}
   \item Lemma \emph{map\_closedBall\_inter\_map\_closedBall\_eq\_map\_ball\_inter\_map\_ball\_of\_le} \todonoturgent{Do the proof.}
 \begin{leancode}
-lemma map_closedBall_inter_map_closedBall_eq_map_ball_inter_map_ball_of_le 
-{n : ℕ} {j : hC.cell n} {m : ℕ} {i : hC.cell m} (ne : (⟨n, j⟩ : (Σ n, hC.cell n)) ≠ ⟨m, i⟩) 
-(mlen : m ≤ n) : 
+lemma map_closedBall_inter_map_closedBall_eq_map_ball_inter_map_ball_of_le
+{n : ℕ} {j : hC.cell n} {m : ℕ} {i : hC.cell m} (ne : (⟨n, j⟩ : (Σ n, hC.cell n)) ≠ ⟨m, i⟩)
+(mlen : m ≤ n) :
 hC.map n j '' closedBall 0 1 ∩ hC.map m i '' closedBall 0 1 = hC.map n j '' sphere 0 1 ∩ hC.map m i '' closedBall 0 1
 \end{leancode}
   \item Lemma \emph{mapsto'}\comment{could this proof be simplified using `exists\_ mem\_ball\_ of\_mem \_level`?}
@@ -437,7 +437,7 @@ lemma mapsto' (n : ℕ) (i : hC.cell n) : ∃ I : Π m, Finset (hC.cell m),
 \end{leancode}
   \item Lemma \emph{mapsto''} \todonoturgent{Do the proof.}
 \begin{leancode}
-lemma mapsto'' (n :  ℕ) (i : hC.cell n) : _root_.Finite (Σ (m : ℕ), 
+lemma mapsto'' (n :  ℕ) (i : hC.cell n) : _root_.Finite (Σ (m : ℕ),
 {j : hC.cell m // ¬ Disjoint (↑(hC.map n i) '' sphere 0 1 ) (↑(hC.map m j) '' ball 0 1)} )
 \end{leancode}
 \end{itemize}
@@ -479,7 +479,7 @@ def CWComplex_disjointUnion (disjoint : Disjoint C D) : CWComplex (C ∪ D) wher
   closed A := sorry
   union := sorry
 \end{leancode}
-  \item Definition \emph{CWComplex\_subcomplex} 
+  \item Definition \emph{CWComplex\_subcomplex}
 \begin{leancode}
 def CWComplex_subcomplex (E : Set X) (subcomplex: Subcomplex hC E) : CWComplex E where
   cell n := subcomplex.I n
@@ -487,12 +487,12 @@ def CWComplex_subcomplex (E : Set X) (subcomplex: Subcomplex hC E) : CWComplex E
   source_eq n i := sorry
   cont n i := sorry
   cont_symm n i := sorry
-  pairwiseDisjoint := sorry 
+  pairwiseDisjoint := sorry
   mapsto n i := sorry
-  closed A := sorry 
-  union := sorry 
+  closed A := sorry
+  union := sorry
 \end{leancode}
-  \item Assumption 
+  \item Assumption
 \begin{leancode}
 variable {X : Type*} {Y : Type*} [t1 : TopologicalSpace X] [t2 : TopologicalSpace Y]
 [T2Space X] [T2Space Y] {C : Set X} {D : Set Y} (hC : @CWComplex X t1 C)
@@ -508,16 +508,16 @@ infixr:35 " ×ₖ "  => Prodkification
 \end{leancode}
   \item Definition \emph{prodmap} \todo{Do a composition of to maps, first an equivalence of (Fin m1 -> R) x (Fin m2 -> R) (in auxiliary) and then do Prodmap}
 \begin{leancode}
-def prodmap (m1 : ℕ) (m2 : ℕ) (c1 : hC.cell m1) (c2 : hD.cell m2) : 
-(Fin (m1 + m2) → ℝ) → (X ×ₖ Y) := 
-fun x ↦ ⟨hC.map m1 c1 (fun y ↦ x ⟨y.1, lt_of_lt_of_le y.2 (Nat.le_add_right m1 m2)⟩), 
+def prodmap (m1 : ℕ) (m2 : ℕ) (c1 : hC.cell m1) (c2 : hD.cell m2) :
+(Fin (m1 + m2) → ℝ) → (X ×ₖ Y) :=
+fun x ↦ ⟨hC.map m1 c1 (fun y ↦ x ⟨y.1, lt_of_lt_of_le y.2 (Nat.le_add_right m1 m2)⟩),
 hD.map m2 c2 (fun y ↦ x ⟨m1 +y.1, add_lt_add_left y.2 m1⟩)⟩
 \end{leancode}
   \item Definition \emph{prodinvmap}
 \begin{leancode}
-def prodinvmap (m1 : ℕ) (m2 : ℕ) (c1 : hC.cell m1) (c2 : hD.cell m2) : 
-(X ×ₖ Y) → (Fin (m1 + m2) → ℝ) := 
-fun ⟨x, y⟩ ↦ (fun l ↦ if llt : l < m1 then (hC.map m1 c1).invFun x ⟨l, llt⟩ 
+def prodinvmap (m1 : ℕ) (m2 : ℕ) (c1 : hC.cell m1) (c2 : hD.cell m2) :
+(X ×ₖ Y) → (Fin (m1 + m2) → ℝ) :=
+fun ⟨x, y⟩ ↦ (fun l ↦ if llt : l < m1 then (hC.map m1 c1).invFun x ⟨l, llt⟩
 else (hD.map m2 c2).invFun y ⟨l - m1, Nat.sub_lt_left_of_lt_add (not_lt.1 llt) l.2⟩)
 \end{leancode}
   \item Definition \emph{mapprodkification} \todo{Finish this}
@@ -567,43 +567,43 @@ lemma isClosed_levelaux (n : ℕ∞) : IsClosed (hC.levelaux n)
 \end{leancode}
   \item Lemma \emph{closed\_iff\_inter\_levelaux\_closed}
 \begin{leancode}
-lemma closed_iff_inter_levelaux_closed (A : Set X) (asubc : A ⊆ C) : 
+lemma closed_iff_inter_levelaux_closed (A : Set X) (asubc : A ⊆ C) :
 IsClosed A ↔ ∀ (n : ℕ), IsClosed (A ∩ hC.levelaux n)
 \end{leancode}
   \item Lemma \emph{inter\_levelaux\_succ\_closed\_iff\_inter\_levelaux\_closed\_and\_inter\_closedBall\_closed}
 \begin{leancode}
-lemma inter_levelaux_succ_closed_iff_inter_levelaux_closed_and_inter_closedBall_closed 
-(A : Set X) : IsClosed (A ∩ hC.levelaux (Nat.succ n)) ↔ 
+lemma inter_levelaux_succ_closed_iff_inter_levelaux_closed_and_inter_closedBall_closed
+(A : Set X) : IsClosed (A ∩ hC.levelaux (Nat.succ n)) ↔
 IsClosed (A ∩ hC.levelaux n) ∧ ∀ (j : hC.cell n), IsClosed (A ∩ hC.map n j '' closedBall 0 1)
 \end{leancode}
   \item Lemma \emph{isDiscrete\_level\_zero}
 \begin{leancode}
 lemma isDiscrete_level_zero {A : Set X} : IsClosed (A ∩ hC.level 0)
-\end{leancode} 
+\end{leancode}
   \item Lemma \emph{compact\_inter\_finite}
 \begin{leancode}
-lemma compact_inter_finite (A : t.Compacts) : 
+lemma compact_inter_finite (A : t.Compacts) :
   _root_.Finite (Σ (m : ℕ), {j : hC.cell m // ¬ Disjoint A.1 (↑(hC.map m j) '' ball 0 1)})
 \end{leancode}
 \todo[inline]{Make the following lemmata work with new definitions}
   \item Lemma \emph{iUnion\_subcomplex} \comment{Use CWComplex\_ subcomplex}
 \begin{leancode}
 lemma iUnion_subcomplex (J : Type u) (I : J → Π n, Set (hC.cell n))
-(cw : ∀ (l : J), CWComplex (⋃ (n : ℕ) (j : I l n), hC.map n j '' ball 0 1)) 
+(cw : ∀ (l : J), CWComplex (⋃ (n : ℕ) (j : I l n), hC.map n j '' ball 0 1))
   : CWComplex (⋃ (l : J) (n : ℕ) (j : I l n), hC.map n j '' ball 0 1)
 \end{leancode}
   \item Lemma \emph{finite\_iUnion\_finitesubcomplex} \todo{Do the proofs.}
 \begin{leancode}
 lemma finite_iUnion_finitesubcomplex (m : ℕ) (I : Fin m → Π n, Set (hC.cell n))
-(fincw : ∀ (l : Fin m), FiniteCWComplex (⋃ (n : ℕ) (j : I l n), hC.map n j '' ball 0 1)) : 
+(fincw : ∀ (l : Fin m), FiniteCWComplex (⋃ (n : ℕ) (j : I l n), hC.map n j '' ball 0 1)) :
 FiniteCWComplex (⋃ (l : Fin m) (n : ℕ) (j : I l n), hC.map n j '' ball 0 1) where
   cwcomplex := sorry
   finitelevels := sorry
-  finitecells := sorry
+  finitcellFrontiers := sorry
 \end{leancode}
   \item Definition \emph{open\_neighbourhood\_aux} \comment{See Hatcher p. 522. I don't really want to do that know so I'll just leave it here for now.} \todo{Make this work.}
 \begin{leancode}
-def open_neighbourhood_aux (ε : (n : ℕ) → (hC.cell n) → {x : ℝ // x > 0}) 
+def open_neighbourhood_aux (ε : (n : ℕ) → (hC.cell n) → {x : ℝ // x > 0})
 (A : Set X) (AsubC : A ⊆ C) (n : ℕ): Set X :=
   match n with
   | 0 => A ∩ hC.level 0

@@ -64,7 +64,7 @@ instance CWComplex_levelaux (n : ℕ∞) : CWComplex (levelaux C n) where
       exact h m j mlt
     left
     push_neg at mlt
-    rw [← inter_eq_left.2 asublevel, inter_assoc, levelaux_inter_ocell_eq_empty mlt, inter_empty]
+    rw [← inter_eq_left.2 asublevel, inter_assoc, levelaux_inter_openCell_eq_empty mlt, inter_empty]
     exact isClosed_empty
   union' := by
     apply Set.iUnion_congr
@@ -125,11 +125,11 @@ instance CWComplex_disjointUnion (disjoint : Disjoint C D) : CWComplex (C ∪ D)
           rfl
       exact @this ⟨n, cn⟩ ⟨m, cm⟩ ne'
     · simp [Function.onFun]
-      exact Disjoint.mono (ocell_subset_complex n cn) (ocell_subset_complex m cm) disjoint
+      exact Disjoint.mono (openCell_subset_complex n cn) (openCell_subset_complex m cm) disjoint
     rcases cm with cm | cm
     · simp only [Function.onFun]
       rw [disjoint_comm] at disjoint
-      exact Disjoint.mono (ocell_subset_complex n cn) (ocell_subset_complex m cm) disjoint
+      exact Disjoint.mono (openCell_subset_complex n cn) (openCell_subset_complex m cm) disjoint
     · have := pairwiseDisjoint (C := D)
       simp only [PairwiseDisjoint, Set.Pairwise, mem_univ, ne_eq, forall_true_left] at this
       have ne' : ¬({ fst := n, snd := cn } : (n : ℕ) × cell D n) = { fst := m, snd := cm } := by
@@ -182,8 +182,8 @@ instance CWComplex_disjointUnion (disjoint : Disjoint C D) : CWComplex (C ∪ D)
     · intro closedA n j
       apply IsClosed.inter closedA
       rcases j with j | j
-      · exact isClosed_ccell
-      · exact isClosed_ccell
+      · exact isClosed_closedCell
+      · exact isClosed_closedCell
     · intro h
       have : A = (A ∩ C) ∪ (A ∩ D) := by
         calc
