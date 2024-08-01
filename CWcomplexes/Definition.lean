@@ -217,7 +217,7 @@ lemma openCell_subset_levelaux (n : ℕ) (j : cell C n) : openCell n j ⊆ level
 lemma openCell_subset_level (n : ℕ) (j : cell C n) : openCell n j ⊆ level C n :=
   (openCell_subset_closedCell _ _).trans (closedCell_subset_level _ _)
 
-lemma openCell_subset_complex (n : ℕ) (j : cell C n) : map n j '' ball 0 1 ⊆ C := by
+lemma openCell_subset_complex (n : ℕ) (j : cell C n) : openCell n j ⊆ C := by
   apply subset_trans (openCell_subset_level _ _)
     (by simp_rw [← level_top]; exact level_mono le_top)
 
@@ -254,7 +254,7 @@ lemma isClosed : IsClosed C := by
   exact isClosed_closedCell
 
 lemma iUnion_levelaux_eq_levelaux (n : ℕ∞) :
-    ⋃ (m : ℕ) (hm : m < n + 1), levelaux C m = levelaux C n := by
+    ⋃ (m : ℕ) (_ : m < n + 1), levelaux C m = levelaux C n := by
   apply subset_antisymm
   · simp_rw [iUnion_subset_iff]
     exact fun _ h ↦  levelaux_mono (ENat.le_of_lt_add_one h)
@@ -271,7 +271,7 @@ lemma iUnion_levelaux_eq_levelaux (n : ℕ∞) :
       norm_cast
       exact lt_add_one _
 
-lemma iUnion_level_eq_level (n : ℕ∞) : ⋃ (m : ℕ) (hm : m < n + 1), level C m = level C n := by
+lemma iUnion_level_eq_level (n : ℕ∞) : ⋃ (m : ℕ) (_ : m < n + 1), level C m = level C n := by
   simp_rw [level, ← iUnion_levelaux_eq_levelaux (n + 1)]
   ext; simp only [mem_iUnion, exists_prop]
   constructor
@@ -296,7 +296,7 @@ lemma level_succ_eq_level_union_iUnion (n : ℕ) :
   levelaux_succ_eq_levelaux_union_iUnion_closedCell _
 
 lemma iUnion_openCell_eq_levelaux (n : ℕ∞) :
-    ⋃ (m : ℕ) (hm : m < n) (j : cell C m), openCell m j = levelaux C n := by
+    ⋃ (m : ℕ) (_ : m < n) (j : cell C m), openCell m j = levelaux C n := by
   induction' n using ENat.nat_induction with n hn hn
   · simp [levelaux]
   · calc
@@ -346,7 +346,7 @@ lemma eq_cell_of_not_disjoint {n : ℕ} {j : cell C n} {m : ℕ} {i : cell C m}
   exact this (x := ⟨n, j⟩) (mem_univ _) (y := ⟨m, i⟩) (mem_univ _) h'
 
 lemma iUnion_openCell_eq_level (n : ℕ∞) :
-    ⋃ (m : ℕ) (hm : m < n + 1) (j : cell C m), openCell m j = level C n :=
+    ⋃ (m : ℕ) (_ : m < n + 1) (j : cell C m), openCell m j = level C n :=
   iUnion_openCell_eq_levelaux _
 
 lemma exists_mem_openCell_of_mem_levelaux {n : ℕ∞} {x : X} (xmemlvl : x ∈ levelaux C n) :
@@ -361,7 +361,6 @@ lemma exists_mem_openCell_of_mem_level {n : ℕ∞} {x : X} (xmemlvl : x ∈ lev
   obtain ⟨m, mlen, _⟩ := exists_mem_openCell_of_mem_levelaux xmemlvl
   use m, ENat.le_of_lt_add_one mlen
 
---should this go in the thesis?
 lemma levelaux_inter_openCell_eq_empty {n : ℕ∞} {m : ℕ} {j : cell C m} (nlem : n ≤ m) :
     levelaux C n ∩ openCell m j = ∅ := by
   simp_rw [← iUnion_openCell_eq_levelaux, iUnion_inter, iUnion_eq_empty]
@@ -436,8 +435,7 @@ lemma cellFrontier_subset' (n : ℕ) (i : cell C n) : ∃ I : Π m, Finset (cell
     rcases hJ with ⟨l, llen , j, jmem, xmemclosedCell⟩
     rw [← cellFrontier_union_openCell_eq_closedCell] at xmemclosedCell
     rcases xmemclosedCell with xmemcellFrontier | xmemopenCell
-    · let K := p l (Nat.le_of_lt_succ llen) j
-      let hK := hp l (Nat.le_of_lt_succ llen) j xmemcellFrontier
+    · let hK := hp l (Nat.le_of_lt_succ llen) j xmemcellFrontier
       simp_rw [mem_iUnion, exists_prop] at hK
       obtain ⟨k, kltl, i, imem, xmemopenCell⟩ := hK
       use k, (lt_trans kltl llen), i

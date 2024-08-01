@@ -283,7 +283,7 @@ When we use this lemma with induction we might want the following for the induct
 
 With that we can write a new strong induction principle for showing that sets in a CW-complex are closed: 
 
-\begin{lem}
+\begin{lem}\label{lem:inductionlevel}
     Let $A \subseteq X$ be a set such that for all $n \in \bN$ if for all $m \le n$ the intersection $A \cap X_m$ is closed then for all $j \in I_{n + 1}$ the intersection $A \cap \closedCell{n + 1}{j}$ is closed. 
     Then $A$ is closed.
 \end{lem}
@@ -295,4 +295,41 @@ With that we can write a new strong induction principle for showing that sets in
     We need to show that $A \cap X_{n + 1}$ is closed as well. 
     By the previous lemma it is enough to show that $A \cap X_n$ and $A \cap \closedCell{n + 1}{j}$ are closed for all $j \in I_{n + 1}$. 
     But the first one is closed by induction hypothesis and the second one is closed by our assumption applied to the induction hypothesis.
+\end{proof}
+
+We can now use all these new techniques to show some important properties of CW-complexes: 
+
+\begin{lem}
+    $X_0$ is discrete.
+\end{lem}
+\begin{proof}
+    We want to show that every set $A \subseteq X_0$ is closed in $X_0$.
+    It is enough if $A$ is closed in $X$. 
+    We apply lemma \ref{lem:closediffinteropenorclosed}. 
+    Take $n > 0$ and $i \in I_n$. 
+    We show that $A \cap \openCell{n}{i}$ is closed. 
+    But using \ref{lem:skeletonunionopenCell} that different open cells are disjoint we have $A \cap \openCell{n}{i} = A \cap X_0 \cap \openCell{n}{i} = A \cap (\bigcup_{m < 1}\bigcup_{j \in I_m}\openCell{m}{j}) \cap \openCell{n}{i} = \varnothing$ which is closed.
+\end{proof}
+
+The proof of the following lemma is based on the proof of Proposition A.1. in \cite{Hatcher2001}.
+
+\begin{lem}
+    For every compact set $C \subseteq X$ the set of all open cells $\openCell{n}{i}$ such that $\openCell{n}{i} \cap C \ne \varnothing$ is finite.
+\end{lem}
+\begin{proof}
+    Assume towards a contradiction that the set $S \coloneq \{n \in \bN, i \in I_n \mid \openCell{n}{i} \cap C \ne \varnothing \}$ is infinite. 
+    For every pair $(n, i) \in S$ pick a point $p_{n, i} \in \openCell{n}{i} \cap C$. 
+    Since the open cells are pairwise disjoint we know that the set $P \coloneq \{p_{n, i} \mid (n, i) \in S\}$ is also infinite.
+    We will now show that $P$ is discrete and compact. 
+    Then $P$ must be finite which is a contradiction.
+    For both compactness and discreteness we will need that every set $A \subseteq P$ is closed in $X$.
+
+    So let $A \subseteq P$. 
+    We apply lemma \ref{lem:inductionlevel}. 
+    Assuming that for all $m \le n$ the intersection $A \cap X_m$ is closed, we need to show that $A \cap \closedCell{n + 1}{j}$ is closed for every $j \in I_{n + 1}$.
+    Since $A \cap \closedCell{n + 1}{j} = (A \cap \cellFrontier{n + 1}{j}) \cup (A \cap \openCell{n + 1}{j})$ and $A \cap \cellFrontier{n + 1}{j} = A \cap X_{n} \cap \cellFrontier{n + 1}{j}$ is closed by lemma \ref{lem:closedCellclosed} and assumption, it is enough to show that $A \cap \openCell{n + 1}{j}$ is closed. 
+    If the intersection $A \cap \openCell{n + 1}{j}$ is empty then we are done. 
+    So assume that there is an $x \in A \cap \openCell{n + 1}{j}$. 
+    Since $x \in A \subseteq P$ there is $(m, i) \in S$ such that $p_{m, i} = x$. 
+    But the open cells of $X$ are pairwise disjoint so it must be that $(m, i) = (n + 1, j)$ and therefore $p_{n + 1, j} = x$.
 \end{proof}

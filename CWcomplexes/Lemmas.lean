@@ -88,140 +88,104 @@ lemma isDiscrete_levelaux_one {A : Set X} : IsClosed (A ∩ levelaux C 1) := by
 /- The following is one way of stating that `level 0` is discrete. -/
 lemma isDiscrete_level_zero {A : Set X} : IsClosed (A ∩ level C 0) := isDiscrete_levelaux_one
 
-lemma compact_inter_finite (A : t.Compacts) :
-  _root_.Finite (Σ (m : ℕ), {j : cell C m // ¬ Disjoint A.1 (openCell m j)}) := by
+lemma compact_inter_finite (A : Set X) (compact : IsCompact A) :
+  _root_.Finite (Σ (m : ℕ), {j : cell C m // ¬ Disjoint A (openCell m j)}) := by
   by_contra h
   simp only [TopologicalSpace.Compacts.carrier_eq_coe, not_disjoint_iff, SetLike.mem_coe,
     not_finite_iff_infinite] at h
   let p (m : Σ (m : ℕ), { j : cell C m // ∃ x ∈ A, x ∈ openCell m j}) :=
     Classical.choose (m.2).2
+  let hp m : p m ∈ A ∧ p m ∈ openCell m.1 m.2 := by
+    simp_rw [p]
+    exact Classical.choose_spec (m.2).2
+  let P := p '' (univ : Set (Σ (m : ℕ), {j : cell C m // ∃ x ∈ A, x ∈ openCell m j}))
   have : Set.InjOn p (univ : Set (Σ (m : ℕ), { j // ∃ x ∈ A, x ∈ openCell m j})) := by
-    rw [InjOn]
-    intro ⟨m, j, hj⟩ _ ⟨n, i, hi⟩ nimem peqp
+    intro ⟨m, j, hj⟩ _ ⟨n, i, hi⟩ _ peqp
     have hpj : p ⟨m, j, hj⟩ ∈ openCell m j := by simp_rw [p, (Classical.choose_spec hj).2]
     have hpi : p ⟨m, j, hj⟩ ∈ openCell n i := by simp_rw [peqp, p, (Classical.choose_spec hi).2]
-    have : ¬ Disjoint (openCell m j) (openCell n i) := by
-      rw [Set.not_disjoint_iff]
-      use p ⟨m, j, hj⟩
-    have := eq_cell_of_not_disjoint this
-    simp only [Sigma.mk.inj_iff] at this
-    rcases this with ⟨meqn, jeqi⟩
-    subst meqn
-    simp only [heq_eq_eq] at jeqi
-    subst jeqi
-    rfl
-  have infuniv : Set.Infinite (univ : Set (Σ (m : ℕ),
-      { j : cell C m // ∃ x ∈ A, x ∈ openCell m j})) := by
-    rw [infinite_univ_iff]
-    exact h
-  have infpoints := Set.Infinite.image this infuniv
-  have subsetsclosed : ∀ (s : Set (p '' (univ : Set (Σ (m : ℕ),
-      {j : cell C m // ∃ x ∈ A, x ∈ openCell m j})))), IsClosed (s : Set X) := by
+    suffices (⟨m, j⟩ : Σ n, cell C n) = ⟨n, i⟩ by aesop
+    apply eq_cell_of_not_disjoint
+    rw [not_disjoint_iff]
+    use p ⟨m, j, hj⟩
+  have infpoints : P.Infinite := (infinite_univ_iff.2 h).image this
+  have subsetA : P ⊆ A := by
+    intro x xmem
+    simp only [mem_image, image_univ, mem_range, P] at xmem
+    obtain ⟨n, rfl⟩ := xmem
+    exact (hp n).1
+  have subsetsclosed : ∀ (s : Set P), IsClosed (s : Set X) := by
     intro s
     have ssubc : ↑↑s ⊆ ↑C := by
-      have ssub := Subtype.coe_image_subset ↑(p '' univ) s
-      have subc : p '' univ ⊆ C := by
-        intro x xmem
-        simp only [image_univ, mem_range, Sigma.exists, Subtype.exists] at xmem
-        rcases xmem with ⟨m, j, h', h⟩
-        simp only [← union, mem_iUnion]
-        use m
-        use j
-        simp only [p] at h
-        have := (Classical.choose_spec h').2
-        rw [h] at this
-        exact openCell_subset_closedCell _ _ this
-      exact subset_trans ssub subc
+      apply (Subtype.coe_image_subset ↑P s).trans
+      intro x xmem
+      simp only [image_univ, mem_range, P] at xmem
+      obtain ⟨m, rfl⟩ := xmem
+      exact openCell_subset_complex _ _ (hp m).2
     apply induction_isClosed_levelaux ssubc
     intro n hn j
     simp_rw [← cellFrontier_union_openCell_eq_closedCell, inter_union_distrib_left]
     apply IsClosed.union
-    · suffices IsClosed (Subtype.val '' s ∩ levelaux C n ∩ cellFrontier n j) by
-        simpa only [inter_assoc, inter_eq_right.2 (cellFrontier_subset_levelaux n j)]
+    · rw [← inter_eq_right.2 (cellFrontier_subset_levelaux n j), ← inter_assoc]
       exact (hn n (le_refl _)).inter isClosed_cellFrontier
     · by_cases empty : Subtype.val '' s ∩ openCell n j = ∅
       · rw [empty]
         exact isClosed_empty
       rw [eq_empty_iff_forall_not_mem, not_forall_not] at empty
-      rcases empty with ⟨x, xmems, xmemball⟩
-      have ssubp : Subtype.val '' s ⊆
-          p '' (univ : Set (Σ (m : ℕ), { j // ∃ x ∈ A, x ∈ openCell m j})) := by
-        intro a amem
-        simp only [mem_image] at amem
-        rcases amem with ⟨b, _, beq⟩
-        rw [← beq]
-        exact b.2
-      have : x ∈ (p '' (univ : Set (Σ (m : ℕ), { j // ∃ x ∈ A, x ∈ openCell m j}))) :=
-        ssubp xmems
-      simp only [mem_image, p] at this
-      rcases this with ⟨⟨y1, y2, yprop⟩, ymem, eq⟩
-      have xprop := Classical.choose_spec yprop
-      rw [eq] at xprop
-      have : ¬ Disjoint (map y1 y2 '' ball 0 1) (map n j '' ball 0 1) := by
-        rw [not_disjoint_iff]
+      have hnj : ∃ x ∈ A, x ∈ openCell n j := by
+        obtain ⟨x, xmem⟩ := empty
         use x
-        exact ⟨xprop.2, xmemball⟩
-      have := eq_cell_of_not_disjoint this
-      simp only [Sigma.mk.inj_iff] at this
-      rcases this with ⟨h1, h2⟩
-      subst y1
-      simp only [heq_eq_eq] at h2
-      subst y2
-      suffices IsClosed {x} by
-        convert this
-        apply subset_antisymm
-        · intro x' ⟨x'mems, x'memball⟩
-          simp only [mem_singleton_iff]
-          have : x' ∈ (p '' (univ : Set (Σ (m : ℕ), { j // ∃ x ∈ A, x ∈ openCell m j}))) :=
-            ssubp x'mems
-          simp only [mem_image, p] at this
-          rcases this with ⟨⟨y'1, y'2, y'prop⟩, y'mem, eq'⟩
-          have x'prop := Classical.choose_spec y'prop
-          rw [eq'] at x'prop
-          have : ¬ Disjoint (map y'1 y'2 '' ball 0 1) (map n j '' ball 0 1) := by
-            rw [not_disjoint_iff]
-            use x'
-            exact ⟨x'prop.2, x'memball⟩
-          have := eq_cell_of_not_disjoint this
-          simp only [Sigma.mk.inj_iff] at this
-          rcases this with ⟨h1, h2⟩
-          subst y'1
-          simp only [heq_eq_eq] at h2
-          subst y'2
-          rw [← eq, ← eq']
-        · simp only [subset_inter_iff, singleton_subset_iff, xmems, xmemball, and_self]
-      exact isClosed_singleton
-  have discrete : DiscreteTopology
-      ↑(p '' (univ : Set (Σ (m : ℕ), { j // ∃ x ∈ A, x ∈ openCell m j}))) := by
-    simp only [discreteTopology_iff_forall_isClosed]
+        exact ⟨((Subtype.coe_image_subset P s).trans subsetA ) xmem.1, xmem.2⟩
+      suffices Subtype.val '' s ∩ openCell n j = {p ⟨n, j, hnj⟩} by
+        rw [this]
+        exact isClosed_singleton
+      have hpnj := hp ⟨n, j, hnj⟩
+      have : ∀ (y : X) (ymemP : y ∈ P), ⟨y, ymemP⟩ ∈ s → ↑y ∈ openCell n j → y = p ⟨n, ⟨j, hnj⟩⟩ := by
+        intro y ymemP ymems ymemopen
+        simp only [image_univ, mem_range, Sigma.exists, Subtype.exists, P] at ymemP
+        obtain ⟨m, i, hmi, rfl⟩ := ymemP
+        have hpmi := hp ⟨m, i, hmi⟩
+        suffices (⟨m, i⟩ : Σ n, cell C n) = ⟨n, j⟩ by
+          rw [Sigma.mk.inj_iff] at this
+          obtain ⟨eq1, eq2⟩ := this
+          subst eq1
+          rw [heq_eq_eq] at eq2
+          subst eq2
+          rfl
+        apply eq_cell_of_not_disjoint
+        rw [not_disjoint_iff]
+        use p ⟨m, ⟨i, hmi⟩⟩
+        exact ⟨hpmi.2, ymemopen⟩
+      apply subset_antisymm
+      · simp only [subset_singleton_iff, mem_inter_iff, mem_image, Subtype.exists,
+          exists_and_right, exists_eq_right, and_imp, forall_exists_index]
+        exact this
+      · obtain ⟨y, ymem⟩ := empty
+        suffices y = p ⟨n, ⟨j, hnj⟩⟩ by
+          subst this
+          simp only [singleton_subset_iff]
+          exact ymem
+        refine this y (Subtype.coe_image_subset P s ymem.1) (mem_of_mem_image_val ymem.1) ymem.2
+  have discrete : DiscreteTopology ↑P := by
+    rw [discreteTopology_iff_forall_isClosed]
     intro s
     simp only [instTopologicalSpaceSubtype, isClosed_induced_iff]
     use s
     simp only [Subtype.val_injective, preimage_image_eq, and_true]
     exact subsetsclosed s
-  have closed: IsClosed (p '' (univ : Set (Σ (m : ℕ), { j // ∃ x ∈ A, x ∈ openCell m j}))) := by
-    have :=
-      subsetsclosed (univ : Set (p '' (univ : Set (Σ (m : ℕ), { j // ∃ x ∈ A, x ∈ openCell m j}))))
+  have closed: IsClosed P := by
+    have := subsetsclosed (univ : Set P)
     rw [Subtype.coe_image_univ] at this
     exact this
-  have subsetA : (p '' (univ : Set (Σ (m : ℕ), { j // ∃ x ∈ A, x ∈ openCell m j}))) ⊆ A.1 := by
-    intro x xmem
-    simp only [mem_image, image_univ, mem_range, Sigma.exists, Subtype.exists, p] at xmem
-    rcases xmem with ⟨n, j, hj, hjj⟩
-    have := Classical.choose_spec hj
-    rw [← hjj]
-    exact this.1
-  have compact : IsCompact (p '' (univ : Set (Σ (m : ℕ), { j // ∃ x ∈ A, x ∈ openCell m j}))) :=
-    IsCompact.of_isClosed_subset A.2 closed subsetA
-  have finite : Set.Finite (p '' (univ : Set (Σ (m : ℕ), { j // ∃ x ∈ A, x ∈ openCell m j}))) :=
-    IsCompact.finite compact discrete
+  have compact : IsCompact P := compact.of_isClosed_subset closed subsetA
+  have finite : Set.Finite P := compact.finite discrete
   contradiction
 
-lemma compact_inter_finite_subset (A : t.Compacts) {I : (n : ℕ) → Set (cell C n)} :
-    _root_.Finite (Σ (m : ℕ), {j : I m // ¬ Disjoint A.1 (openCell (C := C) m j)}) := by
-  let f := fun (x : Σ (m : ℕ), {j : I m // ¬ Disjoint A.1 (openCell (C := C) m j)}) ↦
-    (⟨x.1, ⟨x.2.1, x.2.2⟩⟩ : Σ (m : ℕ), {j : cell C m // ¬ Disjoint A.1 (openCell m j)})
-  apply @Finite.of_injective _ _ (compact_inter_finite A) f
+lemma compact_inter_finite_subset (A : Set X) (compact : IsCompact A)
+    {I : (n : ℕ) → Set (cell C n)} :
+    _root_.Finite (Σ (m : ℕ), {j : I m // ¬ Disjoint A (openCell (C := C) m j)}) := by
+  let f := fun (x : Σ (m : ℕ), {j : I m // ¬ Disjoint A (openCell (C := C) m j)}) ↦
+    (⟨x.1, ⟨x.2.1, x.2.2⟩⟩ : Σ (m : ℕ), {j : cell C m // ¬ Disjoint A (openCell m j)})
+  apply @Finite.of_injective _ _ (compact_inter_finite A compact) f
   unfold Function.Injective
   intro ⟨x1, x2, x3⟩ ⟨y1, y2, y3⟩ eq
   simp only [TopologicalSpace.Compacts.carrier_eq_coe, Sigma.mk.inj_iff, f] at eq
@@ -229,20 +193,21 @@ lemma compact_inter_finite_subset (A : t.Compacts) {I : (n : ℕ) → Set (cell 
   simp only [heq_eq_eq, Subtype.mk.injEq, Subtype.val_inj] at eq
   simp_rw [eq]
 
-lemma compact_inter_finite' (A : t.Compacts) :
-    _root_.Finite {x : Σ (n : ℕ), cell C n // ¬Disjoint A.1 (openCell x.fst x.snd)} := by
-  let f := fun (x : (Σ (m : ℕ), {j : cell C m // ¬ Disjoint A.1 (openCell m j)})) ↦
-    (⟨⟨x.1, x.2.1⟩, x.2.2⟩ : { x : Σ (n : ℕ), cell C n // ¬Disjoint A.1 (openCell x.fst x.snd)})
-  apply @Finite.of_surjective _ _ (compact_inter_finite A) f
+lemma compact_inter_finite' (A : Set X) (compact : IsCompact A) :
+    _root_.Finite {x : Σ (n : ℕ), cell C n // ¬Disjoint A (openCell x.fst x.snd)} := by
+  let f := fun (x : (Σ (m : ℕ), {j : cell C m // ¬ Disjoint A (openCell m j)})) ↦
+    (⟨⟨x.1, x.2.1⟩, x.2.2⟩ : { x : Σ (n : ℕ), cell C n // ¬Disjoint A (openCell x.fst x.snd)})
+  apply @Finite.of_surjective _ _ (compact_inter_finite A compact) f
   unfold Function.Surjective
   intro x
   use ⟨x.1.1, ⟨x.1.2, x.2⟩⟩
 
-lemma compact_inter_finite_subset' (A : t.Compacts) {I : (n : ℕ) → Set (cell C n)} :
-    _root_.Finite {x : Σ (n : ℕ), I n // ¬Disjoint A.1 (openCell (C := C) x.fst x.snd)} := by
-  let f := fun (x : {x : Σ (n : ℕ), I n // ¬Disjoint A.1 (openCell (C := C) x.fst x.snd)}) ↦
-    (⟨⟨x.1.1, x.1.2⟩, x.2⟩ : {x : Σ (n : ℕ), cell C n // ¬Disjoint A.1 (openCell x.fst x.snd)})
-  apply @Finite.of_injective _ _ (compact_inter_finite' A) f
+lemma compact_inter_finite_subset' (A : Set X) (compact : IsCompact A)
+    {I : (n : ℕ) → Set (cell C n)} :
+    _root_.Finite {x : Σ (n : ℕ), I n // ¬Disjoint A (openCell (C := C) x.fst x.snd)} := by
+  let f := fun (x : {x : Σ (n : ℕ), I n // ¬Disjoint A (openCell (C := C) x.fst x.snd)}) ↦
+    (⟨⟨x.1.1, x.1.2⟩, x.2⟩ : {x : Σ (n : ℕ), cell C n // ¬Disjoint A (openCell x.fst x.snd)})
+  apply @Finite.of_injective _ _ (compact_inter_finite' A compact) f
   unfold Function.Injective
   intro ⟨⟨x1, x2⟩, x3⟩ ⟨⟨y1, y2⟩, y3⟩ eq
   simp only [TopologicalSpace.Compacts.carrier_eq_coe, Subtype.mk.injEq, Sigma.mk.inj_iff, f] at eq
@@ -291,15 +256,15 @@ lemma subset_not_disjoint' (A : Set X) : A ∩ C ⊆ ⋃ (x : Σ (m : ℕ),
 --   · apply mem_image_of_mem
 --     simp only [mem_ball, dist_self, zero_lt_one]
 
-lemma iUnion_cells_inter_compact (A : t.Compacts) (I : (n : ℕ) →  Set (cell C n)) :
+lemma iUnion_cells_inter_compact (A : Set X) (compact : IsCompact A) (I : (n : ℕ) →  Set (cell C n)) :
     ∃ (p : (n : ℕ) → I n → Prop), _root_.Finite (Σ (n : ℕ), {i : I n // p n i}) ∧
-    (⋃ (n : ℕ) (i : I n), openCell (C := C) n i) ∩ A.1 =
-    (⋃ (n : ℕ) (i : {i : I n // p n i}), openCell (C := C) n i) ∩ A.1 := by
-  use fun (n : ℕ) (i : I n) ↦ ¬ Disjoint A.1 (openCell (C := C) n i)
-  refine ⟨compact_inter_finite_subset _, ?_⟩
+    (⋃ (n : ℕ) (i : I n), openCell (C := C) n i) ∩ A =
+    (⋃ (n : ℕ) (i : {i : I n // p n i}), openCell (C := C) n i) ∩ A := by
+  use fun (n : ℕ) (i : I n) ↦ ¬ Disjoint A (openCell (C := C) n i)
+  refine ⟨compact_inter_finite_subset _ compact, ?_⟩
   calc
-    (⋃ n, ⋃ (i : ↑(I n)), openCell (C := C) n i) ∩ A.1 =
-        (⋃ n, ⋃ (i : I n), openCell (C := C) n i) ∩ C ∩ A.1 := by
+    (⋃ n, ⋃ (i : ↑(I n)), openCell (C := C) n i) ∩ A =
+        (⋃ n, ⋃ (i : I n), openCell (C := C) n i) ∩ C ∩ A := by
       congr
       symm
       simp_rw [Set.inter_eq_left, ← union_openCell]
@@ -308,18 +273,18 @@ lemma iUnion_cells_inter_compact (A : t.Compacts) (I : (n : ℕ) →  Set (cell 
       rw [mem_iUnion, mem_iUnion]
       intro ⟨i, _⟩
       use i
-    _ = (⋃ n, ⋃ (i : I n), openCell (C := C) n i) ∩ (A.1 ∩ C) := by rw [inter_assoc, inter_comm C]
+    _ = (⋃ n, ⋃ (i : I n), openCell (C := C) n i) ∩ (A ∩ C) := by rw [inter_assoc, inter_comm C]
     _ = (⋃ n, ⋃ (i : I n), openCell (C := C) n i) ∩ ((⋃ (x : Σ (m : ℕ),
-        {j : cell C m // ¬ Disjoint A.1 (openCell m j)}),
-        openCell (C := C) x.1 x.2) ∩ (A.1 ∩ C)) := by
+        {j : cell C m // ¬ Disjoint A (openCell m j)}),
+        openCell (C := C) x.1 x.2) ∩ (A ∩ C)) := by
       congrm (⋃ n, ⋃ (i : I n), openCell (C := C) n i) ∩ ?_
       symm
       rw [Set.inter_eq_right]
-      exact subset_not_disjoint' A.1
-    _ = (⋃ n, ⋃ (i : { i : I n // ¬Disjoint A.carrier (openCell (C := C) n i)}),
-        openCell (C := C) n i) ∩ (A.1 ∩ C) := by
+      exact subset_not_disjoint' A
+    _ = (⋃ n, ⋃ (i : { i : I n // ¬Disjoint A (openCell (C := C) n i)}),
+        openCell (C := C) n i) ∩ (A ∩ C) := by
       rw [← inter_assoc]
-      congrm ?_ ∩ (A.1 ∩ C)
+      congrm ?_ ∩ (A ∩ C)
       ext x
       simp only [iUnion_coe_set, TopologicalSpace.Compacts.carrier_eq_coe, mem_inter_iff,
         mem_iUnion, exists_prop, Sigma.exists,
@@ -334,9 +299,9 @@ lemma iUnion_cells_inter_compact (A : t.Compacts) (I : (n : ℕ) →  Set (cell 
       rw [heq_eq_eq] at eq2
       subst eq2
       use n, i
-    _ = (⋃ n, ⋃ (i : { i : ↑(I n) // ¬Disjoint A.carrier (openCell (C := C) n i) }),
-        openCell (C := C) n i) ∩ A.1 := by
-      rw [inter_comm A.carrier, ← inter_assoc]
+    _ = (⋃ n, ⋃ (i : { i : ↑(I n) // ¬Disjoint A (openCell (C := C) n i) }),
+        openCell (C := C) n i) ∩ A := by
+      rw [inter_comm A, ← inter_assoc]
       congr
       simp_rw [Set.inter_eq_left, ← union_openCell]
       apply Set.iUnion_mono''
@@ -363,7 +328,7 @@ lemma finite_of_compact (compact : IsCompact C) : CWComplex.Finite C := by
     right_inv := by simp only [Function.RightInverse, Function.LeftInverse, Sigma.eta, implies_true]
   }
   rw [← Equiv.finite_iff f]
-  exact compact_inter_finite ⟨C, compact⟩
+  exact compact_inter_finite C compact
 
 lemma compact_of_finite (finite : CWComplex.Finite C) : IsCompact C := by
   rw [finite_iff_finite_cells] at finite
