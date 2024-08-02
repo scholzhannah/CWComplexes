@@ -53,31 +53,6 @@ lemma TopologicalSpace.le_iff_IsClosed {α : Type*} {t : TopologicalSpace α} {s
   rw [← IsOpen_le_iff_isClosed_le]
   exact TopologicalSpace.le_def
 
--- in mathlib
-lemma Set.Subsingleton.isClosed {X : Type*} [TopologicalSpace X] [T1Space X] {A : Set X}
-    (h : A.Subsingleton) : IsClosed A := by
-  rcases Set.Subsingleton.eq_empty_or_singleton h with rfl | ⟨x, rfl⟩
-  · exact isClosed_empty
-  · exact isClosed_singleton
-
---in mathlib
-lemma Subsingleton.inter_singleton {X : Type*} {A : Set X} {a : X} : (A ∩ {a}).Subsingleton :=
-  Set.subsingleton_of_subset_singleton Set.inter_subset_right
-
--- in mathlib
-lemma Subsingleton.singleton_inter {X : Type*} {A : Set X} {a: X} : ({a} ∩ A).Subsingleton :=
-  Set.subsingleton_of_subset_singleton Set.inter_subset_left
-
--- in mathlib
-lemma isClosed_inter_singleton {X : Type*} [TopologicalSpace X] [T1Space X] {A : Set X} {a : X} :
-    IsClosed (A ∩ {a}) :=
-  Subsingleton.inter_singleton.isClosed
-
--- in mathlib
-lemma isClosed_singleton_inter {X : Type*} [TopologicalSpace X] [T1Space X] {A : Set X} {a : X} :
-    IsClosed ({a} ∩ A) :=
-  Subsingleton.singleton_inter.isClosed
-
 lemma sphere_zero_dim_empty {X : Type*} {h : PseudoMetricSpace (Fin 0 → X)} :
     (Metric.sphere ![] 1 : Set (Fin 0 → X)) = ∅ := by
   simp only [Metric.sphere, Matrix.empty_eq, dist_self, zero_ne_one, Set.setOf_false]
@@ -208,22 +183,22 @@ def IsometryEquivFinMap2 {X: Type*} [PseudoEMetricSpace X] (m n : ℕ) :
       intro b bmem
       unfold Fin.addCases
       by_cases hb : b < m
-      · simp only [eq_rec_constant, Function.comp_apply, hb, ↓reduceDite, ge_iff_le]
+      · simp only [eq_rec_constant, Function.comp_apply, hb, ge_iff_le]
         exact @Finset.le_sup _ _ _ _ (Finset.univ : Finset (Fin m ⊕ Fin n)) (fun b ↦ edist (x1 b) (x2 b)) (Sum.inl (Fin.castLT b hb)) (Finset.mem_univ (Sum.inl (Fin.castLT b hb)))
-      · simp only [eq_rec_constant, Function.comp_apply, hb, ↓reduceDite]
+      · simp only [eq_rec_constant, Function.comp_apply, hb]
         exact @Finset.le_sup _ _ _ _ (Finset.univ : Finset (Fin m ⊕ Fin n)) (fun b ↦ edist (x1 b) (x2 b)) (Sum.inr (@Fin.subNat n m (Fin.cast (Nat.add_comm m n) b) (not_lt.1 hb))) (Finset.mem_univ (Sum.inr (@Fin.subNat n m (Fin.cast (Nat.add_comm m n) b) (not_lt.1 hb))))
     · apply Finset.sup_le
       intro b bmem
       rcases b with b1 | b2
       · suffices (fun b ↦ edist (x1 (Fin.addCases Sum.inl Sum.inr b)) (x2 (Fin.addCases Sum.inl Sum.inr b))) ⟨(b1 : Nat), lt_of_lt_of_le b1.2 (Nat.le_add_right _ _)⟩
             ≤ edist (x1 ∘ fun i => Fin.addCases Sum.inl Sum.inr i) (x2 ∘ fun i => Fin.addCases Sum.inl Sum.inr i) by
-          simpa only [Fin.addCases, eq_rec_constant, ge_iff_le, Fin.is_lt, ↓reduceDite,
+          simpa only [Fin.addCases, eq_rec_constant, ge_iff_le, Fin.is_lt,
             Fin.castLT_mk, Fin.eta]
         exact @Finset.le_sup _ _ _ _ (Finset.univ : Finset (Fin (m + n))) (fun b ↦ edist (x1 (Fin.addCases Sum.inl Sum.inr b)) (x2 (Fin.addCases Sum.inl Sum.inr b))) ⟨(b1 : Nat), lt_of_lt_of_le b1.2 (Nat.le_add_right _ _)⟩ (Finset.mem_univ _)
       · suffices (fun b ↦ edist (x1 (Fin.addCases Sum.inl Sum.inr b)) (x2 (Fin.addCases Sum.inl Sum.inr b))) ⟨(m + b2: Nat), add_lt_add_left b2.2 _⟩ ≤
             edist (x1 ∘ fun i => Fin.addCases Sum.inl Sum.inr i) (x2 ∘ fun i => Fin.addCases Sum.inl Sum.inr i) by
           simpa only [Fin.addCases,
-            eq_rec_constant, ge_iff_le, add_lt_iff_neg_left, not_lt_zero', ↓reduceDite,
+            eq_rec_constant, ge_iff_le, add_lt_iff_neg_left, not_lt_zero',
             Fin.cast_mk, Fin.subNat_mk, Fin.natAdd_mk, add_tsub_cancel_left, Fin.eta]
         exact @Finset.le_sup _ _ _ _ (Finset.univ : Finset (Fin (m + n))) (fun b ↦ edist (x1 (Fin.addCases Sum.inl Sum.inr b)) (x2 (Fin.addCases Sum.inl Sum.inr b))) ⟨(m + b2: Nat), add_lt_add_left b2.2 _⟩ (Finset.mem_univ _)
 

@@ -73,8 +73,8 @@ def Subcomplex'' (E : Set X) (I : Π n, Set (cell C n))
         intro x
         exact closedCell_subset _ _
     apply IsClosed.inter _ isClosed_closedCell
-    apply @isClosed_iUnion_of_finite _ _ _ (compact_inter_finite_subset' ⟨closedCell n j,
-      isCompact_closedCell⟩)
+    apply @isClosed_iUnion_of_finite _ _ _ (compact_inter_finite_subset' (closedCell n j)
+      isCompact_closedCell)
     intro _
     exact isClosed_closedCell
   union := union

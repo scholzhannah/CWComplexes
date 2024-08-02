@@ -443,7 +443,7 @@ lemma cellFrontier_subset' (n : ℕ) (i : cell C n) : ∃ I : Π m, Finset (cell
       simp only [Nat.succ_eq_add_one, Finset.mem_union, Finset.mem_biUnion, Finset.mem_range, I'']
       right
       use l, llen, j, jmem
-      simp only [Nat.le_of_lt_succ llen, ↓reduceDite, imem]
+      simp only [Nat.le_of_lt_succ llen, ↓reduceDIte, imem]
     · use l, llen, j
       simp only [Nat.succ_eq_add_one, Finset.mem_union, I'']
       exact ⟨Or.intro_left _ jmem, xmemopenCell⟩

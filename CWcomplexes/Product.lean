@@ -146,7 +146,7 @@ instance CWComplex_product : CWComplex (X := X ×ₖ Y) (C ×ˢ D) where
           Finset.mem_attach, true_and, Subtype.exists, Finset.mem_antidiagonal, Prod.exists, J]
         left
         use o, l, rfl
-        simp only [↓reduceDite, Prod.mk.eta, Finset.product_singleton, Finset.mem_image,
+        simp only [↓reduceDIte, Prod.mk.eta, Finset.product_singleton, Finset.mem_image,
           Finset.mem_map, Function.Embedding.coeFn_mk, PSigma.mk.injEq, heq_eq_eq, true_and,
           exists_eq_right, Prod.mk.injEq, and_true, pmemo]
       use this
@@ -163,7 +163,7 @@ instance CWComplex_product : CWComplex (X := X ×ₖ Y) (C ×ˢ D) where
           Finset.mem_attach, true_and, Subtype.exists, Finset.mem_antidiagonal, Prod.exists, J]
         right
         use m, o, rfl
-        simp only [↓reduceDite, Prod.mk.eta, Finset.product_singleton, Finset.mem_image,
+        simp only [↓reduceDIte, Prod.mk.eta, Finset.product_singleton, Finset.mem_image,
           Finset.mem_map, Function.Embedding.coeFn_mk, PSigma.mk.injEq, heq_eq_eq, true_and,
           exists_eq_right, Prod.mk.injEq, and_true, pmemo]
       use this
@@ -177,7 +177,7 @@ instance CWComplex_product : CWComplex (X := X ×ₖ Y) (C ×ˢ D) where
       apply IsClosed.inter closedA
       rw [prod_map_image_closedball]
       refine IsClosed.mono ?_ kification_le
-      exact IsClosed.prod (isClosed_closedCell _) (isClosed_closedCell _)
+      exact isClosed_closedCell.prod isClosed_closedCell
     · intro hA
       rw [@kification.closed_iff _ instTopologicalSpaceProd]
       intro K
@@ -201,7 +201,7 @@ instance CWComplex_product : CWComplex (X := X ×ₖ Y) (C ×ˢ D) where
           exact ⟨⟨x.2, xmem1⟩, xmem2.2⟩
       suffices ∃ (C_1 : TopologicalSpace.Closeds (X × Y)), A ∩ K' = C_1.carrier ∩ K' by
         rcases this with ⟨B, hB⟩
-        use ⟨B.1 ∩ (C ×ˢ D), IsClosed.inter B.2 (IsClosed.prod (isClosed C) (isClosed D))⟩
+        use ⟨B.1 ∩ (C ×ˢ D), IsClosed.inter B.2 (isClosed.prod isClosed)⟩
         simp only
         rw [inter_assoc, inter_comm (C ×ˢ D), ← inter_eq_right.2 KsubK', ← inter_assoc, hB.symm,
           inter_assoc, inter_eq_right.2 KsubK', inter_comm K.carrier (C ×ˢ D),
@@ -221,25 +221,25 @@ instance CWComplex_product : CWComplex (X := X ×ₖ Y) (C ×ˢ D) where
         rw [← inter_eq_right.2 sub, ← inter_assoc, ← inter_assoc, hB]
       simp only [TopologicalSpace.Compacts.carrier_eq_coe, prod_iUnion, iUnion_prod_const, U1, U2]
       apply @closed_in_finite _ _ _
-        (compact_inter_finite ⟨Prod.snd '' K.1, IsCompact.image K.2 continuous_snd⟩) _
+        (compact_inter_finite (Prod.snd '' K.1) (K.2.image continuous_snd))
       · intro i1
         apply @isClosed_iUnion_of_finite _ _ _
-          (compact_inter_finite ⟨Prod.fst '' K.1, IsCompact.image K.2 continuous_fst⟩) _
+          (compact_inter_finite (Prod.fst '' K.1) (K.2.image continuous_fst)) _
         intro i2
-        apply IsClosed.prod (isClosed_closedCell _) (isClosed_closedCell _)
+        apply isClosed_closedCell.prod isClosed_closedCell
       intro ⟨m, j, _⟩
       apply @closed_in_finite _ _ _
-        (compact_inter_finite ⟨Prod.fst '' K.1, IsCompact.image K.2 continuous_fst⟩) _
+        (compact_inter_finite (Prod.fst '' K.1) (K.2.image continuous_fst)) _
       · intro i2
-        apply IsClosed.prod (isClosed_closedCell _) (isClosed_closedCell _)
+        apply isClosed_closedCell.prod isClosed_closedCell
       intro ⟨n, i, _⟩
       replace hA := hA (n + m) ⟨n, m, rfl, i, j⟩
       rw [prod_map_image_closedball] at hA
       simp only [Equiv.transPartialEquiv_apply, IsometryEquiv.coe_toEquiv, PartialEquiv.prod_coe,
        TopologicalSpace.Compacts.carrier_eq_coe, TopologicalSpace.Compacts.coe_mk] at hA ⊢
       rw [@kification.closed_iff _ instTopologicalSpaceProd _] at hA
-      rcases hA ⟨(map n i '' closedBall 0 1) ×ˢ (map m j '' closedBall 0 1), IsCompact.prod
-        (isCompact_closedCell _) (isCompact_closedCell _)⟩ with ⟨C1, hC1⟩
+      rcases hA ⟨(map n i '' closedBall 0 1) ×ˢ (map m j '' closedBall 0 1),
+        (isCompact_closedCell.prod isCompact_closedCell)⟩ with ⟨C1, hC1⟩
       use C1
       rw [← hC1, inter_assoc, inter_self]
   union' := by
