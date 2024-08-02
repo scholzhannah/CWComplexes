@@ -99,7 +99,8 @@ lemma compact_inter_finite (A : Set X) (compact : IsCompact A) :
     simp_rw [p]
     exact Classical.choose_spec (m.2).2
   let P := p '' (univ : Set (Σ (m : ℕ), {j : cell C m // ∃ x ∈ A, x ∈ openCell m j}))
-  have : Set.InjOn p (univ : Set (Σ (m : ℕ), { j // ∃ x ∈ A, x ∈ openCell m j})) := by
+  have infpoints : P.Infinite := by
+    apply (infinite_univ_iff.2 h).image
     intro ⟨m, j, hj⟩ _ ⟨n, i, hi⟩ _ peqp
     have hpj : p ⟨m, j, hj⟩ ∈ openCell m j := by simp_rw [p, (Classical.choose_spec hj).2]
     have hpi : p ⟨m, j, hj⟩ ∈ openCell n i := by simp_rw [peqp, p, (Classical.choose_spec hi).2]
@@ -107,7 +108,6 @@ lemma compact_inter_finite (A : Set X) (compact : IsCompact A) :
     apply eq_cell_of_not_disjoint
     rw [not_disjoint_iff]
     use p ⟨m, j, hj⟩
-  have infpoints : P.Infinite := (infinite_univ_iff.2 h).image this
   have subsetA : P ⊆ A := by
     intro x xmem
     simp only [mem_image, image_univ, mem_range, P] at xmem
@@ -144,7 +144,7 @@ lemma compact_inter_finite (A : Set X) (compact : IsCompact A) :
         simp only [image_univ, mem_range, Sigma.exists, Subtype.exists, P] at ymemP
         obtain ⟨m, i, hmi, rfl⟩ := ymemP
         have hpmi := hp ⟨m, i, hmi⟩
-        suffices (⟨m, i⟩ : Σ n, cell C n) = ⟨n, j⟩ by
+        suffices (⟨m, i⟩ : Σ n, cell C n) = ⟨n, j⟩ by -- I would like to automate this somehow
           rw [Sigma.mk.inj_iff] at this
           obtain ⟨eq1, eq2⟩ := this
           subst eq1
@@ -256,6 +256,7 @@ lemma subset_not_disjoint' (A : Set X) : A ∩ C ⊆ ⋃ (x : Σ (m : ℕ),
 --   · apply mem_image_of_mem
 --     simp only [mem_ball, dist_self, zero_lt_one]
 
+-- is this needed?
 lemma iUnion_cells_inter_compact (A : Set X) (compact : IsCompact A) (I : (n : ℕ) →  Set (cell C n)) :
     ∃ (p : (n : ℕ) → I n → Prop), _root_.Finite (Σ (n : ℕ), {i : I n // p n i}) ∧
     (⋃ (n : ℕ) (i : I n), openCell (C := C) n i) ∩ A =
@@ -316,25 +317,16 @@ lemma finite_of_compact (compact : IsCompact C) : CWComplex.Finite C := by
     intro m j
     rw [disjoint_comm, not_disjoint_iff]
     use map m j 0
-    have zeromem : map m j 0 ∈ openCell m j := by
-      apply mem_image_of_mem
-      simp only [mem_ball, dist_self, zero_lt_one]
-    refine ⟨zeromem, ?_⟩
-    exact (openCell_subset_complex m j) zeromem
-  let f : (Σ m, {j : cell C m // ¬ Disjoint C (openCell m j)}) ≃ Σ m, cell C m := {
-    toFun := fun ⟨m, j, _⟩ ↦ ⟨m, j⟩
-    invFun := fun ⟨m, j⟩ ↦ ⟨m, j, this m j⟩
-    left_inv := by simp only [Function.LeftInverse, Subtype.coe_eta, Sigma.eta, implies_true]
-    right_inv := by simp only [Function.RightInverse, Function.LeftInverse, Sigma.eta, implies_true]
-  }
+    refine ⟨map_zero_mem_openCell _ _, ?_⟩
+    exact (openCell_subset_complex m j) (map_zero_mem_openCell _ _)
+  let f : (Σ m, {j : cell C m // ¬ Disjoint C (openCell m j)}) ≃ Σ m, cell C m :=
+    (Equiv.refl _).sigmaCongr (fun m ↦ Equiv.subtypeUnivEquiv (this m))
   rw [← Equiv.finite_iff f]
   exact compact_inter_finite C compact
 
 lemma compact_of_finite (finite : CWComplex.Finite C) : IsCompact C := by
   rw [finite_iff_finite_cells] at finite
-  rw [← union (C := C), Set.iUnion_sigma']
-  apply isCompact_iUnion
-  intro ⟨n, i⟩
-  exact isCompact_closedCell
+  rw [← union (C := C), iUnion_sigma']
+  exact isCompact_iUnion (fun ⟨n, i⟩ ↦ isCompact_closedCell)
 
 lemma compact_iff_finite : IsCompact C ↔ Finite C := ⟨finite_of_compact, compact_of_finite⟩

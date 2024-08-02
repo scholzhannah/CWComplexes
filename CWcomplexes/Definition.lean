@@ -68,10 +68,18 @@ lemma openCell_subset_closedCell (n : ℕ) (i : cell C n) : openCell n i ⊆ clo
 lemma cellFrontier_subset_closedCell (n : ℕ) (i : cell C n) : cellFrontier n i ⊆ closedCell n i :=
   image_mono Metric.sphere_subset_closedBall
 
-lemma cellFrontier_union_openCell_eq_closedCell (n : ℕ) (i :cell C n) : cellFrontier n i ∪ openCell n i = closedCell n i := by
+lemma cellFrontier_union_openCell_eq_closedCell (n : ℕ) (i : cell C n) :
+    cellFrontier n i ∪ openCell n i = closedCell n i := by
   rw [cellFrontier, openCell, closedCell, ← image_union]
   congrm map n i '' ?_
   exact sphere_union_ball
+
+lemma map_zero_mem_openCell (n : ℕ) (i : cell C n) : map n i 0 ∈ openCell n i := by
+  apply mem_image_of_mem
+  simp only [mem_ball, dist_self, zero_lt_one]
+
+lemma map_zero_mem_closedCell (n : ℕ) (i : cell C n) : map n i 0 ∈ closedCell n i :=
+  openCell_subset_closedCell _ _ (map_zero_mem_openCell _ _)
 
 /-- A non-standard definition of the levels of a CW-complex useful for induction.
   The typical level is defined in terms of levelaux.-/

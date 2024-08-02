@@ -94,6 +94,7 @@ lemma open_in_iff_compl_closed_in {X : Type*} [TopologicalSpace X] (A B : Set X)
     simp_rw [compl_compl]
     exact hC
 
+-- look up if this exists
 def PartialEquiv.const {X Y : Type*} (x : X) (y : Y) : PartialEquiv X Y where
   toFun := Function.const X y
   invFun := Function.const Y x

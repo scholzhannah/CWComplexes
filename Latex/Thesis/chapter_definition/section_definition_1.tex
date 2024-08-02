@@ -171,7 +171,7 @@ We can also think about the $n$-skeletons as being made up of open cells:
 
 This also enables us to write $X$ as a union of open cells:
 
-\begin{cor}
+\begin{cor} \label{cor:complexeqopencells}
     $\bigcup_{n \ge 0}\bigcup_{i \in I_n} \openCell{n}{i} = X$.
 \end{cor}
 
@@ -313,7 +313,7 @@ We can now use all these new techniques to show some important properties of CW-
 
 The proof of the following lemma is based on the proof of Proposition A.1. in \cite{Hatcher2001}.
 
-\begin{lem}
+\begin{lem} \label{lem:compactintersectsonlyfinite}
     For every compact set $C \subseteq X$ the set of all open cells $\openCell{n}{i}$ such that $\openCell{n}{i} \cap C \ne \varnothing$ is finite.
 \end{lem}
 \begin{proof}
@@ -327,9 +327,25 @@ The proof of the following lemma is based on the proof of Proposition A.1. in \c
     So let $A \subseteq P$. 
     We apply lemma \ref{lem:inductionlevel}. 
     Assuming that for all $m \le n$ the intersection $A \cap X_m$ is closed, we need to show that $A \cap \closedCell{n + 1}{j}$ is closed for every $j \in I_{n + 1}$.
-    Since $A \cap \closedCell{n + 1}{j} = (A \cap \cellFrontier{n + 1}{j}) \cup (A \cap \openCell{n + 1}{j})$ and $A \cap \cellFrontier{n + 1}{j} = A \cap X_{n} \cap \cellFrontier{n + 1}{j}$ is closed by lemma \ref{lem:closedCellclosed} and assumption, it is enough to show that $A \cap \openCell{n + 1}{j}$ is closed. 
+    Since $A \cap \closedCell{n + 1}{j} = (A \cap \cellFrontier{n + 1}{j}) \cup (A \cap \openCell{n + 1}{j})$ and $A \cap \cellFrontier{n + 1}{j} = A \cap X_{n} \cap \cellFrontier{n + 1}{j}$ is closed by lemma \ref{lem:closedCellclosed} and the assumption, it is enough to show that $A \cap \openCell{n + 1}{j}$ is closed. 
     If the intersection $A \cap \openCell{n + 1}{j}$ is empty then we are done. 
     So assume that there is an $x \in A \cap \openCell{n + 1}{j}$. 
     Since $x \in A \subseteq P$ there is $(m, i) \in S$ such that $p_{m, i} = x$. 
-    But the open cells of $X$ are pairwise disjoint so it must be that $(m, i) = (n + 1, j)$ and therefore $p_{n + 1, j} = x$.
+    But the open cells of $X$ are pairwise disjoint so it must be that $(m, i) = (n + 1, j)$ and therefore $p_{n + 1, j} = x$. 
+    Thus $A \cap \openCell{n + 1}{j} = \{p_{n + 1, j}\}$ which is closed since every singleton in a Hausdorff space is closed. 
+
+    This directly gives us that the subspace topology on $P$ is discrete. 
+    For compactness notice that by what we just did $P$ is closed and as a closed subset of the compact set $C$ it is also compact. 
+    This is a contradiction to the fact that $P$ is infinite as explained above. 
+\end{proof}
+
+This lemma helps us prove the following characterisation of finite CW-complexes: 
+
+\begin{lem}
+    $X$ is a finite CW-complex iff $X$ compact.
+\end{lem}
+\begin{proof}
+    For the forward direction we know that $X = \bigcup_{n \in \bN}\bigcup_{i \in I_n} \closedCell{n}{i}$ which by assumption and lemma \ref{lem:closedCellclosed} is compact as a finite union of compact sets. 
+
+    The backward direction follows from lemma \ref{lem:compactintersectsonlyfinite} and corollary \ref{cor:complexeqopencells}.
 \end{proof}
