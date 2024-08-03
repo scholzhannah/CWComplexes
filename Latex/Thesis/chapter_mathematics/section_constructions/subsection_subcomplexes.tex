@@ -1,0 +1,29 @@
+\subsection{Subcomplexes}
+
+One important way to get a new CW-complex from an existing one is to consider subcomplexes. 
+A subcomplex of a CW-complex $X$ is defined as follows:
+
+\begin{defi}
+    A subcomplex of $X$ is a set $E \subseteq X$ together with a set $J_n \subseteq I_n$ for every $n \in \bN$ such that:
+    \begin{enumerate}
+        \item $E$ is closed.
+        \item $\bigcup_{n \in \bN} \bigcup_{i \in J_n} \openCell{n}{i} = E$.
+    \end{enumerate}
+\end{defi}
+
+Note that here we want $E$ to be the union of the open cells instead of the union of the closed cells as in definition \ref{defi:CWComplex2}. 
+This is just to make some of the proofs easier and we will get the other version once we prove that every subcomplex is again a CW-complex. 
+
+Here are some alternative ways to define subcomplexes. 
+These are taken from chapter 7.4 in \cite{Klaus2001}.
+The proof that these three notions are equivalent can be found in there. 
+We will just show the direction that is useful to us. 
+
+\begin{lem}
+    Let $E \subseteq X$ and $J_n \subseteq I_n$ for $n \in \bN$ be such that 
+    \begin{enumerate}
+        \item $E$ is a CW-complex (not necessarily with the the cells determined by $X$ and $J_n$).
+        \item $\bigcup_{n \in \bN} \bigcup_{i \in J_n} \openCell{n}{i} = E$.
+    \end{enumerate}
+    Then $E$ is a subcomplex of $X$.
+\end{lem}
