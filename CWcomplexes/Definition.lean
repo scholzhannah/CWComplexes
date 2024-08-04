@@ -118,7 +118,7 @@ class FiniteType.{u} {X : Type u} [TopologicalSpace X] (C : Set X) [CWComplex C]
 
 class Finite.{u} {X : Type u} [TopologicalSpace X] (C : Set X) [CWComplex C] : Prop where
   finitelevels : ∀ᶠ n in Filter.atTop, IsEmpty (cell C n)
-  finitcellFrontiers (n : ℕ) : Finite (cell C n)
+  finitecellFrontiers (n : ℕ) : Finite (cell C n)
 
 def CWComplexFiniteType.{u} {X : Type u} [TopologicalSpace X] (C : Set X)
     (cell : (n : ℕ) → Type u) (map : (n : ℕ)  → (i : cell n) → PartialEquiv (Fin n → ℝ) X)
@@ -477,11 +477,11 @@ lemma finite_of_finite_cells (finite : _root_.Finite (Σ n, cell C n)) : Finite 
       rcases h' with ⟨j, _⟩
       use ⟨m, j⟩
     linarith [A.le_max' m mmem]
-  finitcellFrontiers := fun _ ↦ Finite.of_injective (Sigma.mk _) sigma_mk_injective
+  finitecellFrontiers := fun _ ↦ Finite.of_injective (Sigma.mk _) sigma_mk_injective
 
 lemma finite_cells_of_finite (finite : Finite C) : _root_.Finite (Σ n, cell C n) := by
   have finitelvl := finite.finitelevels
-  have _ := finite.finitcellFrontiers
+  have _ := finite.finitecellFrontiers
   simp only [Filter.eventually_atTop, ge_iff_le] at finitelvl
   rcases finitelvl with ⟨n, hn⟩
   have : ∀ m (j : cell C m), m < n := by

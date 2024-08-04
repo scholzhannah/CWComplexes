@@ -13,7 +13,18 @@ Let $X$ be a CW-complex. A subcomplex of $X$ is defined as follows:
 \end{defi}
 
 Note that here we want $E$ to be the union of the open cells instead of the union of the closed cells as in definition \ref{defi:CWComplex2}. 
-This is just to make some of the proofs easier and we will get the other version once we prove that every subcomplex is again a CW-complex. 
+But we can prove the other version easily: 
+
+\begin{lem} \label{lem:subcomplexunionclosed}
+    Let $E \subseteq X$ be a subcomplex. 
+    Then $\bigcup_{n \in \bN} \bigcup_{i \in J_n} \closedCell{n}{i} = E$.
+\end{lem}
+\begin{proof}
+    Let $n \in \bN$ and $i \in J_n$. 
+    It is enough to show that $\closedCell{n}{i} \subseteq E$. 
+    By lemma \ref{lem:closureopencell} $\closedCell{n}{i} = \closure{\openCell{n}{i}}$. 
+    Since $E$ is closed by property (i) $\closedCell{n}{i} \subseteq E$ is equivalent to $\openCell{n}{i} \subseteq E$ which is true by property (ii).
+\end{proof}
 
 Here are some alternative ways to define subcomplexes. 
 These are taken from chapter 7.4 in \cite{Jänich2001}.
@@ -63,5 +74,52 @@ Now we can show that a subcomplex is indeed again a CW-complex:
 \end{lem}
 \begin{proof}
     We show this by verifying the properties in the definition \ref{defi:CWComplex2} of a CW-complex. 
-    
+    Properties (i) and (ii) are immediate and we already covered property (v) in lemma \ref{lem:subcomplexunionclosed}.
+
+    Let us consider property (iii) i.e. closure finiteness. 
+    So let $n \in \bN$ and $i \in J_n$. 
+    By closure finiteness of $X$ we know that there is a finite set $E \subseteq \bigcup_{m < n} I_n$ such that $\cellFrontier{n}{i} \subseteq \bigcup_{e \in E}e$. 
+    We define $E' \coloneq \{\openCell{m}{j} \in E \mid j \in J_m\}$. 
+    We want to show that $\cellFrontier{n}{i} \subseteq \bigcup_{e \in E'}e$. 
+    Take $x \in \cellFrontier{n}{i}$. 
+    By $\cellFrontier{n}{i} \subseteq \bigcup_{e \in E}e$ there is an $\openCell{m}{j} \in E$ such that $x \in \openCell{m}{j}$. 
+    It is obviously enough to show that $j \in J_m$. 
+    By lemma \ref{lem:subcomplexunionclosed} we know that $x \in \cellFrontier{n}{i} \subseteq \closedCell{n}{i} \subseteq E$.
+    But since $E = \bigcup_{m' \in \bN} \bigcup_{j' \in J_{m'}} \openCell{m'}{j'}$ there is $m' \in \bN$ and $j' \in J_{m'}$ such that $x \in \openCell{m'}{j'}$. 
+    We know that the open cells of $X$ are disjoint which gives us $(m, j) = (m', j')$. 
+    That directly implies $j \in J_m$ which we wanted to show. 
+
+    Lastly we need to show property (iv), i.e. that $E$ has weak topology. 
+    Like in a lot of our other proofs $A \subseteq E$ being closed implies that $A \cap \closedCell{n}{i}$ is closed for every $n \in \bN$ and $i \in J_n$. 
+    So now take $A \subseteq E$ such that $A \cap \closedCell{n}{i}$ is closed in $E$ for every $n \in \bN$ and $i \in J_n$. 
+    We need to show that $A$ is closed in $E$.
+    It is enough to show that $A$ is closed in $X$. 
+    We apply lemma \ref{lem:closediffinteropenorclosed} which means we only need to show that for every $n \in \bN$ and $j \in I_n$ either $A \cap \closedCell{n}{j}$ or $A \cap \openCell{n}{j}$ is closed. 
+    We look at two cases. 
+    Firstly consider $j \in J_n$. 
+    Then $A \cap \closedCell{n}{i}$ is closed in $E$ by assumption.
+    By the definition of the subspace topology this means that there exists a closed set $B \subseteq X$ such that $A \cap \closedCell{n}{i} = E \cap B$. 
+    But since $E$ is closed by assumption (i) of definition \ref{defi:subcomplex} of a subcomplex that means that $A \cap \closedCell{n}{i}$ is the intersection of two closed sets in $X$ making it also closed. 
+    Now let us cover the case $j \notin J_n$. 
+    This gives us $A \cap \openCell{n}{j} \subseteq E \cap \openCell{n}{j} = (\bigcup_{m \in \bN} \bigcup_{i \in J_m} \openCell{m}{i}) \cap \openCell{n}{j} = \varnothing$ where the last equality holds since the open cells of $X$ are pairwise disjoint. 
+    Thus $A \cap \openCell{n}{j} = \varnothing$ which is obviously closed.
 \end{proof}
+
+Now let us look at some properties of subcomplexes: 
+
+\begin{lem}
+    A union of subcomplexes $(E_i)_{i \in \iota}$ of $X$  with indexing sets $(I_{i, n})_{i \in \iota, n \in \bN}$ is again a subcomplex of $X$ with the indexing set $\bigcup_{i \in \iota} I_{i, n}$ for every $n \in \bN$.
+\end{lem}
+\begin{proof}
+    We show that this construction satisfies the assumptions of lemma \ref{lem:subcomplex2}. 
+    Property (ii) follows easily from that the fact that each of the subcomplexes $E_i$ is the union of its open cells. 
+    So let us look at property (i).
+    Take $n \in \bN$ and $j \in \bigcup_{i \in \iota} I_{i, n}$. 
+    Then there is a $i \in \iota$ such that $j \in I_{i, n}$. 
+    With lemma \ref{lem:subcomplexunionclosed} we get 
+    $\closedCell{n}{j} \subseteq \bigcup_{n \in \bN}\bigcup_{j \in I_{i, n}} \closedCell{n}{j} = E_i \subseteq \bigcup_{i \in \iota} E_i$ which means we are done.
+\end{proof}
+
+\begin{rem}
+    It is easy to see that taking a finite union of finite subcomplexes of $X$ yields again a finite subcomplex of $X$.
+\end{rem}
