@@ -20,63 +20,39 @@ class Subcomplex (E : Set X) where
 
 /- See "Topologie" p. 120 by Klaus Jänich from 2001 -/
 def Subcomplex' (E : Set X) (I : Π n, Set (cell C n))
-    (cw : CWComplex E)
-    (union : ⋃ (n : ℕ) (j : I n), openCell (C := C) n j = E) : Subcomplex C E where
-  I := I
-  closed := cw.isClosed
-  union := union
-
-/- See "Topologie" p. 120 by Klaus Jänich from 2001 -/
-def Subcomplex'' (E : Set X) (I : Π n, Set (cell C n))
     (closedCell_subset : ∀ (n : ℕ) (i : I n), closedCell (C := C) n i ⊆ E)
     (union : ⋃ (n : ℕ) (j : I n), openCell (C := C) n j = E) : Subcomplex C E where
   I := I
   closed := by
     have EsubC : E ⊆ C := by -- extract a lemma here?
       simp_rw [← union, ← union_openCell]
-      apply iUnion_mono
-      intro n
-      apply iUnion_subset
-      intro i
-      apply subset_iUnion_of_subset ↑i
-      rfl
-    rw [closed E EsubC]
-    intro n j
-    suffices IsClosed ((⋃ (x : {x : Σ (n : ℕ), I n // ¬ Disjoint (closedCell n j)
-        (openCell (C := C) x.1 x.2)}), closedCell (C := C) x.1.1 x.1.2) ∩ closedCell n j) by
-      convert this using 1
-      apply subset_antisymm
-      · calc
-          E ∩ closedCell n j ⊆ (⋃ (x : {x : Σ (n : ℕ), I n // ¬ Disjoint (closedCell n j)
-              (openCell (C := C) x.1 x.2)}), openCell (C := C) x.1.1 x.1.2) ∩ closedCell n j := by
-            rw [← union]
-            simp_rw [iUnion_inter]
-            apply iUnion_subset
-            intro m
-            apply iUnion_subset
-            intro i
-            by_cases h : Disjoint (closedCell n j) (openCell (C := C) m i)
-            · rw [disjoint_iff_inter_eq_empty, inter_comm] at h
-              rw [h]
-              exact empty_subset _
-            · apply subset_iUnion_of_subset ⟨⟨m, i⟩, h⟩
-              rfl
-          _ ⊆ (⋃ (x : {x : Σ (n : ℕ), I n // ¬ Disjoint (closedCell n j)
-              (openCell (C := C) x.1 x.2)}), closedCell (C := C) x.1.1 x.1.2) ∩ closedCell n j := by
-            apply inter_subset_inter_left
-            apply iUnion_mono
-            intro _
-            exact openCell_subset_closedCell _ _
-      · apply inter_subset_inter_left
-        apply iUnion_subset
-        intro x
-        exact closedCell_subset _ _
-    apply IsClosed.inter _ isClosed_closedCell
-    apply @isClosed_iUnion_of_finite _ _ _ (compact_inter_finite_subset' (closedCell n j)
-      isCompact_closedCell)
-    intro _
-    exact isClosed_closedCell
+      exact iUnion_mono fun n ↦ iUnion_subset fun i ↦ by apply subset_iUnion_of_subset ↑i; rfl
+    apply strong_induction_isClosed EsubC
+    intro n _ j
+    by_cases h : j ∈ I n
+    · right
+      suffices closedCell n j ⊆ E by
+        rw [inter_eq_right.2 this]
+        exact isClosed_closedCell
+      exact closedCell_subset n ⟨j, h⟩
+    · left
+      simp_rw [← union, iUnion_inter]
+      suffices ⋃ m, ⋃ (i : ↑(I m)), openCell m (i : cell C m) ∩ openCell (C := C) n j = ∅ by
+        rw [this]
+        exact isClosed_empty
+      apply iUnion_eq_empty.2 fun m ↦ iUnion_eq_empty.2 fun i ↦ ?_
+      apply disjoint_openCell_of_ne
+      aesop
   union := union
+
+/- See "Topologie" p. 120 by Klaus Jänich from 2001 -/
+def Subcomplex'' (E : Set X) (I : Π n, Set (cell C n))
+    (cw : CWComplex E) (hI : (n : ℕ) → cw.cell n = ↑(I n)) -- this probably needs to be stated differently...
+    (union : ⋃ (n : ℕ) (j : I n), openCell (C := C) n j = E) : Subcomplex C E := Subcomplex' C E I
+  (by
+    sorry
+  )
+  union
 
 namespace Subcomplex
 
@@ -94,59 +70,43 @@ instance CWComplex_subcomplex (E : Set X) [subcomplex : Subcomplex C E] : CWComp
   cont n i := cont (C := C) n i
   cont_symm n i := cont_symm (C := C) n i
   pairwiseDisjoint' := by
-    have := pairwiseDisjoint (C := C)
-    rw [PairwiseDisjoint, Set.Pairwise] at this ⊢
-    intro ⟨n, ni⟩ nmem ⟨m, mi⟩ mmem nnem
-    have disjoint := @this ⟨n, ni.1⟩ (Set.mem_univ (⟨n, ni.1⟩ : (n : ℕ) × cell C n))
-      ⟨m, mi.1⟩ (Set.mem_univ (⟨m, mi.1⟩ : (n : ℕ) × cell C n))
-    apply disjoint
-    simp only [ne_eq, Sigma.mk.inj_iff, not_and] at nnem ⊢
-    intro men heq
-    apply nnem men
-    subst men
-    simp_rw [heq_eq_eq] at heq
-    apply Subtype.coe_injective at heq
-    simp only [heq, heq_eq_eq]
+    simp only [PairwiseDisjoint, Set.Pairwise, mem_univ, ne_eq, Function.onFun,
+      disjoint_iff_inter_eq_empty, true_implies, Sigma.forall, Subtype.forall,
+      not_and]
+    intro n j _ m i _ eq
+    apply disjoint_openCell_of_ne
+    aesop
   mapsto := by
     intro n i
     rcases cellFrontier_subset' (C := C) n i with ⟨J, hJ⟩
     let J' m := Finset.preimage (J m) (fun (x : subcomplex.I m) ↦ ↑x) (by simp [InjOn])
     use J'
-    rw [MapsTo]
+    rw [mapsTo']
     intro x xmem
     simp only [iUnion_coe_set, mem_iUnion, exists_prop, exists_and_right]
-    have := hJ (mem_image_of_mem _ xmem)
-    simp only [mem_iUnion, exists_prop, mem_image, mem_closedBall] at this ⊢
-    rcases this with ⟨m, mltn, j, jmem, mapxmem⟩
-    use m
-    simp only [mltn, true_and]
-    use j
-    constructor
-    · have : j ∈ subcomplex.I m := by
-        have : map n i (C := C) x ∈ E := by
-          have h1: closure (map (C := C) n i '' ball 0 1) ⊆ E := by
-            simp_rw [IsClosed.closure_subset_iff subcomplex.closed, ← subcomplex.union]
-            apply Set.subset_iUnion_of_subset n
-            apply Set.subset_iUnion (fun (j : ↑(subcomplex.I n)) ↦ openCell (C := C) n j) i
-          have h2 : map (C := C) n i x ∈ closure (openCell (C := C) n i) := by
-            rw [closure_openCell_eq_closedCell]
-            exact cellFrontier_subset_closedCell _ _ (mem_image_of_mem _ xmem)
-          exact h1 h2
-        simp only [← subcomplex.union, mem_iUnion, exists_prop] at this
-        rcases this with ⟨l, o, mapxmem'⟩
-        have : ¬ Disjoint (openCell m j) (openCell (C := C) l o) := by
-          rw [Set.not_disjoint_iff]
-          use (map (C := C) n i x)
-        have := eq_cell_of_not_disjoint this
-        simp only [Sigma.mk.inj_iff] at this
-        rcases this with ⟨meql, jeqo⟩
-        subst meql
-        simp only [heq_eq_eq] at jeqo
-        subst jeqo
-        simp only [Subtype.coe_prop]
+    have := hJ xmem
+    simp only [mem_iUnion, exists_prop] at this ⊢
+    rcases this with ⟨m, mltn, j, jmem, xmemopen⟩
+    use m, mltn, j
+    refine ⟨?_, openCell_subset_closedCell _ _ xmemopen⟩
+    suffices j ∈ subcomplex.I m by
       use this
       simp only [Finset.mem_preimage, jmem, J']
-    · exact openCell_subset_closedCell _ _ mapxmem
+    have : x ∈ E := by
+      have h1: closure (openCell (C := C) n i) ⊆ E := by
+        simp_rw [IsClosed.closure_subset_iff subcomplex.closed, ← subcomplex.union]
+        apply Set.subset_iUnion_of_subset n
+        apply Set.subset_iUnion (fun (j : ↑(subcomplex.I n)) ↦ openCell (C := C) n j) i
+      have h2 : x ∈ closure (openCell (C := C) n i) := by
+        rw [closure_openCell_eq_closedCell]
+        exact cellFrontier_subset_closedCell _ _ xmem
+      exact h1 h2
+    simp only [← subcomplex.union, mem_iUnion, exists_prop] at this
+    obtain ⟨l, o, xmemopen'⟩ := this
+    suffices (⟨m, j⟩ : Σ n, cell C n) = ⟨l, ↑o⟩ by aesop
+    apply eq_cell_of_not_disjoint
+    rw [Set.not_disjoint_iff]
+    use x
   closed' A := by
     intro Asub
     constructor
@@ -202,7 +162,7 @@ instance CWComplex_subcomplex (E : Set X) [subcomplex : Subcomplex C E] : CWComp
 
 --this is quite ugly, probably because `Subcomplex` shouldn't be a lemma
 instance subcomplex_iUnion_subcomplex (J : Type*) (sub : J → Set X)
-    [cw : ∀ (j : J), Subcomplex C (sub j)] : Subcomplex C (⋃ (j : J), sub j) := Subcomplex'' C _
+    [cw : ∀ (j : J), Subcomplex C (sub j)] : Subcomplex C (⋃ (j : J), sub j) := Subcomplex' C _
   (fun (n : ℕ) ↦ ⋃ (j : J), (cw j).I n)
   (by
     intro n ⟨i, imem⟩
@@ -259,7 +219,7 @@ instance finite_subcomplex_finite_iUnion_finite_subcomplex (J : Type*) [_root_.F
   finitelevels := by
     have h j := (finite j).finitelevels
     simp only [Filter.eventually_iff, subcomplex_iUnion_subcomplex, CWComplex_subcomplex,
-      Subcomplex'', iUnion_eq_empty, isEmpty_coe_sort, setOf_forall, Filter.iInter_mem] at h ⊢
+      Subcomplex', iUnion_eq_empty, isEmpty_coe_sort, setOf_forall, Filter.iInter_mem] at h ⊢
     exact h
   finitcellFrontiers := by
     have h j := (finite j).finitcellFrontiers

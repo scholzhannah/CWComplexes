@@ -1,9 +1,10 @@
 \subsection{Subcomplexes}
 
-One important way to get a new CW-complex from an existing one is to consider subcomplexes. 
-A subcomplex of a CW-complex $X$ is defined as follows:
+One important way to get a new CW-complex from an existing one is to consider subcomplexes which we will discuss in this section. 
 
-\begin{defi}
+Let $X$ be a CW-complex. A subcomplex of $X$ is defined as follows:
+
+\begin{defi} \label{defi:subcomplex}
     A subcomplex of $X$ is a set $E \subseteq X$ together with a set $J_n \subseteq I_n$ for every $n \in \bN$ such that:
     \begin{enumerate}
         \item $E$ is closed.
@@ -15,15 +16,52 @@ Note that here we want $E$ to be the union of the open cells instead of the unio
 This is just to make some of the proofs easier and we will get the other version once we prove that every subcomplex is again a CW-complex. 
 
 Here are some alternative ways to define subcomplexes. 
-These are taken from chapter 7.4 in \cite{Klaus2001}.
+These are taken from chapter 7.4 in \cite{Jänich2001}.
 The proof that these three notions are equivalent can be found in there. 
 We will just show the direction that is useful to us. 
 
-\begin{lem}
+\begin{lem} \label{lem:subcomplex2}
     Let $E \subseteq X$ and $J_n \subseteq I_n$ for $n \in \bN$ be such that 
     \begin{enumerate}
-        \item $E$ is a CW-complex (not necessarily with the the cells determined by $X$ and $J_n$).
+        \item For every $n \in \bN$ and $i \in I_n$ we have $\closedCell{n}{i} \subseteq E$. 
         \item $\bigcup_{n \in \bN} \bigcup_{i \in J_n} \openCell{n}{i} = E$.
     \end{enumerate}
     Then $E$ is a subcomplex of $X$.
 \end{lem}
+\begin{proof}
+    Property (ii) in definition \ref{defi:subcomplex} is clear immediately. 
+    So we only need to show that $E$ is closed. 
+    We apply lemma \ref{lem:closediffinteropenorclosed} which means we only need to show that for every $n \in \bN$ and $i \in I_n$ either $E \cap \closedCell{n}{i}$ or $E \cap \openCell{n}{i}$ is closed. 
+    So let $n \in \bN$ and $i \in I_n$. 
+    We differentiate the cases $i \in J_n$ and $i \notin J_n$.
+    For the first one notice that by property (i) $E$ can be expressed as a union of closed cells: $E = \bigcup_{m \in \bN} \bigcup_{j \in J_n} \openCell{m}{j} \subseteq \bigcup_{m \in \bN} \bigcup_{j \in J_n} \closedCell{m}{j} \subseteq E$. 
+    This gives us $E \cap \closedCell{n}{i} = \closedCell{n}{i}$ which is closed by lemma \ref{lem:closedCellclosed}. 
+    Now for the case $i \notin J_n$ the disjointness of the open cells of $X$ gives us that $E \cap \openCell{n}{i} = (\bigcup_{m \in \bN} \bigcup_{j \in J_n} \openCell{m}{j}) \cap \openCell{n}{i} = \varnothing$ which is obviously closed. 
+\end{proof}
+
+And here is a third way to express the property of being a subcomplex:
+
+\begin{lem}
+    Let $E \subseteq X$ and $J_n \subseteq I_n$ for $n \in \bN$ be such that 
+    \begin{enumerate}
+        \item $E$ is a CW-complex with respect to the cells determined by $X$ and $J_n$.
+        \item $\bigcup_{n \in \bN} \bigcup_{i \in J_n} \openCell{n}{i} = E$.
+    \end{enumerate}
+    Then $E$ is a subcomplex of $X$.
+\end{lem}
+\begin{proof}
+    We will show that this satisfies the properties of the construction above in lemma \ref{lem:subcomplex2}.
+    Property (ii) is again immediate. 
+    Property (i) combined with the definition \ref{defi:CWComplex2} of a CW-complex immediately gives us property (i) of lemma \ref{lem:subcomplex2}.
+\end{proof}
+
+Now we can show that a subcomplex is indeed again a CW-complex: 
+
+\begin{lem}
+    Let $E \subseteq X$ together with $J_n \subseteq I_n$ for every $n \in \bN$ be a subcomplex of the CW-complex $X$. 
+    Then $E$ is again a CW-complex with respect to the cells determined by $J_n$ and $X$.
+\end{lem}
+\begin{proof}
+    We show this by verifying the properties in the definition \ref{defi:CWComplex2} of a CW-complex. 
+    
+\end{proof}
