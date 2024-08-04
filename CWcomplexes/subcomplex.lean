@@ -222,10 +222,45 @@ instance finite_cellzero (i : cell C 0) : Finite ((closedCell 0 i) ⇂ C) where
       exact xmem.1
 
 def attach_cell (n : ℕ) (i : cell C n) (E : Set X) [sub : Subcomplex C E]
-    (subset :
-    ∃ (I : Π m, Finset (sub.I m)), cellFrontier n i ⊆ (⋃ (m < n) (j ∈ I m), closedCell (C := C) m j)) :
-    Subcomplex C (E ∪ closedCell n i) := by
-  sorry
+    (subset : ∃ (I : Π m, Finset (sub.I m)), cellFrontier n i ⊆
+    (⋃ (m < n) (j ∈ I m), closedCell (C := C) m j)) :
+    Subcomplex C (E ∪ openCell n i) where
+  I l := {j : cell C l | j ∈ sub.I l ∨ (⟨l, j⟩ : Σ n, cell C n) = ⟨n, i⟩}
+  closed := by
+    suffices cellFrontier n i ⊆ E by
+      rw [← union_eq_left.2 this, union_assoc, cellFrontier_union_openCell_eq_closedCell]
+      exact sub.closed.union isClosed_closedCell
+    obtain ⟨I, hI⟩ := subset
+    apply hI.trans
+    simp_rw [← sub.union_closedCell]
+    apply iUnion_mono fun m ↦ iUnion_subset fun _ ↦ iUnion_subset fun i ↦ iUnion_subset fun _ ↦ ?_
+    exact subset_iUnion_of_subset i (by rfl)
+  union := by
+    ext x
+    simp only [mem_iUnion, ← sub.union, mem_union]
+    constructor
+    · intro ⟨m, ⟨j, jmem⟩, xmem⟩
+      simp only [Sigma.mk.inj_iff, mem_setOf_eq] at jmem
+      rcases jmem with jmem | ⟨eq1, eq2⟩
+      · left
+        use m, ⟨j, jmem⟩
+      · right
+        subst m
+        rw [heq_eq_eq] at eq2
+        subst j
+        exact xmem
+    · intro h
+      rcases h with ⟨m, j, xmem⟩ | xmem
+      · use m, ⟨j.1, Or.intro_left _ j.2⟩
+      · use n, ⟨i, Or.intro_right _ rfl⟩
+
+instance finite_attach_cell (n : ℕ) (i : cell C n) (E : Set X) [sub : Subcomplex C E]
+    [Finite (E ⇂ C)] (subset : ∃ (I : Π m, Finset (sub.I m)), cellFrontier n i ⊆
+    (⋃ (m < n) (j ∈ I m), closedCell (C := C) m j)) :
+    let subcomplex := attach_cell n i E subset
+    Finite (E ∪ openCell n i ⇂ C) where
+  finitelevels := by sorry
+  finitecellFrontiers := by sorry
 
 -- All of this isn't really even needed for what I'm trying to do
 
