@@ -134,6 +134,19 @@ instance CWComplex_subcomplex (E : Set X) [subcomplex : Subcomplex C E] : CWComp
     exact iUnion_eq_empty.2 fun m ↦ iUnion_eq_empty.2 fun i ↦ disjoint_openCell_of_ne (by aesop)
   union' := subcomplex.union_closedCell
 
+instance finite_subcomplex_of_finite [finite : Finite C] (E : Set X) [subcomplex : Subcomplex C E] :
+    Finite (E ⇂ C) where
+  finitelevels := by
+    have := finite.finitelevels
+    simp only [Filter.eventually_atTop, ge_iff_le] at this ⊢
+    obtain ⟨n, hn⟩ := this
+    use n
+    intro b nleb
+    simp only [CWComplex_subcomplex, isEmpty_subtype, hn b nleb, IsEmpty.forall_iff]
+  finitecells n :=
+    let _ := finite.finitecells n
+    toFinite (I E n)
+
 --this is quite ugly, probably because `Subcomplex` shouldn't be a lemma
 instance subcomplex_iUnion_subcomplex (J : Type*) (sub : J → Set X)
     [cw : ∀ (j : J), Subcomplex C (sub j)] : Subcomplex C (⋃ (j : J), sub j) := Subcomplex' C _
