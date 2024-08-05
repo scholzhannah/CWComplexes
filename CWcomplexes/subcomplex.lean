@@ -167,8 +167,8 @@ def finite_subcomplex_finite_iUnion_finite_subcomplex {J : Type*} [_root_.Finite
     simp only [Filter.eventually_iff, subcomplex_iUnion_subcomplex, CWComplex_subcomplex,
       Subcomplex', iUnion_eq_empty, isEmpty_coe_sort, setOf_forall, Filter.iInter_mem] at h ⊢
     exact h
-  finitecellFrontiers := by
-    have h j := (finite j).finitecellFrontiers
+  finitecells := by
+    have h j := (finite j).finitecells
     intro n
     simp only [subcomplex_iUnion_subcomplex, Subcomplex'', CWComplex_subcomplex] at h ⊢
     apply Finite.Set.finite_iUnion
@@ -206,7 +206,7 @@ instance finite_cellzero (i : cell C 0) : Finite ((closedCell 0 i) ⇂ C) where
     intro j eq
     subst eq
     contradiction
-  finitecellFrontiers := by
+  finitecells := by
     intro n
     simp only [cellzero, CWComplex_subcomplex]
     by_cases h : n = 0
@@ -222,7 +222,7 @@ instance finite_cellzero (i : cell C 0) : Finite ((closedCell 0 i) ⇂ C) where
       exact xmem.1
 
 def attach_cell (n : ℕ) (i : cell C n) (E : Set X) [sub : Subcomplex C E]
-    (subset : ∃ (I : Π m, Finset (sub.I m)), cellFrontier n i ⊆
+    (subset : ∃ (I : Π m, Finset (cell C m)), (∀ m < n, (I m).toSet ⊆ sub.I m) ∧  cellFrontier n i ⊆
     (⋃ (m < n) (j ∈ I m), closedCell (C := C) m j)) :
     Subcomplex C (E ∪ openCell n i) where
   I l := {j : cell C l | j ∈ sub.I l ∨ (⟨l, j⟩ : Σ n, cell C n) = ⟨n, i⟩}
@@ -230,11 +230,12 @@ def attach_cell (n : ℕ) (i : cell C n) (E : Set X) [sub : Subcomplex C E]
     suffices cellFrontier n i ⊆ E by
       rw [← union_eq_left.2 this, union_assoc, cellFrontier_union_openCell_eq_closedCell]
       exact sub.closed.union isClosed_closedCell
-    obtain ⟨I, hI⟩ := subset
-    apply hI.trans
+    obtain ⟨I, hI1, hI2⟩ := subset
+    apply hI2.trans
     simp_rw [← sub.union_closedCell]
-    apply iUnion_mono fun m ↦ iUnion_subset fun _ ↦ iUnion_subset fun i ↦ iUnion_subset fun _ ↦ ?_
-    exact subset_iUnion_of_subset i (by rfl)
+    apply iUnion_mono fun m ↦ iUnion_subset fun mltn ↦ iUnion_subset fun j ↦
+      iUnion_subset fun jmem ↦ ?_
+    exact subset_iUnion_of_subset ⟨j, hI1 m mltn jmem⟩ (by rfl)
   union := by
     ext x
     simp only [mem_iUnion, ← sub.union, mem_union]
@@ -255,65 +256,82 @@ def attach_cell (n : ℕ) (i : cell C n) (E : Set X) [sub : Subcomplex C E]
       · use n, ⟨i, Or.intro_right _ rfl⟩
 
 instance finite_attach_cell (n : ℕ) (i : cell C n) (E : Set X) [sub : Subcomplex C E]
-    [Finite (E ⇂ C)] (subset : ∃ (I : Π m, Finset (sub.I m)), cellFrontier n i ⊆
+    [finite : Finite (E ⇂ C)] (subset : ∃ (I : Π m, Finset (cell C m)),
+    (∀ m < n, (I m).toSet ⊆ sub.I m) ∧  cellFrontier n i ⊆
     (⋃ (m < n) (j ∈ I m), closedCell (C := C) m j)) :
     let subcomplex := attach_cell n i E subset
     Finite (E ∪ openCell n i ⇂ C) where
-  finitelevels := by sorry
-  finitecellFrontiers := by sorry
+  finitelevels := by
+    have := finite.finitelevels
+    simp only [Filter.eventually_atTop, ge_iff_le] at this ⊢
+    obtain ⟨a, ha⟩ := this
+    use a.max (n + 1)
+    intro b le
+    simp only [cell, attach_cell, Sigma.mk.inj_iff, coe_setOf, isEmpty_subtype, not_or,
+      not_and] at ha ⊢
+    intro x
+    refine ⟨ha b (le_of_max_le_left le) x, ?_⟩
+    intro eq1
+    subst b
+    simp at le
+  finitecells := by
+    intro m
+    by_cases h : m = n
+    · subst m
+      simp only [cell, attach_cell, Sigma.mk.inj_iff, setOf_or, heq_eq_eq, true_and, finite_coe_iff,
+        finite_union, setOf_mem_eq, setOf_eq_eq_singleton]
+      exact ⟨finite.finitecells n, finite_singleton i⟩
+    simp only [cell, attach_cell, Sigma.mk.inj_iff, setOf_or, setOf_mem_eq, setOf_and, h,
+      setOf_false, empty_inter, finite_coe_iff, finite_union, finite_empty, and_true]
+    exact finite.finitecells m
 
--- All of this isn't really even needed for what I'm trying to do
-
-lemma closedCell_subset_finite_subcomplex (n : ℕ) (i : cell C n) :
-    ∃ (E : Set X) (_ : Subcomplex C E), Finite (E ⇂ C) ∧ closedCell n i ⊆ E := by
+lemma cell_mem_finite_subcomplex (n : ℕ) (i : cell C n) :
+    ∃ (E : Set X) (subE : Subcomplex C E), Finite (E ⇂ C) ∧ i ∈ subE.I n := by
   induction' n using Nat.case_strong_induction_on with n hn
   · use (closedCell 0 i), (Subcomplex.cellzero _)
     exact ⟨finite_cellzero i, by rfl⟩
   obtain ⟨I, hI⟩ := cellFrontier_subset n.succ i
   choose sub cw hsub using hn
-  have : _root_.Finite (Σ (m : {m : ℕ // m ≤ n}), I m) := by
-
-    sorry
-  use ⋃ (x : Σ (m : {m : ℕ // m ≤ n}), I m), sub x.1.1 x.1.2 ↑x.2.1, inferInstance
-  --use ⋃ (x : {x : Σ n, cell C n // x.1 ≤ n ∧ x.2 ∈ I x.1}), sub x.1.1 x.2.1 x.1.2, inferInstance
-  refine ⟨finite_subcomplex_finite_iUnion_finite_subcomplex (fun ⟨⟨m, mlen⟩, j⟩ ↦ (hsub m mlen j).1),
-    ?_⟩
-
-
-  sorry
-
-lemma finite_iUnion_subset_Subcomplex_of_cell_subset_Subcomplex (I : (n : ℕ) → Set (cell C n))
-    [_root_.Finite (Σ n, I n)] (cellsubset : ∀ n (i : I n), ∃ (E : Set X) (_ : Subcomplex C E),
-    CWComplex.Finite (E ⇂ C) ∧ map (C := C) n i '' closedBall 0 1 ⊆ E) :
-    ∃ (E : Set X) (sub : Subcomplex C E), CWComplex.Finite (E ⇂ C) ∧
-    (⋃ (n : ℕ) (i : I n), map (C := C) n i '' closedBall 0 1) ⊆ E := by
-  choose S hS using cellsubset
-  choose SC hSC using hS
-  sorry
-  /-use (⋃ (ni : Σ n, I n), S ni.1 ni.2), (Subcomplex.subcomplex_iUnion_subcomplex _ _ _)
+  let sub' := ⋃ (x : Σ (m : {m : ℕ // m ≤ n}), I m), sub x.1.1 x.1.2 ↑x.2.1
+  let cw' : Subcomplex C sub' := subcomplex_iUnion_subcomplex _ _
+  have : ∃ (I : Π m, Finset (cell C m)),
+      (∀ m < n.succ , (I m).toSet ⊆ cw'.I m) ∧  cellFrontier n.succ i ⊆
+      (⋃ (m < n.succ) (j ∈ I m), closedCell (C := C) m j) := by
+    use I
+    refine ⟨?_, hI⟩
+    intro m mltn x xmem
+    simp only [subcomplex_iUnion_subcomplex, Subcomplex', mem_iUnion, Sigma.exists, Subtype.exists,
+      exists_prop, sub', cw']
+    use m, Nat.lt_succ_iff.1 mltn, x, xmem
+    exact (hsub m (Nat.lt_succ_iff.1 mltn) x).2
+  use sub' ∪ openCell n.succ i, attach_cell n.succ i sub' this
   constructor
-  · apply Subcomplex.finite_subcomplex_finite_iUnion_finite_subcomplex
-    intro ⟨n, i⟩
-    exact (hSC n i).1
-  · apply iUnion_subset
-    intro n
-    apply iUnion_subset
-    intro i
-    apply subset_iUnion_of_subset ⟨n, i⟩
-    exact (hSC n i).2
-  -/
+  · have : Finite (sub' ⇂ C) := finite_subcomplex_finite_iUnion_finite_subcomplex
+      fun ⟨m, j⟩ ↦ (hsub m.1 m.2 j.1).1
+    exact finite_attach_cell (C := C) (finite := this) n.succ i _
+  · simp only [attach_cell, subcomplex_iUnion_subcomplex, Subcomplex', mem_iUnion, Sigma.exists,
+    Subtype.exists, exists_prop, setOf_or, sub', cw']
+    right
+    rfl
+
+lemma closedCell_subset_finite_subcomplex (n : ℕ) (i : cell C n) :
+    ∃ (E : Set X) (subE : Subcomplex C E), Finite (E ⇂ C) ∧ closedCell n i ⊆ E := by
+  obtain ⟨E, subE, hE1, hE2⟩ := cell_mem_finite_subcomplex n i
+  use E, subE
+  refine ⟨hE1, ?_⟩
+  rw [← subE.union_closedCell]
+  exact subset_iUnion_of_subset n (subset_iUnion_of_subset ⟨i, hE2⟩ (by rfl))
 
 lemma finite_iUnion_subset_Subcomplex (I : (n : ℕ) → Set (cell C n))
     [finite : _root_.Finite (Σ n, I n)] :
     ∃ (E : Set X) (sub : Subcomplex C E), CWComplex.Finite (E ⇂ C) ∧
     (⋃ (n : ℕ) (i : I n), map (C := C) n i '' closedBall 0 1) ⊆ E := by
-  apply finite_iUnion_subset_Subcomplex_of_cell_subset_Subcomplex
-  intro n i
-  induction' n using Nat.case_strong_induction_on with n hn
-  · use (map (C := C) 0 i '' closedBall 0 1), (Subcomplex.cellzero _)
-    exact ⟨finite_cellzero (i : cell C 0), by rfl⟩
-
-  sorry
+  choose sub cw finite subset using closedCell_subset_finite_subcomplex (C := C)
+  use ⋃ (x : Σ n, I n), sub x.1 x.2, inferInstance
+  refine ⟨finite_subcomplex_finite_iUnion_finite_subcomplex (fun (x : Σ n, I n) ↦ finite x.1 x.2),
+     ?_⟩
+  rw [iUnion_sigma]
+  exact iUnion_mono fun n ↦ iUnion_mono fun i ↦ subset n i
 
 end Subcomplex
 
