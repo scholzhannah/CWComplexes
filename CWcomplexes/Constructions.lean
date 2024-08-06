@@ -59,155 +59,66 @@ variable {D : Set X} [CWComplex D]
 
 instance CWComplex_disjointUnion (disjoint : Disjoint C D) : CWComplex (C ∪ D) where
   cell n := Sum (cell C n) (cell D n)
-  map n i := match i with
-    | Sum.inl x => map n x
-    | Sum.inr x => map n x
-  source_eq n i := by
-    rcases i with i | i
-    · exact source_eq n i
-    · exact source_eq n i
-  cont n i := by
-    rcases i with i | i
-    · exact cont n i
-    · exact cont n i
-  cont_symm n i := by
-    rcases i with i | i
-    · exact cont_symm n i
-    · exact cont_symm n i
+  map n := Sum.elim (map (C := C) n) (map (C := D) n)
+  source_eq n i := match i with
+    | Sum.inl x => source_eq n x
+    | Sum.inr x => source_eq n x
+  cont n i := match i with -- should something like this be a lemma?
+    | Sum.inl x => cont n x
+    | Sum.inr x => cont n x
+  cont_symm n i := match i with
+    | Sum.inl x => cont_symm n x
+    | Sum.inr x => cont_symm n x
   pairwiseDisjoint' := by
-    rw [PairwiseDisjoint, Set.Pairwise]
-    simp only [mem_univ, ne_eq, forall_true_left]
-    intro ⟨n, cn⟩ ⟨m, cm⟩ ne
+    simp_rw [PairwiseDisjoint, Set.Pairwise, Function.onFun, disjoint_iff_inter_eq_empty]
+    intro ⟨n, cn⟩ _ ⟨m, cm⟩ _ ne
     rcases cn with cn | cn
     rcases cm with cm | cm
-    · have := pairwiseDisjoint (C := C)
-      simp only [PairwiseDisjoint, Set.Pairwise, mem_univ, ne_eq, forall_true_left] at this
-      have ne' : ¬({ fst := n, snd := cn } : (n : ℕ) × cell C n) = { fst := m, snd := cm } := by
-        by_contra eq
-        apply ne
-        simp only [Sigma.mk.inj_iff] at *
-        rcases eq with ⟨neqm, cnheqcm⟩
-        constructor
-        · exact neqm
-        · subst neqm
-          have := eq_of_heq cnheqcm
-          subst this
-          rfl
-      exact @this ⟨n, cn⟩ ⟨m, cm⟩ ne'
-    · simp [Function.onFun]
-      exact Disjoint.mono (openCell_subset_complex n cn) (openCell_subset_complex m cm) disjoint
+    · exact disjoint_openCell_of_ne (by aesop)
+    · exact subset_eq_empty (inter_subset_inter (openCell_subset_complex n cn)
+        (openCell_subset_complex m cm)) (disjoint_iff_inter_eq_empty.1 disjoint)
     rcases cm with cm | cm
-    · simp only [Function.onFun]
-      rw [disjoint_comm] at disjoint
-      exact Disjoint.mono (openCell_subset_complex n cn) (openCell_subset_complex m cm) disjoint
-    · have := pairwiseDisjoint (C := D)
-      simp only [PairwiseDisjoint, Set.Pairwise, mem_univ, ne_eq, forall_true_left] at this
-      have ne' : ¬({ fst := n, snd := cn } : (n : ℕ) × cell D n) = { fst := m, snd := cm } := by
-        by_contra eq
-        apply ne
-        simp only [Sigma.mk.inj_iff] at *
-        rcases eq with ⟨neqm, cnheqcm⟩
-        constructor
-        · exact neqm
-        · subst neqm
-          have := eq_of_heq cnheqcm
-          subst this
-          rfl
-      exact @this ⟨n, cn⟩ ⟨m, cm⟩ ne'
+    · exact subset_eq_empty (inter_subset_inter (openCell_subset_complex n cn)
+        (openCell_subset_complex m cm)) (disjoint_iff_inter_eq_empty.1 (disjoint_comm.1 disjoint))
+    · exact disjoint_openCell_of_ne (by aesop)
   mapsto n i := by
+    classical
     rcases i with ic | id
-    · rcases mapsto n ic with ⟨I, hI⟩
-      classical
-      let J : (m : ℕ) → Finset (cell C m ⊕ cell D m) :=
-        fun (m : ℕ) ↦ Finset.image (fun j ↦ .inl j) (I m)
-      use J
-      rw [mapsTo'] at *
-      simp only [J]
-      intro x xmem
-      apply hI at xmem
-      simp only [mem_iUnion, exists_prop] at *
-      rcases xmem with ⟨i, ⟨iltn, ⟨j, ⟨jmem, xmem⟩⟩⟩⟩
-      use i
-      simp only [iltn, exists_exists_and_eq_and, true_and]
-      use .inl j
-      simp only [Finset.mem_image, Sum.inl.injEq, exists_eq_right, jmem, true_and, xmem]
-    · rcases mapsto n id with ⟨I, hI⟩
-      classical
-      let J : (m : ℕ) → Finset (cell C m ⊕ cell D m) :=
-        fun (m : ℕ) ↦ Finset.image (fun j ↦ .inr j) (I m)
-      use J
-      rw [mapsTo'] at *
-      simp only [J]
-      intro x xmem
-      apply hI at xmem
-      simp only [mem_iUnion, exists_prop] at *
-      rcases xmem with ⟨i, ⟨iltn, ⟨j, ⟨jmem, xmem⟩⟩⟩⟩
-      use i
-      simp only [iltn, exists_exists_and_eq_and, true_and]
-      use .inr j
-      simp only [Finset.mem_image, Sum.inr.injEq, exists_eq_right, jmem, true_and, xmem]
-  closed' A := by
-    intro asubcd
+    · obtain ⟨I, hI⟩ := cellFrontier_subset n ic
+      use fun m ↦ (I m).image Sum.inl
+      rw [mapsTo']
+      apply hI.trans
+      simp only [Finset.mem_image, iUnion_exists, biUnion_and', iUnion_iUnion_eq_right]
+      rfl
+    · obtain ⟨I, hI⟩ := cellFrontier_subset n id
+      use fun m ↦ (I m).image Sum.inr
+      rw [mapsTo']
+      apply hI.trans
+      simp only [Finset.mem_image, iUnion_exists, biUnion_and', iUnion_iUnion_eq_right]
+      rfl
+  closed' A asubcd := by
     constructor
     · intro closedA n j
-      apply IsClosed.inter closedA
       rcases j with j | j
-      · exact isClosed_closedCell
-      · exact isClosed_closedCell
+      · exact closedA.inter isClosed_closedCell
+      · exact closedA.inter isClosed_closedCell
     · intro h
-      have : A = (A ∩ C) ∪ (A ∩ D) := by
-        calc
-        A = A ∩ (C ∪ A) := (inter_eq_left.2 subset_union_right).symm
-        _ = (A ∪ A ∩ D) ∩ (C ∪ A ∩ D) := by
-          have h1 : A ∪ A ∩ D = A := union_eq_left.2 Set.inter_subset_left
-          have h2 : C ∪ A ∩ D = C ∪ A := by
-            rw [union_inter_distrib_left, inter_eq_left]
-            apply Set.union_subset subset_union_left asubcd
-          rw [h1, h2]
-        _ = (A ∩ C) ∪ (A ∩ D) := by rw [inter_union_distrib_right]
-      rw [this]
+      suffices IsClosed ((A ∩ C) ∪ (A ∩ D)) by
+        convert this using 1
+        simp only [union_inter_distrib_left, union_eq_right.2 inter_subset_left,
+          inter_union_distrib_right, left_eq_inter, subset_inter_iff, subset_union_left, asubcd,
+          and_self]
       apply IsClosed.union
-      · rw [closed' (A ∩ C) inter_subset_right]
+      · rw [closed (A ∩ C) inter_subset_right]
         intro n j
-        have := h n (Sum.inl j)
-        simp at this
         rw [inter_right_comm]
-        apply IsClosed.inter this isClosed
-      · rw [closed' (A ∩ D) inter_subset_right]
+        exact (h n (Sum.inl j)).inter isClosed
+      · rw [closed (A ∩ D) inter_subset_right]
         intro n j
-        have := h n (Sum.inr j)
-        simp at this
         rw [inter_right_comm]
-        apply IsClosed.inter this isClosed
+        exact (h n (Sum.inr j)).inter isClosed
   union' := by
-    simp_rw [← union (C := C), ← union (C := D), ← Set.iUnion_union_distrib]
-    apply Set.iUnion_congr
-    intro n
-    ext x
-    constructor
-    · intro h
-      rw [mem_iUnion] at h
-      rcases h with ⟨i, hi⟩
-      rcases i with i | i
-      · simp only at hi
-        left
-        rw [mem_iUnion]
-        use i
-        exact hi
-      · simp only at hi
-        right
-        rw [mem_iUnion]
-        use i
-        exact hi
-    · intro h
-      rcases h with h | h
-      · rw [mem_iUnion] at *
-        rcases h with ⟨i, hi⟩
-        use Sum.inl i
-        exact hi
-      · rw [mem_iUnion] at *
-        rcases h with ⟨i, hi⟩
-        use Sum.inr i
-        exact hi
+    simp_rw [← union (C := C), ← union (C := D), ← iUnion_union_distrib, iUnion_sum]
+    rfl
 
 end
