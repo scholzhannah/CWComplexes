@@ -14,7 +14,11 @@ lemma biUnion_lt_eq_iUnion {X : Type*} (I : ℕ → Set X) :
   simp_rw [Set.mem_iUnion]
   exact ⟨fun ⟨_, m, _, xmem⟩ ↦ ⟨m, xmem⟩, fun ⟨n, xmem⟩ ↦  ⟨n + 1, n, lt_add_one n, xmem⟩⟩
 
+--this seems to be in mathlib under this name. I might just not have the newest version or something
 lemma ENat.coe_lt_top {n : ℕ} : ↑n < (⊤ : ℕ∞) := Ne.lt_top (ENat.coe_ne_top n)
+
+-- is this needed?
+lemma ENat.coe_lt_of_lt {n m : ℕ} : n < m → (n : ℕ∞) < m := by simp
 
 lemma ENat.add_one_pos {n : ℕ∞} : 0 < n + 1 := by
   rw [← ENat.one_le_iff_pos]

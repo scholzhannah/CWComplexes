@@ -1,1 +1,26 @@
 \subsection{Skeletons as CW-complexes}
+
+The $n$-skeletons of a CW-complex $X$ are again CW-complexes: 
+
+\begin{lem} \label{lem:levelcwcomplex}
+    Let $-1 \le n \le \infty$. 
+    Then $X_n$ is a CW-complex together with the cells $J_m \coloneq I_m$ for $m < n + 1$ and $J_m = \varnothing$ otherwise.
+\end{lem}
+\begin{proof}
+    We need to verify the five conditions of definition \ref{defi:CWComplex2}.
+    Conditions (i), (ii) and (iii) follow directly from $X$ fulfilling these conditions and condition (v) is given by the definition of the $n$-skeleton. 
+    Thus we only need to worry about condition (iv), i.e. that $X_n$ has weak topology. 
+    It follows easily from lemma \ref{lem:closedCellclosed} that for a set $A \subseteq X_n$ that is closed in $X_n$ the intersection $A \cap \closedCell{m}{i}$ is closed in $X_n$ for every $m \in \bN$ and $i \in J_m$. 
+    We can therefore directly consider the other direction. 
+    Let $A \subseteq X_n$ be a set such that for every $m \in \bN$ and $i \in J_m$ the intersection $A \cap \closedCell{m}{i}$ is closed in $X_n$. 
+    We need to show that $A$ is closed in $X_n$. 
+    It suffices to show that $A$ is closed in $X$. 
+    By lemma \ref{lem:closediffinteropenorclosed} we need to prove that for every $m \in \bN$ and $i \in I_m$ either $A \cap \closedCell{m}{i}$ or $A \cap \openCell{m}{i}$ is closed. 
+    Let us start with the case $i \in J_m$. 
+    By assumption $A \cap \closedCell{m}{i}$ is closed in $X_n$. 
+    The definition of the subspace topology tells us that there exists a closed set $C \subseteq X$ such that $C \cap X_n = A \cap \closedCell{m}{i}$. 
+    But since $X_n$ is closed by lemma \ref{lem:levelclosed} that means that $A \cap \closedCell{m}{i}$ is also closed in $X$. 
+    So we are done for this case. 
+    For the case $i \notin J_m$ notice that by lemma \ref{lem:skeletonunionopenCell} we get $A \cap \openCell{m}{i} \subseteq X_n \cap \openCell{m}{i} = (\bigcup_{l < n + 1}\bigcup_{j \in I_l}\openCell{l}{j}) \cap \openCell{m}{i} = \varnothing$ since different open cells of $X$ are disjoint. 
+    The empty set is obviously closed.
+\end{proof}

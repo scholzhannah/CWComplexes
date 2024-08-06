@@ -15,73 +15,43 @@ section
 
 instance CWComplex_levelaux (n : ℕ∞) : CWComplex (levelaux C n) where
   cell l := {x : cell C l // l < n}
-  map l i := map (C := C) l ↑i
-  source_eq l i := by rw [source_eq]
+  map l i := map (C := C) l i
+  source_eq l i:= source_eq (C := C) l i
   cont l i := cont (C := C) l i
   cont_symm l i := cont_symm (C := C) l i
   pairwiseDisjoint' := by
-    rw [PairwiseDisjoint, Set.Pairwise]
-    simp only [mem_univ, ne_eq, true_implies, Sigma.forall, Subtype.forall, Sigma.mk.inj_iff,
-      not_and]
-    intro a ja alt b jb blt
-    have disjoint := pairwiseDisjoint (C := C)
-    simp only [PairwiseDisjoint, Set.Pairwise, mem_univ, ne_eq, true_implies, Sigma.forall,
-      Sigma.mk.inj_iff, not_and] at disjoint
-    replace disjoint := disjoint a ja b jb
-    intro h
-    simp only [Sigma.mk.inj_iff, not_and] at disjoint ⊢
-    apply disjoint
-    intro eq1 eq2
-    subst a
-    simp only [heq_eq_eq, Subtype.mk.injEq, true_implies] at h eq2
-    exact h eq2
-  mapsto l i := by
-    rcases mapsto (C := C) l i with ⟨I, hI⟩
-    rcases i with ⟨i, llt⟩
-    let J := fun (m : ℕ) ↦ (I m).subtype (fun j ↦ m < n)
-    use J
-    simp only [mapsTo'] at hI ⊢
-    apply subset_trans hI (Set.iUnion_mono'' _)
-    intro i x xmem
-    simp only [mem_iUnion, exists_prop] at xmem ⊢
-    refine ⟨xmem.1, ?_⟩
-    rcases xmem with ⟨iltl, ⟨j, ⟨jmemIi, xmem⟩⟩⟩
-    use ⟨j, lt_trans (by norm_cast) llt⟩
-    exact ⟨(by simp only [Finset.mem_subtype, jmemIi, J]) , xmem⟩
-  closed' A := by
-    intro asublevel
+    simp_rw [PairwiseDisjoint, Set.Pairwise, Function.onFun, disjoint_iff_inter_eq_empty]
+    intro ⟨a, ja, _⟩ _ ⟨b, jb, map_mk⟩ _ ne
+    exact disjoint_openCell_of_ne (by aesop)
+  mapsto := by
+    intro l ⟨i, lltn⟩
+    obtain ⟨I, hI⟩ := cellFrontier_subset (C := C) l i
+    use fun (m : ℕ) ↦ (I m).subtype (fun j ↦ m < n)
+    simp_rw [mapsTo', iUnion_subtype]
+    apply subset_trans hI (iUnion_mono fun m ↦ iUnion_mono fun mltl ↦ iUnion_mono fun j ↦ ?_ )
+    simp_all only [(ENat.coe_lt_of_lt mltl).trans lltn, Finset.mem_subtype, iUnion_true,
+      iUnion_subset_iff]
+    exact fun _ ↦ by rfl
+  closed' A asublevel := by
     have : A ⊆ C := by
-      apply subset_trans asublevel
-      simp_rw [← level_top]
-      apply levelaux_mono le_top
+      apply asublevel.trans
+      simp_rw [← levelaux_top]
+      exact levelaux_mono le_top
     refine ⟨fun _ _ _ ↦ by simp only [(closed' A this).1], ?_⟩
     intro h
-    simp only [Subtype.forall] at h
+    simp_rw [Subtype.forall] at h
     apply strong_induction_isClosed this
     intro m _ j
     by_cases mlt : m < n
-    · right
-      exact h m j mlt
+    · exact Or.intro_right _ (h m j mlt)
     left
     push_neg at mlt
     rw [← inter_eq_left.2 asublevel, inter_assoc, levelaux_inter_openCell_eq_empty mlt, inter_empty]
     exact isClosed_empty
   union' := by
-    apply Set.iUnion_congr
-    intro m
-    ext x
-    constructor
-    · intro xmem
-      simp_rw [mem_iUnion] at xmem ⊢
-      rcases xmem with ⟨⟨i, mlt⟩, xmem⟩
-      use mlt
-      use i
-      exact xmem
-    · intro xmem
-      simp_rw [mem_iUnion, exists_prop] at xmem ⊢
-      rcases xmem with ⟨mlt, ⟨i, hi⟩⟩
-      use ⟨i, mlt⟩
-      exact hi
+    apply iUnion_congr fun m ↦ ?_
+    rw [iUnion_subtype, iUnion_comm]
+    rfl
 
 instance CWComplex_level (n : ℕ∞) : CWComplex (level C n) := CWComplex_levelaux _ _
 
