@@ -25,6 +25,16 @@ infixr:35 " ×ₖ "  => Prodkification
 
 instance instprodkification : TopologicalSpace (X ×ₖ Y) := instkification
 
+def prodcell (C : Set X) (D : Set Y) [CWComplex C] [CWComplex D] (n : ℕ) :=
+  (Σ' (m : ℕ) (l : ℕ) (hml : m + l = n), cell C m × cell D l)
+
+example (n m l : ℕ) (hmnl : m + l = n) : Fin n ≃ Fin (m + l) := finCongr hmnl.symm
+
+def prodmap (n : ℕ) (i : prodcell C D n) := match i with
+    | ⟨m, l, hmln, j, k⟩ =>
+      hmln ▸ Equiv.transPartialEquiv ((IsometryEquivFinMap m l).symm).toEquiv
+      (PartialEquiv.prod (map m j) (map l k))
+
 lemma prod_map_image_ball {m l : ℕ} {j : cell C m} {k : cell D l} :
     (fun a => ((IsometryEquivFinMap m l).symm.transPartialEquiv ((map m j).prod (map l k))) a) ''
     ball 0 1 = (map m j '' ball 0 1) ×ˢ (map l k '' ball 0 1) := by

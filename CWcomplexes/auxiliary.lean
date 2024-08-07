@@ -14,9 +14,8 @@ lemma biUnion_lt_eq_iUnion {X : Type*} (I : ℕ → Set X) :
   simp_rw [Set.mem_iUnion]
   exact ⟨fun ⟨_, m, _, xmem⟩ ↦ ⟨m, xmem⟩, fun ⟨n, xmem⟩ ↦  ⟨n + 1, n, lt_add_one n, xmem⟩⟩
 
-
 -- are these useful? Or is there a more general version?
-lemma iUnion_sum {X Y Z: Type*} {f : X ⊕ Y → Set Z} :
+lemma Set.iUnion_sum {X Y Z: Type*} {f : X ⊕ Y → Set Z} :
     ⋃ x : X ⊕ Y, f x = (⋃ x : X, f (.inl x)) ∪ ⋃ x : Y, f (.inr x) := by
   ext; simp
 
