@@ -1,0 +1,81 @@
+\subsubsection{Counterexample}
+
+We will first show that the product of two CW-complexes is not necessarily a CW-complex with respect to the natural cell structure.
+
+\begin{rem} \label{rem:wrongproduct}
+    The statement that we would want but is unfortunately false is the following: 
+
+    Let $X$, $Y$ be CW-complexes with families of characteristic maps $(Q_i^n \colon D_i^n \to X)_{n \in \bN, i \in I_n}$ and $(P_j^m \colon D_j^m \to Y)_{m \in \bN, j \in J_n}$. 
+    Then we would want to get a CW-structure on $X \times Y$ with characteristic maps $(Q_i^n \times P_j^m \colon D_i^n \times D_j^m \to (X \times Y)_c)_{n,m \in \bN,i \in I_n,j \in J_m}$.
+    The indexing sets $K_l$ are given by $K_l = \bigcup_{n + m = l}I_n \times J_m$ for every $l \in \bN$.
+\end{rem}
+
+We will discuss a counterexample first presented by \Citeauthor{Dowker1952} in \cite{Dowker1952}. 
+
+We firstly define the two relevant spaces: 
+
+\begin{defi}
+    Let $X = \bigvee_{i \in \iota} A_i$ where $A_i$ is the unit interval for every $i \in \iota$ and $\iota$ is the set of all infinite sequences in $\bN$. 
+    $X$ has a $0$-cell at the base point of the wedge sum which we will label $0_X$ and assume to be the $0$ of all of the intervals. The rest of the $0$-cells are the $1$'s of the intervals. 
+    The $1$-cells are the interiors of the intervals. 
+\end{defi}
+
+\begin{lem} \label{lem:CWcounter1}
+    $X$ together with the described cell-structure is a CW-complex.
+\end{lem}
+\begin{proof}
+    Firstly note that the wedge sum is defined to be $\bigvee_{i \in \iota} A_i \coloneq \coprod_{i \in \iota} A_i / \sim$ where $\sim$ is the equivalence relation identifying all the $0$'s of the intervals. 
+    It is easy to see from the definition that the wedge sum of Hausdorff spaces is again a Hausdorff space. 
+    We now need to verify the five conditions of definition \ref{defi:CWComplex2}. 
+    They are all relatively self-evident except for condition (iv) which says that $X$ needs to have weak topology. 
+    The forward direction follows in the same way as always. 
+    For the backward direction take a set $C \subseteq X$ such that $C \cap \closedCell{n}{i}$ is closed for all the closed cells of $X$. 
+    Note that the only relevant information this gives us is that $C \cap A_i$ is closed in $X$ for every $i \in \iota$.
+    We need to show that $C$ is closed in $X$. 
+    By the quotient topology $C$ is closed in $X$ if its preimage $\preim{q}{C}$ under the quotient map $q \colon \coprod_{i \in \iota} A_i \to \coprod_{i \in \iota} A_i / \sim$ is closed in the disjoint union. 
+    But by the disjoint union topology $\preim{q}{C}$ is closed iff $\preim{q}{C} \cap A_i = C \cap A_i$ is closed in $A_i$ for every $i \in \iota$ which is true by assumption. 
+\end{proof}
+
+\begin{defi}
+    Let $Y = \bigvee_{j \in \bN}B_k$ where $B_k$ is the unit interval for every $j \in \bN$.
+    $X$ has a $0$-cell at the base point of the wedge sum which we will label $0_Y$ and assume to be the $0$ of all of the intervals. The rest of the $0$-cells are the $1$'s of the intervals. 
+    The $1$-cells are the interiors of the intervals. 
+\end{defi}
+
+\begin{lem}
+    $Y$ together with the described cell-structure is a CW-complex.
+\end{lem}
+\begin{proof}
+    Completely analogue to the proof of lemma \ref{lem:CWcounter1}.
+\end{proof}
+
+\begin{lem}
+    The space $X \times Y$ is not a CW-complex with respect to the cell-structure proposed in \ref{rem:wrongproduct}.
+\end{lem}
+\begin{proof}
+    We show that $X \times Y$ does not have weak topology by finding a set that by the weak topology should be closed in $X \times Y$ but is not. 
+    For $i \in \iota$ and $j \in \bN$ we define $p_{i,j} = (1/i_j, 1 /i_j) \in A_i \times B_j$ where $i_j$ is the $j$'th element of the sequence $i$.
+    Set $P \coloneq \{ p_{i, j} \mid i \in \iota, j \in \bN\}$.
+    
+    Let us first show that $P$ would be closed if $X \times Y$ had weak topology. We need to show that its intersection with every closed cell of $X \times Y$ is closed.
+    The closed cells of $X \times Y$ are the following: 
+    The $0$-cells are products of $0$-cells i.e. singletons of the form $(x, y)$ where $x \in \{1_i \mid i \in \iota\} \cup \{0_X\}$ and $y \in \{1_j \mid j \in \bN\} \cup \{0_Y\}$. The intersection of $P$ with any closed $0$-cell is empty and therefore closed. 
+    The $1$-cells are product of $0$-cells with $1$-cells. The two different options are $A_i \times \{x\}$ with $i \in \iota$ and $x \in \{1_i \mid i \in \iota\} \cup \{0_X\}$ and $\{y\} \times B_j$ with $y \in \{1_j \mid j \in \bN\} \cup \{0_Y\}$ and $j \in \bN$. The intersection of $P$ with any closed $1$-cell is thus also empty and closed. 
+    So lastly let us consider the $2$-cells. They are of the form $A_i \times B_j$ with $i \in \iota$ and $j \in \bN$. For the intersection we get $P \cap (A_i \times B_j) = p_{i, j}$ which is closed. 
+    Therefore $P$ would be closed in the weak topology. 
+
+    Now we prove that $P$ is not closed in $X \times Y$. 
+    We show that the complement $\compl{P}$ of $P$ in $X \times Y$ is not open by showing that every open neighbourhood of $(0_X, 0_Y)$ contains a point of $P$. 
+    A base for the product topology is given by $\{ U \times V \mid U \subset X \text{ is open in X, } V \subseteq Y \text{ is open in Y}\}$.
+    It is easy to see that it suffices to prove our desired property for the base.
+    Now lets examine what open neighbourhoods of $0_X$ in $X$ look like. 
+    By the definition of the wedge sum an open neighbourhood of $0_X$ is of the form $\bigvee_{i \in \iota}U_i$ where $U_i$ is an open neighbourhood of $0$ in $A_i$ for $i \in \iota$. 
+    For each of the $U_i$'s there is an $x_i > 0$ such that $[0, x_i) \subseteq U_i$. 
+    It is therefore enough to show our claim for these sets. 
+    Arguing in the same manner for $Y$ allows us to reduce our aim to the set $\{(\bigvee_{i \in \iota}[0, x_i)) \times (\bigvee_{j \in \bN}[0, y_j)) \mid x_i > 0 \text{ for all } i \in \iota, y_j > 0 \text{ for all } j \in \bN\}$. 
+    Picking such an open neighbourhood $(\bigvee_{i \in \iota}[0, x_i)) \times (\bigvee_{j \in \bN}[0, y_j))$ we need to find a $p$ in $P$ such that $p$ is in that neighbourhood.
+    We pick an $i' \in \iota$ such that for every $j \in \bN$ we have $i'_j > \maximum{j}{1/y_j}$. 
+    Then we pick $j' \in \bN$ such that $j' > 1/x_{i'}$. 
+    That gives us $1/i'_{j'} < 1/j' < x_{j'}$ and $1/i'_{j'} < y_{j'}$ which means that $p_{i', j'} = (1/i'_{j'}, 1/i'_{j'}) \in [0, x_{i'}) \times [0, y_{j'}) \subseteq (\bigvee_{i \in \iota}[0, x_i)) \times (\bigvee_{j \in \bN}[0, y_j))$.
+    Thus $P$ is not closed. 
+\end{proof}
