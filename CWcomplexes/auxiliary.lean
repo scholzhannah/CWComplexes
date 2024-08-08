@@ -239,3 +239,50 @@ lemma IsometryEquivFinMapR_image_closedball (m n : ℕ) : (IsometryEquivFinMap m
 lemma IsometryEquivFinMapR_image_sphere (m n : ℕ) : (IsometryEquivFinMap m n).symm '' Metric.sphere 0 1 = (Metric.sphere 0 1 : Set (Fin m → ℝ)) ×ˢ (Metric.closedBall 0 1 : Set (Fin n → ℝ)) ∪ (Metric.closedBall 0 1 : Set (Fin m → ℝ)) ×ˢ (Metric.sphere 0 1 : Set (Fin n → ℝ)) := by
   rw [IsometryEquiv.image_sphere, IsometryEquivFinMap_symmR_zero_eq_zero, sphere_prod]
   rfl
+
+--this name should be reworked
+--does this already exist?
+def IsometryEquiv.arrowCongrleft {X Y : Type*} [Fintype X] [Fintype Y] (Z : Type*) [EMetricSpace Z]
+    (equiv : X ≃ Y) : (X → Z) ≃ᵢ (Y → Z) :=
+  IsometryEquiv.mk (equiv.arrowCongr (Equiv.refl Z))
+  (
+  by
+    intro x1 x2
+    simp [pseudoEMetricSpacePi, PseudoMetricSpace.toDist, instEDistForall]
+    apply le_antisymm
+    · apply Finset.sup_le
+      intro b bmem
+      by_cases h: edist (x1 (equiv.symm b)) (x2 (equiv.symm b)) = 0
+      · rw [h]
+        simp only [zero_le]
+      · rw [Finset.le_sup_iff (by aesop)]
+        use equiv.symm b
+        simp only [Finset.mem_univ, le_refl, and_self]
+    · apply Finset.sup_le
+      intro b bmem
+      by_cases h: edist (x1 b) (x2 b) = 0
+      · rw [h]
+        simp only [zero_le]
+      · rw [Finset.le_sup_iff (by aesop)]
+        use equiv b
+        simp only [Finset.mem_univ, Equiv.symm_apply_apply, le_refl, and_self]
+  )
+
+-- does this really not exist?
+lemma ContinuousOn.image_comp_continuous {α β γ : Type*} [TopologicalSpace α] [TopologicalSpace β]
+    [TopologicalSpace γ] {g : β → γ} {f : α → β} {s : Set α} (cont : Continuous f)
+    (conton : ContinuousOn g (f '' s)) : ContinuousOn (g ∘ f) s :=
+  conton.comp cont.continuousOn (s.mapsTo_image f)
+
+#check IsometryEquiv.trans
+
+-- it seems that these lemmas also don't exist for Equiv.trans, PartialEquiv.trans, ...
+-- why?
+lemma Equiv.transPartialEquiv_image {α β γ : Type*} (e : α ≃ β) (f : PartialEquiv β γ) (s : Set α) :
+    (e.transPartialEquiv f) '' s = f '' (e '' s) := by
+  aesop
+
+lemma IsometryEquiv.trans_image {α β γ : Type*} [PseudoEMetricSpace α] [PseudoEMetricSpace β]
+    [PseudoEMetricSpace γ] (h₁ : α ≃ᵢ β) (h₂ : β ≃ᵢ γ) (s : Set α) :
+    (h₁.trans h₂) '' s = h₂ '' (h₁ '' s) := by
+  aesop
