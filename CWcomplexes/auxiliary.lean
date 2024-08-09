@@ -286,3 +286,17 @@ lemma IsometryEquiv.trans_image {α β γ : Type*} [PseudoEMetricSpace α] [Pseu
     [PseudoEMetricSpace γ] (h₁ : α ≃ᵢ β) (h₂ : β ≃ᵢ γ) (s : Set α) :
     (h₁.trans h₂) '' s = h₂ '' (h₁ '' s) := by
   aesop
+
+-- does this not exist???
+lemma Set.subset_product {α β : Type*} {s : Set (α × β)} :
+    s ⊆ Set.image Prod.fst s ×ˢ Set.image Prod.snd s :=
+  fun _ hp ↦ mem_prod.2 ⟨mem_image_of_mem _ hp, mem_image_of_mem _ hp⟩
+
+def T2Space.mono {X : Type*} {s t : TopologicalSpace X}
+    (le : t ≤ s) [t2 : @T2Space X s] : @T2Space X t where
+  t2 := by
+    intro i j ne
+    rw [t2Space_iff] at t2
+    obtain ⟨u, v, openu, openv, huv⟩ := t2 ne
+    use u, v
+    exact ⟨le _ openu, le _ openv, huv⟩
