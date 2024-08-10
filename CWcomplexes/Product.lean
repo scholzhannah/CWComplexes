@@ -150,6 +150,8 @@ lemma frontierset_eq (m l: ℕ) (j : cell C m) (k : cell D l)
       simp only [↓reduceDIte, Finset.mem_image, Finset.mem_map, Function.Embedding.coeFn_mk,
         exists_exists_and_eq_and, amem]
 
+-- the next two proofs have two different versions of mapsto, which one is better?
+
 -- See Hatcher p. 533
 instance CWComplex_product [KSpace (X × Y)] : CWComplex (C ×ˢ D) where
   cell n := prodcell C D n
@@ -195,45 +197,55 @@ instance CWComplex_product [KSpace (X × Y)] : CWComplex (C ×ˢ D) where
   mapsto n i := by
     classical
     rcases i with ⟨m, l, hmln, j, k⟩
-    obtain ⟨J1, hJ1⟩ := cellFrontier_subset m j
-    obtain ⟨J2, hJ2⟩ := cellFrontier_subset l k
-    use frontierset m l j k J1 hJ1 J2 hJ2
-    rw [mapsTo']
-    intro ⟨x1, x2⟩ xmem
-    rw [prodmap_image_sphere] at xmem
-    rcases xmem with xmem1 | xmem2
-    · obtain ⟨x1mem, x2mem⟩ := xmem1
+    simp_rw [mapsTo', prodmap_image_sphere]
+    suffices (∃ (I : (m : ℕ) → Finset (prodcell C D m)), cellFrontier m j ×ˢ closedCell l k ⊆ ⋃ m,
+        ⋃ (_ : m < n), ⋃ j ∈ I m,
+        (match j with| ⟨m_1, ⟨l, ⟨hmln, (j, k)⟩⟩⟩ => prodmap hmln j k) '' closedBall 0 1) ∧
+        (∃ (I : (m : ℕ) → Finset (prodcell C D m)), closedCell m j ×ˢ cellFrontier l k ⊆ ⋃ m,
+        ⋃ (_ : m < n), ⋃ j ∈ I m,
+        (match j with| ⟨m_1, ⟨l, ⟨hmln, (j, k)⟩⟩⟩ => prodmap hmln j k) '' closedBall 0 1) by
+      obtain ⟨⟨J1, hJ1⟩, J2, hJ2⟩ := this
+      use fun m ↦ (J1 m) ∪ (J2 m)
+      apply union_subset
+      · apply hJ1.trans (iUnion_mono fun _ ↦ iUnion_mono fun _ ↦ iUnion_mono fun _ ↦ ?_ )
+        intro x xmem
+        simp_rw [mem_iUnion, Finset.mem_union] at xmem ⊢
+        exact ⟨Or.intro_left _ xmem.1, xmem.2⟩
+      · apply hJ2.trans (iUnion_mono fun _ ↦ iUnion_mono fun _ ↦ iUnion_mono fun _ ↦ ?_)
+        intro x xmem
+        simp_rw [mem_iUnion, Finset.mem_union] at xmem ⊢
+        exact ⟨Or.intro_right _ xmem.1, xmem.2⟩
+    constructor
+    · obtain ⟨J1, hJ1⟩ := cellFrontier_subset m j
+      use fun n ↦ ((Finset.antidiagonal n).attach.biUnion fun ⟨(o, p), h⟩ ↦ if h' : p = l then
+        (J1 o ×ˢ {k}).image fun (x, y) ↦ ⟨o, l, by rw [← h']; simpa using h, x, y⟩ else ∅)
+      intro ⟨x1, x2⟩ ⟨x1mem, x2mem⟩
       replace hJ1 := hJ1 x1mem
-      simp only [mem_iUnion, PSigma.exists, Prod.exists] at hJ1 ⊢
-      obtain ⟨o, oltm, p, pmemo, hop⟩ := hJ1
-      use o + l, (by rw [← hmln]; exact Nat.add_lt_add_right oltm l), ⟨o, l, rfl, p, k⟩
-      suffices ⟨o, ⟨l, ⟨rfl, (p, k)⟩⟩⟩ ∈ frontierset m l j k J1 hJ1 J2 hJ2 (o + l) by
-        use this
-        rw [prodmap_image_closedBall]
-        exact ⟨hop, x2mem⟩
-      simp only [frontierset, Finset.singleton_product, Finset.mem_union, Finset.mem_biUnion,
-          Finset.mem_attach, true_and, Subtype.exists, Finset.mem_antidiagonal, Prod.exists]
-      left
+      simp only [Prod.mk.eta, Finset.product_singleton, Finset.mem_biUnion, Finset.mem_attach,
+        true_and, Subtype.exists, Finset.mem_antidiagonal, Prod.exists, iUnion_exists, id_eq,
+        eq_mp_eq_cast, eq_mpr_eq_cast, mem_iUnion, exists_prop, exists_and_right] at hJ1 ⊢
+      obtain ⟨o, oltm, i, imem, x1mem'⟩ := hJ1
+      use o + l, (by rw [← hmln]; exact Nat.add_lt_add_right oltm l), ⟨o, l, rfl, i,  k⟩
+      refine ⟨?_, by rw [prodmap_image_closedBall]; exact ⟨x1mem', x2mem⟩⟩
       use o, l, rfl
-      simp only [↓reduceDIte, Prod.mk.eta, Finset.product_singleton, Finset.mem_image,
-        Finset.mem_map, Function.Embedding.coeFn_mk, PSigma.mk.injEq, heq_eq_eq, true_and,
-        exists_eq_right, Prod.mk.injEq, and_true, pmemo]
-    · obtain ⟨x1mem, x2mem⟩ := xmem2
+      simp only [↓reduceDIte, Finset.mem_image, Finset.mem_map, Function.Embedding.coeFn_mk,
+        exists_exists_and_eq_and]
+      use i, imem
+    · obtain ⟨J2, hJ2⟩ := cellFrontier_subset l k
+      use fun n ↦ ((Finset.antidiagonal n).attach.biUnion fun ⟨(o, p), h⟩ ↦ if h' : o = m then
+        ({j} ×ˢ J2 p).image fun (x, y) ↦ ⟨m, p, by rw [← h']; simpa using h, x, y⟩ else ∅)
+      intro ⟨x1, x2⟩ ⟨x1mem, x2mem⟩
       replace hJ2 := hJ2 x2mem
-      simp only [mem_iUnion, PSigma.exists, Prod.exists] at hJ2 ⊢
-      rcases hJ2 with ⟨o, oltl, p, pmemo, hop⟩
-      use m + o, (by rw [← hmln]; exact Nat.add_lt_add_left oltl m), ⟨m, o, rfl, j, p⟩
-      suffices ⟨m, ⟨o, ⟨rfl, (j, p)⟩⟩⟩ ∈ frontierset m l j k J1 hJ1 J2 hJ2 (m + o) by
-        use this
-        rw [prodmap_image_closedBall]
-        exact ⟨x1mem, hop⟩
-      simp only [frontierset, Finset.singleton_product, Finset.mem_union, Finset.mem_biUnion,
-        Finset.mem_attach, true_and, Subtype.exists, Finset.mem_antidiagonal, Prod.exists]
-      right
+      simp only [Prod.mk.eta, Finset.product_singleton, Finset.mem_biUnion, Finset.mem_attach,
+        true_and, Subtype.exists, Finset.mem_antidiagonal, Prod.exists, iUnion_exists, id_eq,
+        eq_mp_eq_cast, eq_mpr_eq_cast, mem_iUnion, exists_prop, exists_and_right] at hJ2 ⊢
+      obtain ⟨o, oltm, i, imem, x2mem'⟩ := hJ2
+      use m + o, (by rw [← hmln]; exact Nat.add_lt_add_left oltm m), ⟨m, o, rfl, j, i⟩
+      refine ⟨?_, by rw [prodmap_image_closedBall]; exact ⟨x1mem, x2mem'⟩⟩
       use m, o, rfl
-      simp only [↓reduceDIte, Prod.mk.eta, Finset.product_singleton, Finset.mem_image,
-        Finset.mem_map, Function.Embedding.coeFn_mk, PSigma.mk.injEq, heq_eq_eq, true_and,
-        exists_eq_right, Prod.mk.injEq, and_true, pmemo]
+      simp only [↓reduceDIte, Finset.singleton_product, Finset.mem_image, Finset.mem_map,
+        Function.Embedding.coeFn_mk, exists_exists_and_eq_and]
+      use i, imem
   closed' A Asub := by
     constructor
     · intro closedA n ⟨m, l, hmln, j, k⟩
@@ -377,8 +389,7 @@ def CWComplex_product_kification : CWComplex (X := X ×ₖ Y) (C ×ˢ D) where
     · intro closedA n ⟨m, l, hmln, j, k⟩
       apply closedA.inter
       rw [prodmap_image_closedBall]
-      refine IsClosed.mono ?_ kification_le
-      exact isClosed_closedCell.prod isClosed_closedCell
+      exact (isClosed_closedCell.prod isClosed_closedCell).mono kification_le
     · intro hA
       rw [KSpace.closed_iff]
       intro ⟨K, hK⟩
