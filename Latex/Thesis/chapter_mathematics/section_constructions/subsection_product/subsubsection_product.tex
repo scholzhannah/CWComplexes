@@ -1,33 +1,81 @@
 \subsubsection{Constructing the product}
 
 We can now move on to discuss the correct version of remark \ref{rem:wrongproduct}. 
-For the rest of the section let $X$, $Y$ be CW-complexes with families of characteristic maps $(Q_i^n \colon D_i^n \to X)_{n \in \bN, i \in I_n}$ and $(P_j^m \colon D_j^m \to Y)_{m \in \bN, j \in J_n}$. 
+For the rest of the section let $X$, $Y$ be CW-complexes with families of characteristic maps $(Q_i^n \colon D_i^n \to X)_{n \in \bN, i \in I_n}$ and $(P_j^m \colon D_j^m \to Y)_{m \in \bN, j \in J_n}$. We will write the cells of $X$ as $\openCell{n}{i}$ and the cells of $Y$ as $\openCellf{m}{j}$.
 We want to show:
 
-\begin{lem}
+\begin{thm}\label{thm:productcw}
     There is a CW-structure on $(X \times Y)_c$ with characteristic maps $(Q_i^n \times P_j^m \colon D_i^n \times D_j^m \to (X \times Y)_c)_{n,m \in \bN,i \in I_n,j \in J_m}$.
-    The indexing sets $(K_l)_{l \in \bN}$ are given by $K_l = \bigcup_{n + m = l}I_n \times J_m$ for every $l \in \bN$.
-\end{lem}
+    The indexing sets $(K_l)_{l \in \bN}$ are given by $K_l = \bigcup_{n + m = l}I_n \times J_m$ for every $l \in \bN$ and the cells are therefore of the form $\openCell{n}{i} \times \openCellf{m}{j}$ for $n, m \in \bN$, $i \in I_n$ and $j \in J_m$.
+\end{thm}
 
-This needs to be fixed! See lean code!
+We will split the proof up into lemmas to have a better overview of the proof. 
+Let us first show that the issue that occurred with the counterexample in an earlier section in lemma \ref{lem:proofofcounter} works out here:
+
+\begin{lem}\label{lem:weaktopologyproduct}
+    $(X \times Y)_c$ has weak topology,
+    i.e. $A \subseteq (X \times Y)_c$ is closed iff $\closedCell{n}{i} \times \closedCellf{m}{j} \cap A$ is closed for all $n, m \in \bN$, $i \in I_n$ and $j \in J_m$.
+\end{lem}
+\begin{proof}
+    The forward direction follows from the fact that the product of closed sets is closed in the product topology and from lemma \ref{lem:finertopology} that tells us that the k-ification is finer than the product topology.
+
+    Moving on to the backward direction we know by lemma \ref{lem:kificationkspace} that the k-ification is a k-space and by lemma \ref{lem:closediffinkification} that $A$ is closed if for every compact set $C \subseteq (X \times Y)_c$ $A \cap C$ is closed in $C$.
+    Take such a compact set $C$.
+    The projections $\pr{1}{C}$ and $\pr{2}{C}$ are compact as images of a compact set. 
+    By lemma \ref{lem:compactintersectsonlyfinite} there are finite sets $E \subseteq \{e_i^n \mid n \in \bN, i \in I_n \}$ and $F \subseteq \{f_j^m \mid m \in \bN, j \in J_m \}$ s.t $\pr{1}{C} \subseteq \bigcup_{e \in E} e$ and $\pr{2}{C} \subseteq \bigcup_{f \in F} f$.
+    Thus 
+    \[C \subseteq \pr{1}{C} \times \pr{2}{C} \subseteq \bigcup_{e \in E} e \times \bigcup_{f \in F} f = \bigcup_{e \in E} \bigcup_{f \in F} e \times f.\] 
+    So $C$ is included in a finite union of cells of $(X \times Y)_c$. 
+    Therefore 
+    \[A \cap C = A \cap \left (\bigcup_{e \in E} \bigcup_{f \in F} e \times f \right )\cap C = \left (\bigcup_{e \in E} \bigcup_{f \in F} A \cap (e \times f)\right ) \cap C\] 
+    is closed since by assumption $A \cap (e \times f)$ is closed for every $e$ and $f$ and the union is finite. Thus $A \cap C$ is in particular closed in $C$.
+\end{proof}
+
+Before we can discuss closure finiteness we need to think about what the frontiers of cells look like in $(X \times Y)_c$ : 
 
 \begin{lem}
-    $(X \times Y)_c$ has weak topology,
-    i.e. $A \subseteq (X \times Y)_c$ is closed iff $(Q_i^n \times P_j^m)(D^{n + m}) \cap A$ is closed for all $n, m \in \bN$, $i \in I_n$ and $j \in J_m$.
+    Let $\openCell{n}{i} \times \openCellf{m}{j}$ for $n, m \in \bN$, $i \in I_n$ and $j \in J_m$. 
+    The frontier of that cell is $\cellFrontier{n}{i} \times \closedCellf{m}{j} \cup \closedCell{n}{i} \times \cellFrontierf{m}{j}$.
 \end{lem}
-\begin{proof}~
-    \begin{enumerate}
-        \item["$\Rightarrow$"] Since $D^{n + m}$ is compact, its image is compact and therefore closed. As the intersection of two closed sets $(Q_i^n \times P_j^m)(D^{n + m}) \cap A$ is closed as well.
-        \item["$\Leftarrow$"] We know by definition of the k-ification that $A$ is closed if for every compact set $C \subseteq X \times Y$ $A \cap C$ is closed in $C$.
-        Take such a compact set $C$.
-        The projections $\pr{1}{C}$ and $\pr{2}{C}$ are compact as images of a compact set. 
-        By ? there are finite sets $E \subseteq \{e_i^n \mid n \in \bN, i \in I_n \}$ and $F \subseteq \{f_j^m \mid m \in \bN, j \in J_m \}$ s.t $\pr{1}{C} \subseteq \bigcup_{e \in E} e$ and $\pr{2}{C} \subseteq \bigcup_{f \in F} f$.
-        Thus 
-        \[C \subseteq \pr{1}{C} \times \pr{2}{C} \subseteq \bigcup_{e \in E} e \times \bigcup_{f \in F} f = \bigcup_{e \in E} \bigcup_{f \in F} e \times f.\] 
-        So $C$ is included in a finite union of cells of $(X \times Y)_c$. 
-        Therefore 
-        \[A \cap C = A \cap \left (\bigcup_{e \in E} \bigcup_{f \in F} e \times f \right )\cap C = \left (\bigcup_{e \in E} \bigcup_{f \in F} A \cap (e \times f)\right ) \cap C\] 
-        is closed since by assumption $A \cap (e \times f)$ is closed for every $e$ and $f$ and the union is finite. Thus $A \cap C$ is in particular closed in $C$.
-    \qedhere
-    \end{enumerate}
+\begin{proof}
+    The definition of the frontier gives us: 
+    \begin{equation*}
+        \begin{split}
+            (Q_i^n \times P_j^m) (\boundary D^{n + m}) &=  (Q_i^n \times P_j^m) (\boundary D^n \times D^m \cup D^n \times \boundary D^m) \\
+            &= (Q_i^n \times P_j^m) (\boundary D^n \times D^m) \cup (Q_i^n \times P_j^m) (D^n \times \boundary D^m) \\
+            &= Q_i^n(\boundary D^n) \times P_j^m(D^m) \cup Q_i^n (D^n) \times P_j^m (\boundary D^m) \\
+            &= \cellFrontier{n}{i} \times \closedCellf{m}{j} \cup \closedCell{n}{i} \times \cellFrontierf{m}{j}.
+        \end{split}
+    \end{equation*}
+    The equality $\boundary D^{n + m} = \boundary D^n \times D^m \cup D^n \times \boundary D^m$ is true in any metric space and can be verified explicitly.
+\end{proof}
+
+Using this we get closure finiteness:
+
+\begin{lem}\label{lem:closurefiniteproduct}
+    $(X \times Y)_c$ has closure finiteness, i.e. each frontier of a cell is contained in a finite union of closed cells of a lower dimension.
+\end{lem}
+\begin{proof}
+    By the above lemma we need to verify that for all $n, m \in \bN$, $i \in I_n$ and $j \in J_m$ the set $\cellFrontier{n}{i} \times \closedCellf{m}{j} \cup \closedCell{n}{i} \times \cellFrontierf{m}{j}$ is contained in a finite union of closed cells of $(X \times Y)_c$ of dimension less than $n + m$. 
+    We can show this separately for $\cellFrontier{n}{i} \times \closedCellf{m}{j}$ and $\closedCell{n}{i} \times \cellFrontierf{m}{j}$. 
+    We will do the proof for the the former as both proofs work in the same way. 
+    Since $X$ fulfils closure finiteness there is a finite set $E$ of cells of $X$ of dimension less than $n$ such that $\cellFrontier{n}{i} \subset \bigcup_{e \in E}\closure{e}$. 
+    But that gives us $\cellFrontier{n}{i} \times \closedCellf{m}{j} \subseteq \bigcup_{e \in E}\closure{e} \times \closedCellf{m}{j}$ which is a finite union of closed cells of $(X \times Y)_c$ of dimension less than $n + m$.
+\end{proof}
+
+Now we can proof the desired theorem:
+
+\begin{proof}[Proof of Theorem \ref{thm:productcw}]
+    It is well known and easy to see explicitly that the product of two Hausdorff spaces is again Hausdorff. 
+    Now we can go through the five conditions of definition \ref{defi:CWComplex2}. 
+
+    Property (i) is given by the fact that the product of bijective maps is again bijection and continuity in both directions follows from lemma \ref{lem:continuousfromkification} and lemma \ref{lem:continuoustokification}. 
+
+    For property (ii) pick any $n, m, n', m' \in \bN$, $i \in I_n$, $j \in J_m$, $i' \in I_{n'}$ and $j' \in J_{m'}$ such that $(n + m, i, j) \ne (n' + m', i', j')$ then either $(n, i) \ne (n', i')$ or $(m, j) \ne (m', j')$. 
+    Thus 
+    \[\closedCell{n}{i} \times \closedCellf{m}{j} \cap \closedCell{n'}{i'} \times \closedCellf{m'}{j'} = \left (\closedCell{n}{i} \cap \closedCell{n'}{i'} \right ) \times \left ( \closedCellf{m}{j} \cap \closedCellf{m'}{j'} \right ) = \varnothing\]
+    since $X$ and $Y$ themselves fulfil property (ii). 
+
+    We already covered property (iii) in lemma \ref{lem:closurefiniteproduct} and property (iv) in lemma \ref{lem:weaktopologyproduct}. 
+    Property (v) is immediate.
 \end{proof}
