@@ -74,6 +74,27 @@
 \let\origldots\ldots
 \renewcommand{\ldots}{\allowbreak\origldots}
 
+% to get upright greek letters
+\usepackage{upgreek}
+
+% To break urls correctly in bibliography
+\setcounter{biburllcpenalty}{7000}
+\setcounter{biburlucpenalty}{8000}
+
+%colors for lean syntax highlighting
+\usepackage{color}
+\definecolor{keywordcolor}{rgb}{0.7, 0.1, 0.1}   % red
+\definecolor{tacticcolor}{rgb}{0.0, 0.1, 0.6}    % blue
+\definecolor{commentcolor}{rgb}{0.4, 0.4, 0.4}   % grey
+\definecolor{symbolcolor}{rgb}{0.0, 0.1, 0.6}    % blue
+\definecolor{sortcolor}{rgb}{0.1, 0.5, 0.1}      % green
+\definecolor{attributecolor}{rgb}{0.7, 0.1, 0.1} % red
+
+% To display lean code
+\def\lstlanguagefiles{lstlean.tex}
+% set default language
+\lstset{language=lean}
+
 
 % Symbolverzeichnis
 \usepackage[intoc, english]{nomencl}     % Symbolverzeichnis.
@@ -159,6 +180,9 @@
 \cleardoublepage 
 \input{chapter_mathematics/chapter_mathematics.tex}
 
+%lean and mathlib
+\cleardoublepage
+\input{chapter_lean/chapter_lean.tex}
 
 \cleardoublepage
 \input{chapter_appendix/chapter_appendix}
