@@ -1,0 +1,87 @@
+\section{Implicit variables and type class inference}
+
+A crucial factor that makes lean more comfortable to use and makes the formalisation process feel closer to doing mathematics on paper is its use of \emph{implicit variables} and \emph{typeclass inference}. 
+We will explain both of these concepts in this section. 
+
+First let us discuss implicit variables based on \cite{Avigad2024}. 
+One way that we could define continuity in lean is the following: 
+
+\begin{lstlisting}
+structure Continuous' (X Y : Type*) (t : TopologicalSpace X) 
+    (s : TopologicalSpace Y) (f : X → Y) : Prop where
+  isOpen_preimage : ∀ s, IsOpen s → IsOpen (f ⁻¹' s)
+\end{lstlisting}
+
+But now if we are given two types \lstinline{X} and \lstinline{Y} with topologies \lstinline{s} and \lstinline{t} respectively and a map \lstinline{f : X → Y}, the statement that the map \lstinline{f} is continuous would be expressed in the following way: 
+
+\begin{lstlisting}
+    Continuous' X Y t s f
+\end{lstlisting}
+
+which is a lot longer than we would write this on paper. 
+
+One thing that we can notice is that the types \lstinline{X} and \lstinline{Y} are contained in the definition of \lstinline{f} which means that lean should be able to find that information itself. 
+To tell lean to do that you can replace the variables by underscores: 
+
+\begin{lstlisting}
+Continuous' _ _ t s f
+\end{lstlisting}
+
+Since this should always possible to be inferred we can change the definition to already specify that the two types should be clear from the context. 
+We use curly brackets to do this: 
+
+\begin{lstlisting}
+structure Continuous'' {X Y : Type*} (t : TopologicalSpace X) 
+    (s : TopologicalSpace Y) (f : X → Y) : Prop where
+  isOpen_preimage : ∀ s, IsOpen s → IsOpen (f ⁻¹' s)
+\end{lstlisting}
+
+which enables us to write continuity like this: 
+
+\begin{lstlisting}
+    Continuous'' t s f
+\end{lstlisting}
+
+This is already a lot shorter than what we had above but there is still room for improvement as on paper you would probably just write "$f$ is continuous" since in most contexts $X$ and $Y$ will only have one specified topology each that can be inferred by the reader. 
+The same thing is also true in lean and we can achieve this by typeclass inference.
+Typeclasses were first invented by \Citeauthor{Wadler1989} in \cite{Wadler1989} to be used in the programming language Haskell. 
+They are a way to overload operations for various different types. 
+For example you might want to write code that works for all types that have a topology. 
+In lean this is possible by just stating that you input type \lstinline{X} is part of the typeclass \lstinline{TopologicalSpace}. 
+You can specify that something ia a typeclass with the keyword \lstinline{class}. 
+The definition of the typeclass of topological spaces in mathlib looks like this
+
+\begin{lstlisting}
+class TopologicalSpace (X : Type*) where
+  protected IsOpen : Set X → Prop
+  protected isOpen_univ : IsOpen univ
+  protected isOpen_inter : ∀ s t, IsOpen s → IsOpen t → IsOpen (s ∩ t)
+  protected isOpen_sUnion : ∀ s, (∀ t ∈ s, IsOpen t) → IsOpen (⋃₀ s)
+\end{lstlisting}
+
+Let us first explain what this code means: 
+The keyword \lstinline{protected} means that these properties should not be accessed directly because there are lemmas that should be used instead. 
+\lstinline{Set X} is the type that consists of all sets of elements of \lstinline{X}.
+Thus the line \lstinline{protected IsOpen : Set X → Prop} expresses that \lstinline{IsOpen} is a property that can be assigned to a set in \lstinline{X}.
+The rest of the lines discuss the properties of a topology.
+\lstinline{univ} is the set that is composed of all elements of \lstinline{X} and \lstinline{⋃₀ s} is the union over the set \lstinline{s}. 
+All of these explanations are not actually relevant to typclasses, they are just for your understanding of the above code. 
+
+Typeclasses are also expected to be inferred automatically. 
+Local instances of these typeclasses can written with square brackets which tells lean to infer these automatically.
+
+We can now look at the version of continuity that is almost identical to that of mathlib: 
+
+\begin{lstlisting}
+structure Continuous {X Y : Type*} [t : TopologicalSpace X]
+    [s : TopologicalSpace Y] (f : X → Y) : Prop where
+  isOpen_preimage : ∀ s, IsOpen s → IsOpen (f ⁻¹' s)
+\end{lstlisting}
+
+which enables us to write that \lstinline{f} is continuous in the context explained above as follows:
+
+\begin{lstlisting}
+Continuous f
+\end{lstlisting}
+
+When you define a class you can then define instances of that class to be inferred whenever you talk you talk about a type with that instance. 
