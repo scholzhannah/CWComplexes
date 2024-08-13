@@ -34,7 +34,6 @@
 \usepackage{array}                      % Bessere Tabellen.
 \renewcommand{\arraystretch}{1.15}      % Tabellen bekommen ein wenig mehr Platz.
 \usepackage{bbm}                        % Dicke 1.
-\usepackage[utf8]{inputenc}             % utf8 als Eingabeformat.
 \usepackage[backend=biber, style=alphabetic]{biblatex}  % Gute Erweiterung zu bibtex, Wird für Referenzen benutzt.
 \bibliography{thesis}   % Die verwendeten Referenzen (.bib-Datei)
 \usepackage[hypcap]{caption}            % Damit Hyperrefs bei der figure-Umgebung auf die Figure zeigt statt auf die Caption.
@@ -84,8 +83,7 @@
 % to get rid of an error
 \usepackage{bookmark}
 
-%colors for lean syntax highlighting
-\usepackage{color}
+%colors for lean syntax
 \definecolor{keywordcolor}{rgb}{0.7, 0.1, 0.1}   % red
 \definecolor{tacticcolor}{rgb}{0.0, 0.1, 0.6}    % blue
 \definecolor{commentcolor}{rgb}{0.4, 0.4, 0.4}   % grey
@@ -96,7 +94,10 @@
 % To display lean code
 \def\lstlanguagefiles{lstlean.tex}
 % set default language
-\lstset{language=lean}
+\lstset{language=lean, extendedchars=true}
+
+%to get code in footnotes write \cprotect\footnote 
+\usepackage{cprotect}
 
 
 % Symbolverzeichnis
@@ -109,6 +110,8 @@
 \renewcommand*{\nompreamble}{\markright{\nomname}}    % Workaround: Fancyhdr schreibt im Symbolverzeichnis sonst den Namen des leztztes Kapitels.
 \makenomenclature                       % Symbolverzeichnis erstellen.
 
+\usepackage{MA_Titlepage}
+
 % Anklickbare Referenzen (letztes eingebundenes Paket)
 \usepackage{hyperref}                   % Referenzen innerhalb des Dokuments anklickbar machen. Achtung: Muss das letzte Paket im Präambel sein.
 \hypersetup{                            % Optionen von hyperref Einstellen.
@@ -118,7 +121,7 @@
     urlcolor=black                       % Farbe von Internetlinks.
 }
 
-\usepackage{MA_Titlepage}
+
 
 %Name of the author of the thesis 
 \authornew{Hannah Scholz}
