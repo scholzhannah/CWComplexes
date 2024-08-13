@@ -122,7 +122,7 @@ class Finite.{u} {X : Type u} [TopologicalSpace X] (C : Set X) [CWComplex C] : P
 
 def CWComplexFiniteType.{u} {X : Type u} [TopologicalSpace X] (C : Set X)
     (cell : (n : ℕ) → Type u) (map : (n : ℕ)  → (i : cell n) → PartialEquiv (Fin n → ℝ) X)
-    (finitcellFrontiers : ∀ (n : ℕ), _root_.Finite (cell n))
+    (finitecells : ∀ (n : ℕ), _root_.Finite (cell n))
     (source_eq : ∀ (n : ℕ) (i : cell n), (map n i).source = closedBall 0 1)
     (cont : ∀ (n : ℕ) (i : cell n), ContinuousOn (map n i) (closedBall 0 1))
     (cont_symm : ∀ (n : ℕ) (i : cell n), ContinuousOn (map n i).symm (map n i).target)
@@ -148,9 +148,10 @@ def CWComplexFiniteType.{u} {X : Type u} [TopologicalSpace X] (C : Set X)
   union' := union'
 
 def CWComplexFinite.{u} {X : Type u} [TopologicalSpace X] [T2Space X] (C : Set X)
-    (cell : (n : ℕ) → Type u) (map : (n : ℕ)  → (i : cell n) → PartialEquiv (Fin n → ℝ) X)
+    (cell : (n : ℕ) → Type u)
+    (map : (n : ℕ)  → (i : cell n) → PartialEquiv (Fin n → ℝ) X)
     (finitelevels : ∀ᶠ n in Filter.atTop, IsEmpty (cell n))
-    (finitcellFrontiers : ∀ (n : ℕ), _root_.Finite (cell n))
+    (finitecells : ∀ (n : ℕ), _root_.Finite (cell n))
     (source_eq : ∀ (n : ℕ) (i : cell n), (map n i).source = closedBall 0 1)
     (cont : ∀ (n : ℕ) (i : cell n), ContinuousOn (map n i) (closedBall 0 1))
     (cont_symm : ∀ (n : ℕ) (i : cell n), ContinuousOn (map n i).symm (map n i).target)

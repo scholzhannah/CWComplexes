@@ -62,6 +62,11 @@ lemma TopologicalSpace.le_iff_IsClosed {α : Type*} {t : TopologicalSpace α} {s
   rw [← IsOpen_le_iff_isClosed_le]
   exact TopologicalSpace.le_def
 
+lemma closedBall_zero_dim_singleton {X : Type*} {h : PseudoMetricSpace (Fin 0 → X)} :
+    (Metric.closedBall ![] 1 : Set (Fin 0 → X)) = {![]} := by
+  ext
+  simp only [Matrix.empty_eq, Metric.mem_closedBall, dist_self, zero_le_one, Set.mem_singleton_iff]
+
 lemma sphere_zero_dim_empty {X : Type*} {h : PseudoMetricSpace (Fin 0 → X)} :
     (Metric.sphere ![] 1 : Set (Fin 0 → X)) = ∅ := by
   simp only [Metric.sphere, Matrix.empty_eq, dist_self, zero_ne_one, Set.setOf_false]
@@ -113,6 +118,10 @@ def PartialEquiv.const {X Y : Type*} (x : X) (y : Y) : PartialEquiv X Y where
   map_target' := fun _ _ ↦ by rfl
   left_inv' := fun x' x'mem  ↦ by rw [Set.eq_of_mem_singleton x'mem]; rfl
   right_inv' := fun y' y'mem ↦ by rw [Set.eq_of_mem_singleton y'mem]; rfl
+
+lemma PartialEquiv.const_continuousOn {X Y : Type*} [TopologicalSpace X] [TopologicalSpace Y]
+    (x : X) (y : Y) : ContinuousOn (PartialEquiv.const x y) {x}
+  := continuousOn_singleton (PartialEquiv.const x y) x
 
 def EquivFinMap {X : Type*} (m n : ℕ) : (Fin m → X) × (Fin n → X) ≃ (Fin (m + n) → X) :=
   Equiv.trans (Equiv.sumArrowEquivProdArrow _ _ _).symm (Equiv.arrowCongr finSumFinEquiv (Equiv.refl _))
