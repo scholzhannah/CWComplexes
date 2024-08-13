@@ -1,23 +1,24 @@
-\section{The type theory of lean}
+\section{The type theory of Lean}
 
 \emph{Type theory} was first proposed by \Citeauthor{Russell1908} in \citeyear{Russell1908} \cite{Russell1908} as a way to axiomatise mathematics and resolve the paradoxes (most famously Russell's paradox) that were discussed at the time. 
 While type theory has lost its relevance as a foundation of mathematics to set theory it has since been studied in both mathematics and computer science. 
 It was first used in formal mathematics in 1967 in the formal language \emph{AUTOMATH}. 
-More about the history of type theory can be found in \cite{Kamareddine2004}. Discussions of type theory in mathematics and especially its connections to homotopy theory forming the new area of \emph{homotopy type theory} can be found in \cite{hottbook}.
-We will now focus on the type theory as used in lean.
+More about the history of type theory can be found in \cite{Kamareddine2004}. 
+Discussions of type theory in mathematics and especially its connections to homotopy theory forming the new area of \emph{homotopy type theory} can be found in \cite{hottbook}.
+We will now focus on the type theory as used in Lean.
 A detailed account of that topic can be found in \cite{Carneiro2019}. 
 The following short discussion is be based on \cite{Avigad2024}. 
 
 Lean uses what is called a \emph{dependent type theory}.
 In type theory every object has a type. 
-A type can for example be the natural numbers which we write as \lstinline{Nat} or \lstinline{ℕ} or propositions which are written as \lstinline{Prop}.
+A type can for example be the natural numbers which we write in Lean as \lstinline{Nat} or \lstinline{ℕ} or propositions which is written as \lstinline{Prop}.
 To assert that \lstinline{n} is a natural number or that \lstinline{p} is a proposition we write \lstinline{n : ℕ} and \lstinline{p : Prop}. 
 Proofs of a proposition \lstinline{p} also form a type written as \lstinline{Proof p}.
 If you want to say that \lstinline{hp} is a proof of \lstinline{p} then you can simply write \lstinline{hp : p}.
-Something to note about proofs in lean is that contrary to other type theories the type theory of lean has \emph{proof irrelevance} which means that two proofs of a proposition \lstinline{p} are by definition assumed to be the same.
+Something to note about proofs in Lean is that contrary to other type theories the type theory of Lean has \emph{proof irrelevance} which means that two proofs of a proposition \lstinline{p} are by definition assumed to be the same.
 
 Even types themselves are types. 
-In lean the type of natural numbers \lstinline{ℕ} has the type \lstinline{Type}. 
+In Lean the type of natural numbers \lstinline{ℕ} has the type \lstinline{Type}. 
 The type of propositions \lstinline{Prop} is also of type \lstinline{Type}.
 As to not run into Russel's paradox there is a hierarchy of types. 
 The type of \lstinline{Type} is \lstinline{Type 1}, the type of \lstinline{Type 1} is \lstinline{Type 2} and so on.
@@ -31,5 +32,5 @@ We will now mainly discuss constructions that do not fulfil this criterium.
 A first example is the sum type of two types \lstinline{α} and \lstinline{β} written as \lstinline{α ⊕ β} which is the equivalent to a disjoint union of sets. 
 
 The next two examples explain why this type theory is a dependent type theory:
-If you have a type \lstinline{α} and for every \lstinline{a : α} a type \lstinline{β a} (i.e. \lstinline{β} is a function assigning a type to every \lstinline{a : α}) then you can construct the dependent function type written as \lstinline{(a : α) → β}. 
+If we have a type \lstinline{α} and for every \lstinline{a : α} a type \lstinline{β a} (i.e. \lstinline{β} is a function assigning a type to every \lstinline{a : α}) then we can construct the dependent function type written as \lstinline{(a : α) → β}. 
 The dependent version of the cartesian product is called a sigma type and can be written as \lstinline{(a : α) × β a} or \lstinline{Σ a : α, β a} for \lstinline{α} and \lstinline{β} the same way as above.

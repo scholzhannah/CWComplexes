@@ -34,6 +34,7 @@
 \usepackage{array}                      % Bessere Tabellen.
 \renewcommand{\arraystretch}{1.15}      % Tabellen bekommen ein wenig mehr Platz.
 \usepackage{bbm}                        % Dicke 1.
+\usepackage[utf8]{inputenc}             % utf8 als Eingabeformat.
 \usepackage[backend=biber, style=alphabetic]{biblatex}  % Gute Erweiterung zu bibtex, Wird für Referenzen benutzt.
 \bibliography{thesis}   % Die verwendeten Referenzen (.bib-Datei)
 \usepackage[hypcap]{caption}            % Damit Hyperrefs bei der figure-Umgebung auf die Figure zeigt statt auf die Caption.
@@ -44,7 +45,6 @@
 \setlist[enumerate,1]{label=(\roman*)}  % Aufzählungen sind vom Typ 'Klammer auf; kleine römische Zahl; Klammer zu'
 \usepackage[T1]{fontenc}                % Bessere Schrift
 \usepackage{ifthen}                     % Zum checken ob Parameter leer sind.
-\usepackage[utf8]{inputenc}             % utf8 als Eingabeformat.
 \usepackage{lmodern}                    % Bessere Schrift
 \usepackage{listings}                   % Code Listings.
 \usepackage{mathtools}                  % Subscript unter Summen behandeln. Der Befehl lautet \mathclap.
@@ -80,6 +80,9 @@
 % To break urls correctly in bibliography
 \setcounter{biburllcpenalty}{7000}
 \setcounter{biburlucpenalty}{8000}
+
+% to get rid of an error
+\usepackage{bookmark}
 
 %colors for lean syntax highlighting
 \usepackage{color}

@@ -1,10 +1,10 @@
-\section{Implicit variables and type class inference}
+\section{Implicit variables and typeclass inference}
 
-A crucial factor that makes lean more comfortable to use and makes the formalisation process feel closer to doing mathematics on paper is its use of \emph{implicit variables} and \emph{typeclass inference}. 
-We will explain both of these concepts in this section. 
+A crucial factor that makes Lean more comfortable to use and makes the formalisation process feel closer to doing mathematics on paper is its use of \emph{implicit variables} and \emph{typeclass inference}. 
+We will explain both of these concepts in this section.
 
 First let us discuss implicit variables based on \cite{Avigad2024}. 
-One way that we could define continuity in lean is the following: 
+One way that we could define continuity in Lean is the following: 
 
 \begin{lstlisting}
 structure Continuous' (X Y : Type*) (t : TopologicalSpace X) 
@@ -12,19 +12,21 @@ structure Continuous' (X Y : Type*) (t : TopologicalSpace X)
   isOpen_preimage : ∀ s, IsOpen s → IsOpen (f ⁻¹' s)
 \end{lstlisting}
 
-But now if we are given two types \lstinline{X} and \lstinline{Y} with topologies \lstinline{s} and \lstinline{t} respectively and a map \lstinline{f : X → Y}, the statement that the map \lstinline{f} is continuous would be expressed in the following way: 
+But now if we are given two types \lstinline{X} and \lstinline{Y} with topologies \lstinline{s} and \lstinline{t} respectively and a map \lstinline{f : X → Y}, the statement that the map \lstinline{f} is continuous would be expressed in the following way:
 
 \begin{lstlisting}
-    Continuous' X Y t s f
+example (X Y : Type*) (t : TopologicalSpace X) (s : TopologicalSpace Y) 
+  (f : X → Y) : Continuous' X Y t s f := ⋯
 \end{lstlisting}
 
-which is a lot longer than we would write this on paper. 
+where everything before the colon is the context we described above and after the colon equal you could write a proof.
 
-One thing that we can notice is that the types \lstinline{X} and \lstinline{Y} are contained in the definition of \lstinline{f} which means that lean should be able to find that information itself. 
-To tell lean to do that you can replace the variables by underscores: 
+One thing that we can notice is that the types \lstinline{X} and \lstinline{Y} are contained in the definition of \lstinline{f} which means that Lean should be able to find that information itself. 
+To tell Lean to do that you can replace the variables by underscores: 
 
 \begin{lstlisting}
-Continuous' _ _ t s f
+  example (X Y : Type*) (t : TopologicalSpace X) (s : TopologicalSpace Y) 
+  (f : X → Y) : Continuous' _ _ t s f := ⋯
 \end{lstlisting}
 
 Since this should always possible to be inferred we can change the definition to already specify that the two types should be clear from the context. 
@@ -39,15 +41,16 @@ structure Continuous'' {X Y : Type*} (t : TopologicalSpace X)
 which enables us to write continuity like this: 
 
 \begin{lstlisting}
-    Continuous'' t s f
+example (X Y : Type*) (t : TopologicalSpace X) (s : TopologicalSpace Y) 
+  (f : X → Y) : Continuous'' t s f := ⋯
 \end{lstlisting}
 
-This is already a lot shorter than what we had above but there is still room for improvement as on paper you would probably just write "$f$ is continuous" since in most contexts $X$ and $Y$ will only have one specified topology each that can be inferred by the reader. 
-The same thing is also true in lean and we can achieve this by typeclass inference.
+This is already a lot shorter than what we had above but there is still room for improvement as on paper you would probably just write "$f$ is continuous" since in most contexts $X$ and $Y$ will only have one specified topology each that can be inferred by the reader.
+The same thing is also true in Lean and we can achieve this by typeclass inference.
 Typeclasses were first invented by \Citeauthor{Wadler1989} in \cite{Wadler1989} to be used in the programming language Haskell. 
 They are a way to overload operations for various different types. 
 For example you might want to write code that works for all types that have a topology. 
-In lean this is possible by just stating that you input type \lstinline{X} is part of the typeclass \lstinline{TopologicalSpace}. 
+In Lean this is possible by just stating that you input type \lstinline{X} is part of the typeclass \lstinline{TopologicalSpace}. 
 You can specify that something ia a typeclass with the keyword \lstinline{class}. 
 The definition of the typeclass of topological spaces in mathlib looks like this
 
@@ -68,7 +71,7 @@ The rest of the lines discuss the properties of a topology.
 All of these explanations are not actually relevant to typclasses, they are just for your understanding of the above code. 
 
 Typeclasses are also expected to be inferred automatically. 
-Local instances of these typeclasses can written with square brackets which tells lean to infer these automatically.
+Local instances of these typeclasses can written with square brackets which tells Lean to infer these automatically.
 
 We can now look at the version of continuity that is almost identical to that of mathlib: 
 
@@ -81,7 +84,45 @@ structure Continuous {X Y : Type*} [t : TopologicalSpace X]
 which enables us to write that \lstinline{f} is continuous in the context explained above as follows:
 
 \begin{lstlisting}
-Continuous f
+example (X Y : Type*) (t : TopologicalSpace X) (s : TopologicalSpace Y) 
+  (f : X → Y) : Continuous f := ⋯
 \end{lstlisting}
 
 When you define a class you can then define instances of that class to be inferred whenever you talk you talk about a type with that instance. 
+Mathlib defines the discrete topology on $\bZ$ as an instance: 
+
+\begin{lstlisting}
+instance : TopologicalSpace ℤ := ⊥
+\end{lstlisting}
+
+where \lstinline{⊥} is the smallest element in the order that can be defined on the topologies of a space, i.e. the finest topology which is the discrete topology. 
+That makes it so that for any map \lstinline{f : ℤ → ℤ} we can just write the following
+
+\begin{lstlisting}
+example (f : ℤ → ℤ) : Continuous f := ⋯
+\end{lstlisting} 
+
+and Lean automatically knows which topology we are talking about. 
+We can additionally say that an instance implies another instance. 
+If you have types \lstinline{X} and \lstinline{Y} which both have topologies defined on them this instance in mathlib gives you a topology on the product: 
+
+\begin{lstlisting}
+instance instTopologicalSpaceProd {X Y : Type*} [t₁ : TopologicalSpace X] 
+  [t₂ : TopologicalSpace Y] : TopologicalSpace (X × Y) := ⋯
+\end{lstlisting}
+
+which enables you to write the following
+
+\begin{lstlisting}
+example {X Y Z : Type*} [TopologicalSpace X] [TopologicalSpace Y]
+  [TopologicalSpace Z] (f : X × Y → Z) : Continuous f := ⋯
+\end{lstlisting}
+
+This also works across different typeclasses. 
+We can write 
+
+\begin{lstlisting}
+example {X : Type*} [MetricSpace X] (f : X → X) : Continuous f := ⋯
+\end{lstlisting}
+
+which works because Lean knows that a metric space is by definition a pseudometric space which is a uniform space which is by definition a topological space.
