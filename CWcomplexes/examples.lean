@@ -10,9 +10,9 @@ namespace CWComplex
 
 variable {X : Type*} [t : TopologicalSpace X] [T2Space X]
 
-instance instCWComplexempty_test : CWComplex (∅ : Set X) := CWComplexFinite (∅ : Set X)
+instance instCWComplexempty_test : CWComplex (∅ : Set X) := CWComplexFinite
   (cell := fun _ ↦ PEmpty)
-  (map := fun _ i ↦ (Aesop.BuiltinRules.pEmpty_false i).elim)
+  (map := fun _ i ↦ i.elim)
   (finitelevels := by rw [Filter.eventually_atTop]; use 0; exact fun _ _ ↦ instIsEmptyPEmpty)
   (finitecells := fun n ↦ Finite.of_fintype ((fun x ↦ PEmpty) n))
   (source_eq := fun _ _ ↦ by contradiction)
@@ -20,7 +20,7 @@ instance instCWComplexempty_test : CWComplex (∅ : Set X) := CWComplexFinite (�
   (cont_symm := fun _ _ ↦ by contradiction)
   (pairwiseDisjoint' := by rw [PairwiseDisjoint, Set.Pairwise]; intro ⟨_, _⟩; contradiction)
   (mapsto := fun _ _ ↦ by contradiction)
-  (by simp [iUnion_of_empty, iUnion_empty]) -- why can't I write `union' :=` here?
+  (union' := by simp [iUnion_of_empty, iUnion_empty]) -- why can't I write `union' :=` here?
 
 -- is this really the theorem that should be used?
 example (i : PEmpty) : False := by exact Aesop.BuiltinRules.pEmpty_false i

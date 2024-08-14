@@ -155,8 +155,7 @@ lemma frontierset_eq (m l: ℕ) (j : cell C m) (k : cell D l)
 -- See Hatcher p. 533
 instance CWComplex_product [KSpace (X × Y)] : CWComplex (C ×ˢ D) where
   cell n := prodcell C D n
-  map n i := match i with
-    | ⟨m, l, hmln, j, k⟩ => prodmap hmln j k
+  map n i := prodmap i.2.2.1 i.2.2.2.1 i.2.2.2.2
   source_eq n i := by
     rcases i with  ⟨m, l, hmln, j, k⟩
     ext x
@@ -206,6 +205,7 @@ instance CWComplex_product [KSpace (X × Y)] : CWComplex (C ×ˢ D) where
         (match j with| ⟨m_1, ⟨l, ⟨hmln, (j, k)⟩⟩⟩ => prodmap hmln j k) '' closedBall 0 1) by
       obtain ⟨⟨J1, hJ1⟩, J2, hJ2⟩ := this
       use fun m ↦ (J1 m) ∪ (J2 m)
+      --simp_rw [prodmap_image_closedBall]
       apply union_subset
       · apply hJ1.trans (iUnion_mono fun _ ↦ iUnion_mono fun _ ↦ iUnion_mono fun _ ↦ ?_ )
         intro x xmem

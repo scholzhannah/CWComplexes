@@ -285,11 +285,10 @@ lemma ContinuousOn.image_comp_continuous {α β γ : Type*} [TopologicalSpace α
 
 #check IsometryEquiv.trans
 
--- it seems that these lemmas also don't exist for Equiv.trans, PartialEquiv.trans, ...
--- why?
+-- these should not exists, take them out
 lemma Equiv.transPartialEquiv_image {α β γ : Type*} (e : α ≃ β) (f : PartialEquiv β γ) (s : Set α) :
     (e.transPartialEquiv f) '' s = f '' (e '' s) := by
-  aesop
+  simp [Set.image_image]
 
 lemma IsometryEquiv.trans_image {α β γ : Type*} [PseudoEMetricSpace α] [PseudoEMetricSpace β]
     [PseudoEMetricSpace γ] (h₁ : α ≃ᵢ β) (h₂ : β ≃ᵢ γ) (s : Set α) :
