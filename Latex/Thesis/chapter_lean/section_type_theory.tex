@@ -1,4 +1,5 @@
 \section{The type theory of Lean}
+\label{sec:typetheory}
 
 \emph{Type theory} was first proposed by \Citeauthor{Russell1908} in \citeyear{Russell1908} \cite{Russell1908} as a way to axiomatise mathematics and resolve the paradoxes (most famously Russell's paradox) that were discussed at the time. 
 While type theory has lost its relevance as a foundation of mathematics to set theory it has since been studied in both mathematics and computer science. 
@@ -32,5 +33,5 @@ We will now mainly discuss constructions that do not fulfil this criterium.
 A first example is the sum type of two types \lstinline{α} and \lstinline{β} written as \lstinline{α ⊕ β} which is the equivalent to a disjoint union of sets. 
 
 The next two examples explain why this type theory is a dependent type theory:
-If we have a type \lstinline{α} and for every \lstinline{a : α} a type \lstinline{β a} (i.e. \lstinline{β} is a function assigning a type to every \lstinline{a : α}) then we can construct the dependent function type written as \lstinline{(a : α) → β}. 
+If we have a type \lstinline{α} and for every \lstinline{a : α} a type \lstinline{β a} (i.e. \lstinline{β} is a function assigning a type to every \lstinline{a : α}) then we can construct the pi type or dependent function type written as \lstinline{(a : α) → β} or \lstinline{Π (a : α), β a}. 
 The dependent version of the cartesian product is called a sigma type and can be written as \lstinline{(a : α) × β a} or \lstinline{Σ a : α, β a} for \lstinline{α} and \lstinline{β} the same way as above.

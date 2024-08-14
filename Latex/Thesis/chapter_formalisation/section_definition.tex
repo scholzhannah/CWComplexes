@@ -1,0 +1,74 @@
+\section{Definition and basic properties of a CW-complex}
+
+The following is our definition of CW-complexes in Lean:
+
+\begin{lstlisting}
+class CWComplex.{u} {X : Type u} [TopologicalSpace X] (C : Set X) where
+  cell (n : ℕ) : Type u
+  map (n : ℕ) (i : cell n) : PartialEquiv (Fin n → ℝ) X
+  source_eq (n : ℕ) (i : cell n) : (map n i).source = closedBall 0 1
+  cont (n : ℕ) (i : cell n) : ContinuousOn (map n i) (closedBall 0 1)
+  cont_symm (n : ℕ) (i : cell n) : ContinuousOn (map n i).symm (map n i).target
+  pairwiseDisjoint' :
+    (univ : Set (Σ n, cell n)).PairwiseDisjoint (fun ni ↦ map ni.1 ni.2 '' ball 0 1)
+  mapsto (n : ℕ) (i : cell n) : ∃ I : Π m, Finset (cell m),
+    MapsTo (map n i) (sphere 0 1) (⋃ (m < n) (j ∈ I m), map m j '' closedBall 0 1)
+  closed' (A : Set X) (asubc : A ⊆ C) : IsClosed A ↔ ∀ n j, IsClosed (A ∩ map n j '' closedBall 0 1)
+  union' : ⋃ (n : ℕ) (j : cell n), map n j '' closedBall 0 1 = C
+\end{lstlisting}
+
+The \lstinline|.{u}| is a way to fix a universe level so that our definition of a CW-complex does not depend on a number of different universe levels: The one of \lstinline{X} and the one of \lstinline{cell n} for every $n \in \bN$.
+\lstinline{cell (n : ℕ)} represents the indexing set that we called $I_n$ in definition \ref{defi:CWComplex2}. \lstinline{map (n : ℕ) (i : cell n)} represent what we called $Q_i^n$ in that definition. 
+
+\lstinline{Fin n} is the set containing $n$ natural numbers starting at 0. 
+\lstinline{Fin n → ℝ} is one way to express $\bR^n$ in Lean. 
+\lstinline{PartialEquiv} is a structure defined in mathlib as follows: 
+
+\begin{lstlisting}
+structure PartialEquiv (α : Type*) (β : Type*) where
+  toFun : α → β
+  invFun : β → α
+  source : Set α
+  target : Set β
+  map_source' : ∀ ⦃x⦄, x ∈ source → toFun x ∈ target
+  map_target' : ∀ ⦃x⦄, x ∈ target → invFun x ∈ source
+  left_inv' : ∀ ⦃x⦄, x ∈ source → invFun (toFun x) = x
+  right_inv' : ∀ ⦃x⦄, x ∈ target → toFun (invFun x) = x
+\end{lstlisting}
+
+It bundles two maps and two sets that get mapped two each other by the respective maps. 
+Restricting the maps to these sets yields two maps that the inverse of each other. 
+We use this instead of a similar construction called \lstinline{Equiv} for bijections to avoid explicitly having to deal with restrictions. 
+The brackets \lstinline{⦃⦄} are similar to the curly brackets and are used here since \lstinline{x} can be inferred from the left sides of the implications.
+
+The property \lstinline{source_eq} specifies the source of the \lstinline{PartialEquiv}. 
+\lstinline{cont} and \lstinline{cont_symm} make the bijection into a homeomorphism giving us property (i) of definition \ref{defi:CWComplex2}.
+The property \lstinline{pairwiseDisjoint'} corresponds to property (ii) of definition \ref{defi:CWComplex2}. 
+We are adding the prime to its name because we will later see a lemma called \lstinline{pairwiseDisjoint} that we prefer to be used. 
+
+\lstinline{mapsto} is the equivalent of property (iii) of the definition of a CW-complex. 
+The \lstinline{Π} defines a dependent function type which we discussed in section \ref{sec:typetheory}.
+\lstinline{Finset α} is the type of all finite sets in a type \lstinline{α}. 
+It can be imagined as a set bundled with the information that it is finite (but note that the actual definitions of \lstinline{Finset α} and \lstinline{Set α} are quite different).
+\lstinline{MapsTo} is defined as
+\begin{lstlisting}
+def MapsTo (f : α → β) (s : Set α) (t : Set β) : Prop := 
+  ∀ ⦃x⦄, x ∈ s → f x ∈ t
+\end{lstlisting}
+
+and is relatively self-explanatory. 
+
+\lstinline{closed'} represents property (iv) of definition \ref{defi:CWComplex2} and \lstinline{union'} represents property (v). 
+
+\medskip
+
+There are a few things to note about this formalisation of the definition. 
+First of all it does not require $X$ to be a Hausdorff space. 
+This is done so that when you define a CW-complex you can choose to first define the structure in this way and later show that it is a Haussdorff space to apply lemmas about CW-complexes of which almost all will require that $X$ is Hausdorff. 
+Additionally we define what it means for a subspace $C$ of $X$ to be a CW-complex.
+This is useful firstly to be able to work with a nicer topology: 
+If you consider $S^1$ as a CW-complex and a subspace of $\bR$ you might find it easier to work with the topology on $\bR$ instead of the subspace topology. 
+Secondly constructions such as attaching cells or taking disjoint unions of CW-complexes might be easier to work with if you are already working in the same overarching type.
+This approach is inspired by \cite{Gonthier2013} where the authors notices that it was helpful to consider subsets of an ambient group as avoiding having to work with different group operations and similar issues. 
+
+One question that naturally arises is whether these changes to the definition preserve the notion of a CW-complex. 
