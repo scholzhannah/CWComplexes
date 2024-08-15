@@ -121,4 +121,52 @@ instance CWComplex_disjointUnion (disjoint : Disjoint C D) : CWComplex (C ∪ D)
     simp_rw [← union (C := C), ← union (C := D), ← iUnion_union_distrib, iUnion_sum]
     rfl
 
+example (P Q : ℕ → Prop) (h : ∀ n, P n ↔ Q n) : (∀ n, P n) ↔ (∀ n, Q n) := by
+  exact forall_congr' h
+
+-- it is a litlle bit weird that this now depends on the universe level,
+-- not sure this should be like this ...
+def CWComplex_of_Homeomorph.{u} {X Y : Type  u} [TopologicalSpace X] [TopologicalSpace Y]
+    (C : Set X) (D : Set Y) [CWComplex C] (f : X ≃ₜ Y) (imf : f '' C = D) :
+    CWComplex D where
+  cell := cell C
+  map n i := (map (C := C) n i).transEquiv f
+  source_eq n i := by simp [PartialEquiv.transEquiv, source_eq (C := C) n i]
+  cont n i := by simp [PartialEquiv.transEquiv_eq_trans, cont (C := C) n i]
+  cont_symm n i := by
+    simp only [PartialEquiv.transEquiv_eq_trans, PartialEquiv.trans_target,
+      Equiv.toPartialEquiv_symm_apply, ← image_equiv_eq_preimage_symm]
+    apply ContinuousOn.image_comp_continuous f.continuous_invFun
+    simp [Equiv.invFun_as_coe, Homeomorph.coe_symm_toEquiv, Set.image_image, cont_symm (C := C)]
+  pairwiseDisjoint' := by
+    have := pairwiseDisjoint' (C := C)
+    simp only [PairwiseDisjoint, Set.Pairwise, mem_univ, ne_eq, Function.onFun,
+      PartialEquiv.transEquiv_apply, EquivLike.coe_coe, ← image_image] at this ⊢
+    intro ⟨n, j⟩ _ ⟨m, i⟩ _ ne
+    exact disjoint_image_of_injective f.injective
+      (this (x := ⟨n, j⟩) trivial (y := ⟨m, i⟩) trivial ne)
+  mapsto n i := by
+    obtain ⟨I, hI⟩ := mapsto (C := C) n i
+    use I
+    rw [mapsTo'] at hI ⊢
+    simp only [PartialEquiv.transEquiv_apply, EquivLike.coe_coe, ← image_image, ←
+      image_iUnion (f := f)]
+    exact image_mono hI
+  closed' A AsubD := by
+    have preAsubC : f ⁻¹' A ⊆ C := by
+      simp only [← Homeomorph.image_symm, image_subset_iff, Homeomorph.symm_symm, imf, AsubD]
+    calc
+      IsClosed A
+      _ ↔ IsClosed (f ⁻¹' A) := f.isClosed_preimage.symm
+      _ ↔ ∀ n (j : cell C n), IsClosed ((f ⁻¹' A) ∩ map n j '' closedBall 0 1) := by
+        rw [closed' (C := C) (f ⁻¹' A) preAsubC]
+      _ ↔ ∀ n (j : cell C n),
+          IsClosed (A ∩ ↑((fun n i => (map n i).transEquiv ↑f) n j) '' closedBall 0 1) := by
+        apply forall_congr' fun n ↦ forall_congr' fun j ↦ ?_
+        simp only [PartialEquiv.transEquiv_apply, EquivLike.coe_coe, ← image_image]
+        nth_rw 2 [← f.image_preimage A]
+        simp only [← image_inter f.injective]
+        exact f.isClosed_image.symm
+  union' := by simp [← image_image, ← image_iUnion (f := f), union' (C := C), imf]
+
 end
