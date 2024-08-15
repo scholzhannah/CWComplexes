@@ -1,0 +1,21 @@
+\subsection{Image of a homeomorphism}
+
+Homeomorphism respect the CW-complex structure: 
+
+\begin{lem}
+    Let $X$ and $Y$ be topological spaces and $f \colon X \to Y$ a homeomorphism. 
+    If $X$ is a CW-complex with indexing sets $(I_n)_{n \in \bN}$ and characteristic maps $(Q_i^n)_{n \in \bN, i \in I_n}$ then $Y$ is a CW-complex with the same indexing sets and characteristic maps $(f \circ Q_i^n)_{n \in \bN, i \in I_n}$.
+\end{lem}
+\begin{proof}
+    Properties (ii), (iii), (v) of definition \ref{defi:CWComplex2} follow easily from the fact that $f$ is a bijection. 
+    Property (i) holds since we compose the characteristic maps with a homeomorphism. 
+    Let us lastly look at property (iv), i.e. the weak topology. 
+    We get: 
+    \begin{equation*}
+        \begin{split}
+            A \subseteq Y \text{ is closed} &\iff \preim{f}{A} \subseteq X \text {is closed} \\
+            &\iff Q_i^n(D_i^n) \cap \preim{f}{A} = \preim{f}{(f \circ Q_i^n)(D_i^n) \cap A} \subseteq X \text{ is closed} \\ 
+            &\iff (f \circ Q_i^n)(D_i^n) \cap A \subseteq Y \text{ is closed}.
+        \end{split}
+    \end{equation*}
+\end{proof}

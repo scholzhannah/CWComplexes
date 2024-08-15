@@ -69,6 +69,23 @@ Additionally we define what it means for a subspace $C$ of $X$ to be a CW-comple
 This is useful firstly to be able to work with a nicer topology: 
 If you consider $S^1$ as a CW-complex and a subspace of $\bR$ you might find it easier to work with the topology on $\bR$ instead of the subspace topology. 
 Secondly constructions such as attaching cells or taking disjoint unions of CW-complexes might be easier to work with if you are already working in the same overarching type.
-This approach is inspired by \cite{Gonthier2013} where the authors notices that it was helpful to consider subsets of an ambient group as avoiding having to work with different group operations and similar issues. 
+This approach is inspired by \cite{Gonthier2013} where the authors notices that it was helpful to consider subsets of an ambient group to avoid having to work with different group operations and similar issues. 
 
 One question that naturally arises is whether these changes to the definition preserve the notion of a CW-complex. 
+Firstly note that if we choose $X$ and $C$ to be the same we recover definition \ref{defi:CWComplex2} exactly. 
+If we choose $X$ and $C$ to be different we still guarantee that $C$ is a CW-complex: 
+
+\begin{lem}
+  Let $C$ be a CW-complex in a Hausdorff space $X$ as in the definition in the formalisation. 
+  Then $C$ is a CW-complex as in definition \ref{defi:CWComplex2}. 
+\end{lem}
+\begin{proof}
+  Properties (i), (ii), (iii) and (v) of definition \ref{defi:CWComplex2} are immediate. 
+  Thus let us look at property (iv). 
+  We assume that 
+  \[A \subseteq C \text{ is closed in } X \iff \closedCell{n}{i} \cap A \text{ is closed in } X \text{ for all } n \in \bN \text{ and } i \in I_n\]
+  and need to show that 
+  \[A \subseteq C \text{ is closed in } C \iff \closedCell{n}{i} \cap A \text{ is closed in } C \text{ for all } n \in \bN \text{ and } i \in I_n.\]
+  It is easy to see that the forward direction is true. 
+  For the backwards direction take $A \subseteq C$ such that $A \cap C$ is closed for all 
+\end{proof}
