@@ -7,8 +7,6 @@ noncomputable section
 
 open Metric Set
 
-variable {X : Type*} [t : TopologicalSpace X]
-
 /- Characterizing when a set is a CW-complex. See [Hatcher, Proposition A.2].
 Generally we will need `[T2Space X]`.
 Note that we are changing the definition a little bit: we are saying that a subspace `C` of `X` is a
@@ -29,7 +27,7 @@ class CWComplex.{u} {X : Type u} [TopologicalSpace X] (C : Set X) where
   union' : ⋃ (n : ℕ) (j : cell n), map n j '' closedBall 0 1 = C
 
 
-variable [T2Space X] {C : Set X} [CWComplex C]
+variable {X : Type*} [t : TopologicalSpace X] [T2Space X] {C : Set X} [CWComplex C]
 
 
 namespace CWComplex

@@ -151,6 +151,7 @@ lemma frontierset_eq (m l: ℕ) (j : cell C m) (k : cell D l)
         exists_exists_and_eq_and, amem]
 
 -- the next two proofs have two different versions of mapsto, which one is better?
+-- add lemma that Floris told me and use it (see fotos)
 
 -- See Hatcher p. 533
 instance CWComplex_product [KSpace (X × Y)] : CWComplex (C ×ˢ D) where
