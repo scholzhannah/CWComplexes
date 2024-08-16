@@ -1,1 +1,61 @@
 \subsection{Subcomplexes}
+
+With the assumptions for the rest of the section
+
+\begin{lstlisting}
+variable {X : Type*} [t : TopologicalSpace X] [T2Space X] {C : Set X} 
+  [CWComplex C]
+\end{lstlisting}
+
+this is our definition of a subcomplex:
+
+\begin{lstlisting}
+class Subcomplex (C : Set X) [CWComplex C] (E : Set X) where
+  I : Π n, Set (cell C n)
+  closed : IsClosed E
+  union : ⋃ (n : ℕ) (j : I n), openCell (C := C) n j = E
+\end{lstlisting}
+
+The \lstinline{(C := C)} is used to specify which CW-complex we are talking about. 
+We need to use this notation because we made \lstinline{C} and implicit variable in the definition of \lstinline{openCell}.
+
+We chose this to be a class again so that when you want to talk about the CW-structure of a subcomplex you don't need to explicitly mention the subcomplex structure and that every subcomplex is a CW-complex.
+
+But we still have one issue: 
+We would like the instance 
+
+\begin{lstlisting}
+instance doesnotcompile (E : Set X) [subcomplex : Subcomplex C E] : 
+  CWComplex E := ⋯ 
+\end{lstlisting}
+
+which unfortunately does not work as Lean has no way to infer \lstinline{C} from \lstinline{CWComplex E} and therefore does not know that it should be looking for the instance \lstinline{[subcomplex : Subcomplex C E]}. 
+
+To remedy this we can define some notation that includes the variable \lstinline{C}: 
+
+\begin{lstlisting}
+def Sub (E : Set X) (C : Set X) [CWComplex C] [Subcomplex C E] : Set X := E
+
+scoped infixr:35 " ⇂ "  => Sub
+\end{lstlisting}
+
+The first line defines a synonym for \lstinline{E} that in its context includes that \lstinline{E} is a subcomplex of the CW-complex \lstinline{C}. 
+The second line then defines the actual notation. 
+
+We can now use this to make the instance from above work: 
+
+\begin{lstlisting}
+instance CWComplex_subcomplex (E : Set X) [subcomplex : Subcomplex C E] : CWComplex (E ⇂ C) := ⋯
+\end{lstlisting}
+
+With that we can prove the lemmas from section \ref{sec:mathsubcomplex}. 
+Here are two examples.
+They correspond to statements \ref{lem:cellinfinitesubcomplex} and \ref{cor:compactinfinitesubcomplex}.
+
+\begin{lstlisting}
+lemma cell_mem_finite_subcomplex (n : ℕ) (i : cell C n) :
+    ∃ (E : Set X) (subE : Subcomplex C E), Finite (E ⇂ C) ∧ i ∈ subE.I n := ⋯
+
+lemma compact_subset_finite_subcomplex {B : Set X} (compact : IsCompact B) :
+  ∃ (E : Set X) (sub : Subcomplex C E), CWComplex.Finite (E ⇂ C) ∧ B ∩ C ⊆ E := ⋯
+\end{lstlisting}

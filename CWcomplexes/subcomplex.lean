@@ -25,7 +25,7 @@ def Subcomplex' (C : Set X) [CWComplex C] (E : Set X) (I : Π n, Set (cell C n))
   I := I
   closed := by
     have EsubC : E ⊆ C := by
-      simp_rw [← union, ← union_openCell]
+      simp_rw [← union, ← iUnion_openCell]
       exact iUnion_mono fun n ↦ iUnion_subset fun i ↦ by apply subset_iUnion_of_subset ↑i; rfl
     apply strong_induction_isClosed EsubC
     intro n _ j
@@ -56,7 +56,7 @@ def Subcomplex'' (C : Set X) [CWComplex C] (E : Set X) (I : Π n, Set (cell C n)
 namespace Subcomplex
 
 lemma subset_complex (E : Set X) [subcomplex : Subcomplex C E] : E ⊆ C := by
-  simp_rw [← subcomplex.union, ← union_openCell]
+  simp_rw [← subcomplex.union, ← iUnion_openCell]
   exact iUnion_mono fun n ↦ iUnion_subset fun i ↦ by apply subset_iUnion_of_subset ↑i; rfl
 
 lemma union_closedCell (E : Set X) [subcomplex : Subcomplex C E] :
@@ -70,11 +70,9 @@ lemma union_closedCell (E : Set X) [subcomplex : Subcomplex C E] :
     apply iUnion_mono fun n ↦ iUnion_mono fun (i : ↑(I E n)) ↦ ?_
     exact openCell_subset_closedCell (C := C) n i
 
--- I should probably revise this name and think of some smart notation
-def Complex (E : Set X) (C : Set X) [CWComplex C] [Subcomplex C E] : Set X := E
+def Sub (E : Set X) (C : Set X) [CWComplex C] [Subcomplex C E] : Set X := E
 
--- Is this good notation? Is this used somewhere else?
-scoped infixr:35 " ⇂ "  => Complex
+scoped infixr:35 " ⇂ "  => Sub
 
 /- See "Topologie" p. 120 by Klaus Jänich from 2001 -/
 instance CWComplex_subcomplex (E : Set X) [subcomplex : Subcomplex C E] : CWComplex (E ⇂ C) where
@@ -92,7 +90,7 @@ instance CWComplex_subcomplex (E : Set X) [subcomplex : Subcomplex C E] : CWComp
     aesop
   mapsto := by
     intro n i
-    rcases cellFrontier_subset' (C := C) n i with ⟨J, hJ⟩
+    rcases cellFrontier_subset_finite_openCell (C := C) n i with ⟨J, hJ⟩
     use fun m ↦ Finset.preimage (J m) (fun (x : subcomplex.I m) ↦ ↑x) (by simp [InjOn])
     rw [mapsTo']
     intro x xmem
@@ -130,7 +128,7 @@ instance CWComplex_subcomplex (E : Set X) [subcomplex : Subcomplex C E] : CWComp
       exact isClosed_empty
     rw [← subset_empty_iff]
     apply subset_trans (inter_subset_inter_left _ Asub)
-    simp_rw [Complex, ← subcomplex.union, subset_empty_iff, iUnion_inter]
+    simp_rw [Sub, ← subcomplex.union, subset_empty_iff, iUnion_inter]
     exact iUnion_eq_empty.2 fun m ↦ iUnion_eq_empty.2 fun i ↦ disjoint_openCell_of_ne (by aesop)
   union' := subcomplex.union_closedCell
 
@@ -295,7 +293,7 @@ lemma cell_mem_finite_subcomplex (n : ℕ) (i : cell C n) :
   induction' n using Nat.case_strong_induction_on with n hn
   · use (closedCell 0 i), (Subcomplex.cellzero _)
     exact ⟨finite_cellzero i, by rfl⟩
-  obtain ⟨I, hI⟩ := cellFrontier_subset n.succ i
+  obtain ⟨I, hI⟩ := cellFrontier_subset_finite_closedCell n.succ i
   choose sub cw hsub using hn
   let sub' := ⋃ (x : Σ (m : {m : ℕ // m ≤ n}), I m), sub x.1.1 x.1.2 ↑x.2.1
   let cw' : Subcomplex C sub' := subcomplex_iUnion_subcomplex _ _

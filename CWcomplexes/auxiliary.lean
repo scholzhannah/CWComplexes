@@ -94,19 +94,19 @@ lemma inter_eq_inter_iff_compl {X : Type*} {A B C : Set X} : A ∩ B = C ∩ B �
   constructor <;> (intro; simp_all [Set.ext_iff, not_iff_not])
 
 lemma open_in_iff_compl_closed_in {X : Type*} [TopologicalSpace X] (A B : Set X) :
-    (∃ (C: TopologicalSpace.Opens X), A ∩ B = C.1 ∩ B) ↔
-    ∃ (C: TopologicalSpace.Closeds X), Aᶜ ∩ B = C.1 ∩ B := by
+    (∃ (C : Set X), IsOpen C ∧  A ∩ B = C ∩ B) ↔
+    ∃ (C : Set X), IsClosed C ∧  Aᶜ ∩ B = C ∩ B := by
   constructor
-  · intro ⟨C, hC⟩
-    use ⟨Cᶜ, isClosed_compl_iff.2 C.2⟩
+  · intro ⟨C, openC, hC⟩
+    use Cᶜ
     rw [inter_eq_inter_iff_compl]
     simp_rw [compl_compl]
-    exact hC
-  · intro ⟨C, hC⟩
-    use ⟨Cᶜ, isOpen_compl_iff.2 C.2⟩
+    exact ⟨isClosed_compl_iff.2 openC, hC⟩
+  · intro ⟨C, closedC, hC⟩
+    use Cᶜ
     rw [inter_eq_inter_iff_compl]
     simp_rw [compl_compl]
-    exact hC
+    exact ⟨isOpen_compl_iff.2 closedC, hC⟩
 
 -- look up if this exists
 def PartialEquiv.const {X Y : Type*} (x : X) (y : Y) : PartialEquiv X Y where

@@ -4,50 +4,44 @@
 
 \lstdefinelanguage{lean} {
 
-% Anything betweeen $ becomes LaTeX math mode
+% Anything between $ becomes LaTeX math mode
 mathescape=false,
 % Comments may or not include Latex commands
 texcl=false,
 
 % keywords, list taken from lean-syntax.el
 morekeywords=[1]{
-import, prelude,
-open, as, renaming, replacing, hiding, exposing, export,
-namespace, section,
-parameter, parameters, variable, variables, universe, universes, include, omit,
-protected, private, noncomputable, meta, mutual, theory,
-definition, def, constant, constants, lemma, theorem, example, axiom, axioms,
-inductive, structure, class, extends,
-begin, end, match, calc, this, with, have, show, suffices, by, in, at, let, forall, Pi, fun,
-exists, if, dif, then, else, assume, from, to, do,
-using, using_well_founded,
-instance, attribute,
-precedence, infix, infixl, infixr, notation, postfix, prefix,
-reserve, local,
-set_option, run_command,
-alias, declare_trace, add_key_equivalence, aliases, register_simp_ext,
-help, print, eval, check},
+import, prelude, protected, private, noncomputable, definition, meta, renaming,
+hiding, parameter, parameters, begin, constant, constants,
+lemma, variable, variables, theory,
+print, theorem, example,
+open, as, export, override, axiom, axioms, inductive, with,
+structure, record, universe, universes,
+alias, help, precedence, reserve, declare_trace, add_key_equivalence,
+match, infix, infixl, infixr, notation, postfix, prefix, instance,
+eval, reduce, check, end, this,
+using, using_well_founded, namespace, section,
+attribute, local, set_option, extends, include, omit, class,
+raw, replacing,
+calc, have, show, suffices, by, in, at, let, forall, Pi, fun,
+exists, if, dif, then, else, assume, obtain, from, register_simp_ext, unless, break, continue,
+mutual, do, def, run_cmd, const,
+partial, mut, where, macro, syntax, deriving,
+return, try, catch, for, macro_rules, declare_syntax_cat, abbrev},
 
 % Sorts
-morekeywords=[2]{Sort, Type, Prop, Type*, Type₀, Type₁, Type₂, Type₃},
-
-% Errors
-morekeywords=[3]{sorry, admit},
+morekeywords=[2]{Sort, Type, Prop},
 
 % tactics, list taken from lean-syntax.el
-% morekeywords=[4]{
-% Cond, or_else, then, try, when, assumption, eassumption, rapply,
-% apply, fapply, eapply, rename, intro, intros, rintro, rintros, all_goals, fold, focus, focus_at,
-% generalize, generalizes, clear, clears, revert, reverts, back, beta, done, exact, rexact,
-% refine, repeat, whnf, rotate, rotate_left, rotate_right, inversion, cases, rcases, rewrite,
-% xrewrite, krewrite, blast, simp, esimp, simpa, unfold, change, check_expr, contradiction,
-% exfalso, split, existsi, constructor, fconstructor, left, right, injection, congruence, reflexivity,
-% symmetry, transitivity, state, induction, induction_using, fail, append,
-% substvars, now, with_options, with_attributes, with_attrs, note
-% norm_num, norm_cast, lift, library_search, suggest, abel, ring, linarith, omega, tidy, finish,
-% solve_by_elim, clarify, safe,
-% failed, infer_type, unify, return, local_context, target
-% },
+morekeywords=[3]{
+assumption,
+apply, intro, intros, allGoals,
+generalize, clear, revert, done, exact,
+refine, repeat, cases, rewrite, rw,
+simp, simp_all, contradiction,
+constructor, injection,
+induction,
+},
 
 % modifiers, taken from lean-syntax.el
 % note: 'otherkeywords' is needed because these use a different symbol.
@@ -57,10 +51,10 @@ morekeywords=[3]{sorry, admit},
 % [class], [parsing-only], [coercion], [unfold_full], [constructor],
 % [reducible], [irreducible], [semireducible], [quasireducible], [wf],
 % [whnf], [multiple_instances], [none], [decl], [declaration],
-% [relation], [symm], [subst], [refl], [trans], [simp], [simps], [congr], [unify],
+% [relation], [symm], [subst], [refl], [trans], [simp], [congr], [unify],
 % [backward], [forward], [no_pattern], [begin_end], [tactic], [abbreviation],
 % [reducible], [unfold], [alias], [eqv], [intro], [intro!], [elim], [grinder],
-% [localrefinfo], [recursor], @
+% [localrefinfo], [recursor]
 % },
 
 % Various symbols
@@ -240,6 +234,8 @@ literate=
 {⌈}{{\ensuremath{\lceil}}}1
 {⌉}{{\ensuremath{\rceil}}}1
 
+{⇂}{{\ensuremath{\downharpoonright}}}1
+
 {‹}{{\guilsinglleft}}1
 {›}{{\guilsinglright}}1
 
@@ -260,10 +256,11 @@ literate=
 {*}{{\color{symbolcolor}\ensuremath{{}^{*}}}}1
 {\#}{{\color{keywordcolor}\#}}1, % is usually part of a keyword, like #check
 
+
 % Comments
 %comment=[s][\itshape \color{commentcolor}]{/-}{-/},
-morecomment=[s]{/-}{-/},
-morecomment=[l]{--},
+morecomment=[s][\color{commentcolor}]{/-}{-/},
+morecomment=[l][\itshape \color{commentcolor}]{--},
 
 % Spaces are not displayed as a special character
 showstringspaces=false,
@@ -272,7 +269,8 @@ showstringspaces=false,
 keepspaces=true,
 
 % String delimiters
-morestring=[b]{"},
+morestring=[b]",
+morestring=[d],
 
 % Size of tabulations
 tabsize=3,
@@ -288,8 +286,8 @@ breaklines=true,
 breakatwhitespace=true,
 
 % Default style fors listingsred
-lineskip={-1.5pt},
-basicstyle={\ttfamily},
+basicstyle=\ttfamily\small,
+
 % Position of captions is bottom
 captionpos=b,
 
@@ -300,7 +298,7 @@ columns=[l]fullflexible,
 % Style for (listings') identifiers
 identifierstyle={\ttfamily\color{black}},
 % Note : highlighting of Coq identifiers is done through a new
-% delimiter definition through an lstset at the begining of the
+% delimiter definition through an lstset at the beginning of the
 % document. Don't know how to do better.
 
 % Style for declaration keywords
@@ -309,19 +307,16 @@ keywordstyle=[1]{\ttfamily\color{keywordcolor}},
 % Style for sorts
 keywordstyle=[2]{\ttfamily\color{sortcolor}},
 
-% Style for errors
-keywordstyle=[3]{\ttfamily\color{errorcolor}},
-
 % Style for tactics keywords
-% keywordstyle=[4]{\ttfamily\color{tacticcolor}},
+keywordstyle=[3]{\ttfamily\color{tacticcolor}},
 
 % Style for attributes
-% keywordstyle=[5]{\ttfamily\color{attributecolor}},
+keywordstyle=[4]{\ttfamily\color{attributecolor}},
 
 % Style for strings
-stringstyle={\ttfamily\color{stringcolor}},
+stringstyle=\ttfamily,
 
 % Style for comments
-commentstyle={\ttfamily\itshape\color{commentcolor}},
+commentstyle={\ttfamily\footnotesize },
 
 }
