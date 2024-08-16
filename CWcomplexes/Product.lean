@@ -217,7 +217,7 @@ instance CWComplex_product [KSpace (X × Y)] : CWComplex (C ×ˢ D) where
         simp_rw [mem_iUnion, Finset.mem_union] at xmem ⊢
         exact ⟨Or.intro_right _ xmem.1, xmem.2⟩
     constructor
-    · obtain ⟨J1, hJ1⟩ := cellFrontier_subset m j
+    · obtain ⟨J1, hJ1⟩ := cellFrontier_subset_finite_closedCell m j
       use fun n ↦ ((Finset.antidiagonal n).attach.biUnion fun ⟨(o, p), h⟩ ↦ if h' : p = l then
         (J1 o ×ˢ {k}).image fun (x, y) ↦ ⟨o, l, by rw [← h']; simpa using h, x, y⟩ else ∅)
       intro ⟨x1, x2⟩ ⟨x1mem, x2mem⟩
@@ -232,7 +232,7 @@ instance CWComplex_product [KSpace (X × Y)] : CWComplex (C ×ˢ D) where
       simp only [↓reduceDIte, Finset.mem_image, Finset.mem_map, Function.Embedding.coeFn_mk,
         exists_exists_and_eq_and]
       use i, imem
-    · obtain ⟨J2, hJ2⟩ := cellFrontier_subset l k
+    · obtain ⟨J2, hJ2⟩ := cellFrontier_subset_finite_closedCell l k
       use fun n ↦ ((Finset.antidiagonal n).attach.biUnion fun ⟨(o, p), h⟩ ↦ if h' : o = m then
         ({j} ×ˢ J2 p).image fun (x, y) ↦ ⟨m, p, by rw [← h']; simpa using h, x, y⟩ else ∅)
       intro ⟨x1, x2⟩ ⟨x1mem, x2mem⟩
@@ -255,10 +255,9 @@ instance CWComplex_product [KSpace (X × Y)] : CWComplex (C ×ˢ D) where
       exact isClosed_closedCell.prod isClosed_closedCell
     · intro hA
       rw [KSpace.closed_iff]
-      intro ⟨K, hK⟩
+      intro K hK
       suffices IsClosed (A ∩ K) by
-        use ⟨A ∩ K, this⟩
-        simp only [left_eq_inter, inter_subset_right]
+        exact ⟨A ∩ K, this, by simp only [left_eq_inter, inter_subset_right]⟩
       let K' := ((Prod.fst '' K) ∩ C) ×ˢ ((Prod.snd '' K) ∩ D)
       let E := ⋃ (x : Σ (m : ℕ),
         {j : cell C m // ¬ Disjoint (Prod.fst '' K) (openCell m j)}), closedCell (C := C) x.1 x.2
@@ -346,8 +345,8 @@ def CWComplex_product_kification : CWComplex (X := X ×ₖ Y) (C ×ˢ D) where
   mapsto n i := by
     classical
     rcases i with ⟨m, l, hmln, j, k⟩
-    obtain ⟨J1, hJ1⟩ := cellFrontier_subset m j
-    obtain ⟨J2, hJ2⟩ := cellFrontier_subset l k
+    obtain ⟨J1, hJ1⟩ := cellFrontier_subset_finite_closedCell m j
+    obtain ⟨J2, hJ2⟩ := cellFrontier_subset_finite_closedCell l k
     use frontierset m l j k J1 hJ1 J2 hJ2
     rw [mapsTo']
     intro ⟨x1, x2⟩ xmem
@@ -393,10 +392,9 @@ def CWComplex_product_kification : CWComplex (X := X ×ₖ Y) (C ×ˢ D) where
       exact (isClosed_closedCell.prod isClosed_closedCell).mono kification_le
     · intro hA
       rw [KSpace.closed_iff]
-      intro ⟨K, hK⟩
+      intro K hK
       suffices IsClosed (A ∩ K) by
-        use ⟨A ∩ K, this⟩
-        simp only [left_eq_inter, inter_subset_right]
+        exact ⟨A ∩ K, this, by simp only [left_eq_inter, inter_subset_right]⟩
       let K' := ((Prod.fst '' K) ∩ C) ×ˢ ((Prod.snd '' K) ∩ D)
       let E := ⋃ (x : Σ (m : ℕ),
         {j : cell C m // ¬ Disjoint (Prod.fst '' K) (openCell m j)}), closedCell (C := C) x.1 x.2
