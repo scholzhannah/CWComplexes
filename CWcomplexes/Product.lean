@@ -17,21 +17,8 @@ section
 variable {X : Type*} {Y : Type*} [t1 : TopologicalSpace X] [t2 : TopologicalSpace Y] [T2Space X]
   [T2Space Y] {C : Set X} {D : Set Y} [CWComplex C] [CWComplex D]
 
-def Prodkification X Y := kification (X × Y)
-
-infixr:35 " ×ₖ "  => Prodkification
-
-instance instprodkification : TopologicalSpace (X ×ₖ Y) := instkification
-
--- this is problematic...
-instance KSpaceinstprodkification : KSpace (X ×ₖ Y) := kspace_kification
-
-instance T2Spaceprodkification : T2Space (X ×ₖ Y) := t2space_kification_of_t2space
-
 def prodcell (C : Set X) (D : Set Y) [CWComplex C] [CWComplex D] (n : ℕ) :=
   (Σ' (m : ℕ) (l : ℕ) (hml : m + l = n), cell C m × cell D l)
-
-example (n m l : ℕ) (hmnl : m + l = n) : Fin n ≃ Fin (m + l) := finCongr hmnl.symm
 
 def prodisometryequiv {n m l : ℕ}  (hmln : m + l = n) (j : cell C m) (k : cell D l) :=
   (IsometryEquiv.arrowCongrleft ℝ (finCongr hmln.symm)).trans
@@ -298,7 +285,7 @@ instance CWComplex_product [KSpace (X × Y)] : CWComplex (C ×ˢ D) where
       use (m + l), ⟨m, l, rfl, i, j⟩
 
 -- See Hatcher p. 533
-def CWComplex_product_kification : CWComplex (X := X ×ₖ Y) (C ×ˢ D) where
+def CWComplex_product_kification : CWComplex (X := kification (X × Y)) (C ×ˢ D) where
   cell n := prodcell C D n
   map n i := match i with
     | ⟨m, l, hmln, j, k⟩ => prodmap hmln j k

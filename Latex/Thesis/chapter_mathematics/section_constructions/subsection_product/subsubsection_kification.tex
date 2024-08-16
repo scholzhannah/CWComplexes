@@ -1,4 +1,4 @@
-\subsubsection{K-spaces and the k-ification}
+\subsubsection{K-spaces and the k-ification}\label{sec:kspace}
 
 Before we can move on to discuss the product of CW-complexes we need to discuss its topology.
 Therefore we will now study k-spaces and the k-ification.
@@ -79,7 +79,7 @@ To show that the k-ification actually fulfils its purpose of turning any space i
 
 Now we are ready to move on to the promised lemma:
 
-\begin{lem}
+\begin{lem}\label{lem:kificationiskspace}
     $X_c$ is a k-space for every topological space $X$.
 \end{lem}
 \begin{proof}
@@ -141,7 +141,7 @@ The next lemma is the first step towards the answer:
 
 Now this helps us get the following lemma:
 
-\begin{lem}
+\begin{lem}\label{lem:continuousofcontinuousoncompact}
     Let $f \colon X \to Y$ be a map of topological spaces such that for every compact $C \subseteq X$ the restriction $\restrict{f}{C} \colon C \to Y$ is continuous.
     Then $f \colon X_c \to Y_c$ is continuous.
 \end{lem}
@@ -181,7 +181,7 @@ The first example are weakly locally compact spaces.
 This property is in some sources just called locally compact.
 The following proof is from Lemma 46.3 in \cite{Munkres2014}.
 
-\begin{lem}
+\begin{lem} \label{lem:weaklylocallycompactiskspace}
     Weakly locally compact spaces are k-spaces.
 \end{lem}
 \begin{proof}
@@ -223,7 +223,7 @@ We will need the following characterisation of sequentially closed sets:
 
 The following proof is based on \cite{Scott2016} and Lemma 46.3 in \cite{Munkres2014}. 
 
-\begin{lem}
+\begin{lem} \label{lem:sequentialiskspace}
     Sequential Spaces are k-spaces.
 \end{lem}
 \begin{proof}

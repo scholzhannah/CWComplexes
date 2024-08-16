@@ -228,7 +228,7 @@ lemma continuous_kification_of_continuous {X Y : Type*} [tX : TopologicalSpace X
   exact cont.continuousOn
 
 -- proof from Munkres, James Raymond. Topology. 2. ed., Pearson new internat. ed. Harlow: Pearson, 2014. Print. Lemma 46.3
-instance kspace_kification_of_WeaklyLocallyCompactSpace {X : Type*} [TopologicalSpace X]
+instance kspace_of_WeaklyLocallyCompactSpace {X : Type*} [TopologicalSpace X]
     [WeaklyLocallyCompactSpace X] : KSpace X where
   isOpen_iff := by
     intro A

@@ -1,0 +1,109 @@
+\subsection{Product of CW-complexes}
+
+Let us lastly take a look at the product. 
+
+We define k-spaces as follows: 
+
+\begin{lstlisting}
+class KSpace  (X : Type*) [TopologicalSpace X] where
+  isOpen_iff A : IsOpen A ↔
+  ∀ (B : Set X), IsCompact B → ∃ (C : Set X), IsOpen C ∧ A ∩ B = C ∩ B
+\end{lstlisting}
+
+When defining the k-ification we need to be a little careful. 
+We want it to be an instance derived from another instance defined on the same type. 
+To tell the system what instance we are referring to we define a type synonym and then the k-ification: 
+
+\begin{lstlisting}
+def kification (X : Type*) := X
+
+instance instkification {X : Type*} [t : TopologicalSpace X] : TopologicalSpace (kification X) := ⋯
+\end{lstlisting}
+
+Sometimes it is convenient to use maps that go to or from the k-ification, we define them as bijections:
+
+\begin{lstlisting}
+def tokification (X : Type*) : X ≃ kification X :=
+  ⟨fun x ↦ x, fun x ↦ x, fun _ ↦ rfl, fun _ ↦ rfl⟩
+  
+def fromkification (X : Type*) : kification X ≃ X :=
+  ⟨fun x ↦ x, fun x ↦ x, fun _ ↦ rfl, fun _ ↦ rfl⟩
+\end{lstlisting}
+
+Here are the statements of some of the lemmas in section \ref{sec:kspace}. 
+They correspond to the statements \ref{lem:compactiffcompact}, \ref{lem:kificationiskspace}, \ref{lem:continuousofcontinuousoncompact}, \ref{lem:weaklylocallycompactiskspace} and \ref{lem:sequentialiskspace}.
+
+\begin{lstlisting}
+lemma isCompact_iff_isCompact_tokification_image {X : Type*} [TopologicalSpace X] (C : Set X) :
+  IsCompact C ↔ IsCompact (tokification X '' C) := ⋯
+
+instance kspace_kification {X : Type*} [TopologicalSpace X] : 
+  KSpace (kification X) := ⋯
+
+lemma continuous_kification_of_continuousOn_compact {X Y : Type*} 
+    [tX : TopologicalSpace X] [tY : TopologicalSpace Y] (f : X → Y) 
+    (conton : ∀ (C : Set X), IsCompact C → ContinuousOn f C) :
+  Continuous (X := kification X) (Y := kification Y) f := ⋯
+
+instance kspace_of_WeaklyLocallyCompactSpace {X : Type*}[TopologicalSpace X]
+    [WeaklyLocallyCompactSpace X] : 
+  KSpace X := ⋯
+
+instance kspace_of_SequentialSpace {X : Type*} [TopologicalSpace X] [SequentialSpace X]: KSpace X := ⋯
+\end{lstlisting}
+
+With that we can move on to the product. 
+The assumptions for the rest of the section are:
+
+\begin{lstlisting}
+variable {X : Type*} {Y : Type*} [t1 : TopologicalSpace X] 
+  [t2 : TopologicalSpace Y] [T2Space X] [T2Space Y] {C : Set X} {D : Set Y} 
+  [CWComplex C] [CWComplex D]
+\end{lstlisting}
+
+Since the proof of theorem \ref{thm:productcw} is both long and technical it is useful to separate out some definitions and lemmas. 
+
+We first define the indexing sets in the product:
+
+\begin{lstlisting}
+def prodcell (C : Set X) (D : Set Y) [CWComplex C] [CWComplex D] (n : ℕ) :=
+    (Σ' (m : ℕ) (l : ℕ) (hml : m + l = n), cell C m × cell D l)
+\end{lstlisting}
+
+where the \lstinline{Σ'} is a sigma type that allows you to add properties in this case \lstinline{hml}. 
+
+When discussing the product in section \ref{sec:constructproduct} we always identified $\bR^{m + n}$ and $\bR^m \times \bR^n$. 
+When formalising we need to make that identification explicit: 
+
+\begin{lstlisting}
+def prodisometryequiv {n m l : ℕ}  (hmln : m + l = n) (j : cell C m) (k : cell D l) : (Fin n → ℝ) ≃ᵢ (Fin m → ℝ) × (Fin l → ℝ) := ⋯
+\end{lstlisting}
+
+where \lstinline{≃ᵢ} is a symbol used to denote a bijective isometry. 
+Using this map we can define the characteristic maps of the product: 
+
+\begin{lstlisting}
+def prodmap {n m l : ℕ} (hmln : m + l = n) (j : cell C m) (k : cell D l) : PartialEquiv (Fin n → ℝ) (X × Y) := ⋯
+\end{lstlisting}
+
+After some lemmas about these maps such as for example 
+
+\begin{lstlisting}
+lemma prodmap_image_sphere {n m l : ℕ} {hmln : m + l = n} {j : cell C m} {k : cell D l} :
+    prodmap hmln j k '' sphere 0 1 = (cellFrontier m j) ×ˢ (closedCell l k) ∪
+    (closedCell m j) ×ˢ (cellFrontier l k) := ⋯
+\end{lstlisting}
+
+we can move on to defining the product: 
+
+\begin{lstlisting}
+instance CWComplex_product_kification : CWComplex (X := kification (X × Y)) 
+  (C ×ˢ D) := ⋯
+\end{lstlisting}
+
+where \lstinline{×ˢ} is the product of sets.
+Finally we define a version of this instance for when the product is already a k-space as to not unnecessarily apply the k-ification: 
+
+\begin{lstlisting}
+instance CWComplex_product [KSpace (X × Y)] : CWComplex (C ×ˢ D) := ⋯
+\end{lstlisting}
