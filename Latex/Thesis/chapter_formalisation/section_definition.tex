@@ -1,4 +1,4 @@
-\section{Definition}
+\section{Definition and basic properties of a CW-complex}
 
 The following is our definition of CW-complexes in Lean:
 
@@ -36,8 +36,8 @@ structure PartialEquiv (α : Type*) (β : Type*) where
   right_inv' : ∀ ⦃x⦄, x ∈ target → toFun (invFun x) = x
 \end{lstlisting}
 
-It bundles two maps and two sets that get mapped two each other by the respective maps. 
-Restricting the maps to these sets yields two maps that the inverse of each other. 
+It bundles two maps and two sets that get mapped to each other by the respective maps. 
+Restricting the maps to these sets yields two maps that are the inverse of each other. 
 We use this instead of a similar construction called \lstinline{Equiv} for bijections to avoid explicitly having to deal with restrictions. 
 The brackets \lstinline{⦃⦄} are similar to the curly brackets and are used here since \lstinline{x} can be inferred from the left sides of the implications.
 
@@ -45,6 +45,7 @@ The property \lstinline{source_eq} specifies the source of the \lstinline{Partia
 \lstinline{cont} and \lstinline{cont_symm} make the bijection into a homeomorphism giving us property (i) of definition \ref{defi:CWComplex2}.
 The property \lstinline{pairwiseDisjoint'} corresponds to property (ii) of definition \ref{defi:CWComplex2}. 
 We are adding the prime to its name because we will later see a lemma called \lstinline{pairwiseDisjoint} that we prefer to be used. 
+\lstinline{fun a : α ↦ f a} for \lstinline{f : α → β} is a way to construct a map.
 
 \lstinline{mapsto} is the equivalent of property (iii) of the definition of a CW-complex. 
 The \lstinline{Π} defines a dependent function type which we discussed in section \ref{sec:typetheory}.
@@ -67,11 +68,12 @@ We have chosen this to be a class so that we can make use of typeclass inference
 There are a few things to note about this formalisation of the definition. 
 First of all it does not require $X$ to be a Hausdorff space. 
 This is done so that when you define a CW-complex you can choose to first define the structure in this way and later show that it is a Haussdorff space to apply lemmas about CW-complexes of which almost all will require that $X$ is Hausdorff. 
-Additionally we define what it means for a subspace $C$ of $X$ to be a CW-complex.
+Additionally we introduce a relative component: 
+Instead of defining what it means for a space to be a CW-complex we define what it means for a subspace $C$ of $X$ to be a CW-complex in $X$.
 This is useful firstly to be able to work with a nicer topology: 
 If you consider $S^1$ as a CW-complex and a subspace of $\bR$ you might find it easier to work with the topology on $\bR$ instead of the subspace topology. 
 Secondly constructions such as attaching cells or taking disjoint unions of CW-complexes might be easier to work with if you are already working in the same overarching type.
-This approach is inspired by \cite{Gonthier2013} where the authors notices that it was helpful to consider subsets of an ambient group to avoid having to work with different group operations and similar issues. 
+This approach is inspired by \cite{Gonthier2013} where the authors notice that it is helpful to consider subsets of an ambient group to avoid having to work with different group operations and similar issues. 
 
 One question that naturally arises is whether these changes to the definition preserve the notion of a CW-complex. 
 Firstly note that if we choose $X$ and $C$ to be the same we recover definition \ref{defi:CWComplex2} exactly. 
@@ -108,7 +110,7 @@ This indeed excludes some CW-complexes:
   Take an arbitrary convergent $(a_n)_{n \in \bN} \subseteq A$. 
   We call the limit point $a$.
   Then there exists a $z \in \bZ$ such that $a \in (z, z + 2)$. 
-  Thus there is a subsequence $(a'_n)_{n \in \bN} \subseteq A \cap [z, z + 2]$ which obviously also converges to $A$. 
+  Thus there is a subsequence $(a'_n)_{n \in \bN} \subseteq A \cap [z, z + 2]$ which obviously also converges to $a$. 
   But by assumption $A \cap [z, z + 2] = (A \cap [z, z + 1]) = (A \cap [z + 1, z + 2])$ is closed and therefore sequentially closed which gives us that $a \in A \cap [z, z + 2] \subseteq A$.
 \end{proof}
 
@@ -196,7 +198,7 @@ def level (C : Set X) [CWComplex C] (n : ℕ∞) : Set X :=
 \end{lstlisting}
 
 Note that we are choosing \lstinline{n} in \lstinline{ℕ∞} which is the type of natural numbers extended by infinity which can be written as \lstinline{⊤}. 
-Since \lstinline{level} is defined in terms of \lstinline{levelaux} it is often trivial tu derive a lemma about \lstinline{level} from the corresponding lemma about \lstinline{levelaux}. 
+Since \lstinline{level} is defined in terms of \lstinline{levelaux} it is often trivial to derive a lemma about \lstinline{level} from the corresponding lemma about \lstinline{levelaux}. 
 
 We can also define what it means for a CW-complex to be finite dimensional, of finite type, or finite: 
 
@@ -216,3 +218,25 @@ Property \lstinline{finitelevels} is stated in terms of a \emph{filter} which is
 They are often used to describe convergence in a topological way. 
 As they will not be important to this thesis we will not go into details but information on filters can be found in \cite{Bourbaki1966}. 
 The property \lstinline{finitelevels} is equivalent to \lstinline{∃ a, ∀ (b : ℕ), a ≤ b → IsEmpty (cell C b)}. 
+
+To finish of this section here are the statements of some of the main results of section \ref{sec:mathsdef}.
+They correspond to the results \ref{lem:skeletonunionopenCell}, \ref{lem:Frontiersubsetopen}, \ref{lem:discretelevel0}, \ref{lem:compactintersectsonlyfinite} and \ref{lem:finiteiffcompact}.
+
+\begin{lstlisting}
+lemma iUnion_openCell_eq_level (n : ℕ∞) :
+  ⋃ (m : ℕ) (_ : m < n + 1) (j : cell C m), openCell m j = level C n := ⋯
+
+lemma cellFrontier_subset_finite_openCell (n : ℕ) (i : cell C n) : 
+    ∃ I : Π m, Finset (cell C m), cellFrontier n i ⊆ 
+    (⋃ (m < n) (j ∈ I m), openCell m j) := ⋯
+
+lemma isDiscrete_level_zero {A : Set X} : IsClosed (A ∩ level C 0) := ⋯
+
+lemma compact_inter_finite (A : Set X) (compact : IsCompact A) :
+  _root_.Finite 
+  (Σ (m : ℕ), {j : cell C m // ¬ Disjoint A (openCell m j)}) := ⋯
+
+lemma compact_iff_finite : IsCompact C ↔ Finite C := ⋯
+\end{lstlisting}
+
+Where \lstinline|{a : α // P a}| is the subtype of \lstinline{α} of all \lstinline{a : α} such that \lstinline{P a} for \lstinline{P : α → Prop}.

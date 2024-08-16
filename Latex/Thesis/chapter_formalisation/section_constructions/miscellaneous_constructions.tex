@@ -1,0 +1,26 @@
+\subsection{Miscellaneous constructions}
+
+Formalising the CW-complex structure on the $n$-skeleton, the disjoint union and the image of CW-complex under a homeomorphism is relatively straightforward. 
+In the first two we take advantage of the relative approach of looking at subspaces as CW-complexes as this helps us avoid having to deal with the subspace and disjoint topology. 
+
+The following code snippet includes the statements and assumptions:
+
+\begin{lstlisting}
+def CWComplex_of_Homeomorph.{u} {X Y : Type  u} [TopologicalSpace X] [TopologicalSpace Y] (C : Set X) (D : Set Y) [CWComplex C] 
+    (f : X ≃ₜ Y) (imf : f '' C = D) : CWComplex D := ⋯
+
+variable {X : Type*} [t : TopologicalSpace X] [T2Space X] (C : Set X) [CWComplex C]
+
+instance CWComplex_level (n : ℕ∞) : CWComplex (level C n) := ⋯
+
+variable {D : Set X} [CWComplex D] 
+
+def CWComplex_disjointUnion (disjoint : Disjoint C D) : 
+    CWComplex (C ∪ D) := ⋯
+\end{lstlisting}
+
+Where \lstinline{f : X ≃ₜ Y} is the statement that \lstinline{f} is a homeomorphism. 
+Note that the first und last constructions are not instances.
+This is because the typeclass inference has no way to know that it should look for the hypotheses \lstinline{(f : X ≃ₜ Y) (imf : f '' C = D)} and \lstinline{(disjoint : Disjoint C D)} as this information is not contained in the statement. 
+So labeling these as instances would not be helpful. 
+But in \lstinline{CWComplex_level} all the necessary information is contained in the statement \lstinline{CWComplex (level C n)}, which means that this will work as an instance.

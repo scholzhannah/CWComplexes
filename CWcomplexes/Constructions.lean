@@ -25,7 +25,7 @@ instance CWComplex_levelaux (n : ℕ∞) : CWComplex (levelaux C n) where
     exact disjoint_openCell_of_ne (by aesop)
   mapsto := by
     intro l ⟨i, lltn⟩
-    obtain ⟨I, hI⟩ := cellFrontier_subset (C := C) l i
+    obtain ⟨I, hI⟩ := cellFrontier_subset_finite_closedCell (C := C) l i
     use fun (m : ℕ) ↦ (I m).subtype (fun j ↦ m < n)
     simp_rw [mapsTo', iUnion_subtype]
     apply subset_trans hI (iUnion_mono fun m ↦ iUnion_mono fun mltl ↦ iUnion_mono fun j ↦ ?_ )
@@ -57,7 +57,7 @@ instance CWComplex_level (n : ℕ∞) : CWComplex (level C n) := CWComplex_level
 
 variable {D : Set X} [CWComplex D]
 
-instance CWComplex_disjointUnion (disjoint : Disjoint C D) : CWComplex (C ∪ D) where
+def CWComplex_disjointUnion (disjoint : Disjoint C D) : CWComplex (C ∪ D) where
   cell n := Sum (cell C n) (cell D n)
   map n := Sum.elim (map (C := C) n) (map (C := D) n)
   source_eq n i := match i with
@@ -84,13 +84,13 @@ instance CWComplex_disjointUnion (disjoint : Disjoint C D) : CWComplex (C ∪ D)
   mapsto n i := by
     classical
     rcases i with ic | id
-    · obtain ⟨I, hI⟩ := cellFrontier_subset n ic
+    · obtain ⟨I, hI⟩ := cellFrontier_subset_finite_closedCell n ic
       use fun m ↦ (I m).image Sum.inl
       rw [mapsTo']
       apply hI.trans
       simp only [Finset.mem_image, iUnion_exists, biUnion_and', iUnion_iUnion_eq_right]
       rfl
-    · obtain ⟨I, hI⟩ := cellFrontier_subset n id
+    · obtain ⟨I, hI⟩ := cellFrontier_subset_finite_closedCell n id
       use fun m ↦ (I m).image Sum.inr
       rw [mapsTo']
       apply hI.trans
@@ -123,6 +123,8 @@ instance CWComplex_disjointUnion (disjoint : Disjoint C D) : CWComplex (C ∪ D)
 
 example (P Q : ℕ → Prop) (h : ∀ n, P n ↔ Q n) : (∀ n, P n) ↔ (∀ n, Q n) := by
   exact forall_congr' h
+
+end
 
 -- it is a litlle bit weird that this now depends on the universe level,
 -- not sure this should be like this ...
@@ -168,5 +170,3 @@ def CWComplex_of_Homeomorph.{u} {X Y : Type  u} [TopologicalSpace X] [Topologica
         simp only [← image_inter f.injective]
         exact f.isClosed_image.symm
   union' := by simp [← image_image, ← image_iUnion (f := f), union' (C := C), imf]
-
-end

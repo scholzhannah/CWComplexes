@@ -47,7 +47,7 @@ lemma disjoint_openCell_of_ne {n m : ℕ} {i : cell C n} {j : cell C m}
   simp only [PairwiseDisjoint, Set.Pairwise, Function.onFun, disjoint_iff_inter_eq_empty] at this
   exact this (mem_univ _) (mem_univ _) ne
 
-lemma cellFrontier_subset (n : ℕ) (i : cell C n) : ∃ I : Π m, Finset (cell C m),
+lemma cellFrontier_subset_finite_closedCell (n : ℕ) (i : cell C n) : ∃ I : Π m, Finset (cell C m),
     cellFrontier n i ⊆ (⋃ (m < n) (j ∈ I m), closedCell m j) := by
   rcases mapsto n i with ⟨I, hI⟩
   use I
@@ -230,7 +230,7 @@ lemma openCell_subset_complex (n : ℕ) (j : cell C n) : openCell n j ⊆ C := b
 
 lemma cellFrontier_subset_levelaux (n : ℕ) (j : cell C n) :
     cellFrontier n j ⊆  levelaux C n := by
-  obtain ⟨I, hI⟩ := cellFrontier_subset n j
+  obtain ⟨I, hI⟩ := cellFrontier_subset_finite_closedCell n j
   refine subset_trans hI (fun x xmem ↦ ?_)
   simp only [mem_iUnion, levelaux, exists_prop] at xmem ⊢
   obtain ⟨i, iltn, j, _, xmem⟩ := xmem
@@ -339,7 +339,7 @@ lemma iUnion_openCell_eq_levelaux (n : ℕ∞) :
       _ = ⋃ m, ⋃ (j : cell C m), closedCell m j := biUnion_lt_eq_iUnion _
       _ = levelaux C ⊤ := by rw [levelaux_top, union]
 
-lemma union_openCell : ⋃ (n : ℕ) (j : cell C n), openCell n j = C := by
+lemma iUnion_openCell : ⋃ (n : ℕ) (j : cell C n), openCell n j = C := by
   simp only [← levelaux_top, ← iUnion_openCell_eq_levelaux, ENat.coe_lt_top, iUnion_true]
 
 lemma eq_cell_of_not_disjoint {n : ℕ} {j : cell C n} {m : ℕ} {i : cell C m}
@@ -400,7 +400,7 @@ lemma level_inter_openCell_eq_empty {n : ℕ∞} {m : ℕ} {j : cell C m}  (nltm
 lemma isClosed_inter_cellFrontier_succ_of_le_isClosed_inter_closedCell {A : Set X} {n : ℕ}
     (hn : ∀ m ≤ n, ∀ (j : cell C m), IsClosed (A ∩ closedCell m j)) (j : cell C (n + 1)) :
     IsClosed (A ∩ cellFrontier (n + 1) j) := by
-  obtain ⟨I, hI⟩ := cellFrontier_subset (n + 1) j
+  obtain ⟨I, hI⟩ := cellFrontier_subset_finite_closedCell (n + 1) j
   rw [← inter_eq_right.2 hI, ← inter_assoc]
   refine IsClosed.inter ?_ isClosed_cellFrontier
   simp_rw [inter_iUnion, ← iUnion_subtype (fun m ↦ m < n + 1) (fun m ↦ ⋃ i ∈ I m, A ∩ closedCell m i)]
@@ -426,12 +426,12 @@ lemma strong_induction_isClosed {A : Set X} (asub : A ⊆ C)
     exact step2
 
 -- maybe I should write a lemma about reducing a finite union to the case of only one of the elements
-lemma cellFrontier_subset' (n : ℕ) (i : cell C n) : ∃ I : Π m, Finset (cell C m),
+lemma cellFrontier_subset_finite_openCell (n : ℕ) (i : cell C n) : ∃ I : Π m, Finset (cell C m),
     cellFrontier n i ⊆  (⋃ (m < n) (j ∈ I m), openCell m j) := by
   induction' n using Nat.case_strong_induction_on with n hn
   · simp [cellFrontier_zero_eq_empty]
   · classical
-    rcases cellFrontier_subset (Nat.succ n) i with ⟨J, hJ⟩
+    rcases cellFrontier_subset_finite_closedCell (Nat.succ n) i with ⟨J, hJ⟩
     choose p hp using hn
     let I'' m := J m ∪ (Finset.biUnion (Finset.range n.succ)
       (fun l ↦ Finset.biUnion (J l) (fun y ↦ if h : l ≤ n then p l h y m else ∅)))

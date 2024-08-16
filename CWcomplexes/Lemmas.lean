@@ -219,7 +219,7 @@ lemma subset_not_disjoint (A : Set X) : A ∩ C ⊆ ⋃ (x : Σ (m : ℕ),
     {j : cell C m // ¬ Disjoint A (openCell m j)}), closedCell (C := C) x.1 x.2 := by
   intro x ⟨xmem1, xmem2⟩
   simp only [mem_iUnion]
-  simp only [← union_openCell, mem_iUnion] at xmem2
+  simp only [← iUnion_openCell, mem_iUnion] at xmem2
   rcases xmem2 with ⟨m, j, hmj⟩
   use ⟨m, j, not_disjoint_iff.2 ⟨x, xmem1, hmj⟩⟩
   exact openCell_subset_closedCell _ _ hmj
@@ -228,7 +228,7 @@ lemma subset_not_disjoint' (A : Set X) : A ∩ C ⊆ ⋃ (x : Σ (m : ℕ),
     {j : cell C m // ¬ Disjoint A (openCell m j)}), openCell (C := C) x.1 x.2 := by
   intro x ⟨xmem1, xmem2⟩
   simp only [mem_iUnion]
-  simp only [← union_openCell, mem_iUnion] at xmem2
+  simp only [← iUnion_openCell, mem_iUnion] at xmem2
   rcases xmem2 with ⟨m, j, hmj⟩
   use ⟨m, j, not_disjoint_iff.2 ⟨x, xmem1, hmj⟩⟩
 
@@ -268,7 +268,7 @@ lemma iUnion_cells_inter_compact (A : Set X) (compact : IsCompact A) (I : (n : �
         (⋃ n, ⋃ (i : I n), openCell (C := C) n i) ∩ C ∩ A := by
       congr
       symm
-      simp_rw [Set.inter_eq_left, ← union_openCell]
+      simp_rw [Set.inter_eq_left, ← iUnion_openCell]
       apply Set.iUnion_mono''
       intro n x
       rw [mem_iUnion, mem_iUnion]
@@ -304,7 +304,7 @@ lemma iUnion_cells_inter_compact (A : Set X) (compact : IsCompact A) (I : (n : �
         openCell (C := C) n i) ∩ A := by
       rw [inter_comm A, ← inter_assoc]
       congr
-      simp_rw [Set.inter_eq_left, ← union_openCell]
+      simp_rw [Set.inter_eq_left, ← iUnion_openCell]
       apply Set.iUnion_mono''
       intro n x
       rw [mem_iUnion, mem_iUnion]
