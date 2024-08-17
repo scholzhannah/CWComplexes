@@ -1,0 +1,47 @@
+\chapter*{Conclusion}
+\addcontentsline{toc}{chapter}{Conclusion}
+
+The aim of this thesis was to formalise the basic properties and some constructions of CW-complexes - a concept that is not yet in the mathematical library mathlib of Lean. 
+
+We chose the historical definition to formalise the concept of CW-complexes in Lean: 
+
+\begin{lstlisting}
+class CWComplex.{u} {X : Type u} [TopologicalSpace X] (C : Set X) where
+  cell (n : ℕ) : Type u
+  map (n : ℕ) (i : cell n) : PartialEquiv (Fin n → ℝ) X
+  source_eq (n : ℕ) (i : cell n) : (map n i).source = closedBall 0 1
+  cont (n : ℕ) (i : cell n) : ContinuousOn (map n i) (closedBall 0 1)
+  cont_symm (n : ℕ) (i : cell n) : ContinuousOn (map n i).symm (map n i).target
+  pairwiseDisjoint' :
+  (univ : Set (Σ n, cell n)).PairwiseDisjoint (fun ni ↦ map ni.1 ni.2 '' ball 0 1)
+  mapsto (n : ℕ) (i : cell n) : ∃ I : Π m, Finset (cell m),
+    MapsTo (map n i) (sphere 0 1) (⋃ (m < n) (j ∈ I m), map m j '' closedBall 0 1)
+  closed' (A : Set X) (asubc : A ⊆ C) : IsClosed A ↔ ∀ n j, IsClosed (A ∩ map n j '' closedBall 0 1)
+  union' : ⋃ (n : ℕ) (j : cell n), map n j '' closedBall 0 1 = C
+\end{lstlisting}
+
+One of the important properties that we were able to formalise is the relationship between compact sets and finite CW-complexes: 
+
+\begin{lstlisting}
+lemma compact_iff_finite : IsCompact C ↔ Finite C := ⋯
+
+lemma compact_subset_finite_subcomplex {B : Set X} (compact : IsCompact B) :
+    ∃ (E : Set X) (sub : Subcomplex C E), CWComplex.Finite (E ⇂ C) ∧ B ∩ C ⊆ E := 
+  ⋯
+\end{lstlisting}
+
+Additionally we formalised the CW-complex structure on the product of two CW-complexes of which the more readable mathematical statement is the following: 
+
+\begin{thm*}
+    Let $X$, $Y$ be CW-complexes with families of characteristic maps $(Q_i^n \colon D_i^n \to X)_{n \in \bN, i \in I_n}$ and $(P_j^m \colon D_j^m \to Y)_{m \in \bN, j \in J_n}$. 
+    Let $\openCell{n}{i}$ be the cells of $X$ and $\openCellf{m}{j}$ be the cells of $Y$.
+    Then there is a CW-structure on $(X \times Y)_c$ with characteristic maps $(Q_i^n \times P_j^m \colon D_i^n \times D_j^m \to (X \times Y)_c)_{n,m \in \bN,i \in I_n,j \in J_m}$.
+    The indexing sets $(K_l)_{l \in \bN}$ are given by $K_l = \bigcup_{n + m = l}I_n \times J_m$ for every $l \in \bN$ and the cells are therefore of the form $\openCell{n}{i} \times \openCellf{m}{j}$ for $n, m \in \bN$, $i \in I_n$ and $j \in J_m$.
+\end{thm*}
+
+Ultimately the goal is to add this work into mathlib so that others can build upon it. 
+I have already started to contribute some of the auxiliary lemmas unrelated to CW-complexes that were needed along the way. 
+There is still much that can be done: 
+First of all the definition could be generalized to relative CW-complexes and one could implement the modern definition as well.
+There are still some constructions that could be useful such as the quotient of a CW-complex by a subcomplex. 
+More high level goals could be the Whitehead Theorem or cellular homology and cohomology. 
