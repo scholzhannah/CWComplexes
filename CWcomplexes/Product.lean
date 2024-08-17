@@ -285,7 +285,7 @@ instance CWComplex_product [KSpace (X × Y)] : CWComplex (C ×ˢ D) where
       use (m + l), ⟨m, l, rfl, i, j⟩
 
 -- See Hatcher p. 533
-def CWComplex_product_kification : CWComplex (X := kification (X × Y)) (C ×ˢ D) where
+instance CWComplex_product_kification : CWComplex (X := kification (X × Y)) (C ×ˢ D) where
   cell n := prodcell C D n
   map n i := match i with
     | ⟨m, l, hmln, j, k⟩ => prodmap hmln j k
