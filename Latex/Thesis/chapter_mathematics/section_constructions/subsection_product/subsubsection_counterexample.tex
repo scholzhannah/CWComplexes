@@ -1,4 +1,4 @@
-\subsubsection{Counterexample}
+\subsubsection*{Counterexample}
 
 We will first show that the product of two CW-complexes is not necessarily a CW-complex with respect to the natural cell structure.
 
@@ -26,7 +26,7 @@ We firstly define the two relevant spaces:
 \begin{proof}
     Firstly note that the wedge sum is defined to be $\bigvee_{i \in \iota} A_i \coloneq \coprod_{i \in \iota} A_i / \sim$ where $\sim$ is the equivalence relation identifying all the $0$'s of the intervals. 
     It is easy to see from the definition that the wedge sum of Hausdorff spaces is again a Hausdorff space. 
-    We now need to verify the five conditions of definition \ref{defi:CWComplex2}. 
+    We now need to verify the five conditions of Definition \ref{defi:CWComplex2}. 
     They are all relatively self-evident except for condition (iv) which says that $X$ needs to have weak topology. 
     The forward direction follows in the same way as always. 
     For the backward direction take a set $C \subseteq X$ such that $C \cap \closedCell{n}{i}$ is closed for all the closed cells of $X$. 
@@ -46,7 +46,7 @@ We firstly define the two relevant spaces:
     $Y$ together with the described cell-structure is a CW-complex.
 \end{lem}
 \begin{proof}
-    Completely analogue to the proof of lemma \ref{lem:CWcounter1}.
+    Completely analogue to the proof of Lemma \ref{lem:CWcounter1}.
 \end{proof}
 
 \begin{lem} \label{lem:proofofcounter}
@@ -66,16 +66,19 @@ We firstly define the two relevant spaces:
 
     Now we prove that $P$ is not closed in $X \times Y$. 
     We show that the complement $\compl{P}$ of $P$ in $X \times Y$ is not open by showing that every open neighbourhood of $(0_X, 0_Y)$ contains a point of $P$. 
-    A base for the product topology is given by $\{ U \times V \mid U \subset X \text{ is open in X, } V \subseteq Y \text{ is open in Y}\}$.
+    A base for the product topology is given by 
+    \[\{ U \times V \mid U \subset X \text{ is open in X, } V \subseteq Y \text{ is open in Y}\}. \]
     It is easy to see that it suffices to prove our desired property for the base.
     Now lets examine what open neighbourhoods of $0_X$ in $X$ look like. 
     By the definition of the wedge sum an open neighbourhood of $0_X$ is of the form $\bigvee_{i \in \iota}U_i$ where $U_i$ is an open neighbourhood of $0$ in $A_i$ for $i \in \iota$. 
     For each of the $U_i$'s there is an $x_i > 0$ such that $[0, x_i) \subseteq U_i$. 
     It is therefore enough to show our claim for these sets. 
-    Arguing in the same manner for $Y$ allows us to reduce our aim to the set $\{(\bigvee_{i \in \iota}[0, x_i)) \times (\bigvee_{j \in \bN}[0, y_j)) \mid x_i > 0 \text{ for all } i \in \iota, y_j > 0 \text{ for all } j \in \bN\}$. 
+    Arguing in the same manner for $Y$ allows us to reduce our aim to the set 
+    \[\{(\bigvee_{i \in \iota}[0, x_i)) \times (\bigvee_{j \in \bN}[0, y_j)) \mid x_i > 0 \text{ for all } i \in \iota, y_j > 0 \text{ for all } j \in \bN\}.\] 
     Picking such an open neighbourhood $(\bigvee_{i \in \iota}[0, x_i)) \times (\bigvee_{j \in \bN}[0, y_j))$ we need to find a $p$ in $P$ such that $p$ is in that neighbourhood.
     We pick an $i' \in \iota$ such that for every $j \in \bN$ we have $i'_j > \maximum{j}{1/y_j}$. 
     Then we pick $j' \in \bN$ such that $j' > 1/x_{i'}$. 
-    That gives us $1/i'_{j'} < 1/j' < x_{j'}$ and $1/i'_{j'} < y_{j'}$ which means that $p_{i', j'} = (1/i'_{j'}, 1/i'_{j'}) \in [0, x_{i'}) \times [0, y_{j'}) \subseteq (\bigvee_{i \in \iota}[0, x_i)) \times (\bigvee_{j \in \bN}[0, y_j))$.
+    That gives us $1/i'_{j'} < 1/j' < x_{j'}$ and $1/i'_{j'} < y_{j'}$ which means that 
+    \[p_{i', j'} = (1/i'_{j'}, 1/i'_{j'}) \in [0, x_{i'}) \times [0, y_{j'}) \subseteq (\bigvee_{i \in \iota}[0, x_i)) \times (\bigvee_{j \in \bN}[0, y_j)).\]
     Thus $P$ is not closed. 
 \end{proof}

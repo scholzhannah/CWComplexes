@@ -13,6 +13,9 @@ structure Continuous' (X Y : Type*) (t : TopologicalSpace X)
   isOpen_preimage : ∀ s, IsOpen s → IsOpen (f ⁻¹' s)
 \end{lstlisting}
 
+Where a structure is a construct that can bundle both data and properties after the \lstinline{where}. 
+This structure has no data and one property which is named \lstinline{isOpen_preimage}. 
+\lstinline{f ⁻¹' s} denotes the preimage of \lstinline{s} under \lstinline{f}.
 But now if we are given two types \lstinline{X} and \lstinline{Y} with topologies \lstinline{s} and \lstinline{t} respectively and a map \lstinline{f : X → Y}, the statement that the map \lstinline{f} is continuous would be expressed in the following way:
 
 \begin{lstlisting}

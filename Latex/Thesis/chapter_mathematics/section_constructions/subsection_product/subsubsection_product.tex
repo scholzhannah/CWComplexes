@@ -1,6 +1,6 @@
-\subsubsection{Constructing the product}\label{sec:constructproduct}
+\subsubsection*{Constructing the product}\label{sec:constructproduct}
 
-We can now move on to discuss the correct version of remark \ref{rem:wrongproduct}. 
+We can now move on to discuss the correct version of Remark \ref{rem:wrongproduct}. 
 For the rest of the section let $X$, $Y$ be CW-complexes with families of characteristic maps $(Q_i^n \colon D_i^n \to X)_{n \in \bN, i \in I_n}$ and $(P_j^m \colon D_j^m \to Y)_{m \in \bN, j \in J_n}$. We will write the cells of $X$ as $\openCell{n}{i}$ and the cells of $Y$ as $\openCellf{m}{j}$.
 We want to show:
 
@@ -10,19 +10,19 @@ We want to show:
 \end{thm}
 
 We will split the proof up into lemmas to have a better overview of the proof. 
-Let us first show that the issue that occurred with the counterexample in an earlier section in lemma \ref{lem:proofofcounter} works out here:
+Let us first show that the issue that occurred with the counterexample in an earlier section in Lemma \ref{lem:proofofcounter} works out here:
 
 \begin{lem}\label{lem:weaktopologyproduct}
     $(X \times Y)_c$ has weak topology,
     i.e. $A \subseteq (X \times Y)_c$ is closed iff $\closedCell{n}{i} \times \closedCellf{m}{j} \cap A$ is closed for all $n, m \in \bN$, $i \in I_n$ and $j \in J_m$.
 \end{lem}
 \begin{proof}
-    The forward direction follows from the fact that the product of closed sets is closed in the product topology and from lemma \ref{lem:finertopology} that tells us that the k-ification is finer than the product topology.
+    The forward direction follows from the fact that the product of closed sets is closed in the product topology and from Lemma \ref{lem:finertopology} that tells us that the k-ification is finer than the product topology.
 
-    Moving on to the backward direction we know by lemma \ref{lem:kificationkspace} that the k-ification is a k-space and by lemma \ref{lem:closediffinkification} that $A$ is closed if for every compact set $C \subseteq (X \times Y)_c$ $A \cap C$ is closed in $C$.
+    Moving on to the backward direction we know by Lemma \ref{lem:kificationkspace} that the k-ification is a k-space and by Lemma \ref{lem:closediffinkification} that $A$ is closed if for every compact set $C \subseteq (X \times Y)_c$, $A \cap C$ is closed in $C$.
     Take such a compact set $C$.
     The projections $\pr{1}{C}$ and $\pr{2}{C}$ are compact as images of a compact set. 
-    By lemma \ref{lem:compactintersectsonlyfinite} there are finite sets $E \subseteq \{e_i^n \mid n \in \bN, i \in I_n \}$ and $F \subseteq \{f_j^m \mid m \in \bN, j \in J_m \}$ s.t $\pr{1}{C} \subseteq \bigcup_{e \in E} e$ and $\pr{2}{C} \subseteq \bigcup_{f \in F} f$.
+    By Lemma \ref{lem:compactintersectsonlyfinite} there are finite sets $E \subseteq \{e_i^n \mid n \in \bN, i \in I_n \}$ and $F \subseteq \{f_j^m \mid m \in \bN, j \in J_m \}$ s.t $\pr{1}{C} \subseteq \bigcup_{e \in E} e$ and $\pr{2}{C} \subseteq \bigcup_{f \in F} f$.
     Thus 
     \[C \subseteq \pr{1}{C} \times \pr{2}{C} \subseteq \bigcup_{e \in E} e \times \bigcup_{f \in F} f = \bigcup_{e \in E} \bigcup_{f \in F} e \times f.\] 
     So $C$ is included in a finite union of cells of $(X \times Y)_c$. 
@@ -67,15 +67,15 @@ Now we can proof the desired theorem:
 
 \begin{proof}[Proof of Theorem \ref{thm:productcw}]
     It is well known and easy to see explicitly that the product of two Hausdorff spaces is again Hausdorff. 
-    Now we can go through the five conditions of definition \ref{defi:CWComplex2}. 
+    Now we can go through the five conditions of Definition \ref{defi:CWComplex2}. 
 
-    Property (i) is given by the fact that the product of bijective maps is again bijection and continuity in both directions follows from lemma \ref{lem:continuousfromkification} and lemma \ref{lem:continuoustokification}. 
+    Property (i) is given by the fact that the product of bijective maps is again bijection and continuity in both directions follows from Lemma \ref{lem:continuousfromkification} and Lemma \ref{lem:continuoustokification}. 
 
     For property (ii) pick any $n, m, n', m' \in \bN$, $i \in I_n$, $j \in J_m$, $i' \in I_{n'}$ and $j' \in J_{m'}$ such that $(n + m, i, j) \ne (n' + m', i', j')$ then either $(n, i) \ne (n', i')$ or $(m, j) \ne (m', j')$. 
     Thus 
     \[\closedCell{n}{i} \times \closedCellf{m}{j} \cap \closedCell{n'}{i'} \times \closedCellf{m'}{j'} = \left (\closedCell{n}{i} \cap \closedCell{n'}{i'} \right ) \times \left ( \closedCellf{m}{j} \cap \closedCellf{m'}{j'} \right ) = \varnothing\]
     since $X$ and $Y$ themselves fulfil property (ii). 
 
-    We already covered property (iii) in lemma \ref{lem:closurefiniteproduct} and property (iv) in lemma \ref{lem:weaktopologyproduct}. 
+    We already covered property (iii) in Lemma \ref{lem:closurefiniteproduct} and property (iv) in Lemma \ref{lem:weaktopologyproduct}. 
     Property (v) is immediate.
 \end{proof}

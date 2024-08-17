@@ -7,13 +7,13 @@ Additionally we can get a CW-complex by taking the disjoint union of two CW-comp
     Then $X \amalg Y$ is a CW-complex with indexing sets $J_n \coloneq I_{1, n} \cup I_{2, n}$.
 \end{lem}
 \begin{proof}
-    We need to show that this construction satisfies the conditions of definition \ref{defi:CWComplex2}. 
+    We need to show that this construction satisfies the conditions of Definition \ref{defi:CWComplex2}. 
     Conditions (i), (ii), (iii) and (v) follow directly from $X$ and $Y$ fulfilling these conditions. 
     So we again only need to focus on condition (iv), i.e. the weak topology. 
     The forward direction follows in the same way as in a lot of the other proofs.
     For the backwards direction take $A \subseteq X \amalg Y$ such that $A \cap \closedCell{n}{i}$ is closed in $X \amalg Y$ for every $n \in \bN$ and $i \in J_n$. 
     We need to show that $A$ is closed in $X \amalg Y$. 
-    by the definition of the disjoint union topology that is equivalent to $A \cap X$ being closed in $X$ and $A \cap Y$ being closed in $Y$. 
+    By the definition of the disjoint union topology that is equivalent to $A \cap X$ being closed in $X$ and $A \cap Y$ being closed in $Y$. 
     We will show this for $X$. 
     By the weak topology it is enough to show that $A \cap X \cap \closedCell{n}{i}$ is closed in $X$ for every $n \in \bN$ and $i \in I_{1, n}$. 
     But we have $A \cap X \cap \closedCell{n}{i} = (A \cap \closedCell{n}{i}) \cap X$ which is closed in $X$ by assumption and the definition of the disjoint union topology.
