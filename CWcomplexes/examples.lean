@@ -225,109 +225,22 @@ instance instCWComplexstandardinterval_test: CWComplex (Icc (-1) 1 : Set ℝ) :=
         Real.closedBall_eq_Icc, zero_sub, zero_add]
   )
 
-instance instCWComplexinterval_test (a b : ℝ) (lt : a < b) : CWComplex (Icc a b : Set ℝ) :=
+-- I should try to combine this and the one above maybe
+instance instCWComplexinterval (a b : ℝ) (lt : a < b) : CWComplex (Icc a b : Set ℝ) :=
   CWComplex_of_Homeomorph (Icc (-1) 1 : Set ℝ) (Icc a b)
-  (affineHomeomorph ((b - a) / 2) ((a + b) / 2) (sorry)) (sorry)
-
-instance instCWComplexinterval: CWComplex (Set.Icc (-1) 1 : Set ℝ) where
-  cell :=
-    fun n ↦ match n with
-      | 0 => Fin 2
-      | 1 => Fin 1
-      | (m + 2) => Empty
-  map n i := match n with
-    | 0 =>
-      match i with
-        | 0 => PartialEquiv.const ![] (-1)
-        | 1 => PartialEquiv.const ![] 1
-    | 1 => (IsometryEquiv.funUnique (Fin 1) ℝ).toPartialEquivOfImageEq (closedBall 0 1)
-      (Set.Icc (-1) 1)
-      (by rw [IsometryEquiv.coe_toEquiv, IsometryEquiv.image_closedBall,
-        IsometryEquiv.funUnique_toFun, Pi.zero_apply, Real.closedBall_eq_Icc, zero_sub, zero_add])
-    | (m + 2) => i.elim
-  source_eq n i := match n with
-    | 0 =>
-      match i with
-      | 0 => by
-        simp only [PartialEquiv.const, Matrix.empty_eq, closedBall, dist_self, zero_le_one,
-          setOf_true]
-        exact toFinset_eq_univ.mp rfl
-      | 1 => by
-        simp only [PartialEquiv.const, Matrix.empty_eq, closedBall, dist_self, zero_le_one,
-          setOf_true]
-        exact toFinset_eq_univ.mp rfl
-    | 1 => rfl
-    | (m + 2) => by contradiction
-  cont n i := match n with
-    | 0 =>
-      match i with
-      | 0 => by simp only [Matrix.empty_eq, closedBall_zero_dim_singleton, continuousOn_singleton]
-      | 1 => by simp only [Matrix.empty_eq, closedBall_zero_dim_singleton, continuousOn_singleton]
-    | 1 => ((IsometryEquiv.funUnique (Fin 1) ℝ).continuous).continuousOn
-    | (m + 2) => by contradiction
-  cont_symm n i := match n with
-    | 0 =>
-      match i with
-      | 0 => by
-        simp only [PartialEquiv.const, Function.const_zero, Matrix.zero_empty,
-          PartialEquiv.coe_symm_mk, continuousOn_singleton]
-      | 1 => by
-        simp only [PartialEquiv.const, Function.const_zero, Matrix.zero_empty,
-          PartialEquiv.coe_symm_mk, continuousOn_singleton]
-    | 1 => ((IsometryEquiv.funUnique (Fin 1) ℝ).symm.continuous).continuousOn
-    | (m + 2) => by contradiction
-  pairwiseDisjoint' := by
-    rw [PairwiseDisjoint, Set.Pairwise]
-    intro ⟨n, j⟩ _ ⟨m, i⟩ _ ne
-    simp only [Matrix.zero_empty, disjoint_iff, inf_eq_inter, bot_eq_empty]
-    exact match n with
-      | 0 => match m with
-        | 0 => match j with
-          | 0 => match i with
-            | 0 => (ne rfl).elim
-            | 1 => by simp [PartialEquiv.const]
-          | 1 => match i with
-            | 0 => by simp [PartialEquiv.const]
-            | 1 => (ne rfl).elim
-        | 1 => match j with
-          | 0 => by
-            simp_rw [Equiv.toPartialEquivOfImageEq_apply, IsometryEquiv.coe_toEquiv,
-              IsometryEquiv.image_ball, IsometryEquiv.funUnique_toFun]
-            simp [Matrix.empty_eq, PartialEquiv.const]
-          | 1 => by
-            simp_rw [Equiv.toPartialEquivOfImageEq_apply, IsometryEquiv.coe_toEquiv,
-              IsometryEquiv.image_ball, IsometryEquiv.funUnique_toFun]
-            simp [Matrix.empty_eq, PartialEquiv.const]
-        | (l + 2) => i.elim
-      | 1 => match m with
-        | 0 => match i with
-          | 0 => by
-            simp_rw [Equiv.toPartialEquivOfImageEq_apply, IsometryEquiv.coe_toEquiv,
-              IsometryEquiv.image_ball, IsometryEquiv.funUnique_toFun]
-            simp [Matrix.empty_eq, PartialEquiv.const]
-          | 1 => by
-            simp_rw [Equiv.toPartialEquivOfImageEq_apply, IsometryEquiv.coe_toEquiv,
-              IsometryEquiv.image_ball, IsometryEquiv.funUnique_toFun]
-            simp [Matrix.empty_eq, PartialEquiv.const]
-        | 1 => by simp only [Fin.eq_zero, Fin.isValue, ne_eq, not_true_eq_false] at ne
-        | (l + 2) => i.elim
-      | (l + 2) => j.elim
-  mapsto := sorry
-  closed' := sorry
-  union' := by
-    apply subset_antisymm
-    · apply iUnion_subset fun n ↦ iUnion_subset fun i ↦ ?_
-      exact match n with
-        | 0 => match i with
-          | 0 => by simp [Matrix.empty_eq, PartialEquiv.const]
-          | 1 => by simp [Matrix.empty_eq, PartialEquiv.const]
-        | 1 => by
-          rw [Equiv.toPartialEquivOfImageEq_apply, IsometryEquiv.coe_toEquiv,
-            IsometryEquiv.image_closedBall, IsometryEquiv.funUnique_toFun, Pi.zero_apply,
-            Real.closedBall_eq_Icc, zero_sub, zero_add]
-        | (m + 2 )=> i.elim
-    · apply subset_iUnion_of_subset 1
-      apply subset_iUnion_of_subset 0
-      rw [Equiv.toPartialEquivOfImageEq_apply, IsometryEquiv.coe_toEquiv,
-        IsometryEquiv.image_closedBall, IsometryEquiv.funUnique_toFun, Pi.zero_apply,
-        Real.closedBall_eq_Icc, zero_sub, zero_add]
+  (affineHomeomorph ((b - a) / 2) ((a + b) / 2) (by linarith))
+  (by
+    calc
+      (affineHomeomorph ((b - a) / 2) ((a + b) / 2) (by intro; linarith)) '' Icc (-1) 1
+      _ = (affineHomeomorph ((b - a) / 2) ((a + b) / 2) (by intro; linarith)) ''
+          ((affineHomeomorph 2 (-1) two_ne_zero) '' Icc 0 1) := by
+        congrm (affineHomeomorph ((b - a) / 2) ((a + b) / 2) (by intro; linarith)) '' ?_
+        rw [affineHomeomorph_image_I _ _ zero_lt_two]
+        norm_num
+      _ = (affineHomeomorph 2 (-1) two_ne_zero).trans
+          (affineHomeomorph ((b - a) / 2) ((a + b) / 2) (by intro; linarith)) '' Icc 0 1 := by
+        simp only [affineHomeomorph_apply, image_image, Homeomorph.trans_apply]
+      _ = Icc a b := by
+        rw [affineHomeomorph_trans, affineHomeomorph_image_I _ _ (by linarith)]
+        ring_nf
+  )

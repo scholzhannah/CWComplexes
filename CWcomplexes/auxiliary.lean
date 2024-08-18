@@ -308,3 +308,11 @@ def T2Space.mono {X : Type*} {s t : TopologicalSpace X}
     obtain ⟨u, v, openu, openv, huv⟩ := t2 ne
     use u, v
     exact ⟨le _ openu, le _ openv, huv⟩
+
+lemma affineHomeomorph_trans {𝕜 : Type*} [Field 𝕜] [NoZeroDivisors 𝕜] [TopologicalSpace 𝕜]
+    [TopologicalRing 𝕜] (a b c d : 𝕜) (h1 : a ≠ 0) (h2 : c ≠ 0) :
+    (affineHomeomorph a b h1).trans (affineHomeomorph c d h2) =
+    affineHomeomorph (c * a) (c * b + d) (mul_ne_zero h2 h1)  := by
+  ext
+  simp_rw [Homeomorph.trans_apply, affineHomeomorph_apply]
+  ring
