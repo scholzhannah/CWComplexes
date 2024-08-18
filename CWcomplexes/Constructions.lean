@@ -29,7 +29,7 @@ instance CWComplex_levelaux (n : ℕ∞) : CWComplex (levelaux C n) where
     use fun (m : ℕ) ↦ (I m).subtype (fun j ↦ m < n)
     simp_rw [mapsTo', iUnion_subtype]
     apply subset_trans hI (iUnion_mono fun m ↦ iUnion_mono fun mltl ↦ iUnion_mono fun j ↦ ?_ )
-    simp_all only [(ENat.coe_lt_of_lt mltl).trans lltn, Finset.mem_subtype, iUnion_true,
+    simp_all only [(Nat.cast_lt.2 mltl).trans lltn, Finset.mem_subtype, iUnion_true,
       iUnion_subset_iff]
     exact fun _ ↦ by rfl
   closed' A asublevel := by

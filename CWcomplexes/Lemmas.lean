@@ -81,7 +81,7 @@ lemma isDiscrete_levelaux_one {A : Set X} : IsClosed (A ∩ levelaux C 1) := by
     (by simp_rw [← levelaux_top (C := C)]; apply levelaux_mono le_top))
   intro n nlt j
   left
-  simp_rw [← Nat.succ_le_iff, ← Nat.one_eq_succ_zero] at nlt
+  simp_rw [← Nat.succ_le_iff] at nlt
   rw [inter_assoc, levelaux_inter_openCell_eq_empty (by simp only [Nat.one_le_cast, nlt]), inter_empty]
   exact isClosed_empty
 
@@ -293,7 +293,8 @@ lemma iUnion_cells_inter_compact (A : Set X) (compact : IsCompact A) (I : (n : �
       refine ⟨?_, fun ⟨n, i, memI, notdisjoint, xmem⟩ ↦
         ⟨⟨n, ⟨i, ⟨memI, xmem⟩⟩⟩, ⟨n, ⟨i, ⟨notdisjoint, xmem⟩⟩⟩⟩⟩
       intro ⟨⟨n, i, imem, xmem1⟩, ⟨m, j, hmj, xmem2⟩⟩
-      have := @eq_cell_of_not_disjoint _ _ _ _ n i m j (by rw [not_disjoint_iff]; use x)
+      have := eq_cell_of_not_disjoint (n := n) (j := i) (m := m) (i := j)
+        (by rw [not_disjoint_iff]; use x)
       rw [Sigma.mk.inj_iff] at this
       rcases this with ⟨eq1, eq2⟩
       subst eq1

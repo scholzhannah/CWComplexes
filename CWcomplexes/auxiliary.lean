@@ -8,38 +8,44 @@ set_option autoImplicit false
 set_option linter.unusedVariables false
 noncomputable section
 
+/-Basic logic and set theory-/
+
+-- needed in definition file
 lemma biUnion_lt_eq_iUnion {X : Type*} (I : ℕ → Set X) :
     ⋃ (n : ℕ) (m : ℕ) (_ : m < n), I m  = ⋃ (n : ℕ), I n := by
-  ext x
+  ext
   simp_rw [Set.mem_iUnion]
-  exact ⟨fun ⟨_, m, _, xmem⟩ ↦ ⟨m, xmem⟩, fun ⟨n, xmem⟩ ↦  ⟨n + 1, n, lt_add_one n, xmem⟩⟩
+  exact ⟨fun ⟨_, m, _, mem⟩ ↦ ⟨m, mem⟩, fun ⟨n, mem⟩ ↦  ⟨n + 1, n, lt_add_one n, mem⟩⟩
 
--- are these useful? Or is there a more general version?
+-- needed in constructions file
 lemma Set.iUnion_sum {X Y Z: Type*} {f : X ⊕ Y → Set Z} :
     ⋃ x : X ⊕ Y, f x = (⋃ x : X, f (.inl x)) ∪ ⋃ x : Y, f (.inr x) := by
   ext; simp
 
---this seems to be in mathlib under this name. I might just not have the newest version or something
-lemma ENat.coe_lt_top {n : ℕ} : ↑n < (⊤ : ℕ∞) := Ne.lt_top (ENat.coe_ne_top n)
+--needed in this file
+lemma inter_eq_inter_iff_compl {X : Type*} {A B C : Set X} : A ∩ B = C ∩ B ↔ Aᶜ ∩ B = Cᶜ ∩ B := by
+  constructor <;> (intro; simp_all [Set.ext_iff, not_iff_not])
 
--- is this needed?
-lemma ENat.coe_lt_of_lt {n m : ℕ} : n < m → (n : ℕ∞) < m := by simp
+--needed in product file
+lemma Set.subset_product {α β : Type*} {s : Set (α × β)} :
+    s ⊆ (Prod.fst '' s) ×ˢ (Prod.snd '' s) :=
+  fun _ hp ↦ mem_prod.2 ⟨mem_image_of_mem _ hp, mem_image_of_mem _ hp⟩
 
+-- needed in product file
+lemma exists_iff_and_of_upwards_closed {L : Type*} [SemilatticeSup L] {P Q : L → Prop}
+    (ucP : ∀ l : L, P l → ∀ m ≥ l, P m) (ucQ : ∀ l : L, Q l → ∀ m ≥ l, Q m):
+    (∃ i, P i ∧ Q i) ↔ (∃ i, P i) ∧ ∃ i, Q i :=
+  ⟨fun ⟨i, hP, hQ⟩ ↦ ⟨⟨i, hP⟩, ⟨i, hQ⟩⟩, fun ⟨⟨i, hP⟩, ⟨j, hQ⟩⟩ ↦
+    ⟨i ⊔ j, ucP i hP (i ⊔ j) (le_sup_left), ucQ j hQ (i ⊔ j) (le_sup_right)⟩⟩
+
+/-ENat-/
+
+-- needed in definition file
 lemma ENat.add_one_pos {n : ℕ∞} : 0 < n + 1 := by
   rw [← ENat.one_le_iff_pos]
   exact le_add_self
 
-lemma ENat.exists_eq_add_one_of_ne_zero {n : ℕ∞} (nzero : n ≠ 0) : ∃ (k : ℕ∞), n = k + 1 := by
-  by_cases h : n = ⊤
-  · use ⊤
-    simp only [h, top_add]
-  rw [← ne_eq, WithTop.ne_top_iff_exists] at h
-  rcases h with ⟨m, rfl⟩
-  rcases Nat.exists_eq_succ_of_ne_zero (n := m) (by intro h; apply nzero; simp only [h,
-    WithTop.coe_zero]) with ⟨l, rfl⟩
-  use l
-  norm_cast
-
+-- needed in definition file
 lemma ENat.add_coe_lt_add_coe_right {n m : ℕ∞} {k : ℕ} : n + k < m + k ↔ n < m := by
   cases' n with n
   · simp
@@ -47,8 +53,106 @@ lemma ENat.add_coe_lt_add_coe_right {n m : ℕ∞} {k : ℕ} : n + k < m + k ↔
   · norm_cast; simp [ENat.coe_lt_top, -Nat.cast_add]
   · norm_cast; simp_all
 
-lemma IsOpen_le_iff_isClosed_le {α : Type*} {t : TopologicalSpace α} {s : TopologicalSpace α} :
-    @IsOpen _ s ≤ @IsOpen _ t ↔ @IsClosed _ s  ≤ @IsClosed _ t := by
+/- Different types of maps -/
+
+-- needed in this file and in examples file
+def PartialEquiv.const {X Y : Type*} (x : X) (y : Y) : PartialEquiv X Y where
+  toFun := Function.const X y
+  invFun := Function.const Y x
+  source := {x}
+  target := {y}
+  map_source' := fun _ _ ↦ by rfl
+  map_target' := fun _ _ ↦ by rfl
+  left_inv' := fun x' x'mem  ↦ by rw [Set.eq_of_mem_singleton x'mem]; rfl
+  right_inv' := fun y' y'mem ↦ by rw [Set.eq_of_mem_singleton y'mem]; rfl
+
+-- needed in this file
+def HomeomorphFinMap1 {X: Type*} [TopologicalSpace X] (m n : ℕ) :
+    (Fin m → X) × (Fin n → X) ≃ₜ (Fin m ⊕ Fin n → X) where
+  toEquiv := (Equiv.sumArrowEquivProdArrow _ _ _).symm
+  continuous_toFun := continuous_pi fun i ↦ match i with
+    | .inl i => by apply (continuous_apply _).comp' continuous_fst
+    | .inr i => by apply (continuous_apply _).comp' continuous_snd
+  continuous_invFun := by
+    simp only [Equiv.sumArrowEquivProdArrow, Equiv.coe_fn_mk, continuous_prod_mk]
+    continuity
+
+/- Topology -/
+
+-- needed in examples file
+lemma closedBall_zero_dim_singleton {X : Type*} {h : PseudoMetricSpace (Fin 0 → X)} :
+    (Metric.closedBall ![] 1 : Set (Fin 0 → X)) = {![]} := by
+  ext
+  simp only [Matrix.empty_eq, Metric.mem_closedBall, dist_self, zero_le_one, Set.mem_singleton_iff]
+
+-- needed in definition file and examples file
+lemma sphere_zero_dim_empty {X : Type*} {h : PseudoMetricSpace (Fin 0 → X)} :
+    (Metric.sphere ![] 1 : Set (Fin 0 → X)) = ∅ := by
+  simp only [Metric.sphere, Matrix.empty_eq, dist_self, zero_ne_one, Set.setOf_false]
+
+-- needed in kification file
+lemma open_in_iff_compl_closed_in {X : Type*} [TopologicalSpace X] (A B : Set X) :
+    (∃ (C : Set X), IsOpen C ∧  A ∩ B = C ∩ B) ↔
+    ∃ (C : Set X), IsClosed C ∧  Aᶜ ∩ B = C ∩ B := by
+  constructor
+  · intro ⟨C, openC, hC⟩
+    use Cᶜ
+    rw [inter_eq_inter_iff_compl, compl_compl, compl_compl]
+    exact ⟨isClosed_compl_iff.2 openC, hC⟩
+  · intro ⟨C, closedC, hC⟩
+    use Cᶜ
+    rw [inter_eq_inter_iff_compl, compl_compl]
+    exact ⟨isOpen_compl_iff.2 closedC, hC⟩
+
+-- needed in constructions file and product file
+lemma ContinuousOn.image_comp_continuous {α β γ : Type*} [TopologicalSpace α] [TopologicalSpace β]
+    [TopologicalSpace γ] {g : β → γ} {f : α → β} {s : Set α} (cont : Continuous f)
+    (conton : ContinuousOn g (f '' s)) : ContinuousOn (g ∘ f) s :=
+  conton.comp cont.continuousOn (s.mapsTo_image f)
+
+-- needed in examples file
+lemma affineHomeomorph_trans {𝕜 : Type*} [Field 𝕜] [NoZeroDivisors 𝕜] [TopologicalSpace 𝕜]
+    [TopologicalRing 𝕜] (a b c d : 𝕜) (h1 : a ≠ 0) (h2 : c ≠ 0) :
+    (affineHomeomorph a b h1).trans (affineHomeomorph c d h2) =
+    affineHomeomorph (c * a) (c * b + d) (mul_ne_zero h2 h1)  := by
+  ext
+  simp_rw [Homeomorph.trans_apply, affineHomeomorph_apply]
+  ring
+
+-- needed in kification file
+lemma T2Space.mono {X : Type*} {s t : TopologicalSpace X}
+    (le : t ≤ s) [t2 : @T2Space X s] : @T2Space X t where
+  t2 := by
+    intro i j ne
+    rw [t2Space_iff] at t2
+    obtain ⟨u, v, openu, openv, huv⟩ := t2 ne
+    exact ⟨u, v, le _ openu, le _ openv, huv⟩
+
+/- Lemmas that I am not using but relate to things I have defined -/
+
+lemma PartialEquiv.const_continuousOn {X Y : Type*} [TopologicalSpace X] [TopologicalSpace Y]
+    (x : X) (y : Y) : ContinuousOn (PartialEquiv.const x y) {x}
+  := continuousOn_singleton (PartialEquiv.const x y) x
+
+def EquivFinMap {X : Type*} (m n : ℕ) : (Fin m → X) × (Fin n → X) ≃ (Fin (m + n) → X) :=
+  (Equiv.sumArrowEquivProdArrow _ _ _).symm.trans (finSumFinEquiv.arrowCongr (Equiv.refl _))
+
+/- Lemmas that I don't seem to be using -/
+
+lemma ENat.exists_eq_add_one_of_ne_zero {n : ℕ∞} (nzero : n ≠ 0) : ∃ (k : ℕ∞), n = k + 1 := by
+  by_cases h : n = ⊤
+  · use ⊤
+    simp only [h, top_add]
+  rw [← ne_eq, WithTop.ne_top_iff_exists] at h
+  obtain ⟨m, rfl⟩ := h
+  obtain ⟨l, rfl⟩ := Nat.exists_eq_succ_of_ne_zero (n := m) (by simp_all only [some_eq_coe,
+    ne_eq, Nat.cast_eq_zero, not_false_eq_true])
+  use l
+  norm_cast
+
+open Topology in
+lemma TopologicalSpace.isOpen_le_iff_isClosed_le {α : Type*} {t : TopologicalSpace α}
+    {s : TopologicalSpace α} : IsOpen[s] ≤ IsOpen[t] ↔ IsClosed[s]  ≤ IsClosed[t] := by
   constructor
   · intro le a closeda
     rw [← compl_compl a, @isClosed_compl_iff] at closeda ⊢
@@ -57,19 +161,11 @@ lemma IsOpen_le_iff_isClosed_le {α : Type*} {t : TopologicalSpace α} {s : Topo
     rw [← @isClosed_compl_iff] at opena ⊢
     exact le _ opena
 
+open Topology in
 lemma TopologicalSpace.le_iff_IsClosed {α : Type*} {t : TopologicalSpace α} {s : TopologicalSpace α} :
-    t ≤ s ↔ @IsClosed _ s  ≤ @IsClosed _ t := by
-  rw [← IsOpen_le_iff_isClosed_le]
+    t ≤ s ↔ IsClosed[s]  ≤ IsClosed[t] := by
+  rw [← isOpen_le_iff_isClosed_le]
   exact TopologicalSpace.le_def
-
-lemma closedBall_zero_dim_singleton {X : Type*} {h : PseudoMetricSpace (Fin 0 → X)} :
-    (Metric.closedBall ![] 1 : Set (Fin 0 → X)) = {![]} := by
-  ext
-  simp only [Matrix.empty_eq, Metric.mem_closedBall, dist_self, zero_le_one, Set.mem_singleton_iff]
-
-lemma sphere_zero_dim_empty {X : Type*} {h : PseudoMetricSpace (Fin 0 → X)} :
-    (Metric.sphere ![] 1 : Set (Fin 0 → X)) = ∅ := by
-  simp only [Metric.sphere, Matrix.empty_eq, dist_self, zero_ne_one, Set.setOf_false]
 
 lemma closed_in_finite {X : Type*} [t : TopologicalSpace X] {ι : Type*} [Finite ι] (A : Set X)
     (B : ι → Set X) (closed : ∀ i, IsClosed (B i))
@@ -90,59 +186,10 @@ lemma closed_in_finite {X : Type*} [t : TopologicalSpace X] {ι : Type*} [Finite
   rw [Set.inter_comm (B i), Set.inter_assoc, Set.inter_eq_left.2 (Set.subset_iUnion _ i), hC₀]
   rfl
 
-lemma inter_eq_inter_iff_compl {X : Type*} {A B C : Set X} : A ∩ B = C ∩ B ↔ Aᶜ ∩ B = Cᶜ ∩ B := by
-  constructor <;> (intro; simp_all [Set.ext_iff, not_iff_not])
+/-Lemmas not yet looked at-/
 
-lemma open_in_iff_compl_closed_in {X : Type*} [TopologicalSpace X] (A B : Set X) :
-    (∃ (C : Set X), IsOpen C ∧  A ∩ B = C ∩ B) ↔
-    ∃ (C : Set X), IsClosed C ∧  Aᶜ ∩ B = C ∩ B := by
-  constructor
-  · intro ⟨C, openC, hC⟩
-    use Cᶜ
-    rw [inter_eq_inter_iff_compl]
-    simp_rw [compl_compl]
-    exact ⟨isClosed_compl_iff.2 openC, hC⟩
-  · intro ⟨C, closedC, hC⟩
-    use Cᶜ
-    rw [inter_eq_inter_iff_compl]
-    simp_rw [compl_compl]
-    exact ⟨isOpen_compl_iff.2 closedC, hC⟩
 
--- look up if this exists
-def PartialEquiv.const {X Y : Type*} (x : X) (y : Y) : PartialEquiv X Y where
-  toFun := Function.const X y
-  invFun := Function.const Y x
-  source := {x}
-  target := {y}
-  map_source' := fun _ _ ↦ by rfl
-  map_target' := fun _ _ ↦ by rfl
-  left_inv' := fun x' x'mem  ↦ by rw [Set.eq_of_mem_singleton x'mem]; rfl
-  right_inv' := fun y' y'mem ↦ by rw [Set.eq_of_mem_singleton y'mem]; rfl
-
-lemma PartialEquiv.const_continuousOn {X Y : Type*} [TopologicalSpace X] [TopologicalSpace Y]
-    (x : X) (y : Y) : ContinuousOn (PartialEquiv.const x y) {x}
-  := continuousOn_singleton (PartialEquiv.const x y) x
-
-def EquivFinMap {X : Type*} (m n : ℕ) : (Fin m → X) × (Fin n → X) ≃ (Fin (m + n) → X) :=
-  Equiv.trans (Equiv.sumArrowEquivProdArrow _ _ _).symm (Equiv.arrowCongr finSumFinEquiv (Equiv.refl _))
-
-def HomeomorphFinMap1 {X: Type*} [TopologicalSpace X] (m n : ℕ) :
-    (Fin m → X) × (Fin n → X) ≃ₜ (Fin m ⊕ Fin n → X) where
-  toEquiv := (Equiv.sumArrowEquivProdArrow _ _ _).symm
-  continuous_toFun := by
-    simp_rw [Equiv.sumArrowEquivProdArrow, Equiv.toFun_as_coe, Equiv.coe_fn_symm_mk]
-    apply continuous_pi
-    intro i
-    rcases i with i1 | i2
-    · suffices Continuous ((fun b ↦ b i1) ∘ (fun (a : (Fin m → X) × (Fin n → X)) ↦ a.1)) by simpa only
-      apply Continuous.comp' (continuous_apply _) continuous_fst
-    · suffices Continuous ((fun b ↦ b i2) ∘ (fun (a : (Fin m → X) × (Fin n → X)) ↦ a.2)) by simpa only
-      apply Continuous.comp' (continuous_apply _) continuous_snd
-  continuous_invFun := by
-    simp only [Equiv.sumArrowEquivProdArrow, Equiv.coe_fn_mk, continuous_prod_mk]
-    continuity --is it better to leave this or replace it by an explicit proof
-
--- Homeomorph.piCongrLeft
+#check Homeomorph.piCongrLeft
 def HomeomorphFinMap2 {X: Type*} [TopologicalSpace X] (m n : ℕ) :
     (Fin m ⊕ Fin n → X) ≃ₜ (Fin (m + n) → X) where
   toEquiv := Equiv.arrowCongr finSumFinEquiv (Equiv.refl _)
@@ -277,12 +324,6 @@ def IsometryEquiv.arrowCongrleft {X Y : Type*} [Fintype X] [Fintype Y] (Z : Type
         simp only [Finset.mem_univ, Equiv.symm_apply_apply, le_refl, and_self]
   )
 
--- does this really not exist?
-lemma ContinuousOn.image_comp_continuous {α β γ : Type*} [TopologicalSpace α] [TopologicalSpace β]
-    [TopologicalSpace γ] {g : β → γ} {f : α → β} {s : Set α} (cont : Continuous f)
-    (conton : ContinuousOn g (f '' s)) : ContinuousOn (g ∘ f) s :=
-  conton.comp cont.continuousOn (s.mapsTo_image f)
-
 #check IsometryEquiv.trans
 
 -- these should not exists, take them out
@@ -294,31 +335,3 @@ lemma IsometryEquiv.trans_image {α β γ : Type*} [PseudoEMetricSpace α] [Pseu
     [PseudoEMetricSpace γ] (h₁ : α ≃ᵢ β) (h₂ : β ≃ᵢ γ) (s : Set α) :
     (h₁.trans h₂) '' s = h₂ '' (h₁ '' s) := by
   aesop
-
--- does this not exist???
-lemma Set.subset_product {α β : Type*} {s : Set (α × β)} :
-    s ⊆ Set.image Prod.fst s ×ˢ Set.image Prod.snd s :=
-  fun _ hp ↦ mem_prod.2 ⟨mem_image_of_mem _ hp, mem_image_of_mem _ hp⟩
-
-def T2Space.mono {X : Type*} {s t : TopologicalSpace X}
-    (le : t ≤ s) [t2 : @T2Space X s] : @T2Space X t where
-  t2 := by
-    intro i j ne
-    rw [t2Space_iff] at t2
-    obtain ⟨u, v, openu, openv, huv⟩ := t2 ne
-    use u, v
-    exact ⟨le _ openu, le _ openv, huv⟩
-
-lemma affineHomeomorph_trans {𝕜 : Type*} [Field 𝕜] [NoZeroDivisors 𝕜] [TopologicalSpace 𝕜]
-    [TopologicalRing 𝕜] (a b c d : 𝕜) (h1 : a ≠ 0) (h2 : c ≠ 0) :
-    (affineHomeomorph a b h1).trans (affineHomeomorph c d h2) =
-    affineHomeomorph (c * a) (c * b + d) (mul_ne_zero h2 h1)  := by
-  ext
-  simp_rw [Homeomorph.trans_apply, affineHomeomorph_apply]
-  ring
-
-lemma exists_iff_and_of_upwards_closed {L : Type*} [SemilatticeSup L] {P Q : L → Prop}
-    (ucP : ∀ l : L, P l → ∀ m ≥ l, P m) (ucQ : ∀ l : L, Q l → ∀ m ≥ l, Q m):
-    (∃ i, P i ∧ Q i) ↔ (∃ i, P i) ∧ ∃ i, Q i :=
-  ⟨fun ⟨i, hP, hQ⟩ ↦ ⟨⟨i, hP⟩, ⟨i, hQ⟩⟩, fun ⟨⟨i, hP⟩, ⟨j, hQ⟩⟩ ↦
-    ⟨i ⊔ j, ucP i hP (i ⊔ j) (le_sup_left), ucQ j hQ (i ⊔ j) (le_sup_right)⟩⟩
