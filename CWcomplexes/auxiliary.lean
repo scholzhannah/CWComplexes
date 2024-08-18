@@ -316,3 +316,9 @@ lemma affineHomeomorph_trans {𝕜 : Type*} [Field 𝕜] [NoZeroDivisors 𝕜] [
   ext
   simp_rw [Homeomorph.trans_apply, affineHomeomorph_apply]
   ring
+
+lemma exists_iff_and_of_upwards_closed {L : Type*} [SemilatticeSup L] {P Q : L → Prop}
+    (ucP : ∀ l : L, P l → ∀ m ≥ l, P m) (ucQ : ∀ l : L, Q l → ∀ m ≥ l, Q m):
+    (∃ i, P i ∧ Q i) ↔ (∃ i, P i) ∧ ∃ i, Q i :=
+  ⟨fun ⟨i, hP, hQ⟩ ↦ ⟨⟨i, hP⟩, ⟨i, hQ⟩⟩, fun ⟨⟨i, hP⟩, ⟨j, hQ⟩⟩ ↦
+    ⟨i ⊔ j, ucP i hP (i ⊔ j) (le_sup_left), ucQ j hQ (i ⊔ j) (le_sup_right)⟩⟩
