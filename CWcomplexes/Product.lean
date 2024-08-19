@@ -21,60 +21,48 @@ def prodcell (C : Set X) (D : Set Y) [CWComplex C] [CWComplex D] (n : ℕ) :=
   (Σ' (m : ℕ) (l : ℕ) (hml : m + l = n), cell C m × cell D l)
 
 def prodisometryequiv {n m l : ℕ}  (hmln : m + l = n) (j : cell C m) (k : cell D l) :=
-  (IsometryEquiv.arrowCongrleft ℝ (finCongr hmln.symm)).trans
-  ((IsometryEquivFinMap m l).symm)
+  (IsometryEquiv.congrLeftofFintype (X := ℝ) (finCongr hmln.symm)).trans
+  ((IsometryEquiv.finArrowProdHomeomorphFinAddArrow m l).symm)
 
 def prodmap {n m l : ℕ} (hmln : m + l = n) (j : cell C m) (k : cell D l) :=
   (prodisometryequiv hmln j k).transPartialEquiv
   (PartialEquiv.prod (map m j) (map l k))
 
-lemma prodisometryequiv_zero {n m l : ℕ} {hmln : m + l = n} {j : cell C m} {k : cell D l} :
-    (prodisometryequiv hmln j k) 0 = 0 :=
-  rfl
 
 lemma prodisometryequiv_image_closedBall {n m l : ℕ} {hmln : m + l = n} {j : cell C m}
     {k : cell D l} :
-    ⇑(prodisometryequiv hmln j k) '' closedBall 0 1 =  closedBall 0 1 ×ˢ closedBall 0 1 := by
-  ext _
-  simp only [IsometryEquiv.image_closedBall, prodisometryequiv_zero, mem_closedBall,
-    dist_zero_right, closedBall_prod_same, ← Prod.zero_eq_mk]
+    prodisometryequiv hmln j k '' closedBall 0 1 = closedBall 0 1 ×ˢ closedBall 0 1 := by
+  rw [IsometryEquiv.image_closedBall, closedBall_prod_same]
+  rfl
 
 lemma prodisometryequiv_image_ball {n m l : ℕ} {hmln : m + l = n} {j : cell C m}
-    {k : cell D l} :
-    ⇑(prodisometryequiv hmln j k) '' ball 0 1 =  ball 0 1 ×ˢ ball 0 1 := by
-  ext _
-  simp only [IsometryEquiv.image_ball, prodisometryequiv_zero, mem_ball, dist_zero_right,
-    ball_prod_same, ← Prod.zero_eq_mk]
+    {k : cell D l} : ⇑(prodisometryequiv hmln j k) '' ball 0 1 =  ball 0 1 ×ˢ ball 0 1 := by
+  simp only [IsometryEquiv.image_ball, ball_prod_same]
+  rfl
 
 lemma prodisometryequiv_image_sphere {n m l : ℕ} {hmln : m + l = n} {j : cell C m} {k : cell D l} :
     prodisometryequiv hmln j k '' sphere 0 1 =
     sphere 0 1 ×ˢ closedBall 0 1 ∪ closedBall 0 1 ×ˢ sphere 0 1 := by
-  rw [prodisometryequiv, IsometryEquiv.trans_image]
-  have : ⇑(IsometryEquiv.arrowCongrleft ℝ (finCongr hmln.symm)) '' sphere 0 1 = sphere 0 1 := by
-    ext x
-    simp only [IsometryEquiv.image_sphere, mem_sphere_iff_norm, sub_zero]
-    have : (IsometryEquiv.arrowCongrleft ℝ (finCongr hmln.symm)) 0 = 0 := by rfl
-    rw [this, sub_zero]
-  rw [this, IsometryEquivFinMapR_image_sphere]
+  simp only [IsometryEquiv.image_sphere, sphere_prod]
+  rfl
 
 lemma prodmap_image_ball {n m l : ℕ} {hmln : m + l = n} {j : cell C m} {k : cell D l} :
-    prodmap hmln j k ''
-    ball 0 1 = (openCell m j) ×ˢ (openCell l k) := by
-  rw [prodmap, Equiv.transPartialEquiv_image, IsometryEquiv.coe_toEquiv,
+    prodmap hmln j k '' ball 0 1 = (openCell m j) ×ˢ (openCell l k) := by
+  simp_rw [prodmap, Equiv.transPartialEquiv_apply, ← image_image, IsometryEquiv.coe_toEquiv,
     prodisometryequiv_image_ball, PartialEquiv.prod_coe, ← prod_image_image_eq]
   rfl
 
 lemma prodmap_image_sphere {n m l : ℕ} {hmln : m + l = n} {j : cell C m} {k : cell D l} :
     prodmap hmln j k '' sphere 0 1 = (cellFrontier m j) ×ˢ (closedCell l k) ∪
     (closedCell m j) ×ˢ (cellFrontier l k) := by
-  simp_rw [prodmap, Equiv.transPartialEquiv_image, IsometryEquiv.coe_toEquiv,
+  simp_rw [prodmap, Equiv.transPartialEquiv_apply, ← image_image , IsometryEquiv.coe_toEquiv,
     prodisometryequiv_image_sphere, image_union, PartialEquiv.prod_coe, ← prod_image_image_eq]
   rfl
 
 lemma prodmap_image_closedBall {n m l : ℕ} {hmln : m + l = n} {j : cell C m} {k : cell D l} :
     prodmap hmln j k ''
     closedBall 0 1 = (closedCell m j) ×ˢ (closedCell l k) := by
-  rw [prodmap, Equiv.transPartialEquiv_image, IsometryEquiv.coe_toEquiv,
+  simp_rw [prodmap, Equiv.transPartialEquiv_apply, ← image_image , IsometryEquiv.coe_toEquiv,
     prodisometryequiv_image_closedBall, PartialEquiv.prod_coe, ← prod_image_image_eq]
   rfl
 
