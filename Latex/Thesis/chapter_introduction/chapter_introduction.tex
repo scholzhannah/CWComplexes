@@ -2,27 +2,27 @@
 \addcontentsline{toc}{chapter}{Introduction}
 
 Lean is a programming language that is frequently used as a theorem prover. 
-It was primarily developed by Leonardo de Moura who co-funded the Lean focused research organisation that has taken on the development for five years in 2023 \cite{LeanFRO2024}. 
+It was primarily developed by Leonardo de Moura, who co-funded the Lean focused research organisation that has taken on the development for five years in 2023 \cite{LeanFRO2024}. 
 The latest version is called Lean 4.
 More about the technical details of Lean 4 can be found in \cite{deMoura2021}.
 
-Lean is known for its extensive mathematical library called \emph{mathlib} of which the development has been largely community driven. 
+Lean is known for its extensive mathematical library called \emph{mathlib}, of which the development has been largely community driven. 
 Its github repository has just over 300 different contributors and multiple new pull requests every day that get approved or rejected by the 28 maintainers. 
 
-There have been multiple large formalizations based on mathlib. 
+There have been multiple large formalisations based on mathlib. 
 Here are two examples: 
-In the \emph{Liquid Tensor Experiment}, given to the Lean community by Peter Scholze as a challenge, Johan Commelin, Adam Topaz and a number of other contributors formalised a theorem by Peter Scholze and Dustin Clausen from condensed mathematics \cite{Commelin2022}.
-Floris van Doorn, Patrick Massot and Oliver Nash have formalised the existence of sphere eversions, a concept from differential topology, showing that geometric areas of mathematics can also be successfully formalised in Lean \cite{vanDoorn2023}. 
+In the \emph{Liquid Tensor Experiment}, given to the Lean community by Peter Scholze as a challenge, Johan Commelin, Adam Topaz and other contributors formalised a theorem by Peter Scholze and Dustin Clausen from condensed mathematics \cite{Commelin2022}.
+In addition, Floris van Doorn, Patrick Massot and Oliver Nash have formalised the existence of sphere eversions, a concept from differential topology, showing that geometric areas of mathematics can also be successfully formalised in Lean \cite{vanDoorn2023}. 
 
-There are also several large scale ongoing projects of which we again present two examples: 
-Floris van Doorn is currently leading a a formalisation of a generalisation of Carleson's theorem, a theorem from fourier analysis, by Christoph Thiele and his group \cite{Becker2024}.
-Additionally there is a project led by Kevin Buzzard that aims to reduce the famous Fermat's Last Theorem to mathematical facts already known by mathematicians in the 1980s, a starting point similar to that of Andrew Wiles and Richard Taylor, who first proved this theorem in 1995 \cite{Buzzard2024}.
+There are also several large-scale ongoing projects of which we again present two examples: 
+Floris van Doorn is currently leading a formalisation of a generalisation of Carleson's theorem, a theorem from fourier analysis, by Christoph Thiele and his collaborators \cite{Becker2024}.
+Additionally, there is a project led by Kevin Buzzard that aims to reduce the renowned Fermat's Last Theorem to mathematical facts already known by mathematicians in the 1980s, a starting point similar to that of Andrew Wiles and Richard Taylor, who first proved this theorem in 1995 \cite{Buzzard2024}.
 
 One important concept that is currently missing in mathlib is CW-complexes. 
-They were first invented by \Citeauthor{Whitehead2018} in 1949 in \cite{Whitehead2018} to state and prove the famous Whitehead theorem which says that a continuous map between CW-complexes that induces isomorphisms on all homotopy groups is a homotopy equivalence.
-CW-complexes are especially useful when doing calculations for example of singular homology and cohomology. 
-One reason is that their skeletal structure allows you to use induction.
-Since we are interested in providing a basic theory of CW-complexes we will not focus on applications but instead on basic properties. 
+They were first invented by \Citeauthor{Whitehead2018} in 1949 in \cite{Whitehead2018} to state and prove the famous Whitehead theorem, which says that a continuous map between CW-complexes that induces isomorphisms on all homotopy groups is a homotopy equivalence.
+CW-complexes are especially useful when doing calculations, for example, of singular homology and cohomology. 
+One reason is that their skeletal structure allows one to use induction.
+Since we are interested in providing a basic theory of CW-complexes, we will not focus on applications but instead on basic properties. 
 An introduction to CW-complexes and their applications can be found in \cite{Lundell1969}.
 Our mathematical discussion will mostly be based on \cite{Hatcher2001}.
 In chapter 1 we will discuss CW-complexes from a purely mathematical perspective. 

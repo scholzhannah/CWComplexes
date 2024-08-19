@@ -27,7 +27,7 @@ The modern definition of a CW-complex is the following:
 \symbolindex{$D^n$}{The closed unit disk in $\bR^n$, i.e. $D^n \coloneq \{x \in \bR^n \mid \norm{x} \le 1\}$.}{}
 \symbolindex{$S^n$}{The boundary of the unit disk in $\bR^n$, i.e. $S^n \coloneq \{x \in \bR^n \mid \norm{x} = 1\}$.}{}
 
-In this thesis we will however focus on the historical definition of CW-complexes first presented by \Citeauthor{Whitehead2018} which can be found in \cite{Whitehead2018}.
+In this thesis we will however focus on the historical definition of CW-complexes first presented by \Citeauthor{Whitehead2018}, which can be found in \cite{Whitehead2018}.
 
 \begin{defi}\label{defi:CWComplex2}
     Let $X$ be a Hausdorff space.
@@ -52,7 +52,7 @@ For the rest of the section let $X$ be a CW-complex.
 \begin{rem}
     Property (iii) in the above definition is called \emph{closure finiteness}.
     Property (iv) is called \emph{weak topology}.
-    Whitehead named CW-complexes or long \emph{closure finite complexes with weak topology} after these two properties \cite{Whitehead2018}.
+    Whitehead named CW-complexes \emph{closure finite complexes with weak topology} after these two properties \cite{Whitehead2018}.
 \end{rem}
 
 These two different notions are equivalent:
@@ -61,10 +61,10 @@ These two different notions are equivalent:
     Definition \ref{defi:CWComplex1} and \ref{defi:CWComplex2} are equivalent.
 \end{prop}
 
-The proof to this proposition is long, tedious and not relevant to this thesis so we will skip it here.
+The proof to this proposition is long, tedious and not relevant to this thesis, so we will skip it here.
 It can be found as the proof of Proposition A.2. in \cite{Hatcher2001}.
-From here on the term CW-Complex will always refer to the older Definition \ref{defi:CWComplex2}.
-As such keep in mind that throughout this thesis any CW-complex will by definition be assumed to be Hausdorff.
+From here on, the term CW-Complex will always refer to the older Definition \ref{defi:CWComplex2}.
+As such, keep in mind that throughout this thesis any CW-complex will, by definition, be assumed to be Hausdorff.
 
 \begin{rem}
     The name \emph{open $n$-cell} and the notation $\cellFrontier{n}{i}$ can be confusing as an open $n$-cell is not necessarily open and $\cellFrontier{n}{i}$  is not necessarily the boundary of $\closedCell{n}{i}$.
@@ -106,26 +106,26 @@ Now let us define what it means for a CW-complex to be finite:
     Finally, $X$ is called \emph{finite} if it is of finite type and finite dimensional.
 \end{defi}
 
-If we already know that the CW-complex we want to construct will be finite or of finite type we can relax some of the conditions:
+If we already know that the CW-complex we want to construct will be finite or of finite type, we can relax some of the conditions:
 
 \begin{rem}~
     \begin{enumerate}
-        \item For a CW-complex of finite type condition (iii) in Definition \ref{defi:CWComplex2} follows from the following:
+        \item For a CW-complex of finite type, condition (iii) in Definition \ref{defi:CWComplex2} follows from the following:
         For each $n \in \bN$, $i \in I_n$ $Q_i^n(\boundary D_i^n)$ is contained in $\bigcup_{m \le n - 1}\bigcup_{i \in I_m}\openCell{m}{i}$.
-        \item Additionally for a finite CW-complex condition (iv) in Definition \ref{defi:CWComplex2} is follows from the other conditions.
+        \item Additionally, for a finite CW-complex, condition (iv) in Definition \ref{defi:CWComplex2} follows from the other conditions.
     \end{enumerate}
 \end{rem}
 \begin{proof}
     Let us begin with statement (i).
     Take $n \in \bN$ and $i \in I_n$.
     We need to show that $Q_i^n(\boundary D_i^n)$ is contained in a finite number of cells of a lower dimension.
-    But by assumption we have $Q_i^n(\boundary D_i^n) \subseteq \bigcup_{m \le n - 1}\bigcup_{i \in I_m}\openCell{m}{i}$ which in this case is made up of finitely many cells.
+    But by assumption, we have $Q_i^n(\boundary D_i^n) \subseteq \bigcup_{m \le n - 1}\bigcup_{i \in I_m}\openCell{m}{i}$ which in this case consists of finitely many cells.
     Now we can move on to statement (ii).
     We need to prove condition (iv) of Definition \ref{defi:CWComplex2}, i.e.
     \[A \subseteq X \text{ is closed} \iff \closedCell{n}{i} \cap A \text{ is closed for all } n \in \bN \text{ and } i \in I_n.\]
-    For the forward direction notice that $\closedCell{n}{i} \cap A$ is just the intersection of two closed sets by assumption and Lemma \ref{lem:closedCellclosed}.
+    For the forward direction, notice that $\closedCell{n}{i} \cap A$ is just the intersection of two closed sets by assumption and Lemma \ref{lem:closedCellclosed}.
     As such it is closed.
-    For the backward direction take an $A \subseteq X$ such that $\closedCell{n}{i}$ is closed for all $n \in \bN$ and $i \in I_n$.
+    For the backward direction, take an $A \subseteq X$ such that $\closedCell{n}{i}$ is closed for all $n \in \bN$ and $i \in I_n$.
     We need to show that $A$ is closed.
     But using condition (v) of Definition \ref{defi:CWComplex2} we get
     \[A = A \cap \bigcup_{n \ge 0}\bigcup_{i \in I_n} \closedCell{n}{i} = \bigcup_{n \ge 0}\bigcup_{i \in I_n} (A \cap \closedCell{n}{i})\]
@@ -139,10 +139,10 @@ We can also think about the $n$-skeletons as being made up of open cells:
 \end{lem}
 \begin{proof}
     We show this by induction over $-1 \le n \le \infty$.
-    For the base case assume that $n = -1$.
+    For the base case, assume that $n = -1$.
     Then we get $X_{-1} = \bigcup_{m < 0}\bigcup_{i \in I_m}\closedCell{m}{i} = \varnothing = \bigcup_{m < 0}\bigcup_{i \in I_m} \openCell{m}{i}$.
 
-    For the induction step assume that that the statement is true for $n$.
+    For the induction step, assume that that the statement is true for $n$.
     We now show that it also holds for $n + 1$.
     \begin{equation*}
         \begin{split}
@@ -155,7 +155,7 @@ We can also think about the $n$-skeletons as being made up of open cells:
             &= \bigcup_{m < n + 2}\bigcup_{i \in I_m} \openCell{m}{i}
         \end{split}
     \end{equation*}
-    Where (1) holds by induction and (2) holds by closure finiteness (property (iii) in Definition \ref{defi:CWComplex2}).
+    Note that (1) holds by induction and (2) holds by closure finiteness (property (iii) in Definition \ref{defi:CWComplex2}).
 
     Now we can move on to the case $n = \infty$.
     \begin{equation*}
@@ -164,7 +164,7 @@ We can also think about the $n$-skeletons as being made up of open cells:
             &= \bigcup_{m < \infty + 1}\bigcup_{l < m + 1}\bigcup_{i \in I_l}\closedCell{l}{i} \\
             &= \bigcup_{m < \infty + 1} X_m \\
             &\stackrel{(1)}{=} \bigcup_{m < \infty + 1}\bigcup_{l < m + 1}\bigcup_{i \in I_l}\openCell{l}{i} \\
-            &= \bigcup_{m < \infty + 1}\bigcup_{i \in I_m}\closedCell{m}{i}
+            &= \bigcup_{m < \infty + 1}\bigcup_{i \in I_m}\openCell{m}{i}
         \end{split}
     \end{equation*}
     Where (1) holds by induction.
@@ -173,12 +173,12 @@ We can also think about the $n$-skeletons as being made up of open cells:
 This also enables us to write $X$ as a union of open cells:
 
 \begin{cor} \label{cor:complexeqopencells}
-    $\bigcup_{n \ge 0}\bigcup_{i \in I_n} \openCell{n}{i} = X$.
+    $X = \bigcup_{n \ge 0}\bigcup_{i \in I_n} \openCell{n}{i}$.
 \end{cor}
 
-When we want to show that a set $A \subseteq X$ is closed the weak topology (property (iv) in \ref{defi:CWComplex2}) lets us reduce that question to an individual cell.
-It is then often convenient to do strong induction over the dimension of the cell.
-We now want to prove a lemma that makes this repeated process easier.
+When we want to show that a set $A \subseteq X$ is closed, the weak topology (property (iv) in \ref{defi:CWComplex2}) lets us reduce that question to an individual cell.
+It is then often convenient to perform strong induction over the dimension of that cell.
+To this end, we want to prove a lemma that makes this repeated process easier.
 We first need the following:
 
 \begin{lem}\label{lem:inductioncellFrontierclosed}
@@ -187,10 +187,11 @@ We first need the following:
     Then $A \cap \cellFrontier{n + 1}{j}$ is closed for every $j \in I_{n + 1}$.
 \end{lem}
 \begin{proof}
-    By closure finiteness of $X$ (property (iii) in \ref{defi:CWComplex2}) there is a set $E$ of cells of dimension lower than $n + 1$ such that $\cellFrontier{n + 1}{j} \subseteq \bigcup_{e \in E}\closure{e}$.
+    By closure finiteness of $X$ (property (iii) in \ref{defi:CWComplex2}), there is a set $E$ of cells of dimension lower than $n + 1$ such that $\cellFrontier{n + 1}{j} \subseteq \bigcup_{e \in E}\closure{e}$.
     This gives us
     \[A \cap \cellFrontier{n + 1}{j} = A \cap \bigcup_{e \in E}\closure{e} \cap \cellFrontier{n + 1}{j} = \bigcup_{e \in E}(A \cap \closure{e}) \cap \cellFrontier{n + 1}{j}.\]
-    $\bigcup_{e \in E}(A \cap \closure{e})$ is closed as a finite union of sets that are by assumption closed and $\cellFrontier{n + 1}{j}$ is closed by Lemma \ref{lem:closedCellclosed}. Therefore the intersection is also closed.
+    $\bigcup_{e \in E}(A \cap \closure{e})$ is closed as a finite union of sets that are closed by assumption and $\cellFrontier{n + 1}{j}$ is closed by Lemma \ref{lem:closedCellclosed}. 
+    Therefore, the intersection is also closed.
 \end{proof}
 
 Now we can move on to the lemma that we actually want.
@@ -202,16 +203,16 @@ We can think of this lemma as being a weaker condition than the weak topology i.
 \end{lem}
 \begin{proof}
     Since $X$ has weak topology, it is enough to show that $A \cap \closedCell{n}{j}$ is closed for every $n \in \bN$ and $i \in I_n$.
-    We show this by doing strong induction over $n$.
-    For the base case $n = 0$ notice that $\closedCell{0}{j}$ is a singleton and the intersection with a singleton is either that singleton or empty.
-    As such the intersection is closed in both cases.
+    We show this by strong induction over $n$.
+    For the base case $n = 0$, notice that $\closedCell{0}{j}$ is a singleton, and the intersection with a singleton is either that singleton or empty.
+    As such, the intersection is closed in both cases.
 
-    Now let us move on to the induction step.
-    Assume that for every $m \le n$ the statement already holds.
+    For the induction step, assume that for every $m \le n$ the statement already holds.
     We now need to show it for $n + 1$.
-    By assumption either $A \cap \openCell{n + 1}{j}$ or $A \cap \closedCell{n + 1}{j}$ is closed. The second case is just immediately what we wanted to show.
+    By assumption either $A \cap \openCell{n + 1}{j}$ or $A \cap \closedCell{n + 1}{j}$ is closed. 
+    The second case is just what we wanted to show.
 
-    In the first case we can use that $A \cap \closedCell{n + 1}{j} = (A \cap \cellFrontier{n + 1}{j}) \cup (A \cap \openCell{n + 1}{j})$.
+    In the first case, we can use that $A \cap \closedCell{n + 1}{j} = (A \cap \cellFrontier{n + 1}{j}) \cup (A \cap \openCell{n + 1}{j})$.
     The left part of the union is closed by Lemma \ref{lem:inductioncellFrontierclosed} applied to the induction hypothesis.
     The right part of the union is closed by the assumption of our case.
     The union is therefore also closed.
@@ -223,32 +224,32 @@ We can use the lemma we just proved to show that the $n$-skeletons are closed:
     $X_n$ is closed for every $n \in \bN$.
 \end{lem}
 \begin{proof}
-    By the previous Lemma \ref{lem:closediffinteropenorclosed} it is enough to show that for every $m \in \bN$ and $j \in I_m$ either $X_n \cap \openCell{m}{j}$ or $X_n \cap \closedCell{m}{j}$ is closed.
+    By the previous Lemma \ref{lem:closediffinteropenorclosed}, it is enough to show that for every $m \in \bN$ and $j \in I_m$ either $X_n \cap \openCell{m}{j}$ or $X_n \cap \closedCell{m}{j}$ is closed.
     We differentiate two cases based on whether $m < n + 1$.
     First assume that $m < n + 1$ holds.
     Then by the definition of $X_n$ we get $X_n \cap \closedCell{m}{j} = (\bigcup_{m < n + 1} \bigcup_{i \in I_m} \closedCell{m}{i}) \cap \closedCell{m}{j} = \closedCell{m}{j}$ which is closed by Lemma \ref{lem:closedCellclosed}.
     Now assume that it does not hold.
     Then by Lemma \ref{lem:skeletonunionopenCell} we get $X_n \cap \openCell{m}{j} = (\bigcup_{m < n + 1} \bigcup_{i \in I_m} \openCell{m}{i}) \cap \openCell{m}{j} = \varnothing$ where the last equality holds because the open cells are pairwise disjoint by property (ii) in Definition \ref{defi:CWComplex2}.
-    The empty set is obviously closed.
+    The empty set is trivially closed.
 \end{proof}
 
 Another fact that can be quite helpful is a version of closure finiteness using open cells:
 
 \begin{lem} \label{lem:Frontiersubsetopen}
-    For each $n \in \bN$ and $i \in I_n$ $\cellFrontier{n}{i}$ is contained in the union of a finite number of open cells of dimension less than $n$.
+    For each $n \in \bN$ and $i \in I_n$, $\cellFrontier{n}{i}$ is contained in the union of a finite number of open cells of dimension less than $n$.
 \end{lem}
 \begin{proof}
-    We show this by doing strong induction on $n$.
+    We show this by strong induction on $n$.
     For the base case $n = 0$ notice that $\cellFrontier{0}{i}$ is empty.
 
-    Moving on to the induction step assume that the statement holds for all $m \le n$.
+    For the induction step, assume that the statement holds for all $m \le n$.
     We need to show that it also holds for $n + 1$.
     By closure finiteness there is a finite set $E$ of cells of dimension less than $n + 1$ such that $\cellFrontier{n + 1}{i} \subseteq \bigcup_{e \in E}\closure{e}$.
-    If we can show that for every $e \in E$ there is a finite set $E_e$ of cells of dimension less than $n + 1$ such that $\closure{e} \subseteq \bigcup_{e' \in E}e'$, we would then be done since $\cellFrontier{n + 1}{i} \subseteq \bigcup_{e \in E}\closure{e} \subseteq \bigcup_{e \in E}\bigcup_{e' \in E}e'$.
+    If we can show that for every $e \in E$ there is a finite set $E_e$ of cells of dimension less than $n + 1$ such that $\closure{e} \subseteq \bigcup_{e' \in E_e}e'$, we would then be done since $\cellFrontier{n + 1}{i} \subseteq \bigcup_{e \in E}\closure{e} \subseteq \bigcup_{e \in E}\bigcup_{e' \in E_e}e'$.
 
     So take $e \in E$.
     By the induction hypothesis there is a finite set $E'_e$ of cells of a lesser dimension than that of $e$ such that $\boundary e \subseteq \bigcup_{e' \in E'_e}e'$.
-    This gives us $\closure e = \boundary e \cup e \subseteq (\bigcup_{e' \in E'_e}e') \cup e$ which finishes the proof.
+    This gives us $\closure e = \boundary e \cup e \subseteq (\bigcup_{e' \in E'_e}e') \cup e$, which finishes the proof.
 \end{proof}
 
 Let us now look at some more ways to show that sets in $X$ are closed. 
