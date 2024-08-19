@@ -5,9 +5,19 @@ import Mathlib.Topology.MetricSpace.Isometry
 import Mathlib.Analysis.Normed.Group.Basic
 import Mathlib.Data.Fintype.Lattice
 
+/-!
+# Auxiliary lemmas and definitions
+
+In this file we have auxiliary lemmas that are not in mathlib but do not have any direct relation
+to CW-complexes.
+They are sorted by topics.
+At the bottom of the file there are lemmas that are not used in this project but relate to
+definitions and lemmas in this file.
+-/
+
 noncomputable section
 
-/-Basic logic and set theory-/
+/-! ### Basic logic and set theory-/
 
 -- needed in definition file
 lemma biUnion_lt_eq_iUnion {X : Type*} (I : ℕ → Set X) :
@@ -37,7 +47,7 @@ lemma exists_iff_and_of_upwards_closed {L : Type*} [SemilatticeSup L] {P Q : L �
   ⟨fun ⟨i, hP, hQ⟩ ↦ ⟨⟨i, hP⟩, ⟨i, hQ⟩⟩, fun ⟨⟨i, hP⟩, ⟨j, hQ⟩⟩ ↦
     ⟨i ⊔ j, ucP i hP (i ⊔ j) (le_sup_left), ucQ j hQ (i ⊔ j) (le_sup_right)⟩⟩
 
-/-ENat-/
+/-! ### ENat-/
 
 -- needed in definition file
 lemma ENat.add_one_pos {n : ℕ∞} : 0 < n + 1 := by
@@ -52,9 +62,11 @@ lemma ENat.add_coe_lt_add_coe_right {n m : ℕ∞} {k : ℕ} : n + k < m + k ↔
   · norm_cast; simp [ENat.coe_lt_top, -Nat.cast_add]
   · norm_cast; simp_all
 
-/- Different types of maps -/
+/-! ### Different maps -/
 
 -- needed in this file and in examples file
+/-- `Function.const` as a `PartialEquiv`.
+  It consists of two constant maps in opposite directions. -/
 def PartialEquiv.const {X Y : Type*} (x : X) (y : Y) : PartialEquiv X Y where
   toFun := Function.const X y
   invFun := Function.const Y x
@@ -66,6 +78,8 @@ def PartialEquiv.const {X Y : Type*} (x : X) (y : Y) : PartialEquiv X Y where
   right_inv' := fun y' y'mem ↦ by rw [Set.eq_of_mem_singleton y'mem]; rfl
 
 -- needed in this file
+/-- `Equiv.piCongrLeft` as an `IsometryEquiv`: this is the natural
+`∀ i, Y i ≃ᵢ ∀ j, Y (e.symm j)` obtained from a bijection `ι ≃ ι'` of finite types.-/
 def IsometryEquiv.piCongrLeftofFintype' {ι ι' : Type*} [Fintype ι] [Fintype ι'] {Y : ι → Type*}
     [∀ j, PseudoEMetricSpace (Y j)]
     (e : ι ≃ ι') : (∀ i, Y i) ≃ᵢ ∀ j, Y (e.symm j) := IsometryEquiv.mk (Equiv.piCongrLeft' _ e)
@@ -76,16 +90,20 @@ def IsometryEquiv.piCongrLeftofFintype' {ι ι' : Type*} [Fintype ι] [Fintype �
     exact (Equiv.iSup_comp (g := fun b ↦ edist (x1 b) (x2 b)) e.symm))
 
 -- needed in this file
+/-- `Equiv.piCongrLeft` as an `IsometryEquiv`: this is the natural
+`∀ i, Y (e i) ≃ᵢ ∀ j, Y j` obtained from a bijection `ι ≃ ι'` of finite types.-/
 def IsometryEquiv.piCongrLeftofFintype {ι ι' : Type*} [Fintype ι] [Fintype ι'] {Y : ι' → Type*}
     [∀ j, PseudoEMetricSpace (Y j)]
     (e : ι ≃ ι') : (∀ i, Y (e i)) ≃ᵢ ∀ j, Y j := (piCongrLeftofFintype' e.symm).symm
 
 -- needed in this file
-def IsometryEquiv.congrLeftofFintype {ι ι' X : Type*} [Fintype ι] [Fintype ι']
+/-- An equivalence `ι ≃ ι'` of finite types yields the `IsometryEquiv` `(ι → X) ≃ᵢ (ι' → X)`. -/
+def IsometryEquiv.arrowCongrLeftofFintype {ι ι' X : Type*} [Fintype ι] [Fintype ι']
     [PseudoEMetricSpace X] (e : ι ≃ ι') : (ι → X) ≃ᵢ (ι' → X) :=
   piCongrLeftofFintype (Y := fun _ ↦ X) e
 
 -- needed in this file
+/-- `Equiv.sumArrowEquivProdArrow` as an `IsometryEquiv`.-/
 def IsometryEquiv.sumArrowEquivProdArrowofFintype (α β γ : Type*) [Fintype α] [Fintype β]
     [PseudoEMetricSpace γ] : (α ⊕ β → γ) ≃ᵢ (α → γ) × (β → γ) :=
   mk (Equiv.sumArrowEquivProdArrow _ _ _) (by
@@ -95,12 +113,12 @@ def IsometryEquiv.sumArrowEquivProdArrowofFintype (α β γ : Type*) [Fintype α
     rfl)
 
 -- needed in product file
+/-- The natural `IsometryEquiv` between `(Fin m → X) × (Fin n → X)` and `(Fin (m + n) → X)`.-/
 def IsometryEquiv.finArrowProdHomeomorphFinAddArrow {X : Type*} [PseudoEMetricSpace X] (m n : ℕ) :
     (Fin m → X) × (Fin n → X) ≃ᵢ (Fin (m + n) → X) :=
-  (sumArrowEquivProdArrowofFintype _ _ _).symm.trans (congrLeftofFintype finSumFinEquiv)
+  (sumArrowEquivProdArrowofFintype _ _ _).symm.trans (arrowCongrLeftofFintype finSumFinEquiv)
 
-
-/- Topology -/
+/-! ### Topology -/
 
 -- needed in examples file
 lemma closedBall_zero_dim_singleton {X : Type*} {h : PseudoMetricSpace (Fin 0 → X)} :
@@ -114,6 +132,7 @@ lemma sphere_zero_dim_empty {X : Type*} {h : PseudoMetricSpace (Fin 0 → X)} :
   simp only [Metric.sphere, Matrix.empty_eq, dist_self, zero_ne_one, Set.setOf_false]
 
 -- needed in kification file
+/-- This lemma states that a set `A` is open in a set `B` iff `Aᶜ` is closed in `B`.-/
 lemma open_in_iff_compl_closed_in {X : Type*} [TopologicalSpace X] (A B : Set X) :
     (∃ (C : Set X), IsOpen C ∧  A ∩ B = C ∩ B) ↔
     ∃ (C : Set X), IsClosed C ∧  Aᶜ ∩ B = C ∩ B := by
@@ -151,16 +170,19 @@ lemma T2Space.mono {X : Type*} {s t : TopologicalSpace X}
     obtain ⟨u, v, openu, openv, huv⟩ := t2 ne
     exact ⟨u, v, le _ openu, le _ openv, huv⟩
 
-/- Lemmas that I am not using but relate to things I have defined above -/
+/-! ### Lemmas that I am not using but relate to things I have defined above -/
 
 lemma PartialEquiv.const_continuousOn {X Y : Type*} [TopologicalSpace X] [TopologicalSpace Y]
     (x : X) (y : Y) : ContinuousOn (PartialEquiv.const x y) {x}
   := continuousOn_singleton (PartialEquiv.const x y) x
 
+/-- The natural `Equiv` between `(Fin m → X) × (Fin n → X)` and `(Fin (m + n) → X)`.-/
 def Equiv.finArrowProdEQuivFinAddArrow {X : Type*} (m n : ℕ) :
     (Fin m → X) × (Fin n → X) ≃ (Fin (m + n) → X) :=
   (sumArrowEquivProdArrow _ _ _).symm.trans (finSumFinEquiv.arrowCongr (Equiv.refl _))
 
+/-- `Equiv.sumArrowEquivProdArrow` as a homeomorphism. The natural homeomoorphism
+`(ι ⊕ ι' → X) ≃ₜ (ι → X) × (ι' → X)` -/
 def Homeomorph.sumArrowEquivProdArrow {ι ι' X: Type*} [TopologicalSpace X]:
     (ι ⊕ ι' → X) ≃ₜ (ι → X) × (ι' → X)  where
   toEquiv := Equiv.sumArrowEquivProdArrow _ _ _
@@ -171,10 +193,12 @@ def Homeomorph.sumArrowEquivProdArrow {ι ι' X: Type*} [TopologicalSpace X]:
     | .inl i => by apply (continuous_apply _).comp' continuous_fst
     | .inr i => by apply (continuous_apply _).comp' continuous_snd
 
-def Homeomorph.congrLeft {ι ι' X : Type*} [TopologicalSpace X] (e : ι ≃ ι') :
+/-- An equivalence `ι ≃ ι'` yields the homeomorphism `(ι → X) ≃ₜ (ι' → X)`.-/
+def Homeomorph.arrowCongrLeft {ι ι' X : Type*} [TopologicalSpace X] (e : ι ≃ ι') :
     (ι → X) ≃ₜ (ι' → X) :=
   piCongrLeft (Y := fun _ ↦ X) e
 
+/-- The natural homeomorphism between `(Fin m → X) × (Fin n → X)` and `(Fin (m + n) → X)`.-/
 def Homeomorph.finArrowProdHomeomorphFinAddArrow {X: Type*} [TopologicalSpace X] (m n : ℕ) :
     (Fin m → X) × (Fin n → X) ≃ₜ (Fin (m + n) → X) :=
-  (sumArrowEquivProdArrow).symm.trans (congrLeft finSumFinEquiv)
+  (sumArrowEquivProdArrow).symm.trans (arrowCongrLeft finSumFinEquiv)

@@ -21,7 +21,7 @@ def prodcell (C : Set X) (D : Set Y) [CWComplex C] [CWComplex D] (n : ℕ) :=
   (Σ' (m : ℕ) (l : ℕ) (hml : m + l = n), cell C m × cell D l)
 
 def prodisometryequiv {n m l : ℕ}  (hmln : m + l = n) (j : cell C m) (k : cell D l) :=
-  (IsometryEquiv.congrLeftofFintype (X := ℝ) (finCongr hmln.symm)).trans
+  (IsometryEquiv.arrowCongrLeftofFintype (X := ℝ) (finCongr hmln.symm)).trans
   ((IsometryEquiv.finArrowProdHomeomorphFinAddArrow m l).symm)
 
 def prodmap {n m l : ℕ} (hmln : m + l = n) (j : cell C m) (k : cell D l) :=
