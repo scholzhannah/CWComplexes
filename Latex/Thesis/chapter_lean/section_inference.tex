@@ -1,10 +1,10 @@
-\section{Implicit variables and typeclass inference}
+\section{Implicit arguments and typeclass inference}
 \label{sec:implicitandtypeclass}
 
-A crucial factor that makes Lean more comfortable to use and makes the formalisation process feel closer to doing mathematics on paper is its use of \emph{implicit variables} and \emph{typeclass inference}. 
+A crucial factor that makes Lean more comfortable to use and makes the formalisation process feel closer to doing mathematics on paper is its use of \emph{implicit arguments} and \emph{typeclass inference}. 
 We will explain both of these concepts in this section.
 
-First let us discuss implicit variables based on \cite{Avigad2024}. 
+First let us discuss implicit arguments based on \cite{Avigad2024}. 
 One way that we could define continuity in Lean is the following\cprotect\footnote{The code in this section will run if \lstinline{import Mathlib.Topology.MetricSpace.Basic} is written at the top of the file.}:
 
 \begin{lstlisting}
@@ -13,7 +13,7 @@ structure Continuous' (X Y : Type*) (t : TopologicalSpace X)
   isOpen_preimage : ∀ s, IsOpen s → IsOpen (f ⁻¹' s)
 \end{lstlisting}
 
-Where a structure is a construct that can bundle both data and properties after the \lstinline{where}. 
+Where a structure is a construct that can bundle both data and properties after the keyword \lstinline{where}. 
 This structure has no data and one property which is named \lstinline{isOpen_preimage}. 
 \lstinline{f ⁻¹' s} denotes the preimage of \lstinline{s} under \lstinline{f}.
 But now if we are given two types \lstinline{X} and \lstinline{Y} with topologies \lstinline{s} and \lstinline{t} respectively and a map \lstinline{f : X → Y}, the statement that the map \lstinline{f} is continuous would be expressed in the following way:
@@ -33,7 +33,8 @@ To tell Lean to do that you can replace the variables by underscores:
   (f : X → Y) : Continuous' _ _ t s f := ⋯
 \end{lstlisting}
 
-Since this should always possible to be inferred we can change the definition to already specify that the two types should be clear from the context. 
+These two arguments are always clear from the context in this way. 
+We therefore want to specify in the definition that they should not be given explicitly but instead inferred by the system.
 We use curly brackets to do this: 
 
 \begin{lstlisting}
@@ -49,7 +50,7 @@ example (X Y : Type*) (t : TopologicalSpace X) (s : TopologicalSpace Y)
   (f : X → Y) : Continuous'' t s f := ⋯
 \end{lstlisting}
 
-This is already a lot shorter than what we had above but there is still room for improvement as on paper you would probably just write "$f$ is continuous" since in most contexts $X$ and $Y$ will only have one specified topology each that can be inferred by the reader.
+This is already a lot shorter than what we had above but there is still room for improvement as on paper we would probably just write "$f$ is continuous" since in most contexts $X$ and $Y$ will only have one specified topology each that can be inferred by the reader.
 The same thing is also true in Lean and we can achieve this by typeclass inference.
 Typeclasses were first invented by \Citeauthor{Wadler1989} in \cite{Wadler1989} to be used in the programming language Haskell. 
 They are a way to overload operations for various different types. 
@@ -72,7 +73,7 @@ The keyword \lstinline{protected} means that these properties should not be acce
 Thus the line \lstinline{protected IsOpen : Set X → Prop} expresses that \lstinline{IsOpen} is a property that can be assigned to a set in \lstinline{X}.
 The rest of the lines discuss the properties of a topology.
 \lstinline{univ} is the set that is composed of all elements of \lstinline{X} and \lstinline{⋃₀ s} is the union over the set \lstinline{s}. 
-All of these explanations are not actually relevant to typclasses, they are just for your understanding of the above code. 
+All of these explanations are not actually relevant to typeclasses, they are just for your understanding of the above code. 
 
 Typeclasses are also expected to be inferred automatically. 
 Local instances of these typeclasses can written with square brackets which tells Lean to infer these automatically.

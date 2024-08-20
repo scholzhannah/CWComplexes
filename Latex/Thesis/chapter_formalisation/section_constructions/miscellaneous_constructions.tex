@@ -20,7 +20,7 @@ def CWComplex_disjointUnion (disjoint : Disjoint C D) :
 \end{lstlisting}
 
 Where \lstinline{f : X ≃ₜ Y} is the statement that \lstinline{f} is a homeomorphism. 
-Note that the first und last constructions are not instances.
+Note that the first and last constructions are not instances.
 This is because the typeclass inference has no way to know that it should look for the hypotheses \lstinline{(f : X ≃ₜ Y) (imf : f '' C = D)} and \lstinline{(disjoint : Disjoint C D)} as this information is not contained in the statement. 
 So labeling these as instances would not be helpful. 
 But in \lstinline{CWComplex_level} all the necessary information is contained in the statement \lstinline{CWComplex (level C n)}, which means that this will work as an instance.
