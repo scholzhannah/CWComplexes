@@ -1,4 +1,4 @@
-import CWcomplexes.Definition
+import CWcomplexes.Finite
 import Mathlib.Analysis.NormedSpace.Real
 
 set_option autoImplicit false

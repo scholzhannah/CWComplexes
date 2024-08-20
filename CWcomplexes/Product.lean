@@ -344,7 +344,5 @@ instance CWComplex_product_kification : CWComplex (X := kification (X × Y)) (C 
       rw [← prodmap_image_closedBall] at h
       use (m + l), ⟨m, l, rfl, i, j⟩
 
--- does this even work?
-infixr:35 " × " => CWComplex_product_kification
 
 end
