@@ -1,5 +1,5 @@
 import CWcomplexes.Lemmas
-import CWcomplexes.kification
+import CWcomplexes.KSpace
 import Mathlib.Data.Finset.NatAntidiagonal
 
 /-!

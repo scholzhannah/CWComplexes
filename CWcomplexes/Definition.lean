@@ -1,4 +1,4 @@
-import CWcomplexes.auxiliary
+import CWcomplexes.Auxiliary
 import Mathlib.Analysis.NormedSpace.Real
 
 

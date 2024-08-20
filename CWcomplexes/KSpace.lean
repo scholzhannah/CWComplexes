@@ -1,4 +1,4 @@
-import CWcomplexes.auxiliary
+import CWcomplexes.Auxiliary
 
 /-!
 # Kspaces and the k-ification
