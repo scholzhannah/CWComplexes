@@ -13,8 +13,8 @@ variable {X : Type*} [t : TopologicalSpace X] [T2Space X]
 instance instCWComplexempty : CWComplex (∅ : Set X) := CWComplexFinite
   (cell := fun _ ↦ PEmpty)
   (map := fun _ i ↦ i.elim)
-  (finitelevels := by rw [Filter.eventually_atTop]; use 0; exact fun _ _ ↦ instIsEmptyPEmpty)
-  (finitecells := fun n ↦ Finite.of_fintype ((fun x ↦ PEmpty) n))
+  (eventually_isEmpty_cell := by rw [Filter.eventually_atTop]; use 0; exact fun _ _ ↦ instIsEmptyPEmpty)
+  (finite_cell := fun n ↦ Finite.of_fintype ((fun x ↦ PEmpty) n))
   (source_eq := fun _ i ↦ i.elim)
   (cont := fun _ i ↦ i.elim)
   (cont_symm := fun _ i ↦ i.elim)
@@ -32,7 +32,7 @@ instance instCWComplexsingleton (x : X) : CWComplex {x} := CWComplexFinite
     match n with
     | 0 => PartialEquiv.const ![] x
     | (m + 1) => i.elim)
-  (finitelevels := by
+  (eventually_isEmpty_cell := by
     rw [Filter.eventually_atTop]
     use 1
     intro b beq1
@@ -40,7 +40,7 @@ instance instCWComplexsingleton (x : X) : CWComplex {x} := CWComplexFinite
     split
     · contradiction
     · exact instIsEmptyPEmpty)
-  (finitecells := fun n ↦ match n with
+  (finite_cell := fun n ↦ match n with
     | 0 => Finite.of_fintype _
     | (m + 1) => Finite.of_fintype _)
   (source_eq := fun n i ↦ match n with
@@ -95,7 +95,7 @@ instance instCWComplexstandardinterval_test: CWComplex (Icc (-1) 1 : Set ℝ) :=
         IsometryEquiv.funUnique_toFun, Pi.zero_apply, Real.closedBall_eq_Icc, zero_sub, zero_add])
     | (m + 2) => i.elim
   )
-  (finitelevels := by
+  (eventually_isEmpty_cell := by
     rw [Filter.eventually_atTop]
     use 2
     intro n nge2
@@ -105,7 +105,7 @@ instance instCWComplexstandardinterval_test: CWComplex (Icc (-1) 1 : Set ℝ) :=
     · contradiction
     · exact instIsEmptyEmpty
   )
-  (finitecells := fun n ↦ match n with
+  (finite_cell := fun n ↦ match n with
     | 0 => Finite.of_fintype _
     | 1 => Finite.of_fintype _
     | (m + 2) => Finite.of_fintype _
@@ -156,9 +156,17 @@ instance instCWComplexstandardinterval_test: CWComplex (Icc (-1) 1 : Set ℝ) :=
         | 0 => match j with
           | 0 => match i with
             | 0 => (ne rfl).elim
-            | 1 => by simp [PartialEquiv.const]
+            | 1 => by
+              simp only [PartialEquiv.const, Function.const_apply, Matrix.zero_empty,
+                nonempty_ball, zero_lt_one, Nonempty.image_const, Function.const_one, Pi.one_apply,
+                inter_singleton_eq_empty, mem_singleton_iff]
+              linarith
           | 1 => match i with
-            | 0 => by simp [PartialEquiv.const]
+            | 0 => by
+              simp only [PartialEquiv.const, Function.const_one, Pi.one_apply,
+                Matrix.zero_empty, nonempty_ball, zero_lt_one, Nonempty.image_const,
+                Function.const_apply, inter_singleton_eq_empty, mem_singleton_iff]
+              linarith
             | 1 => (ne rfl).elim
         | 1 => match j with
           | 0 => by

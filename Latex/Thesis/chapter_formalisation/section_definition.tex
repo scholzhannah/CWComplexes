@@ -20,11 +20,11 @@ class CWComplex.{u} {X : Type u} [TopologicalSpace X] (C : Set X) where
 \end{lstlisting}
 
 The \lstinline|.{u}| is a way to fix a universe level so that our definition of a CW-complex does not depend on a number of different universe levels: The one of \lstinline{X} and the one of \lstinline{cell n} for every $n \in \bN$.
-\lstinline{cell (n : ℕ)} represents the indexing set that we called $I_n$ in Definition \ref{defi:CWComplex2}. \lstinline{map (n : ℕ) (i : cell n)} represent what we called $Q_i^n$ in that definition. 
+\lstinline{cell (n : ℕ)} represents the indexing set that we called $I_n$ in Definition \ref{defi:CWComplex2}. \lstinline{map (n : ℕ) (i : cell n)} represent what we called $Q_i^n$ in that definition.
 
-\lstinline{Fin n} is the set containing $n$ natural numbers starting at 0. 
-\lstinline{Fin n → ℝ} is one way to express $\bR^n$ in Lean. 
-\lstinline{PartialEquiv} is a structure defined in mathlib as follows: 
+\lstinline{Fin n} is the set containing $n$ natural numbers starting at 0.
+\lstinline{Fin n → ℝ} is one way to express $\bR^n$ in Lean.
+\lstinline{PartialEquiv} is a structure defined in mathlib as follows:
 
 \begin{lstlisting}
 structure PartialEquiv (α : Type*) (β : Type*) where
@@ -38,112 +38,112 @@ structure PartialEquiv (α : Type*) (β : Type*) where
   right_inv' : ∀ ⦃x⦄, x ∈ target → toFun (invFun x) = x
 \end{lstlisting}
 
-It bundles two maps and two sets that get mapped to each other by the respective maps. 
-Restricting the maps to these sets yields two maps that are the inverse of each other. 
-We use this instead of a similar construction called \lstinline{Equiv} for bijections to avoid explicitly having to deal with restrictions. 
+It bundles two maps and two sets that get mapped to each other by the respective maps.
+Restricting the maps to these sets yields two maps that are the inverse of each other.
+We use this instead of a similar construction called \lstinline{Equiv} for bijections to avoid explicitly having to deal with restrictions.
 The brackets \lstinline{⦃⦄} are similar to the curly brackets and are used here since \lstinline{x} can be inferred from the left sides of the implications.
 
-The property \lstinline{source_eq} specifies the source of the \lstinline{PartialEquiv}. 
+The property \lstinline{source_eq} specifies the source of the \lstinline{PartialEquiv}.
 \lstinline{cont} and \lstinline{cont_symm} make the bijection into a homeomorphism giving us property (i) of Definition \ref{defi:CWComplex2}.
-The property \lstinline{pairwiseDisjoint'} corresponds to property (ii) of Definition \ref{defi:CWComplex2}. 
-We are adding the prime to its name because we will later see a lemma called \lstinline{pairwiseDisjoint} that we prefer to use. 
+The property \lstinline{pairwiseDisjoint'} corresponds to property (ii) of Definition \ref{defi:CWComplex2}.
+We are adding the prime to its name because we will later see a lemma called \lstinline{pairwiseDisjoint} that we prefer to use.
 \lstinline{fun a : α ↦ f a} for \lstinline{f : α → β} is a way to construct a map.
 
-\lstinline{mapsto} is the equivalent of property (iii) of the definition of a CW-complex. 
+\lstinline{mapsto} is the equivalent of property (iii) of the definition of a CW-complex.
 The \lstinline{Π} defines a dependent function type which we discussed in Section \ref{sec:typetheory}.
-\lstinline{Finset α} is the type of all finite sets in a type \lstinline{α}. 
+\lstinline{Finset α} is the type of all finite sets in a type \lstinline{α}.
 It can be imagined as a set bundled with the information that it is finite (but note that the actual definitions of \lstinline{Finset α} and \lstinline{Set α} are quite different).
 \lstinline{MapsTo} is defined in mathlib as
 \begin{lstlisting}
-def MapsTo (f : α → β) (s : Set α) (t : Set β) : Prop := 
+def MapsTo (f : α → β) (s : Set α) (t : Set β) : Prop :=
   ∀ ⦃x⦄, x ∈ s → f x ∈ t
 \end{lstlisting}
 
-and is relatively self-explanatory. 
+and is relatively self-explanatory.
 
-\lstinline{closed'} represents property (iv) of Definition \ref{defi:CWComplex2} and \lstinline{union'} represents property (v). 
+\lstinline{closed'} represents property (iv) of Definition \ref{defi:CWComplex2} and \lstinline{union'} represents property (v).
 
 \medskip
 
 We have chosen this to be a class so that we can make use of typeclass inference which we explained in Section \ref{sec:implicitandtypeclass}.
 
-There are a few things to note about this formalisation of the definition. 
-First of all it does not require $X$ to be a Hausdorff space. 
-This is done so that when you define a CW-complex you can choose to first define the structure in this way and later show that it is a Haussdorff space to apply lemmas about CW-complexes of which almost all will require that $X$ is Hausdorff. 
-Additionally we introduce a relative component: 
+There are a few things to note about this formalisation of the definition.
+First of all it does not require $X$ to be a Hausdorff space.
+This is done so that when you define a CW-complex you can choose to first define the structure in this way and later show that it is a Haussdorff space to apply lemmas about CW-complexes of which almost all will require that $X$ is Hausdorff.
+Additionally we introduce a relative component:
 Instead of defining what it means for a space to be a CW-complex we define what it means for a subspace $C$ of $X$ to be a CW-complex in $X$.
-This is useful firstly to be able to work with a nicer topology: 
-If you consider $S^1$ as a CW-complex and a subspace of $\bR$ you might find it easier to work with the topology on $\bR$ instead of the subspace topology. 
+This is useful firstly to be able to work with a nicer topology:
+If you consider $S^1$ as a CW-complex and a subspace of $\bR$ you might find it easier to work with the topology on $\bR$ instead of the subspace topology.
 Secondly constructions such as attaching cells or taking disjoint unions of CW-complexes might be easier to work with if you are already working in the same overarching type.
-This approach is inspired by \cite{Gonthier2013} where the authors notice that it is helpful to consider subsets of an ambient group to avoid having to work with different group operations and similar issues. 
+This approach is inspired by \cite{Gonthier2013} where the authors notice that it is helpful to consider subsets of an ambient group to avoid having to work with different group operations and similar issues.
 
-One question that naturally arises is whether these changes to the definition preserve the notion of a CW-complex. 
-Firstly note that if we choose $X$ and $C$ to be the same we recover Definition \ref{defi:CWComplex2} exactly. 
-Now let us think about what happens if we choose $X$ and $C$ to be different. 
-Firstly this allows us to conclude that $C$ is closed: 
+One question that naturally arises is whether these changes to the definition preserve the notion of a CW-complex.
+Firstly note that if we choose $X$ and $C$ to be the same we recover Definition \ref{defi:CWComplex2} exactly.
+Now let us think about what happens if we choose $X$ and $C$ to be different.
+Firstly this allows us to conclude that $C$ is closed:
 
 \begin{lem} \label{lem:Cclosed}
-  Let $X$ be a Hausdorff space and and $C$ a CW-complex in $X$ as in the formalised definition. 
+  Let $X$ be a Hausdorff space and and $C$ a CW-complex in $X$ as in the formalised definition.
   Then $C$ is closed.
 \end{lem}
 \begin{proof}
-  Since $C \subseteq C$ it is enough to show that $C \cap \closedCell{n}{i}$ is closed for every $n \in \bN$ and $i \in I_n$. 
+  Since $C \subseteq C$ it is enough to show that $C \cap \closedCell{n}{i}$ is closed for every $n \in \bN$ and $i \in I_n$.
   But by the property \lstinline{union'} we know that $C \cap \closedCell{n}{i} = \closedCell{n}{i}$ which is closed by the same argument as in the proof of Lemma \ref{lem:closedCellclosed}.
 \end{proof}
 
-This indeed excludes some CW-complexes: 
+This indeed excludes some CW-complexes:
 
 \begin{example}
-  Let $I \subseteq \bR$ be an open interval. 
+  Let $I \subseteq \bR$ be an open interval.
   Then $I$ is a CW-complex in the sense of Definition \ref{defi:CWComplex2}.
 \end{example}
 \begin{proof}
-  Since $I$ is homeomorphic to $\bR$ it is by Lemma \ref{lem:homeomorph} enough to show that $\bR$ admits the structure of a CW-complex. 
-  As $0$-cells we choose every $z \in \bZ \subseteq \bR$. 
-  As $1$-cells we choose the intervals $(z, z + 1)$ for every $z \in \bZ \subseteq \bR$.  
-  Properties (i), (ii), (iii), and (v) of Definition \ref{defi:CWComplex2} are easy to verify. 
-  We will therefore focus on property (iv), i.e. the weak topology. 
-  The forward implication follows in the same manner as in a lot of other proofs. 
-  Let us thus move on to the backwards direction. 
-  Take $A \subseteq \bR$ and assume that $A \cap [z, z + 1]$ is closed for all $z \in \bZ$. 
+  Since $I$ is homeomorphic to $\bR$ it is by Lemma \ref{lem:homeomorph} enough to show that $\bR$ admits the structure of a CW-complex.
+  As $0$-cells we choose every $z \in \bZ \subseteq \bR$.
+  As $1$-cells we choose the intervals $(z, z + 1)$ for every $z \in \bZ \subseteq \bR$.
+  Properties (i), (ii), (iii), and (v) of Definition \ref{defi:CWComplex2} are easy to verify.
+  We will therefore focus on property (iv), i.e. the weak topology.
+  The forward implication follows in the same manner as in a lot of other proofs.
+  Let us thus move on to the backwards direction.
+  Take $A \subseteq \bR$ and assume that $A \cap [z, z + 1]$ is closed for all $z \in \bZ$.
   We now need to show that $A$ is closed.
-  It is wellknown that $\bR$ is a metric space and by Lemma \ref{lem:metricissequential} it is in particular a sequential space. 
-  It is therefore enough to show that for every convergent sequence $(a_n)_{n \in \bN} \subseteq A$ the limit point is also in $A$. 
-  Take an arbitrary convergent $(a_n)_{n \in \bN} \subseteq A$. 
+  It is wellknown that $\bR$ is a metric space and by Lemma \ref{lem:metricissequential} it is in particular a sequential space.
+  It is therefore enough to show that for every convergent sequence $(a_n)_{n \in \bN} \subseteq A$ the limit point is also in $A$.
+  Take an arbitrary convergent $(a_n)_{n \in \bN} \subseteq A$.
   We call the limit point $a$.
-  Then there exists a $z \in \bZ$ such that $a \in (z, z + 2)$. 
-  Thus there is a subsequence $(a'_n)_{n \in \bN} \subseteq A \cap [z, z + 2]$ which obviously also converges to $a$. 
+  Then there exists a $z \in \bZ$ such that $a \in (z, z + 2)$.
+  Thus there is a subsequence $(a'_n)_{n \in \bN} \subseteq A \cap [z, z + 2]$ which obviously also converges to $a$.
   But by assumption $A \cap [z, z + 2] = (A \cap [z, z + 1]) = (A \cap [z + 1, z + 2])$ is closed and therefore sequentially closed which gives us that $a \in A \cap [z, z + 2] \subseteq A$.
 \end{proof}
 
 But remember that our definition in Lean still allows us to view an open interval as a CW-complex in itself.
 
-And every space that fulfils the formalised definition also fulfils Definition \ref{defi:CWComplex2}: 
+And every space that fulfils the formalised definition also fulfils Definition \ref{defi:CWComplex2}:
 
 \begin{lem}
-  Let $C$ be a CW-complex in a Hausdorff space $X$ as in the definition in the formalisation. 
-  Then $C$ is a CW-complex as in Definition \ref{defi:CWComplex2}. 
+  Let $C$ be a CW-complex in a Hausdorff space $X$ as in the definition in the formalisation.
+  Then $C$ is a CW-complex as in Definition \ref{defi:CWComplex2}.
 \end{lem}
 \begin{proof}
-  Properties (i), (ii), (iii) and (v) of Definition \ref{defi:CWComplex2} are immediate. 
-  Thus let us look at property (iv). 
-  We assume that 
+  Properties (i), (ii), (iii) and (v) of Definition \ref{defi:CWComplex2} are immediate.
+  Thus let us look at property (iv).
+  We assume that
   \[A \subseteq C \text{ is closed in } X \iff \closedCell{n}{i} \cap A \text{ is closed in } X \text{ for all } n \in \bN \text{ and } i \in I_n\]
-  and need to show that 
+  and need to show that
   \[A \subseteq C \text{ is closed in } C \iff \closedCell{n}{i} \cap A \text{ is closed in } C \text{ for all } n \in \bN \text{ and } i \in I_n.\]
-  It is easy to see that the forward direction is true. 
-  For the backwards direction take $A \subseteq C$ such that $A \cap \closedCell{n}{i}$ is closed in $C$ for all $n \in \bN$ and $i \in I_n$. 
-  That means that for every $n \in \bN$ and $i \in I_n$ there is a closed set $B_i^n \subseteq X$ such that $B^n_i \cap C = A \cap \closedCell{n}{i}$. 
-  But since $C$ is closed by Lemma \ref{lem:Cclosed} that means that $A \cap \closedCell{n}{i}$ was already closed for every $n \in \bN$ and $i \in I_n$. 
+  It is easy to see that the forward direction is true.
+  For the backwards direction take $A \subseteq C$ such that $A \cap \closedCell{n}{i}$ is closed in $C$ for all $n \in \bN$ and $i \in I_n$.
+  That means that for every $n \in \bN$ and $i \in I_n$ there is a closed set $B_i^n \subseteq X$ such that $B^n_i \cap C = A \cap \closedCell{n}{i}$.
+  But since $C$ is closed by Lemma \ref{lem:Cclosed} that means that $A \cap \closedCell{n}{i}$ was already closed for every $n \in \bN$ and $i \in I_n$.
   Thus we are done by assumption.
 \end{proof}
 
-With that we can move onto the last important difference that our new definition has. 
+With that we can move onto the last important difference that our new definition has.
 While \lstinline{Fin n → ℝ} is a way to represent $\bR^n$ in Lean it does not actually carry the euclidean metric but the maximum metric.
-So instead of considering closed balls we are looking at cubes which does not change our definition since the two are homeomorphic. 
-We could use the euclidean metric on $\bR^n$ which would be written as \lstinline{EuclideanSpace ℝ (Fin n)} but since we are mostly arguing abstractly about CW-complexes this is unnecessary and takes up more space. 
+So instead of considering closed balls we are looking at cubes which does not change our definition since the two are homeomorphic.
+We could use the euclidean metric on $\bR^n$ which would be written as \lstinline{EuclideanSpace ℝ (Fin n)} but since we are mostly arguing abstractly about CW-complexes this is unnecessary and takes up more space.
 
-The code in the rest of the section will always have the following assumptions: 
+The code in the rest of the section will always have the following assumptions:
 
 \begin{lstlisting}
 variable {X : Type*} [t : TopologicalSpace X] [T2Space X] {C : Set X} [CWComplex C]
@@ -151,8 +151,8 @@ variable {X : Type*} [t : TopologicalSpace X] [T2Space X] {C : Set X} [CWComplex
 
 where \lstinline{T2Space X} expresses that \lstinline{X} is a Hausdorff space.
 
-We also want to define some notation in Lean. 
-Just as we defined $\closedCell{n}{i}$ to represent $Q^n_i(D_i^n)$ and similar notations in Definition \ref{defi:CWComplex2} we can do the same in the formalisation: 
+We also want to define some notation in Lean.
+Just as we defined $\closedCell{n}{i}$ to represent $Q^n_i(D_i^n)$ and similar notations in Definition \ref{defi:CWComplex2} we can do the same in the formalisation:
 
 \begin{lstlisting}
 def openCell (n : ℕ) (i : cell C n) : Set X := map n i '' ball 0 1
@@ -162,7 +162,7 @@ def closedCell (n : ℕ) (i : cell C n) : Set X := map n i '' closedBall 0 1
 def cellFrontier (n : ℕ) (i : cell C n) : Set X := map n i '' sphere 0 1
 \end{lstlisting}
 
-We can now state some of the properties of our definition with this new notation. 
+We can now state some of the properties of our definition with this new notation.
 We restate \lstinline{pairwiseDisjoint'} in two ways:
 
 \begin{lstlisting}
@@ -170,14 +170,14 @@ lemma pairwiseDisjoint :
     (univ : Set (Σ n, cell C n)).PairwiseDisjoint (fun ni ↦ openCell ni.1 ni.2) := ⋯
 
 lemma disjoint_openCell_of_ne {n m : ℕ} {i : cell C n} {j : cell C m}
-    (ne : (⟨n, i⟩ : Σ n, cell C n) ≠ ⟨m, j⟩) : 
+    (ne : (⟨n, i⟩ : Σ n, cell C n) ≠ ⟨m, j⟩) :
     openCell n i ∩ openCell m j = ∅ := ⋯
 \end{lstlisting}
 
-The second one is especially convenient to use as the hypothesis \lstinline{ne} can often be automatically verified by a tactic called \lstinline{aesop}. 
-Information on \lstinline{aesop} can be found in \cite{Limperg2023}. 
+The second one is especially convenient to use as the hypothesis \lstinline{ne} can often be automatically verified by a tactic called \lstinline{aesop}.
+Information on \lstinline{aesop} can be found in \cite{Limperg2023}.
 
-The properties \lstinline{closed'} and \lstinline{union'} can be rewritten with the new notation as follows: 
+The properties \lstinline{closed'} and \lstinline{union'} can be rewritten with the new notation as follows:
 
 \begin{lstlisting}
 lemma closed (A : Set X) (asubc : A ⊆ C) :
@@ -186,10 +186,10 @@ lemma closed (A : Set X) (asubc : A ⊆ C) :
 lemma union : ⋃ (n : ℕ) (j : cell C n), closedCell n j = C := ⋯
 \end{lstlisting}
 
-As in Definition \ref{defi:CWComplex2} we also want to define notation for the $n$-skeletons. 
-In the first chapter we often chose to start inductions at $-1$ to make the base case trivial. 
+As in Definition \ref{defi:CWComplex2} we also want to define notation for the $n$-skeletons.
+In the first chapter we often chose to start inductions at $-1$ to make the base case trivial.
 When formalising we want to be able to use the already defined induction principles that naturally start at $0$.
-For that purpose we use an auxiliary definition called \lstinline{levelaux} that is shifted by $1$ in comparison to the usual notion of the $n$-skeleton which we call \lstinline{level}: 
+For that purpose we use an auxiliary definition called \lstinline{levelaux} that is shifted by $1$ in comparison to the usual notion of the $n$-skeleton which we call \lstinline{level}:
 
 \begin{lstlisting}
 def levelaux (C : Set X) [CWComplex C] (n : ℕ∞) : Set X :=
@@ -199,27 +199,27 @@ def level (C : Set X) [CWComplex C] (n : ℕ∞) : Set X :=
   levelaux C (n + 1)
 \end{lstlisting}
 
-Note that we are choosing \lstinline{n} in \lstinline{ℕ∞} which is the type of natural numbers extended by infinity which can be written as \lstinline{⊤}. 
-Since \lstinline{level} is defined in terms of \lstinline{levelaux} it is often trivial to derive a lemma about \lstinline{level} from the corresponding lemma about \lstinline{levelaux}. 
+Note that we are choosing \lstinline{n} in \lstinline{ℕ∞} which is the type of natural numbers extended by infinity which can be written as \lstinline{⊤}.
+Since \lstinline{level} is defined in terms of \lstinline{levelaux} it is often trivial to derive a lemma about \lstinline{level} from the corresponding lemma about \lstinline{levelaux}.
 
-We can also define what it means for a CW-complex to be finite dimensional, of finite type, or finite: 
+We can also define what it means for a CW-complex to be finite dimensional, of finite type, or finite:
 
 \begin{lstlisting}
 class FiniteDimensional.{u} {X : Type u} [TopologicalSpace X] (C : Set X) [CWComplex C] : Prop where
-  finitelevels : ∀ᶠ n in Filter.atTop, IsEmpty (cell C n)
+  eventually_isEmpty_cell : ∀ᶠ n in Filter.atTop, IsEmpty (cell C n)
 
 class FiniteType.{u} {X : Type u} [TopologicalSpace X] (C : Set X) [CWComplex C] : Prop where
-  finitcellFrontiers (n : ℕ) : Finite (cell C n)
+  finite_cell (n : ℕ) : Finite (cell C n)
 
 class Finite.{u} {X : Type u} [TopologicalSpace X] (C : Set X) [CWComplex C] : Prop where
-  finitelevels : ∀ᶠ n in Filter.atTop, IsEmpty (cell C n)
-  finitecells (n : ℕ) : Finite (cell C n)
+  eventually_isEmpty_cell : ∀ᶠ n in Filter.atTop, IsEmpty (cell C n)
+  finite_cell (n : ℕ) : Finite (cell C n)
 \end{lstlisting}
 
-Property \lstinline{finitelevels} is stated in terms of a \emph{filter} which is a concept that appears frequently in mathlib.
-They are often used to describe convergence in a topological way. 
-As they will not be important to this thesis we will not go into details but information on filters can be found in \cite{Bourbaki1966}. 
-The property \lstinline{finitelevels} is equivalent to \lstinline{∃ a, ∀ (b : ℕ), a ≤ b → IsEmpty (cell C b)}. 
+Property \lstinline{eventually_isEmpty_cell} is stated in terms of a \emph{filter} which is a concept that appears frequently in mathlib.
+They are often used to describe convergence in a topological way.
+As they will not be important to this thesis we will not go into details but information on filters can be found in \cite{Bourbaki1966}.
+The property \lstinline{eventually_isEmpty_cell} is equivalent to \lstinline{∃ a, ∀ (b : ℕ), a ≤ b → IsEmpty (cell C b)}.
 
 To finish of this section here are the statements of some of the main results of Section \ref{sec:mathsdef}.
 They correspond to the results \ref{lem:skeletonunionopenCell}, \ref{lem:Frontiersubsetopen}, \ref{lem:discretelevel0}, \ref{lem:compactintersectsonlyfinite} and \ref{lem:finiteiffcompact}.
@@ -228,14 +228,14 @@ They correspond to the results \ref{lem:skeletonunionopenCell}, \ref{lem:Frontie
 lemma iUnion_openCell_eq_level (n : ℕ∞) :
   ⋃ (m : ℕ) (_ : m < n + 1) (j : cell C m), openCell m j = level C n := ⋯
 
-lemma cellFrontier_subset_finite_openCell (n : ℕ) (i : cell C n) : 
-    ∃ I : Π m, Finset (cell C m), cellFrontier n i ⊆ 
+lemma cellFrontier_subset_finite_openCell (n : ℕ) (i : cell C n) :
+    ∃ I : Π m, Finset (cell C m), cellFrontier n i ⊆
     (⋃ (m < n) (j ∈ I m), openCell m j) := ⋯
 
 lemma isDiscrete_level_zero {A : Set X} : IsClosed (A ∩ level C 0) := ⋯
 
 lemma compact_inter_finite (A : Set X) (compact : IsCompact A) :
-  _root_.Finite 
+  _root_.Finite
   (Σ (m : ℕ), {j : cell C m // ¬ Disjoint A (openCell m j)}) := ⋯
 
 lemma compact_iff_finite : IsCompact C ↔ Finite C := ⋯

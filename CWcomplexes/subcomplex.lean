@@ -135,15 +135,15 @@ instance CWComplex_subcomplex (E : Set X) [subcomplex : Subcomplex C E] : CWComp
 
 instance finite_subcomplex_of_finite [finite : Finite C] (E : Set X) [subcomplex : Subcomplex C E] :
     Finite (E ⇂ C) where
-  finitelevels := by
-    have := finite.finitelevels
+  eventually_isEmpty_cell := by
+    have := finite.eventually_isEmpty_cell
     simp only [Filter.eventually_atTop, ge_iff_le] at this ⊢
     obtain ⟨n, hn⟩ := this
     use n
     intro b nleb
     simp only [CWComplex_subcomplex, isEmpty_subtype, hn b nleb, IsEmpty.forall_iff]
-  finitecells n :=
-    let _ := finite.finitecells n
+  finite_cell n :=
+    let _ := finite.finite_cell n
     toFinite (I E n)
 
 --this is quite ugly, probably because `Subcomplex` shouldn't be a lemma
@@ -170,13 +170,13 @@ instance subcomplex_iUnion_subcomplex (J : Type*) (sub : J → Set X)
 def finite_subcomplex_finite_iUnion_finite_subcomplex {J : Type*} [_root_.Finite J]
     {sub : J → Set X} [cw : ∀ (j : J), Subcomplex C (sub j)]
     (finite : ∀ (j : J), Finite (sub j ⇂ C)) : Finite (⋃ j, sub j ⇂ C) where
-  finitelevels := by
-    have h j := (finite j).finitelevels
+  eventually_isEmpty_cell := by
+    have h j := (finite j).eventually_isEmpty_cell
     simp only [Filter.eventually_iff, subcomplex_iUnion_subcomplex, CWComplex_subcomplex,
       Subcomplex', iUnion_eq_empty, isEmpty_coe_sort, setOf_forall, Filter.iInter_mem] at h ⊢
     exact h
-  finitecells := by
-    have h j := (finite j).finitecells
+  finite_cell := by
+    have h j := (finite j).finite_cell
     intro n
     simp only [subcomplex_iUnion_subcomplex, Subcomplex'', CWComplex_subcomplex] at h ⊢
     apply Finite.Set.finite_iUnion
@@ -202,7 +202,7 @@ instance cellzero (i : cell C 0) : Subcomplex C (closedCell 0 i) where
         mem_singleton_iff, imp_self, implies_true]
 
 instance finite_cellzero (i : cell C 0) : Finite ((closedCell 0 i) ⇂ C) where
-  finitelevels := by
+  eventually_isEmpty_cell := by
     simp only [Filter.eventually_atTop, ge_iff_le]
     use 1
     intro b leb
@@ -211,7 +211,7 @@ instance finite_cellzero (i : cell C 0) : Finite ((closedCell 0 i) ⇂ C) where
     intro j eq
     subst eq
     contradiction
-  finitecells := by
+  finite_cell := by
     intro n
     simp_rw [cellzero, CWComplex_subcomplex]
     by_cases h : n = 0
@@ -267,8 +267,8 @@ instance finite_attach_cell (n : ℕ) (i : cell C n) (E : Set X) [sub : Subcompl
     (⋃ (m < n) (j ∈ I m), closedCell (C := C) m j)) :
     let subcomplex := attach_cell n i E subset
     Finite (E ∪ openCell n i ⇂ C) where
-  finitelevels := by
-    have := finite.finitelevels
+  eventually_isEmpty_cell := by
+    have := finite.eventually_isEmpty_cell
     simp only [Filter.eventually_atTop, ge_iff_le] at this ⊢
     obtain ⟨a, ha⟩ := this
     use a.max (n + 1)
@@ -278,16 +278,16 @@ instance finite_attach_cell (n : ℕ) (i : cell C n) (E : Set X) [sub : Subcompl
     intro x
     refine ⟨ha b (le_of_max_le_left le) x, ?_⟩
     aesop
-  finitecells := by
+  finite_cell := by
     intro m
     by_cases h : m = n
     · subst m
       simp only [cell, attach_cell, Sigma.mk.inj_iff, setOf_or, heq_eq_eq, true_and, finite_coe_iff,
         finite_union, setOf_mem_eq, setOf_eq_eq_singleton]
-      exact ⟨finite.finitecells n, finite_singleton i⟩
+      exact ⟨finite.finite_cell n, finite_singleton i⟩
     simp only [cell, attach_cell, Sigma.mk.inj_iff, setOf_or, setOf_mem_eq, setOf_and, h,
       setOf_false, empty_inter, finite_coe_iff, finite_union, finite_empty, and_true]
-    exact finite.finitecells m
+    exact finite.finite_cell m
 
 lemma cell_mem_finite_subcomplex (n : ℕ) (i : cell C n) :
     ∃ (E : Set X) (subE : Subcomplex C E), Finite (E ⇂ C) ∧ i ∈ subE.I n := by

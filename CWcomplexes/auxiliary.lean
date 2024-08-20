@@ -21,7 +21,7 @@ noncomputable section
 
 -- needed in definition file
 lemma biUnion_lt_eq_iUnion {X : Type*} (I : ℕ → Set X) :
-    ⋃ (n : ℕ) (m : ℕ) (_ : m < n), I m  = ⋃ (n : ℕ), I n := by
+    ⋃ (n : ℕ) (m < n), I m  = ⋃ (n : ℕ), I n := by
   ext
   simp_rw [Set.mem_iUnion]
   exact ⟨fun ⟨_, m, _, mem⟩ ↦ ⟨m, mem⟩, fun ⟨n, mem⟩ ↦  ⟨n + 1, n, lt_add_one n, mem⟩⟩
