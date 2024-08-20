@@ -246,8 +246,8 @@ instance instCWComplexstandardinterval_test: CWComplex (Icc (-1) 1 : Set ℝ) :=
         Real.closedBall_eq_Icc, zero_sub, zero_add]
   )
 
-/-- The interval `Icc a b` in `ℝ` is a CW-complex.-/
-instance instCWComplexIcc (a b : ℝ) (lt : a < b) : CWComplex (Icc a b : Set ℝ) :=
+/-- The canonical CW-complex structure on `Icc a b` in `R` for `a < b`.-/
+def CWComplexIcc_of_lt {a b : ℝ} (lt : a < b) : CWComplex (Icc a b : Set ℝ) :=
   CWComplex_of_Homeomorph (Icc (-1) 1 : Set ℝ) (Icc a b)
   (affineHomeomorph ((b - a) / 2) ((a + b) / 2) (by linarith))
   (by
@@ -265,3 +265,9 @@ instance instCWComplexIcc (a b : ℝ) (lt : a < b) : CWComplex (Icc a b : Set �
         rw [affineHomeomorph_trans, affineHomeomorph_image_I _ _ (by linarith)]
         ring_nf
   )
+
+/-- The interval `Icc a b` in `ℝ` is a CW-complex.-/
+instance instCWComplexIcc (a b : ℝ) : CWComplex (Icc a b : Set ℝ) :=
+  if lt1 : a < b then CWComplexIcc_of_lt lt1
+    else if lt2 : b < a then Icc_eq_empty_of_lt lt2 ▸ instCWComplexEmpty
+      else Linarith.eq_of_not_lt_of_not_gt _ _ lt1 lt2 ▸ Icc_self a ▸ instCWComplexsingleton a
