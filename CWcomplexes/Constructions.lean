@@ -1,8 +1,15 @@
 import CWcomplexes.Finite
 import Mathlib.Analysis.NormedSpace.Real
 
-set_option autoImplicit false
-set_option linter.unusedVariables false
+/-!
+# Constructions with CW-complexes
+
+In this file we show that some basic constructions preserve CW-complexes:
+* `CWComplex_level`: The levels of a CW-complex are again CW-complexes.
+* `CWComplex_disjointUnion`: The disjoint union of two CW-complexes is again a CW-complex.
+* `CWComplex_of_Homeomorph`: The image of a CW-complex under a homeomorphism is again a CW-complex.
+-/
+
 noncomputable section
 
 open Metric Set
@@ -13,6 +20,7 @@ variable {X : Type*} [t : TopologicalSpace X] [T2Space X] (C : Set X) [CWComplex
 
 section
 
+/-- `levelaux n` is a CW-complex for every `n : ℕ∞`.-/
 instance CWComplex_levelaux (n : ℕ∞) : CWComplex (levelaux C n) where
   cell l := {x : cell C l // l < n}
   map l i := map (C := C) l i
@@ -38,6 +46,8 @@ instance CWComplex_levelaux (n : ℕ∞) : CWComplex (levelaux C n) where
       simp_rw [← levelaux_top]
       exact levelaux_mono le_top
     refine ⟨fun _ _ _ ↦ by simp only [(closed' A this).1], ?_⟩
+    -- This follows from `isClosed_of_isClosed_inter_openCell_or_isClosed_inter_closedCell`
+    -- and `levelaux_inter_openCell_eq_empty`.
     intro h
     simp_rw [Subtype.forall] at h
     apply isClosed_of_isClosed_inter_openCell_or_isClosed_inter_closedCell this
@@ -53,17 +63,19 @@ instance CWComplex_levelaux (n : ℕ∞) : CWComplex (levelaux C n) where
     rw [iUnion_subtype, iUnion_comm]
     rfl
 
+/-- `level n` is a CW-complex for every `n : ℕ∞`.-/
 instance CWComplex_level (n : ℕ∞) : CWComplex (level C n) := CWComplex_levelaux _ _
 
 variable {D : Set X} [CWComplex D]
 
+/-- The union of two disjoint CW-complexes is again a CW-complex.-/
 def CWComplex_disjointUnion (disjoint : Disjoint C D) : CWComplex (C ∪ D) where
   cell n := Sum (cell C n) (cell D n)
   map n := Sum.elim (map (C := C) n) (map (C := D) n)
   source_eq n i := match i with
     | Sum.inl x => source_eq n x
     | Sum.inr x => source_eq n x
-  cont n i := match i with -- should something like this be a lemma?
+  cont n i := match i with
     | Sum.inl x => cont n x
     | Sum.inr x => cont n x
   cont_symm n i := match i with
@@ -103,6 +115,8 @@ def CWComplex_disjointUnion (disjoint : Disjoint C D) : CWComplex (C ∪ D) wher
       · exact closedA.inter isClosed_closedCell
       · exact closedA.inter isClosed_closedCell
     · intro h
+      -- We show closedness separately for `A ∩ C` and `A ∩ D` which then follow from
+      -- the property `closed'` of `C` and `D`.
       suffices IsClosed ((A ∩ C) ∪ (A ∩ D)) by
         convert this using 1
         simp only [union_inter_distrib_left, union_eq_right.2 inter_subset_left,
@@ -121,13 +135,9 @@ def CWComplex_disjointUnion (disjoint : Disjoint C D) : CWComplex (C ∪ D) wher
     simp_rw [← union (C := C), ← union (C := D), ← iUnion_union_distrib, iUnion_sum]
     rfl
 
-example (P Q : ℕ → Prop) (h : ∀ n, P n ↔ Q n) : (∀ n, P n) ↔ (∀ n, Q n) := by
-  exact forall_congr' h
-
 end
 
--- it is a litlle bit weird that this now depends on the universe level,
--- not sure this should be like this ...
+/-- The image of a CW-coplex under a homeomorphisms is again a CW-complex.-/
 def CWComplex_of_Homeomorph.{u} {X Y : Type  u} [TopologicalSpace X] [TopologicalSpace Y]
     (C : Set X) (D : Set Y) [CWComplex C] (f : X ≃ₜ Y) (imf : f '' C = D) :
     CWComplex D where
@@ -163,7 +173,7 @@ def CWComplex_of_Homeomorph.{u} {X Y : Type  u} [TopologicalSpace X] [Topologica
       _ ↔ ∀ n (j : cell C n), IsClosed ((f ⁻¹' A) ∩ map n j '' closedBall 0 1) := by
         rw [closed' (C := C) (f ⁻¹' A) preAsubC]
       _ ↔ ∀ n (j : cell C n),
-          IsClosed (A ∩ ↑((fun n i => (map n i).transEquiv ↑f) n j) '' closedBall 0 1) := by
+          IsClosed (A ∩ ((map n j).transEquiv ↑f) '' closedBall 0 1) := by
         apply forall_congr' fun n ↦ forall_congr' fun j ↦ ?_
         simp only [PartialEquiv.transEquiv_apply, EquivLike.coe_coe, ← image_image]
         nth_rw 2 [← f.image_preimage A]
