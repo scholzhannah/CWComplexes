@@ -1,8 +1,36 @@
 import CWcomplexes.Lemmas
 import Mathlib.Analysis.NormedSpace.Real
 
-set_option autoImplicit false
-set_option linter.unusedVariables false
+/-!
+# Subcomplexes
+
+In this file we discuss subcomplexes of CW-complexes.
+
+## Main definitions:
+* `Subcomplex`: A subcomplex is a closed subspace of a CW-complex that is the union of open cells of
+  the CW-complex.
+* `Subcomplex'`: An alternative definition of a subcomplex that does not require that the subspace
+  is closed. Instead it requires that for every open cell that forms the subcomplex the
+  corresponding closed cell is a subset of the subspace.
+* `Subcomplex''` : An alternative definition of a subcomplex that does not require the subspace to
+  be closed but instead requires that it is a CW-complex itself.
+* `attach_cell`: The subcomplex that results from attaching a cell to a subcomplex when the edge of
+  the cell is contained in the original subcomplex.
+
+## Main results:
+* `CWComplex_subcomplex`: A subcomplex of a CW-complex is again a CW-complex.
+* `subcomplex_iUnion_subcomplex`: A union of subcomplexes is again a subcomplex.
+* `cell_mem_finite_subcomplex`: Every cell is part of a finite subcomplex.
+* `compact_subset_finite_subcomplex`: Every compact set in a CW-complex is contained in a finite
+  subcomplex.
+
+## Notation
+* `E ⇂ C`: `E` is a subcomplex of the CW-complex `C`.
+
+## References
+* [K. Jänich, *Topology*]
+-/
+
 noncomputable section
 
 open Metric Set
@@ -13,12 +41,18 @@ variable {X : Type*} [t : TopologicalSpace X] [T2Space X] {C : Set X} [CWComplex
 
 section
 
+/-- A subcomplex is a closed subspace of a CW-complex that is the union of open cells of the
+  CW-complex.-/
 class Subcomplex (C : Set X) [CWComplex C] (E : Set X) where
+  /-- The indexing set of cells of the subcomplex.-/
   I : Π n, Set (cell C n)
+  /-- A subcomplex is closed.-/
   closed : IsClosed E
+  /-- The union of all open cells of the subcomplex equals the subcomplex.-/
   union : ⋃ (n : ℕ) (j : I n), openCell (C := C) n j = E
 
-/- See "Topologie" p. 120 by Klaus Jänich from 2001 -/
+/-- An alternative version of `Subcomplex`: Instead of requiring that `E` is closed it requires
+  that for every cell of the subcomplex the corresponding closed cell is a subset of `E`.-/
 def Subcomplex' (C : Set X) [CWComplex C] (E : Set X) (I : Π n, Set (cell C n))
     (closedCell_subset : ∀ (n : ℕ) (i : I n), closedCell (C := C) n i ⊆ E)
     (union : ⋃ (n : ℕ) (j : I n), openCell (C := C) n j = E) : Subcomplex C E where
@@ -45,7 +79,8 @@ def Subcomplex' (C : Set X) [CWComplex C] (E : Set X) (I : Π n, Set (cell C n))
       aesop
   union := union
 
-/- See "Topologie" p. 120 by Klaus Jänich from 2001 -/
+/-- An alternative version of `Subcomplex`: Instead of requiring that `E` is closed it requires that
+  `E` is a CW-complex. -/
 def Subcomplex'' (C : Set X) [CWComplex C] (E : Set X) (I : Π n, Set (cell C n))
     (cw : CWComplex E)
     (union : ⋃ (n : ℕ) (j : I n), openCell (C := C) n j = E) : Subcomplex C E where
@@ -55,10 +90,12 @@ def Subcomplex'' (C : Set X) [CWComplex C] (E : Set X) (I : Π n, Set (cell C n)
 
 namespace Subcomplex
 
-lemma subset_complex (E : Set X) [subcomplex : Subcomplex C E] : E ⊆ C := by
+lemma subset_complex {X : Type*} [t : TopologicalSpace X] {C : Set X} [CWComplex C] (E : Set X)
+    [subcomplex : Subcomplex C E] : E ⊆ C := by
   simp_rw [← subcomplex.union, ← iUnion_openCell]
   exact iUnion_mono fun n ↦ iUnion_subset fun i ↦ by apply subset_iUnion_of_subset ↑i; rfl
 
+/-- A subcomplex is the union of its closed cells.-/
 lemma union_closedCell (E : Set X) [subcomplex : Subcomplex C E] :
     ⋃ (n : ℕ) (j : subcomplex.I n), closedCell (C := C) n j = E := by
   apply subset_antisymm
@@ -70,11 +107,14 @@ lemma union_closedCell (E : Set X) [subcomplex : Subcomplex C E] :
     apply iUnion_mono fun n ↦ iUnion_mono fun (i : ↑(I E n)) ↦ ?_
     exact openCell_subset_closedCell (C := C) n i
 
+/-- A synonym for `E` that includes the CW-Complex `C` to get access to typeclass inference.
+ Use the notation `E ⇂ C` in the namespace `Subcomplex`.-/
 def Sub (E : Set X) (C : Set X) [CWComplex C] [Subcomplex C E] : Set X := E
 
+/-- `E ⇂ C` should be used to say that `E` is a subcomplex of `C`. -/
 scoped infixr:35 " ⇂ "  => Sub
 
-/- See "Topologie" p. 120 by Klaus Jänich from 2001 -/
+/-- A subcomplex is again a CW-complex. -/
 instance CWComplex_subcomplex (E : Set X) [subcomplex : Subcomplex C E] : CWComplex (E ⇂ C) where
   cell n := subcomplex.I n
   map n i := map (C := C) n i
@@ -133,6 +173,7 @@ instance CWComplex_subcomplex (E : Set X) [subcomplex : Subcomplex C E] : CWComp
     exact iUnion_eq_empty.2 fun m ↦ iUnion_eq_empty.2 fun i ↦ disjoint_openCell_of_ne (by aesop)
   union' := subcomplex.union_closedCell
 
+/-- A subcomplex of a finite CW-complex is again finite.-/
 instance finite_subcomplex_of_finite [finite : Finite C] (E : Set X) [subcomplex : Subcomplex C E] :
     Finite (E ⇂ C) where
   eventually_isEmpty_cell := by
@@ -146,7 +187,7 @@ instance finite_subcomplex_of_finite [finite : Finite C] (E : Set X) [subcomplex
     let _ := finite.finite_cell n
     toFinite (I E n)
 
---this is quite ugly, probably because `Subcomplex` shouldn't be a lemma
+/-- A union of subcomplexes is again a subcomplex.-/
 instance subcomplex_iUnion_subcomplex (J : Type*) (sub : J → Set X)
     [cw : ∀ (j : J), Subcomplex C (sub j)] : Subcomplex C (⋃ (j : J), sub j) := Subcomplex' C _
   (fun (n : ℕ) ↦ ⋃ (j : J), (cw j).I n)
@@ -167,7 +208,8 @@ instance subcomplex_iUnion_subcomplex (J : Type*) (sub : J → Set X)
       iUnion_comm (fun x ↦ fun i ↦ ⋃ (_ : x ∈ I (sub i) n), openCell n x)]
     )
 
-def finite_subcomplex_finite_iUnion_finite_subcomplex {J : Type*} [_root_.Finite J]
+/-- A finite union of finite subcomplexes is again a finite subcomplex.-/
+lemma finite_subcomplex_finite_iUnion_finite_subcomplex {J : Type*} [_root_.Finite J]
     {sub : J → Set X} [cw : ∀ (j : J), Subcomplex C (sub j)]
     (finite : ∀ (j : J), Finite (sub j ⇂ C)) : Finite (⋃ j, sub j ⇂ C) where
   eventually_isEmpty_cell := by
@@ -228,6 +270,8 @@ instance finite_cellzero (i : cell C 0) : Finite ((closedCell 0 i) ⇂ C) where
       simp only [heq_eq_eq, Sigma.mk.inj_iff, mem_setOf_eq] at xmem
       exact xmem.1
 
+/-- The subcomplex that results from attaching a cell to a subcomplex when the edge of the cell is
+  contained in the original subcomplex.-/
 def attach_cell (n : ℕ) (i : cell C n) (E : Set X) [sub : Subcomplex C E]
     (subset : ∃ (I : Π m, Set (cell C m)), (∀ m < n, I m ⊆ sub.I m) ∧  cellFrontier n i ⊆
     (⋃ (m < n) (j ∈ I m), closedCell (C := C) m j)) :
@@ -261,7 +305,7 @@ def attach_cell (n : ℕ) (i : cell C n) (E : Set X) [sub : Subcomplex C E]
       · use m, ⟨j.1, Or.intro_left _ j.2⟩
       · use n, ⟨i, Or.intro_right _ rfl⟩
 
-instance finite_attach_cell (n : ℕ) (i : cell C n) (E : Set X) [sub : Subcomplex C E]
+lemma finite_attach_cell (n : ℕ) (i : cell C n) (E : Set X) [sub : Subcomplex C E]
     [finite : Finite (E ⇂ C)] (subset : ∃ (I : Π m, Set (cell C m)),
     (∀ m < n, I m ⊆ sub.I m) ∧  cellFrontier n i ⊆
     (⋃ (m < n) (j ∈ I m), closedCell (C := C) m j)) :
@@ -289,6 +333,7 @@ instance finite_attach_cell (n : ℕ) (i : cell C n) (E : Set X) [sub : Subcompl
       setOf_false, empty_inter, finite_coe_iff, finite_union, finite_empty, and_true]
     exact finite.finite_cell m
 
+/-- Every cell is part of a finite subcomplex.-/
 lemma cell_mem_finite_subcomplex (n : ℕ) (i : cell C n) :
     ∃ (E : Set X) (subE : Subcomplex C E), Finite (E ⇂ C) ∧ i ∈ subE.I n := by
   induction' n using Nat.case_strong_induction_on with n hn
@@ -326,6 +371,7 @@ lemma closedCell_subset_finite_subcomplex (n : ℕ) (i : cell C n) :
   rw [← subE.union_closedCell]
   exact subset_iUnion_of_subset n (subset_iUnion_of_subset ⟨i, hE2⟩ (by rfl))
 
+/-- Every finite set of cells is contained in some finite subcomplex.-/
 lemma finite_iUnion_subset_subcomplex (I : (n : ℕ) → Set (cell C n))
     [finite : _root_.Finite (Σ n, I n)] :
     ∃ (E : Set X) (sub : Subcomplex C E), CWComplex.Finite (E ⇂ C) ∧
@@ -337,6 +383,7 @@ lemma finite_iUnion_subset_subcomplex (I : (n : ℕ) → Set (cell C n))
   rw [iUnion_sigma]
   exact iUnion_mono fun n ↦ iUnion_mono fun i ↦ subset n i
 
+/-- Every compact set in a CW-complex is contained in a finite subcomplex.-/
 lemma compact_subset_finite_subcomplex {B : Set X} (compact : IsCompact B) :
     ∃ (E : Set X) (sub : Subcomplex C E), CWComplex.Finite (E ⇂ C) ∧ B ∩ C ⊆ E := by
   have : _root_.Finite (Σ n, { j | ¬Disjoint B (openCell (C:= C) n j)}) :=
@@ -349,6 +396,7 @@ lemma compact_subset_finite_subcomplex {B : Set X} (compact : IsCompact B) :
   rw [iUnion_sigma]
   exact subset
 
+/-- The levels of a CW-complex constitute subcomplexes. -/
 instance subcomplex_levelaux (n : ℕ∞) : Subcomplex C (levelaux C n) := Subcomplex'' _ _
   (fun l ↦ {x : cell C l | l < n})
   (inferInstance)
@@ -359,6 +407,7 @@ instance subcomplex_levelaux (n : ℕ∞) : Subcomplex C (levelaux C n) := Subco
     rw [iUnion_comm]
   )
 
+/-- The levels of a CW-complex constitute subcomplexes. -/
 instance subcomplex_level (n : ℕ∞) : Subcomplex C (level C n) := subcomplex_levelaux _
 
 end Subcomplex
