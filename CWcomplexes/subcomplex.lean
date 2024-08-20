@@ -27,7 +27,7 @@ def Subcomplex' (C : Set X) [CWComplex C] (E : Set X) (I : Π n, Set (cell C n))
     have EsubC : E ⊆ C := by
       simp_rw [← union, ← iUnion_openCell]
       exact iUnion_mono fun n ↦ iUnion_subset fun i ↦ by apply subset_iUnion_of_subset ↑i; rfl
-    apply strong_induction_isClosed EsubC
+    apply isClosed_of_isClosed_inter_openCell_or_isClosed_inter_closedCell EsubC
     intro n _ j
     by_cases h : j ∈ I n
     · right
@@ -118,7 +118,8 @@ instance CWComplex_subcomplex (E : Set X) [subcomplex : Subcomplex C E] : CWComp
     intro Asub
     refine ⟨fun closedA _ _ ↦ closedA.inter isClosed_closedCell, ?_⟩
     intro closed
-    apply strong_induction_isClosed (subset_trans Asub subcomplex.subset_complex)
+    apply isClosed_of_isClosed_inter_openCell_or_isClosed_inter_closedCell
+      (subset_trans Asub subcomplex.subset_complex)
     intro n _ j
     by_cases h : j ∈ subcomplex.I n
     · exact Or.intro_right _ (closed n ⟨j, h⟩)

@@ -40,7 +40,7 @@ instance CWComplex_levelaux (n : ℕ∞) : CWComplex (levelaux C n) where
     refine ⟨fun _ _ _ ↦ by simp only [(closed' A this).1], ?_⟩
     intro h
     simp_rw [Subtype.forall] at h
-    apply strong_induction_isClosed this
+    apply isClosed_of_isClosed_inter_openCell_or_isClosed_inter_closedCell this
     intro m _ j
     by_cases mlt : m < n
     · exact Or.intro_right _ (h m j mlt)

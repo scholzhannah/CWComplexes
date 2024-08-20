@@ -44,7 +44,7 @@ lemma inter_levelaux_succ_closed_iff_inter_levelaux_closed_and_inter_closedCell_
       apply subset_trans inter_subset_right
       simp_rw [← levelaux_top (C := C)]
       exact levelaux_mono le_top
-    apply strong_induction_isClosed this
+    apply isClosed_of_isClosed_inter_openCell_or_isClosed_inter_closedCell this
     intro m _ j
     by_cases msuccltn : m < n
     · right
@@ -77,8 +77,8 @@ lemma induction_isClosed_levelaux {A : Set X} (asub : A ⊆ C)
   exact ⟨hn n n.le_refl, step n hn⟩
 
 lemma isDiscrete_levelaux_one {A : Set X} : IsClosed (A ∩ levelaux C 1) := by
-  apply strong_induction_isClosed (C := C) (inter_subset_right.trans
-    (by simp_rw [← levelaux_top (C := C)]; apply levelaux_mono le_top))
+  apply isClosed_of_isClosed_inter_openCell_or_isClosed_inter_closedCell (C := C)
+    (inter_subset_right.trans (by simp_rw [← levelaux_top (C := C)]; apply levelaux_mono le_top))
   intro n nlt j
   left
   simp_rw [← Nat.succ_le_iff] at nlt
