@@ -1,5 +1,20 @@
 import CWcomplexes.Constructions
 
+/-!
+# Lemmas about CW-complexes
+
+In this file we proof some lemmas about CW-complexes such as:
+* `induction_isClosed_levelaux`: A set `A` in a CW-complex is closed if assuming that
+  the intersection `A ∩ levelaux C m` is closed for all `m ≤ n` implies that
+  `A ∩ closedCell n j` is closed for every `j : cell C n`.
+* `isDiscrete_level_zero`: the zeroth level of a CW-complex is discrete.
+* `compact_inter_finite`: A compact set can only meet finitely many open cells.
+* `compact_iff_finite`: A CW-complex is compact iff it is finte.
+
+## References
+* [A. Hatcher, *Algebraic Topology*]
+-/
+
 open Metric Set
 
 variable {X : Type*} [t : TopologicalSpace X] [T2Space X] {C : Set X} [CWComplex C]
@@ -20,6 +35,8 @@ lemma closed_iff_inter_levelaux_closed {A : Set X} (asubc : A ⊆ C) :
   rw [(Set.inter_eq_right.2 (closedCell_subset_levelaux n j)).symm, ← inter_assoc]
   exact IsClosed.inter (h (n + 1)) isClosed_closedCell
 
+/-- The intersection with `levelaux C (Nat.succ n)` is closed iff the intersection with
+  `levelaux C n ` and every cell of dimension `n` is closed.-/
 lemma inter_levelaux_succ_closed_iff_inter_levelaux_closed_and_inter_closedCell_closed (A : Set X) :
     IsClosed (A ∩ levelaux C (Nat.succ n)) ↔ IsClosed (A ∩ levelaux C n) ∧
     ∀ (j : cell C n), IsClosed (A ∩ closedCell n j) := by
@@ -65,6 +82,8 @@ lemma inter_levelaux_succ_closed_iff_inter_levelaux_closed_and_inter_closedCell_
     rw [inter_assoc, levelaux_inter_openCell_eq_empty (by norm_cast), inter_empty]
     exact isClosed_empty
 
+/--  A set `A` in a CW-complex is closed if assuming that the intersection `A ∩ levelaux C m` is
+  closed for all `m ≤ n` implies that `A ∩ closedCell n j` is closed for every `j : cell C n`.-/
 lemma induction_isClosed_levelaux {A : Set X} (asub : A ⊆ C)
     (step : ∀ (n : ℕ), (∀ m (_ : m ≤ n), IsClosed (A ∩ levelaux C m)) →
     ∀ j, IsClosed (A ∩ closedCell (C := C) n j)) :
@@ -76,6 +95,7 @@ lemma induction_isClosed_levelaux {A : Set X} (asub : A ⊆ C)
   rw [inter_levelaux_succ_closed_iff_inter_levelaux_closed_and_inter_closedCell_closed]
   exact ⟨hn n n.le_refl, step n hn⟩
 
+/-- `levelaux C 1` is discrete.-/
 lemma isDiscrete_levelaux_one {A : Set X} : IsClosed (A ∩ levelaux C 1) := by
   apply isClosed_of_isClosed_inter_openCell_or_isClosed_inter_closedCell (C := C)
     (inter_subset_right.trans (by simp_rw [← levelaux_top (C := C)]; apply levelaux_mono le_top))
@@ -85,11 +105,18 @@ lemma isDiscrete_levelaux_one {A : Set X} : IsClosed (A ∩ levelaux C 1) := by
   rw [inter_assoc, levelaux_inter_openCell_eq_empty (by simp only [Nat.one_le_cast, nlt]), inter_empty]
   exact isClosed_empty
 
-/- The following is one way of stating that `level 0` is discrete. -/
+/-- `level 0` is discrete.-/
 lemma isDiscrete_level_zero {A : Set X} : IsClosed (A ∩ level C 0) := isDiscrete_levelaux_one
 
+/-- A compact set can only meet finitely many open cells.-/
 lemma compact_inter_finite (A : Set X) (compact : IsCompact A) :
   _root_.Finite (Σ (m : ℕ), {j : cell C m // ¬ Disjoint A (openCell m j)}) := by
+  -- We do a proof by contradiction assuming that `A` meets infinitely many cells.
+  -- We then pick a set `P` of points where each one is in the intersection of `A` with
+  -- a different open cell. This set is therefore also infinite.
+  -- We then show that this set is closed and has discrete topology.
+  -- Since it is a closed subset of a compact set it is also compact.
+  -- But a compact set with discrete topology must be finite. Contradiction.
   by_contra h
   simp only [TopologicalSpace.Compacts.carrier_eq_coe, not_disjoint_iff, SetLike.mem_coe,
     not_finite_iff_infinite] at h
@@ -98,7 +125,9 @@ lemma compact_inter_finite (A : Set X) (compact : IsCompact A) :
   let hp m : p m ∈ A ∧ p m ∈ openCell m.1 m.2 := by
     simp_rw [p]
     exact Classical.choose_spec (m.2).2
+  -- We define `P`:
   let P := p '' (univ : Set (Σ (m : ℕ), {j : cell C m // ∃ x ∈ A, x ∈ openCell m j}))
+  -- `P` is infinite:
   have infpoints : P.Infinite := by
     apply (infinite_univ_iff.2 h).image
     intro ⟨m, j, hj⟩ _ ⟨n, i, hi⟩ _ peqp
@@ -113,6 +142,7 @@ lemma compact_inter_finite (A : Set X) (compact : IsCompact A) :
     simp only [mem_image, image_univ, mem_range, P] at xmem
     obtain ⟨n, rfl⟩ := xmem
     exact (hp n).1
+  -- `P` has discrete topology:
   have subsetsclosed : ∀ (s : Set P), IsClosed (s : Set X) := by
     intro s
     have ssubc : ↑↑s ⊆ ↑C := by
@@ -144,7 +174,7 @@ lemma compact_inter_finite (A : Set X) (compact : IsCompact A) :
         simp only [image_univ, mem_range, Sigma.exists, Subtype.exists, P] at ymemP
         obtain ⟨m, i, hmi, rfl⟩ := ymemP
         have hpmi := hp ⟨m, i, hmi⟩
-        suffices (⟨m, i⟩ : Σ n, cell C n) = ⟨n, j⟩ by -- I would like to automate this somehow
+        suffices (⟨m, i⟩ : Σ n, cell C n) = ⟨n, j⟩ by
           rw [Sigma.mk.inj_iff] at this
           obtain ⟨eq1, eq2⟩ := this
           subst eq1
@@ -172,14 +202,19 @@ lemma compact_inter_finite (A : Set X) (compact : IsCompact A) :
     use s
     simp only [Subtype.val_injective, preimage_image_eq, and_true]
     exact subsetsclosed s
+  -- `P` is closed:
   have closed: IsClosed P := by
     have := subsetsclosed (univ : Set P)
     rw [Subtype.coe_image_univ] at this
     exact this
+  -- `P` is compact:
   have compact : IsCompact P := compact.of_isClosed_subset closed subsetA
+  -- `P` is finite:
   have finite : Set.Finite P := compact.finite discrete
   contradiction
 
+/-- This is a version of `compact_inter_finite` that says that a compact set can only meet
+  finitely many open cells out of a subset of all cells.-/
 lemma compact_inter_finite_subset (A : Set X) (compact : IsCompact A)
     {I : (n : ℕ) → Set (cell C n)} :
     _root_.Finite (Σ (m : ℕ), {j : I m // ¬ Disjoint A (openCell (C := C) m j)}) := by
@@ -193,6 +228,7 @@ lemma compact_inter_finite_subset (A : Set X) (compact : IsCompact A)
   simp only [heq_eq_eq, Subtype.mk.injEq, Subtype.val_inj] at eq
   simp_rw [eq]
 
+/-- This is a version of `compact_inter_finite` where the subtype is written differently. -/
 lemma compact_inter_finite' (A : Set X) (compact : IsCompact A) :
     _root_.Finite {x : Σ (n : ℕ), cell C n // ¬Disjoint A (openCell x.fst x.snd)} := by
   let f := fun (x : (Σ (m : ℕ), {j : cell C m // ¬ Disjoint A (openCell m j)})) ↦
@@ -202,6 +238,7 @@ lemma compact_inter_finite' (A : Set X) (compact : IsCompact A) :
   intro x
   use ⟨x.1.1, ⟨x.1.2, x.2⟩⟩
 
+/-- This is a version of `compact_inter_finite_subset` where the subtype is written differently.-/
 lemma compact_inter_finite_subset' (A : Set X) (compact : IsCompact A)
     {I : (n : ℕ) → Set (cell C n)} :
     _root_.Finite {x : Σ (n : ℕ), I n // ¬Disjoint A (openCell (C := C) x.fst x.snd)} := by
@@ -215,7 +252,20 @@ lemma compact_inter_finite_subset' (A : Set X) (compact : IsCompact A)
   simp only [heq_eq_eq, Subtype.mk.injEq, Subtype.val_inj] at eq
   simp_rw [eq]
 
-lemma subset_not_disjoint (A : Set X) : A ∩ C ⊆ ⋃ (x : Σ (m : ℕ),
+/-- For a set `A` the intersection `A ∩ C` is a subset of all the cells of `C` that `A` meets.
+  This is useful when applied together with `compact_inter_finite`.-/
+lemma subset_not_disjoint' {X : Type*} [t : TopologicalSpace X] {C : Set X}
+    [CWComplex C] (A : Set X) : A ∩ C ⊆ ⋃ (x : Σ (m : ℕ),
+    {j : cell C m // ¬ Disjoint A (openCell m j)}), openCell (C := C) x.1 x.2 := by
+  intro x ⟨xmem1, xmem2⟩
+  simp only [mem_iUnion]
+  simp only [← iUnion_openCell, mem_iUnion] at xmem2
+  rcases xmem2 with ⟨m, j, hmj⟩
+  use ⟨m, j, not_disjoint_iff.2 ⟨x, xmem1, hmj⟩⟩
+
+/-- A version of `subset_not_disjoint'` using closed cells.-/
+lemma subset_not_disjoint {X : Type*} [t : TopologicalSpace X] {C : Set X}
+    [CWComplex C] (A : Set X) : A ∩ C ⊆ ⋃ (x : Σ (m : ℕ),
     {j : cell C m // ¬ Disjoint A (openCell m j)}), closedCell (C := C) x.1 x.2 := by
   intro x ⟨xmem1, xmem2⟩
   simp only [mem_iUnion]
@@ -224,94 +274,7 @@ lemma subset_not_disjoint (A : Set X) : A ∩ C ⊆ ⋃ (x : Σ (m : ℕ),
   use ⟨m, j, not_disjoint_iff.2 ⟨x, xmem1, hmj⟩⟩
   exact openCell_subset_closedCell _ _ hmj
 
-lemma subset_not_disjoint' (A : Set X) : A ∩ C ⊆ ⋃ (x : Σ (m : ℕ),
-    {j : cell C m // ¬ Disjoint A (openCell m j)}), openCell (C := C) x.1 x.2 := by
-  intro x ⟨xmem1, xmem2⟩
-  simp only [mem_iUnion]
-  simp only [← iUnion_openCell, mem_iUnion] at xmem2
-  rcases xmem2 with ⟨m, j, hmj⟩
-  use ⟨m, j, not_disjoint_iff.2 ⟨x, xmem1, hmj⟩⟩
-
--- I don't think this is needed right now or ever really
--- lemma map_closedball_inter_finite_le (n : ℕ)  : _root_.Finite (Σ' (m : ℕ) (_ : m ≤ n), {j : hC.cell m // ¬ Disjoint A.1 (↑(hC.map m j) '' ball 0 1)}) := by
---   let f := fun (x : {x : Σ' (n : ℕ) (_ ), I n // ¬Disjoint A.1 (hC.map x.fst x.snd '' ball 0 1)}) ↦ (⟨⟨x.1.1, x.1.2⟩, x.2⟩ : {x : Σ (n : ℕ), hC.cell n // ¬Disjoint A.1 (hC.map x.fst x.snd '' ball 0 1)})
---   apply @Finite.of_injective _ _ (hC.compact_inter_finite' A) f
---   unfold Function.Injective
---   intro ⟨⟨x1, x2⟩, x3⟩ ⟨⟨y1, y2⟩, y3⟩ eq
---   simp [f] at eq
---   rcases eq with ⟨rfl, eq⟩
---   simp only [heq_eq_eq, Subtype.mk.injEq, Subtype.val_inj] at eq
---   simp_rw [eq]
---   sorry
-
--- lemma subset_not_disjoint_le (n : ℕ) (i : hC.cell n) : hC.map n i '' closedBall 0 1 ⊆ ⋃ (m : ℕ) (_ : m ≤ n) (j : { j // ¬Disjoint (hC.map n i '' closedBall 0 1) (hC.map m j '' ball 0 1)}), hC.map m j.1 '' closedBall 0 1 := by
---   apply subset_iUnion_of_subset n
---   apply subset_iUnion_of_subset (by rfl)
---   refine subset_iUnion_of_subset ⟨i, ?_⟩ (by rfl)
---   rw [not_disjoint_iff]
---   use map n i 0
---   constructor
---   · apply mem_image_of_mem
---     simp only [mem_closedBall, dist_self, zero_le_one]
---   · apply mem_image_of_mem
---     simp only [mem_ball, dist_self, zero_lt_one]
-
--- is this needed?
-lemma iUnion_cells_inter_compact (A : Set X) (compact : IsCompact A) (I : (n : ℕ) →  Set (cell C n)) :
-    ∃ (p : (n : ℕ) → I n → Prop), _root_.Finite (Σ (n : ℕ), {i : I n // p n i}) ∧
-    (⋃ (n : ℕ) (i : I n), openCell (C := C) n i) ∩ A =
-    (⋃ (n : ℕ) (i : {i : I n // p n i}), openCell (C := C) n i) ∩ A := by
-  use fun (n : ℕ) (i : I n) ↦ ¬ Disjoint A (openCell (C := C) n i)
-  refine ⟨compact_inter_finite_subset _ compact, ?_⟩
-  calc
-    (⋃ n, ⋃ (i : ↑(I n)), openCell (C := C) n i) ∩ A =
-        (⋃ n, ⋃ (i : I n), openCell (C := C) n i) ∩ C ∩ A := by
-      congr
-      symm
-      simp_rw [Set.inter_eq_left, ← iUnion_openCell]
-      apply Set.iUnion_mono''
-      intro n x
-      rw [mem_iUnion, mem_iUnion]
-      intro ⟨i, _⟩
-      use i
-    _ = (⋃ n, ⋃ (i : I n), openCell (C := C) n i) ∩ (A ∩ C) := by rw [inter_assoc, inter_comm C]
-    _ = (⋃ n, ⋃ (i : I n), openCell (C := C) n i) ∩ ((⋃ (x : Σ (m : ℕ),
-        {j : cell C m // ¬ Disjoint A (openCell m j)}),
-        openCell (C := C) x.1 x.2) ∩ (A ∩ C)) := by
-      congrm (⋃ n, ⋃ (i : I n), openCell (C := C) n i) ∩ ?_
-      symm
-      rw [Set.inter_eq_right]
-      exact subset_not_disjoint' A
-    _ = (⋃ n, ⋃ (i : { i : I n // ¬Disjoint A (openCell (C := C) n i)}),
-        openCell (C := C) n i) ∩ (A ∩ C) := by
-      rw [← inter_assoc]
-      congrm ?_ ∩ (A ∩ C)
-      ext x
-      simp only [iUnion_coe_set, TopologicalSpace.Compacts.carrier_eq_coe, mem_inter_iff,
-        mem_iUnion, exists_prop, Sigma.exists,
-        Subtype.exists, and_iff_right_iff_imp, forall_exists_index, and_imp]
-      refine ⟨?_, fun ⟨n, i, memI, notdisjoint, xmem⟩ ↦
-        ⟨⟨n, ⟨i, ⟨memI, xmem⟩⟩⟩, ⟨n, ⟨i, ⟨notdisjoint, xmem⟩⟩⟩⟩⟩
-      intro ⟨⟨n, i, imem, xmem1⟩, ⟨m, j, hmj, xmem2⟩⟩
-      have := eq_cell_of_not_disjoint (n := n) (j := i) (m := m) (i := j)
-        (by rw [not_disjoint_iff]; use x)
-      rw [Sigma.mk.inj_iff] at this
-      rcases this with ⟨eq1, eq2⟩
-      subst eq1
-      rw [heq_eq_eq] at eq2
-      subst eq2
-      use n, i
-    _ = (⋃ n, ⋃ (i : { i : ↑(I n) // ¬Disjoint A (openCell (C := C) n i) }),
-        openCell (C := C) n i) ∩ A := by
-      rw [inter_comm A, ← inter_assoc]
-      congr
-      simp_rw [Set.inter_eq_left, ← iUnion_openCell]
-      apply Set.iUnion_mono''
-      intro n x
-      rw [mem_iUnion, mem_iUnion]
-      intro ⟨i, _⟩
-      use i
-
+/-- A compact CW-complex is finite.-/
 lemma finite_of_compact (compact : IsCompact C) : CWComplex.Finite C := by
   apply finite_of_finite_cells
   have : ∀ m (j : cell C m), ¬Disjoint C (openCell m j) := by
@@ -325,9 +288,12 @@ lemma finite_of_compact (compact : IsCompact C) : CWComplex.Finite C := by
   rw [← Equiv.finite_iff f]
   exact compact_inter_finite C compact
 
-lemma compact_of_finite (finite : CWComplex.Finite C) : IsCompact C := by
+/-- A finite CW-complex is compact.-/
+lemma compact_of_finite {X : Type*} [t : TopologicalSpace X] {C : Set X} [CWComplex C]
+    (finite : CWComplex.Finite C) : IsCompact C := by
   rw [finite_iff_finite_cells] at finite
   rw [← union (C := C), iUnion_sigma']
   exact isCompact_iUnion (fun ⟨n, i⟩ ↦ isCompact_closedCell)
 
+/-- A CW-complex is compact iff it is finite. -/
 lemma compact_iff_finite : IsCompact C ↔ Finite C := ⟨finite_of_compact, compact_of_finite⟩
