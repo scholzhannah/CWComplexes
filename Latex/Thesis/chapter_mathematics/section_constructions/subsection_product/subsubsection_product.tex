@@ -50,7 +50,8 @@ Before we can discuss closure finiteness we need to think about what the frontie
             &= \cellFrontier{n}{i} \times \closedCellf{m}{j} \cup \closedCell{n}{i} \times \cellFrontierf{m}{j}.
         \end{split}
     \end{equation*}
-    The equality $\boundary D^{n + m} = \boundary D^n \times D^m \cup D^n \times \boundary D^m$ is true in any metric space and can be verified explicitly.
+    The equality $\boundary D^{n + m} = \boundary D^n \times D^m \cup D^n \times \boundary D^m$ is true in any metric space and can be verified explicitly. 
+    \href{https://github.com/leanprover-community/mathlib4/blob/93828f4cd10fb8cab31700b110fd2751d36bf1b8/Mathlib/Topology/MetricSpace/Pseudo/Constructions.lean#L171-L181}{\faExternalLink}
 \end{proof}
 
 Using this we get closure finiteness:
@@ -60,20 +61,21 @@ Using this we get closure finiteness:
     \href{https://github.com/scholzhannah/CWComplexes/blob/7be4872a05b534011cc969eb5b80a4b7f0bf57e2/CWcomplexes/Product.lean#L272-L321}{\faExternalLink}
 \end{lem}
 \begin{proof}
-    By the above lemma we need to verify that for all $n, m \in \bN$, $i \in I_n$ and $j \in J_m$ the set $\cellFrontier{n}{i} \times \closedCellf{m}{j} \cup \closedCell{n}{i} \times \cellFrontierf{m}{j}$ is contained in a finite union of closed cells of $(X \times Y)_c$ of dimension less than $n + m$. 
+    By the above lemma we need to verify that for all $n, m \in \bN$, $i \in I_n$ and $j \in J_m$, the set $\cellFrontier{n}{i} \times \closedCellf{m}{j} \cup \closedCell{n}{i} \times \cellFrontierf{m}{j}$ is contained in a finite union of closed cells of $(X \times Y)_c$ of dimension less than $n + m$. 
     We can show this separately for $\cellFrontier{n}{i} \times \closedCellf{m}{j}$ and $\closedCell{n}{i} \times \cellFrontierf{m}{j}$. 
     We will do the proof for the the former as both proofs work in the same way. 
-    Since $X$ fulfils closure finiteness there is a finite set $E$ of cells of $X$ of dimension less than $n$ such that $\cellFrontier{n}{i} \subset \bigcup_{e \in E}\closure{e}$. 
-    But that gives us $\cellFrontier{n}{i} \times \closedCellf{m}{j} \subseteq \bigcup_{e \in E}\closure{e} \times \closedCellf{m}{j}$ which is a finite union of closed cells of $(X \times Y)_c$ of dimension less than $n + m$.
+    Since $X$ fulfils closure finiteness, there is a finite set $E$ of cells of $X$ of dimension less than $n$ such that $\cellFrontier{n}{i} \subset \bigcup_{e \in E}\closure{e}$. 
+    But that gives us $\cellFrontier{n}{i} \times \closedCellf{m}{j} \subseteq \bigcup_{e \in E}\closure{e} \times \closedCellf{m}{j}$, which is a finite union of closed cells of $(X \times Y)_c$ of dimension less than $n + m$.
 \end{proof}
 
 Now we can proof the desired theorem:
 
 \begin{proof}[Proof of Theorem \ref{thm:productcw}]
     It is well known and easy to see explicitly that the product of two Hausdorff spaces is again Hausdorff. 
+    \href{https://github.com/leanprover-community/mathlib4/blob/93828f4cd10fb8cab31700b110fd2751d36bf1b8/Mathlib/Topology/Separation.lean#L1547-L1548}{\faExternalLink} 
     Now we can go through the five conditions of Definition \ref{defi:CWComplex2}. 
 
-    Property (i) is given by the fact that the product of bijective maps is again bijection and continuity in both directions follows from Lemma \ref{lem:continuousfromkification} and Lemma \ref{lem:continuoustokification}. 
+    Property (i) is given by the fact that the product of bijective maps is again a bijection and continuity in both directions follows from Lemma \ref{lem:continuousfromkification} and Lemma \ref{lem:continuoustokification}. 
 
     For property (ii) pick any $n, m, n', m' \in \bN$, $i \in I_n$, $j \in J_m$, $i' \in I_{n'}$ and $j' \in J_{m'}$ such that $(n + m, i, j) \ne (n' + m', i', j')$ then either $(n, i) \ne (n', i')$ or $(m, j) \ne (m', j')$. 
     Thus 

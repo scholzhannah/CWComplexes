@@ -1,6 +1,6 @@
 \section{Definition and basic properties of a CW-complex}
 
-We choose to formalise the historical definition because the modern one would require us to consider the $n$-skeletons as topological spaces which would create a lot of work unifying them to work well together. 
+We choose to formalise the historical definition because the modern one would require us to consider the $n$-skeletons as topological spaces, which would create a lot of work unifying them to work well together. 
 The historical definition, however, allows us to work in one topological space which avoids this issue.  
 
 The following is our definition of CW-complexes in Lean: 
@@ -45,7 +45,9 @@ structure PartialEquiv (α : Type*) (β : Type*) where
 
 It bundles two maps and two sets that get mapped to each other by the respective maps.
 Restricting the maps to these sets yields two maps that are the inverse of each other.
-We use this instead of a similar construction called \lstinline{Equiv} for bijections to avoid explicitly having to deal with restrictions.
+We use this instead of a similar construction called \lstinline{Equiv}
+\href{https://github.com/leanprover-community/mathlib4/blob/93828f4cd10fb8cab31700b110fd2751d36bf1b8/Mathlib/Logic/Equiv/Defs.lean#L60-L65}{\faExternalLink}
+for bijections to avoid explicitly having to deal with restrictions.
 The brackets \lstinline{⦃⦄} are similar to the curly brackets and are used here since \lstinline{x} can be inferred from the left sides of the implications.
 
 The property \lstinline{source_eq} specifies the source of the \lstinline{PartialEquiv}.
@@ -78,13 +80,13 @@ We have chosen this to be a class so that we can make use of typeclass inference
 
 There are a few things to note about this formalisation of the definition.
 First of all it does not require $X$ to be a Hausdorff space.
-This is done so that when you define a CW-complex you can choose to first define the structure in this way and later show that it is a Haussdorff space to apply lemmas about CW-complexes of which almost all will require that $X$ is Hausdorff.
+This is done so that when you define a CW-complex, you can choose to first define the structure in this way and later show that it is a Hausdorff space to apply lemmas about CW-complexes, of which most will require that $X$ is Hausdorff.
 Additionally we introduce a relative component:
-Instead of defining what it means for a space to be a CW-complex we define what it means for a subspace $C$ of $X$ to be a CW-complex in $X$.
-This is useful firstly to be able to work with a nicer topology:
+Instead of defining what it means for a space to be a CW-complex, we define what it means for a subspace $C$ of $X$ to be a CW-complex in $X$.
+This is useful, firstly, to be able to work with a nicer topology:
 If you consider $S^1$ as a CW-complex and a subspace of $\bR$ you might find it easier to work with the topology on $\bR$ instead of the subspace topology.
-Secondly constructions such as attaching cells or taking disjoint unions of CW-complexes might be easier to work with if you are already working in the same overarching type.
-This approach is inspired by \cite{Gonthier2013} where the authors notice that it is helpful to consider subsets of an ambient group to avoid having to work with different group operations and similar issues.
+Secondly, constructions such as attaching cells or taking disjoint unions of CW-complexes might be easier to work with, if you are already working in the same overarching type.
+This approach is inspired by \cite{Gonthier2013}, where the authors notice that it is helpful to consider subsets of an ambient group to avoid having to work with different group operations and similar issues.
 
 One question that naturally arises is whether these changes to the definition preserve the notion of a CW-complex.
 Firstly note that if we choose $X$ and $C$ to be the same we recover Definition \ref{defi:CWComplex2} exactly.
@@ -97,7 +99,7 @@ Firstly this allows us to conclude that $C$ is closed:
   \href{https://github.com/scholzhannah/CWComplexes/blob/7be4872a05b534011cc969eb5b80a4b7f0bf57e2/CWcomplexes/Definition.lean#L234-L238}{\faExternalLink}
 \end{lem}
 \begin{proof}
-  Since $C \subseteq C$ it is enough to show that $C \cap \closedCell{n}{i}$ is closed for every $n \in \bN$ and $i \in I_n$.
+  Since $C \subseteq C$, it is enough to show that $C \cap \closedCell{n}{i}$ is closed for every $n \in \bN$ and $i \in I_n$.
   But by the property \lstinline{union'} we know that $C \cap \closedCell{n}{i} = \closedCell{n}{i}$ which is closed by the same argument as in the proof of Lemma \ref{lem:closedCellclosed}.
 \end{proof}
 
@@ -108,7 +110,7 @@ This indeed excludes some CW-complexes:
   Then $I$ is a CW-complex in the sense of Definition \ref{defi:CWComplex2}.
 \end{example}
 \begin{proof}
-  Since $I$ is homeomorphic to $\bR$ it is by Lemma \ref{lem:homeomorph} enough to show that $\bR$ admits the structure of a CW-complex.
+  Since $I$ is homeomorphic to $\bR$, it is by Lemma \ref{lem:homeomorph} enough to show that $\bR$ admits the structure of a CW-complex.
   As $0$-cells we choose every $z \in \bZ \subseteq \bR$.
   As $1$-cells we choose the intervals $(z, z + 1)$ for every $z \in \bZ \subseteq \bR$.
   Properties (i), (ii), (iii), and (v) of Definition \ref{defi:CWComplex2} are easy to verify.
@@ -117,13 +119,15 @@ This indeed excludes some CW-complexes:
   Let us thus move on to the backwards direction.
   Take $A \subseteq \bR$ and assume that $A \cap [z, z + 1]$ is closed for all $z \in \bZ$.
   We now need to show that $A$ is closed.
-  It is wellknown that $\bR$ is a metric space and by Lemma \ref{lem:metricissequential} it is in particular a sequential space.
+  It is well-known that $\bR$ is a metric space 
+  \href{https://github.com/leanprover-community/mathlib4/blob/93828f4cd10fb8cab31700b110fd2751d36bf1b8/Mathlib/Topology/MetricSpace/Basic.lean#L117-L118}{\faExternalLink}
+  and by Lemma \ref{lem:metricissequential} it is in particular a sequential space.
   It is therefore enough to show that for every convergent sequence $(a_n)_{n \in \bN} \subseteq A$ the limit point is also in $A$.
   Take an arbitrary convergent $(a_n)_{n \in \bN} \subseteq A$.
   We call the limit point $a$.
   Then there exists a $z \in \bZ$ such that $a \in (z, z + 2)$.
-  Thus there is a subsequence $(a'_n)_{n \in \bN} \subseteq A \cap [z, z + 2]$ which obviously also converges to $a$.
-  But by assumption $A \cap [z, z + 2] = (A \cap [z, z + 1]) = (A \cap [z + 1, z + 2])$ is closed and therefore sequentially closed which gives us that $a \in A \cap [z, z + 2] \subseteq A$.
+  Thus there is a subsequence $(a'_n)_{n \in \bN} \subseteq A \cap [z, z + 2]$, which obviously also converges to $a$.
+  But, by assumption, $A \cap [z, z + 2] = (A \cap [z, z + 1]) = (A \cap [z + 1, z + 2])$ is closed and therefore sequentially closed, which gives us that $a \in A \cap [z, z + 2] \subseteq A$.
 \end{proof}
 
 But remember that our definition in Lean still allows us to view an open interval as a CW-complex in itself.
@@ -153,13 +157,14 @@ While \lstinline{Fin n → ℝ} is a way to represent $\bR^n$ in Lean it does no
 So instead of considering closed balls we are looking at cubes which does not change our definition since the two are homeomorphic.
 We could use the euclidean metric on $\bR^n$ which would be written as \lstinline{EuclideanSpace ℝ (Fin n)} but since we are mostly arguing abstractly about CW-complexes this is unnecessary and takes up more space.
 
-When proving that something is a CW-complex in Lean it can often be surprising how much longer and more technical the formalised proofs of closure finiteness, i.e. the property \lstinline{mapsto}, can be. 
+When proving that something is a CW-complex in Lean, it can often be surprising how much longer and more technical the formalised proofs of closure finiteness, i.e. the property \lstinline{mapsto}, can be. 
 One reason for this is that our proofs in the first chapter heavily rely on our intuition about finiteness while Lean obligates us to show finiteness of the union explicitly and in detail.
 
 The code in the rest of the section will always have the following assumptions:
 
 \begin{lstlisting}
-variable {X : Type*} [t : TopologicalSpace X] [T2Space X] {C : Set X} [CWComplex C]
+variable {X : Type*} [t : TopologicalSpace X] [T2Space X] {C : Set X} 
+  [CWComplex C]
 \end{lstlisting}
 
 where \lstinline{T2Space X}
@@ -204,10 +209,10 @@ lemma closed (A : Set X) (asubc : A ⊆ C) :
 lemma union : ⋃ (n : ℕ) (j : cell C n), closedCell n j = C := ⋯
 \end{lstlisting}
 
-As in Definition \ref{defi:CWComplex2} we also want to define notation for the $n$-skeletons.
+As in Definition \ref{defi:CWComplex2}, we also want to define notation for the $n$-skeletons.
 In the first chapter we often chose to start inductions at $-1$ to make the base case trivial.
-When formalising we want to be able to use the already defined induction principles that naturally start at $0$.
-For that purpose we use an auxiliary definition called \lstinline{levelaux} that is shifted by $1$ in comparison to the usual notion of the $n$-skeleton which we call \lstinline{level}: 
+When formalising we want to be able to use the already defined induction principles, that naturally start at $0$.
+For that purpose we use an auxiliary definition called \lstinline{levelaux} that is shifted by $1$ in comparison to the usual notion of the $n$-skeleton, which we call \lstinline{level}: 
 \href{https://github.com/scholzhannah/CWComplexes/blob/7be4872a05b534011cc969eb5b80a4b7f0bf57e2/CWcomplexes/Definition.lean#L137-L146}{\faExternalLink}
 
 \begin{lstlisting}
@@ -240,8 +245,11 @@ Property \lstinline{eventually_isEmpty_cell} is stated in terms of a \emph{filte
 \href{https://github.com/leanprover-community/mathlib4/blob/ed125a4216d18273cb1b96d4c846d32b85d74faf/Mathlib/Order/Filter/Basic.lean#L85-L96}{\faExternalLink}
 which is a concept that appears frequently in mathlib.
 They are often used to describe convergence in a topological way.
-As they will not be important to this thesis we will not go into details but information on filters can be found in \cite{Bourbaki1966}.
+As they will not be important to this thesis, we will not go into detail but information on filters can be found in \cite{Bourbaki1966}.
 The property \lstinline{eventually_isEmpty_cell} is equivalent to \lstinline{∃ a, ∀ (b : ℕ), a ≤ b → IsEmpty (cell C b)}.
+
+Interestingly, our approach to the formalised definition provides us with a different way to prove Lemma \ref{lem:levelclosed}, i.e. the fact that the $n$-skeletons are closed: 
+The $n$-skeletons are CW-complexes by Lemma \ref{lem:levelcwcomplex}, which we will prove in Lean in the next section, and therefore closed by Lemma \ref{lem:Cclosed}.
 
 To finish of this section here are the statements of some of the main results of Section \ref{sec:mathsdef}.
 They correspond to the results \ref{lem:skeletonunionopenCell}

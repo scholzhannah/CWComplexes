@@ -11,9 +11,9 @@ class KSpace  (X : Type*) [TopologicalSpace X] where
   ∀ (B : Set X), IsCompact B → ∃ (C : Set X), IsOpen C ∧ A ∩ B = C ∩ B
 \end{lstlisting}
 
-When defining the k-ification we need to be a little careful. 
+When defining the k-ification, we need to be a little careful. 
 We want it to be an instance derived from another instance defined on the same type. 
-To tell the system what instance we are referring to we define a type synonym and then the k-ification: 
+To tell the system what instance we are referring to, we define a type synonym and then the k-ification: 
 \href{https://github.com/scholzhannah/CWComplexes/blob/7be4872a05b534011cc969eb5b80a4b7f0bf57e2/CWcomplexes/KSpace.lean#L119-L146}{\faExternalLink}
 
 \begin{lstlisting}
@@ -85,9 +85,9 @@ def prodcell (C : Set X) (D : Set Y) [CWComplex C] [CWComplex D] (n : ℕ) :=
     (Σ' (m : ℕ) (l : ℕ) (hml : m + l = n), cell C m × cell D l)
 \end{lstlisting}
 
-where the \lstinline{Σ'} is a sigma type that allows you to add properties in this case \lstinline{hml}. 
+where the \lstinline{Σ'} is a sigma type that allows us to add properties, in this case \lstinline{hml}. 
 
-When discussing the product in Section \ref{sec:constructproduct} we always identified $\bR^{m + n}$ and $\bR^m \times \bR^n$. 
+When discussing the product in Section \ref{sec:constructproduct}, we always identified $\bR^{m + n}$ and $\bR^m \times \bR^n$. 
 When formalising we need to make that identification explicit: 
 \href{https://github.com/scholzhannah/CWComplexes/blob/7be4872a05b534011cc969eb5b80a4b7f0bf57e2/CWcomplexes/Product.lean#L33-L36}{\faExternalLink}
 
@@ -96,7 +96,7 @@ def prodisometryequiv {n m l : ℕ}  (hmln : m + l = n) (j : cell C m) (k : cell
 \end{lstlisting}
 
 where \lstinline{≃ᵢ} is a symbol used to denote a bijective isometry \href{https://github.com/leanprover-community/mathlib4/blob/ed125a4216d18273cb1b96d4c846d32b85d74faf/Mathlib/Topology/MetricSpace/Isometry.lean#L242-L246}{\faExternalLink}. 
-Using this map we can define the characteristic maps of the product: 
+Using this map, we can define the characteristic maps of the product: 
 \href{https://github.com/scholzhannah/CWComplexes/blob/7be4872a05b534011cc969eb5b80a4b7f0bf57e2/CWcomplexes/Product.lean#L38-L41}{\faExternalLink}
 
 \begin{lstlisting}

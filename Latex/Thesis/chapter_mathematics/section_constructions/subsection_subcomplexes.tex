@@ -1,6 +1,6 @@
 \subsection{Subcomplexes}\label{sec:mathsubcomplex}
 
-One important way to get a new CW-complex from an existing one is to consider subcomplexes which we will discuss in this section. 
+One important way to get a new CW-complex from an existing one is to consider subcomplexes, which we will discuss in this section. 
 
 Let $X$ be a CW-complex. A subcomplex of $X$ is defined as follows:
 
@@ -55,13 +55,13 @@ We will just show the implication that is useful to us.
     So let $n \in \bN$ and $i \in I_n$. 
     We differentiate the cases $i \in J_n$ and $i \notin J_n$.
     For the first one notice that by property (i) $E$ can be expressed as a union of closed cells: $E = \bigcup_{m \in \bN} \bigcup_{j \in J_n} \openCell{m}{j} \subseteq \bigcup_{m \in \bN} \bigcup_{j \in J_n} \closedCell{m}{j} \subseteq E$. 
-    This gives us $E \cap \closedCell{n}{i} = \closedCell{n}{i}$ which is closed by Lemma \ref{lem:closedCellclosed}. 
-    Now for the case $i \notin J_n$ the disjointness of the open cells of $X$ gives us that $E \cap \openCell{n}{i} = (\bigcup_{m \in \bN} \bigcup_{j \in J_n} \openCell{m}{j}) \cap \openCell{n}{i} = \varnothing$ which is obviously closed. 
+    This gives us $E \cap \closedCell{n}{i} = \closedCell{n}{i}$, which is closed by Lemma \ref{lem:closedCellclosed}. 
+    Now for the case $i \notin J_n$, the disjointness of the open cells of $X$ gives us that $E \cap \openCell{n}{i} = (\bigcup_{m \in \bN} \bigcup_{j \in J_n} \openCell{m}{j}) \cap \openCell{n}{i} = \varnothing$, which is obviously closed. 
 \end{proof}
 
 And here is a third way to express the property of being a subcomplex:
 
-\begin{lem}
+\begin{lem}\label{lem:subcomplex''}
     Let $E \subseteq X$ and $J_n \subseteq I_n$ for $n \in \bN$ be such that 
     \begin{enumerate}
         \item $E$ is a CW-complex with respect to the cells determined by $X$ and $J_n$.
@@ -93,15 +93,15 @@ Now we can show that a subcomplex is indeed again a CW-complex:
     We define $E' \coloneq \{\openCell{m}{j} \in E \mid j \in J_m\}$. 
     We want to show that $\cellFrontier{n}{i} \subseteq \bigcup_{e \in E'}e$. 
     Take $x \in \cellFrontier{n}{i}$. 
-    By $\cellFrontier{n}{i} \subseteq \bigcup_{e \in E}e$ there is an $\openCell{m}{j} \in E$ such that $x \in \openCell{m}{j}$. 
+    Since $\cellFrontier{n}{i} \subseteq \bigcup_{e \in E}e$, there is an $\openCell{m}{j} \in E$ such that $x \in \openCell{m}{j}$. 
     It is obviously enough to show that $j \in J_m$. 
     By Lemma \ref{lem:subcomplexunionclosed} we know that $x \in \cellFrontier{n}{i} \subseteq \closedCell{n}{i} \subseteq E$.
     But since $E = \bigcup_{m' \in \bN} \bigcup_{j' \in J_{m'}} \openCell{m'}{j'}$ there is $m' \in \bN$ and $j' \in J_{m'}$ such that $x \in \openCell{m'}{j'}$. 
     We know that the open cells of $X$ are disjoint which gives us $(m, j) = (m', j')$. 
-    That directly implies $j \in J_m$ which we wanted to show. 
+    That directly implies $j \in J_m$, which we wanted to show. 
 
     Lastly we need to show property (iv), i.e. that $E$ has weak topology. 
-    Like in a lot of our other proofs $A \subseteq E$ being closed implies that $A \cap \closedCell{n}{i}$ is closed for every $n \in \bN$ and $i \in J_n$. 
+    Like in a lot of our other proofs, $A \subseteq E$ being closed implies that $A \cap \closedCell{n}{i}$ is closed for every $n \in \bN$ and $i \in J_n$. 
     So now take $A \subseteq E$ such that $A \cap \closedCell{n}{i}$ is closed in $E$ for every $n \in \bN$ and $i \in J_n$. 
     We need to show that $A$ is closed in $E$.
     It is enough to show that $A$ is closed in $X$. 
@@ -110,10 +110,10 @@ Now we can show that a subcomplex is indeed again a CW-complex:
     Firstly consider $j \in J_n$. 
     Then $A \cap \closedCell{n}{i}$ is closed in $E$ by assumption.
     By the definition of the subspace topology this means that there exists a closed set $B \subseteq X$ such that $A \cap \closedCell{n}{i} = E \cap B$. 
-    But since $E$ is closed by assumption (i) of Definition \ref{defi:subcomplex} of a subcomplex that means that $A \cap \closedCell{n}{i}$ is the intersection of two closed sets in $X$ making it also closed. 
+    But since $E$ is closed by assumption (i) of Definition \ref{defi:subcomplex} of a subcomplex, that means that $A \cap \closedCell{n}{i}$ is the intersection of two closed sets in $X$ making it also closed. 
     Now let us cover the case $j \notin J_n$. 
-    This gives us $A \cap \openCell{n}{j} \subseteq E \cap \openCell{n}{j} = (\bigcup_{m \in \bN} \bigcup_{i \in J_m} \openCell{m}{i}) \cap \openCell{n}{j} = \varnothing$ where the last equality holds since the open cells of $X$ are pairwise disjoint. 
-    Thus $A \cap \openCell{n}{j} = \varnothing$ which is obviously closed.
+    This gives us $A \cap \openCell{n}{j} \subseteq E \cap \openCell{n}{j} = (\bigcup_{m \in \bN} \bigcup_{i \in J_m} \openCell{m}{i}) \cap \openCell{n}{j} = \varnothing$, where the last equality holds since the open cells of $X$ are pairwise disjoint. 
+    Thus $A \cap \openCell{n}{j} = \varnothing$, which is obviously closed.
 \end{proof}
 
 Now let us look at some properties of subcomplexes: 
@@ -129,11 +129,11 @@ Now let us look at some properties of subcomplexes:
     Take $n \in \bN$ and $j \in \bigcup_{i \in \iota} I_{i, n}$. 
     Then there is a $i \in \iota$ such that $j \in I_{i, n}$. 
     With Lemma \ref{lem:subcomplexunionclosed} we get 
-    $\closedCell{n}{j} \subseteq \bigcup_{n \in \bN}\bigcup_{j \in I_{i, n}} \closedCell{n}{j} = E_i \subseteq \bigcup_{i \in \iota} E_i$ which means we are done.
+    $\closedCell{n}{j} \subseteq \bigcup_{n \in \bN}\bigcup_{j \in I_{i, n}} \closedCell{n}{j} = E_i \subseteq \bigcup_{i \in \iota} E_i$, which means we are done.
 \end{proof}
 
 \begin{rem} \label{rem:unionfinitesubcomplexes}
-    We say a subcomplex is finite when it is finite as a CW-complex.
+    We say a subcomplex is finite, when it is finite as a CW-complex.
     It is easy to see that taking a finite union of finite subcomplexes of $X$ yields again a finite subcomplex of $X$. \href{https://github.com/scholzhannah/CWComplexes/blob/7be4872a05b534011cc969eb5b80a4b7f0bf57e2/CWcomplexes/subcomplex.lean#L211-L224}{\faExternalLink}
 \end{rem}
 
@@ -165,8 +165,8 @@ This helps us get the following lemma:
     We now need to show that it then also holds for $n + 1$. 
     By closure finiteness of $X$ there is a finite set $F$ of cells of $X$ with dimension less than $n + 1$ such that $\cellFrontier{n  + 1}{i} \subseteq \bigcup_{e \in F} \closure{e}$. 
     By induction each cell $e \in F$ is part of a finite subcomplex $E_e$ of $X$. 
-    By Lemma \ref{lem:unionsubcomplexes} and Remark \ref{rem:unionfinitesubcomplexes} $\bigcup_{e \in F}E_e$ is again a finite subcomplex of $X$. 
-    The second example in \ref{example:subcomplexes} now allows us to attach the cell $\openCell{n + 1}{i}$ to this subcomplex yielding a finite subcomplex with $\openCell{n + 1}{i}$ among its cells.
+    By Lemma \ref{lem:unionsubcomplexes} and Remark \ref{rem:unionfinitesubcomplexes}, $\bigcup_{e \in F}E_e$ is again a finite subcomplex of $X$. 
+    The second example in Example \ref{example:subcomplexes} now allows us to attach the cell $\openCell{n + 1}{i}$ to this subcomplex yielding a finite subcomplex with $\openCell{n + 1}{i}$ among its cells.
 \end{proof}
 
 \begin{cor}
@@ -185,5 +185,5 @@ This helps us get the following lemma:
 \end{cor}
 \begin{proof}
     We know from Lemma \ref{lem:compactintersectsonlyfinite} and property (v) in Definition \ref{defi:CWComplex2} that $C$ is contained in a finite union of cells of $X$. 
-    And now the above corollary tells us that these finite cells and therefore $C$ is contained in a finite subcomplex of $X$.
+    And now the above corollary tells us that these finite cells, and therefore $C$, is contained in a finite subcomplex of $X$.
 \end{proof}

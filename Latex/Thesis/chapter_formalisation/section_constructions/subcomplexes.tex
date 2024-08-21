@@ -23,14 +23,14 @@ We need to use this notation because we made \lstinline{C} and implicit argument
 We chose this to be a class again so that when you want to talk about the CW-structure of a subcomplex you don't need to explicitly mention the subcomplex structure and that every subcomplex is a CW-complex.
 
 But we still have one issue: 
-We would like the instance 
+We would like to have the instance 
 
 \begin{lstlisting}
 instance doesnotcompile (E : Set X) [subcomplex : Subcomplex C E] : 
   CWComplex E := ⋯ 
 \end{lstlisting}
 
-which unfortunately does not work as Lean has no way to infer \lstinline{C} from \lstinline{CWComplex E} and therefore does not know that it should be looking for the instance \lstinline{[subcomplex : Subcomplex C E]}. 
+which unfortunately does not work, as Lean has no way to infer \lstinline{C} from \lstinline{CWComplex E} and therefore does not know that it should be looking for the instance \lstinline{[subcomplex : Subcomplex C E]}. 
 
 To remedy this we can define some notation that includes the variable \lstinline{C}: 
 \href{https://github.com/scholzhannah/CWComplexes/blob/7be4872a05b534011cc969eb5b80a4b7f0bf57e2/CWcomplexes/subcomplex.lean#L110-L115}{\faExternalLink}
@@ -50,6 +50,21 @@ We can now use this to make the instance from above work:
 \begin{lstlisting}
 instance CWComplex_subcomplex (E : Set X) [subcomplex : Subcomplex C E] : CWComplex (E ⇂ C) := ⋯
 \end{lstlisting}
+
+When formalising the two alternative definitions of a subcomplex that we talked about in Section \ref{sec:mathsubcomplex}, we can relax the conditions of Lemma \ref{lem:subcomplex''} because, by Lemma \ref{lem:Cclosed}, every CW-complex is closed. 
+This is our version of Lemma \ref{lem:subcomplex''} in the formalisation: 
+\href{https://github.com/scholzhannah/CWComplexes/blob/7be4872a05b534011cc969eb5b80a4b7f0bf57e2/CWcomplexes/subcomplex.lean#L82-L89}{\faExternalLink}
+
+\begin{lstlisting}
+def Subcomplex'' (C : Set X) [CWComplex C] (E : Set X) (I : Π n, Set (cell C n))
+    (cw : CWComplex E)
+    (union : ⋃ (n : ℕ) (j : I n), openCell (C := C) n j = E) : Subcomplex C E where
+  I := I
+  closed := cw.isClosed
+  union := union
+\end{lstlisting}
+
+Note that this version does not require \lstinline{E} to be a CW-complex with respect to cells determined by \lstinline{C}.
 
 With that we can prove the lemmas from Section \ref{sec:mathsubcomplex}. 
 Here are two examples.

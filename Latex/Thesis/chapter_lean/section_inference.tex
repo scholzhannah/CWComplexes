@@ -50,14 +50,15 @@ example (X Y : Type*) (t : TopologicalSpace X) (s : TopologicalSpace Y)
   (f : X → Y) : Continuous'' t s f := ⋯
 \end{lstlisting}
 
-This is already a lot shorter than what we had above but there is still room for improvement as on paper we would probably just write "$f$ is continuous" since in most contexts $X$ and $Y$ will only have one specified topology each that can be inferred by the reader.
+This is already a lot shorter than what we had above but there is still room for improvement, as on paper we would probably just write "$f$ is continuous" since in most contexts $X$ and $Y$ will only have one specified topology each, that can be inferred by the reader.
 The same thing is also true in Lean and we can achieve this by typeclass inference.
 Typeclasses were first invented by \Citeauthor{Wadler1989} in \cite{Wadler1989} to be used in the programming language Haskell. 
 They are a way to overload operations for various different types. 
-For example you might want to write code that works for all types that have a topology. 
-In Lean this is possible by just stating that you input type \lstinline{X} is part of the typeclass \lstinline{TopologicalSpace}. 
+For example, you might want to write code that works for all types that have a topology. 
+In Lean this is possible by just stating that your input type \lstinline{X} is part of the typeclass \lstinline{TopologicalSpace}. 
 You can specify that something ia a typeclass with the keyword \lstinline{class}. 
-The definition of the typeclass of topological spaces in mathlib looks like this
+The definition of the typeclass of topological spaces in mathlib looks like this: 
+\href{https://github.com/leanprover-community/mathlib4/blob/93828f4cd10fb8cab31700b110fd2751d36bf1b8/Mathlib/Topology/Defs/Basic.lean#L59-L71}{\faExternalLink}
 
 \begin{lstlisting}
 class TopologicalSpace (X : Type*) where
@@ -73,12 +74,13 @@ The keyword \lstinline{protected} means that these properties should not be acce
 Thus the line \lstinline{protected IsOpen : Set X → Prop} expresses that \lstinline{IsOpen} is a property that can be assigned to a set in \lstinline{X}.
 The rest of the lines discuss the properties of a topology.
 \lstinline{univ} is the set that is composed of all elements of \lstinline{X} and \lstinline{⋃₀ s} is the union over the set \lstinline{s}. 
-All of these explanations are not actually relevant to typeclasses, they are just for your understanding of the above code. 
+All of these explanations are not actually relevant to typeclasses, they are just for our understanding of the above code. 
 
 Typeclasses are also expected to be inferred automatically. 
-Local instances of these typeclasses can written with square brackets which tells Lean to infer these automatically.
+Local instances of these typeclasses can be written with square brackets, which tells Lean to infer these automatically.
 
 We can now look at the version of continuity that is almost identical to that of mathlib: 
+\href{https://github.com/leanprover-community/mathlib4/blob/93828f4cd10fb8cab31700b110fd2751d36bf1b8/Mathlib/Topology/Defs/Basic.lean#L138-L144}{\faExternalLink}
 
 \begin{lstlisting}
 structure Continuous {X Y : Type*} [t : TopologicalSpace X]
@@ -95,6 +97,7 @@ example (X Y : Type*) (t : TopologicalSpace X) (s : TopologicalSpace Y)
 
 When you define a class you can then define instances of that class to be inferred whenever you talk you talk about a type with that instance. 
 Mathlib defines the discrete topology on $\bZ$ as an instance: 
+\href{https://github.com/leanprover-community/mathlib4/blob/93828f4cd10fb8cab31700b110fd2751d36bf1b8/Mathlib/Topology/Order.lean#L481-L481}{\faExternalLink}
 
 \begin{lstlisting}
 instance : TopologicalSpace ℤ := ⊥
@@ -110,6 +113,7 @@ example (f : ℤ → ℤ) : Continuous f := ⋯
 and Lean automatically knows which topology we are talking about. 
 We can additionally say that an instance implies another instance. 
 If you have types \lstinline{X} and \lstinline{Y} which both have topologies defined on them this instance in mathlib gives you a topology on the product: 
+\href{https://github.com/leanprover-community/mathlib4/blob/93828f4cd10fb8cab31700b110fd2751d36bf1b8/Mathlib/Topology/Constructions.lean#L50-L52}{\faExternalLink}
 
 \begin{lstlisting}
 instance instTopologicalSpaceProd {X Y : Type*} [t₁ : TopologicalSpace X] 
@@ -130,4 +134,9 @@ We can write
 example {X : Type*} [MetricSpace X] (f : X → X) : Continuous f := ⋯
 \end{lstlisting}
 
-which works because Lean knows that a metric space is by definition a pseudometric space which is a uniform space which is by definition a topological space.
+which works because Lean knows that a metric space is by definition a pseudometric space 
+\href{https://github.com/leanprover-community/mathlib4/blob/93828f4cd10fb8cab31700b110fd2751d36bf1b8/Mathlib/Topology/MetricSpace/Defs.lean#L36-L38}{\faExternalLink}
+which is a uniform space
+\href{https://github.com/leanprover-community/mathlib4/blob/93828f4cd10fb8cab31700b110fd2751d36bf1b8/Mathlib/Topology/MetricSpace/Pseudo/Defs.lean#L100-L119}{\faExternalLink}
+which is by definition a topological space
+\href{https://github.com/leanprover-community/mathlib4/blob/93828f4cd10fb8cab31700b110fd2751d36bf1b8/Mathlib/Topology/UniformSpace/Basic.lean#L278-L289}{\faExternalLink}.

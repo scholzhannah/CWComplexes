@@ -7,17 +7,17 @@ It was first used in formal mathematics in 1967 in the formal language \emph{AUT
 More about the history of type theory can be found in \cite{Kamareddine2004}. 
 Discussions of type theory in mathematics and especially its connections to homotopy theory forming the new area of \emph{homotopy type theory} can be found in \cite{hottbook}.
 We will now focus on the type theory as used in Lean.
-Its type theory along with the type theory of other proof assistants such as \emph{Coq} are based on \emph{constructive type theory} developed by Per Martin-Löf which makes use of dependant types \cite{Martin-Löf1984}.
+Its type theory along with the type theory of other proof assistants such as \emph{Coq} are based on \emph{constructive type theory} developed by Per Martin-Löf which makes use of dependent types \cite{Martin-Löf1984}.
 A detailed account of Lean's type theory can be found in \cite{Carneiro2019}. 
 The following short discussion is based on \cite{Avigad2024}. 
 
 Lean uses what is called a \emph{dependent type theory}.
 In type theory every object has a type. 
-A type can for example be the natural numbers or propositions which we write in Lean as \lstinline{Nat} or \lstinline{ℕ} and \lstinline{Prop} respectively.
+A type can for example be the natural numbers or propositions, which we write in Lean as \lstinline{Nat} or \lstinline{ℕ} and \lstinline{Prop} respectively.
 To assert that \lstinline{n} is a natural number or that \lstinline{p} is a proposition we write \lstinline{n : ℕ} and \lstinline{p : Prop}. 
 Proofs of a proposition \lstinline{p} also form a type written as \lstinline{p}.
 If you want to say that \lstinline{hp} is a proof of \lstinline{p} then you can simply write \lstinline{hp : p}.
-Something to note about proofs in Lean is that contrary to other type theories the type theory of Lean has \emph{proof irrelevance} which means that two proofs of a proposition \lstinline{p} are by definition assumed to be the same.
+Something to note about proofs in Lean is that, contrary to other type theories, the type theory of Lean has \emph{proof irrelevance} which means that two proofs of a proposition \lstinline{p} are by definition assumed to be the same.
 
 Even types themselves have types. 
 In Lean the type of natural numbers \lstinline{ℕ} has the type \lstinline{Type}. 
@@ -31,7 +31,7 @@ There are a few ways to construct new types from existing ones.
 Some of them are very similar to constructions on sets such as the cartesian product of types written as \lstinline{α × β} or the type of functions from \lstinline{α} to \lstinline{β} written as \lstinline{α → β} where \lstinline{α} and \lstinline{β} are types.
 Elements of \lstinline{α × β} can be written as \lstinline{(a, b)} for every \lstinline{a : α} and \lstinline{b : β}.
 Elements of \lstinline{α → β} can be written as \lstinline{fun a ↦ s a} for some \lstinline{s : α → β}. 
-Since these are quite self-explanatory we will not go into more detail.
+Since these are quite self-explanatory, we will not go into more detail.
 We will now mainly discuss constructions that do not fulfil this criterium. 
 A first example is the sum type of two types \lstinline{α} and \lstinline{β} written as \lstinline{α ⊕ β} which is the equivalent to a disjoint union of sets. 
 Elements of this type are of the form \lstinline{Sum.inl a} for \lstinline{a : α} or \lstinline{Sum.inr b} for \lstinline{b : β}.
@@ -43,7 +43,7 @@ match x with
 | Sum.inr b => ⋯
 \end{lstlisting}
 
-to write two different definitions or proofs depending on whether \lstinline{i} originates from an element of \lstinline{α} or \lstinline{β}. 
+to write two different definitions or proofs depending on whether \lstinline{x} originates from an element of \lstinline{α} or \lstinline{β}. 
 In this code snippet the names \lstinline{a} and \lstinline{b} are arbitrary.
 
 The next two examples explain why this type theory is a dependent type theory:
@@ -51,7 +51,7 @@ If we have a type \lstinline{α} and for every \lstinline{(a : α)} a type \lsti
 We can construct an element of this type by writing \lstinline{fun a ↦ s a} for some \lstinline{s : (a : α) → β a}. 
 Here is an example: 
 Assume that you want a function that for every pair in a cartesian product \lstinline{α × α} for any type \lstinline{α} returns the first element. 
-Then this would be a function that depends on \lstinline{α} and whose type is therefore the dependant function type \lstinline{(α : Type*) → α × α → α}.
+Then this would be a function that depends on \lstinline{α} and whose type is therefore the dependent function type \lstinline{(α : Type*) → α × α → α}.
 
 The dependent version of the cartesian product is called a \emph{sigma type} and can be written as \lstinline{(a : α) × β a} or \lstinline{Σ a : α, β a} for \lstinline{α} and \lstinline{β} the same way as above. 
 An element of the sigma type can be written as \lstinline{⟨a, b⟩} for \lstinline{a : α} and \lstinline{b : β a}. 
