@@ -44,10 +44,6 @@ noncomputable section
 
 open Metric Set
 
-/- Characterizing when a set is a CW-complex. See [Hatcher, Proposition A.2].
-Generally we will need `[T2Space X]`.
-Note that we are changing the definition a little bit: we are saying that a subspace `C` of `X` is a
-`CW-complex`. -/
 /-- Characterizing when a subspace `C` of a topological space `X` is a CW-complex.
   Note that this requires `C` to be a closed subspace. Otherwise choose `X` to be `C`.
   A lot of lemmas will require `[T2Space X]`.-/
