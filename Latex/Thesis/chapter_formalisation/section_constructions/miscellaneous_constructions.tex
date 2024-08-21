@@ -8,18 +8,26 @@ The following code snippet includes the statements and assumptions:
 \begin{lstlisting}
 def CWComplex_of_Homeomorph.{u} {X Y : Type  u} [TopologicalSpace X] [TopologicalSpace Y] (C : Set X) (D : Set Y) [CWComplex C] 
     (f : X ≃ₜ Y) (imf : f '' C = D) : CWComplex D := ⋯
+\end{lstlisting}
+\href{https://github.com/scholzhannah/CWComplexes/blob/7be4872a05b534011cc969eb5b80a4b7f0bf57e2/CWcomplexes/Constructions.lean#L140-L182}{\faExternalLink}
 
+\begin{lstlisting}
 variable {X : Type*} [t : TopologicalSpace X] [T2Space X] (C : Set X) [CWComplex C]
 
 instance CWComplex_level (n : ℕ∞) : CWComplex (level C n) := ⋯
+\end{lstlisting}
+\href{https://github.com/scholzhannah/CWComplexes/blob/7be4872a05b534011cc969eb5b80a4b7f0bf57e2/CWcomplexes/Constructions.lean#L66-L67}{\faExternalLink}
 
+\begin{lstlisting}
 variable {D : Set X} [CWComplex D] 
 
 def CWComplex_disjointUnion (disjoint : Disjoint C D) : 
     CWComplex (C ∪ D) := ⋯
 \end{lstlisting}
+\href{https://github.com/scholzhannah/CWComplexes/blob/7be4872a05b534011cc969eb5b80a4b7f0bf57e2/CWcomplexes/Constructions.lean#L71-L136}{\faExternalLink}
 
-Where \lstinline{f : X ≃ₜ Y} is the statement that \lstinline{f} is a homeomorphism. 
+Where \lstinline{f : X ≃ₜ Y} is the statement that \lstinline{f} is a homeomorphism
+\href{https://github.com/leanprover-community/mathlib4/blob/ed125a4216d18273cb1b96d4c846d32b85d74faf/Mathlib/Topology/Homeomorph.lean#L37-L43}{\faExternalLink}. 
 Note that the first and last constructions are not instances.
 This is because the typeclass inference has no way to know that it should look for the hypotheses \lstinline{(f : X ≃ₜ Y) (imf : f '' C = D)} and \lstinline{(disjoint : Disjoint C D)} as this information is not contained in the statement. 
 So labeling these as instances would not be helpful. 

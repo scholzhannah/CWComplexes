@@ -3,6 +3,7 @@
 Let us lastly take a look at the product. 
 
 We define k-spaces as follows: 
+\href{https://github.com/scholzhannah/CWComplexes/blob/7be4872a05b534011cc969eb5b80a4b7f0bf57e2/CWcomplexes/KSpace.lean#L33-L39}{\faExternalLink}
 
 \begin{lstlisting}
 class KSpace  (X : Type*) [TopologicalSpace X] where
@@ -13,6 +14,7 @@ class KSpace  (X : Type*) [TopologicalSpace X] where
 When defining the k-ification we need to be a little careful. 
 We want it to be an instance derived from another instance defined on the same type. 
 To tell the system what instance we are referring to we define a type synonym and then the k-ification: 
+\href{https://github.com/scholzhannah/CWComplexes/blob/7be4872a05b534011cc969eb5b80a4b7f0bf57e2/CWcomplexes/KSpace.lean#L119-L146}{\faExternalLink}
 
 \begin{lstlisting}
 def kification (X : Type*) := X
@@ -21,6 +23,7 @@ instance instkification {X : Type*} [t : TopologicalSpace X] : TopologicalSpace 
 \end{lstlisting}
 
 Sometimes it is convenient to use maps that go to or from the k-ification, we define them as bijections:
+\href{https://github.com/scholzhannah/CWComplexes/blob/7be4872a05b534011cc969eb5b80a4b7f0bf57e2/CWcomplexes/KSpace.lean#L164-L170}{\faExternalLink}
 
 \begin{lstlisting}
 def tokification (X : Type*) : X ≃ kification X :=
@@ -31,7 +34,16 @@ def fromkification (X : Type*) : kification X ≃ X :=
 \end{lstlisting}
 
 Here are the statements of some of the lemmas in Section \ref{sec:kspace}. 
-They correspond to the statements \ref{lem:weaklylocallycompactiskspace}, \ref{lem:sequentialiskspace}, \ref{lem:compactiffcompact}, \ref{lem:kificationiskspace} and \ref{lem:continuousofcontinuousoncompact}.
+They correspond to the statements \ref{lem:weaklylocallycompactiskspace}
+\href{https://github.com/scholzhannah/CWComplexes/blob/7be4872a05b534011cc969eb5b80a4b7f0bf57e2/CWcomplexes/KSpace.lean#L69-L86}{\faExternalLink},
+\ref{lem:sequentialiskspace}
+\href{https://github.com/scholzhannah/CWComplexes/blob/7be4872a05b534011cc969eb5b80a4b7f0bf57e2/CWcomplexes/KSpace.lean#L88-L114}{\faExternalLink},
+\ref{lem:compactiffcompact}
+\href{https://github.com/scholzhannah/CWComplexes/blob/7be4872a05b534011cc969eb5b80a4b7f0bf57e2/CWcomplexes/KSpace.lean#L196-L236}{\faExternalLink},
+\ref{lem:kificationiskspace}
+\href{https://github.com/scholzhannah/CWComplexes/blob/7be4872a05b534011cc969eb5b80a4b7f0bf57e2/CWcomplexes/KSpace.lean#L245-L258}{\faExternalLink}
+and \ref{lem:continuousofcontinuousoncompact}
+\href{https://github.com/scholzhannah/CWComplexes/blob/7be4872a05b534011cc969eb5b80a4b7f0bf57e2/CWcomplexes/KSpace.lean#L303-L316}{\faExternalLink}.
 
 \begin{lstlisting}
 instance kspace_of_WeaklyLocallyCompactSpace {X : Type*}[TopologicalSpace X]
@@ -66,6 +78,7 @@ variable {X : Type*} {Y : Type*} [t1 : TopologicalSpace X]
 Since the proof of Theorem \ref{thm:productcw} is both long and technical it is useful to separate out some definitions and lemmas. 
 
 We first define the indexing sets in the product:
+\href{https://github.com/scholzhannah/CWComplexes/blob/7be4872a05b534011cc969eb5b80a4b7f0bf57e2/CWcomplexes/Product.lean#L29-L31}{\faExternalLink}
 
 \begin{lstlisting}
 def prodcell (C : Set X) (D : Set Y) [CWComplex C] [CWComplex D] (n : ℕ) :=
@@ -76,19 +89,22 @@ where the \lstinline{Σ'} is a sigma type that allows you to add properties in t
 
 When discussing the product in Section \ref{sec:constructproduct} we always identified $\bR^{m + n}$ and $\bR^m \times \bR^n$. 
 When formalising we need to make that identification explicit: 
+\href{https://github.com/scholzhannah/CWComplexes/blob/7be4872a05b534011cc969eb5b80a4b7f0bf57e2/CWcomplexes/Product.lean#L33-L36}{\faExternalLink}
 
 \begin{lstlisting}
 def prodisometryequiv {n m l : ℕ}  (hmln : m + l = n) (j : cell C m) (k : cell D l) : (Fin n → ℝ) ≃ᵢ (Fin m → ℝ) × (Fin l → ℝ) := ⋯
 \end{lstlisting}
 
-where \lstinline{≃ᵢ} is a symbol used to denote a bijective isometry. 
+where \lstinline{≃ᵢ} is a symbol used to denote a bijective isometry \href{https://github.com/leanprover-community/mathlib4/blob/ed125a4216d18273cb1b96d4c846d32b85d74faf/Mathlib/Topology/MetricSpace/Isometry.lean#L242-L246}{\faExternalLink}. 
 Using this map we can define the characteristic maps of the product: 
+\href{https://github.com/scholzhannah/CWComplexes/blob/7be4872a05b534011cc969eb5b80a4b7f0bf57e2/CWcomplexes/Product.lean#L38-L41}{\faExternalLink}
 
 \begin{lstlisting}
 def prodmap {n m l : ℕ} (hmln : m + l = n) (j : cell C m) (k : cell D l) : PartialEquiv (Fin n → ℝ) (X × Y) := ⋯
 \end{lstlisting}
 
 After some lemmas about these maps such as for example 
+\href{https://github.com/scholzhannah/CWComplexes/blob/7be4872a05b534011cc969eb5b80a4b7f0bf57e2/CWcomplexes/Product.lean#L65-L70}{\faExternalLink}
 
 \begin{lstlisting}
 lemma prodmap_image_sphere {n m l : ℕ} {hmln : m + l = n} {j : cell C m} {k : cell D l} :
@@ -97,6 +113,7 @@ lemma prodmap_image_sphere {n m l : ℕ} {hmln : m + l = n} {j : cell C m} {k : 
 \end{lstlisting}
 
 we can move on to defining the product: 
+\href{https://github.com/scholzhannah/CWComplexes/blob/7be4872a05b534011cc969eb5b80a4b7f0bf57e2/CWcomplexes/Product.lean#L226-L377}{\faExternalLink}
 
 \begin{lstlisting}
 instance CWComplex_product_kification : CWComplex (X := kification (X × Y)) 
@@ -105,6 +122,7 @@ instance CWComplex_product_kification : CWComplex (X := kification (X × Y))
 
 where \lstinline{×ˢ} is the product of sets.
 Finally we define a version of this instance for when the product is already a k-space as to not unnecessarily apply the k-ification: 
+\href{https://github.com/scholzhannah/CWComplexes/blob/7be4872a05b534011cc969eb5b80a4b7f0bf57e2/CWcomplexes/Product.lean#L81-L224}{\faExternalLink}
 
 \begin{lstlisting}
 instance CWComplex_product [KSpace (X × Y)] : CWComplex (C ×ˢ D) := ⋯

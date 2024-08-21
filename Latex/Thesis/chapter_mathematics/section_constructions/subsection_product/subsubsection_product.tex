@@ -7,6 +7,7 @@ We want to show:
 \begin{thm}\label{thm:productcw}
     There is a CW-structure on $(X \times Y)_c$ with characteristic maps $(Q_i^n \times P_j^m \colon D_i^n \times D_j^m \to (X \times Y)_c)_{n,m \in \bN,i \in I_n,j \in J_m}$.
     The indexing sets $(K_l)_{l \in \bN}$ are given by $K_l = \bigcup_{n + m = l}I_n \times J_m$ for every $l \in \bN$ and the cells are therefore of the form $\openCell{n}{i} \times \openCellf{m}{j}$ for $n, m \in \bN$, $i \in I_n$ and $j \in J_m$.
+    \href{https://github.com/scholzhannah/CWComplexes/blob/7be4872a05b534011cc969eb5b80a4b7f0bf57e2/CWcomplexes/Product.lean#L226-L377}{\faExternalLink}
 \end{thm}
 
 We will split the proof up into lemmas to have a better overview of the proof. 
@@ -14,7 +15,8 @@ Let us first show that the issue that occurred with the counterexample in an ear
 
 \begin{lem}\label{lem:weaktopologyproduct}
     $(X \times Y)_c$ has weak topology,
-    i.e. $A \subseteq (X \times Y)_c$ is closed iff $\closedCell{n}{i} \times \closedCellf{m}{j} \cap A$ is closed for all $n, m \in \bN$, $i \in I_n$ and $j \in J_m$.
+    i.e. $A \subseteq (X \times Y)_c$ is closed iff $\closedCell{n}{i} \times \closedCellf{m}{j} \cap A$ is closed for all $n, m \in \bN$, $i \in I_n$ and $j \in J_m$. 
+    \href{https://github.com/scholzhannah/CWComplexes/blob/7be4872a05b534011cc969eb5b80a4b7f0bf57e2/CWcomplexes/Product.lean#L322-L367}{\faExternalLink}
 \end{lem}
 \begin{proof}
     The forward direction follows from the fact that the product of closed sets is closed in the product topology and from Lemma \ref{lem:finertopology} that tells us that the k-ification is finer than the product topology.
@@ -35,7 +37,8 @@ Before we can discuss closure finiteness we need to think about what the frontie
 
 \begin{lem}
     Let $\openCell{n}{i} \times \openCellf{m}{j}$ for $n, m \in \bN$, $i \in I_n$ and $j \in J_m$. 
-    The frontier of that cell is $\cellFrontier{n}{i} \times \closedCellf{m}{j} \cup \closedCell{n}{i} \times \cellFrontierf{m}{j}$.
+    The frontier of that cell is $\cellFrontier{n}{i} \times \closedCellf{m}{j} \cup \closedCell{n}{i} \times \cellFrontierf{m}{j}$. 
+    \href{https://github.com/scholzhannah/CWComplexes/blob/7be4872a05b534011cc969eb5b80a4b7f0bf57e2/CWcomplexes/Product.lean#L65-L70}{\faExternalLink}
 \end{lem}
 \begin{proof}
     The definition of the frontier gives us: 
@@ -54,6 +57,7 @@ Using this we get closure finiteness:
 
 \begin{lem}\label{lem:closurefiniteproduct}
     $(X \times Y)_c$ has closure finiteness, i.e. each frontier of a cell is contained in a finite union of closed cells of a lower dimension.
+    \href{https://github.com/scholzhannah/CWComplexes/blob/7be4872a05b534011cc969eb5b80a4b7f0bf57e2/CWcomplexes/Product.lean#L272-L321}{\faExternalLink}
 \end{lem}
 \begin{proof}
     By the above lemma we need to verify that for all $n, m \in \bN$, $i \in I_n$ and $j \in J_m$ the set $\cellFrontier{n}{i} \times \closedCellf{m}{j} \cup \closedCell{n}{i} \times \cellFrontierf{m}{j}$ is contained in a finite union of closed cells of $(X \times Y)_c$ of dimension less than $n + m$. 

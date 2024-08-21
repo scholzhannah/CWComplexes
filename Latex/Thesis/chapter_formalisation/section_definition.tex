@@ -3,7 +3,8 @@
 We choose to formalise the historical definition because the modern one would require us to consider the $n$-skeletons as topological spaces which would create a lot of work unifying them to work well together. 
 The historical definition, however, allows us to work in one topological space which avoids this issue.  
 
-The following is our definition of CW-complexes in Lean:
+The following is our definition of CW-complexes in Lean: 
+\href{https://github.com/scholzhannah/CWComplexes/blob/7be4872a05b534011cc969eb5b80a4b7f0bf57e2/CWcomplexes/Definition.lean#L47-L76}{\faExternalLink}
 
 \begin{lstlisting}
 class CWComplex.{u} {X : Type u} [TopologicalSpace X] (C : Set X) where
@@ -23,9 +24,12 @@ class CWComplex.{u} {X : Type u} [TopologicalSpace X] (C : Set X) where
 The \lstinline|.{u}| is a way to fix a universe level so that our definition of a CW-complex does not depend on a number of different universe levels: The one of \lstinline{X} and the one of \lstinline{cell n} for every $n \in \bN$.
 \lstinline{cell (n : ℕ)} represents the indexing set that we called $I_n$ in Definition \ref{defi:CWComplex2}. \lstinline{map (n : ℕ) (i : cell n)} represent what we called $Q_i^n$ in that definition.
 
-\lstinline{Fin n} is the set containing $n$ natural numbers starting at 0.
+\lstinline{Fin n}
+\href{https://github.com/leanprover/lean4/blob/0edf1bac392f7e2fe0266b28b51c498306363a84/src/Init/Prelude.lean#L1826-L1838}{\faExternalLink} 
+is the set containing $n$ natural numbers starting at 0.
 \lstinline{Fin n → ℝ} is one way to express $\bR^n$ in Lean.
-\lstinline{PartialEquiv} is a structure defined in mathlib as follows:
+\lstinline{PartialEquiv} is a structure defined in mathlib as follows: 
+\href{https://github.com/leanprover-community/mathlib4/blob/ed125a4216d18273cb1b96d4c846d32b85d74faf/Mathlib/Logic/Equiv/PartialEquiv.lean#L113-L134}{\faExternalLink}
 
 \begin{lstlisting}
 structure PartialEquiv (α : Type*) (β : Type*) where
@@ -52,9 +56,13 @@ We are adding the prime to its name because we will later see a lemma called \ls
 
 \lstinline{mapsto} is the equivalent of property (iii) of the definition of a CW-complex.
 The \lstinline{Π} defines a dependent function type which we discussed in Section \ref{sec:typetheory}.
-\lstinline{Finset α} is the type of all finite sets in a type \lstinline{α}.
+\lstinline{Finset α}
+\href{https://github.com/leanprover-community/mathlib4/blob/ed125a4216d18273cb1b96d4c846d32b85d74faf/Mathlib/Data/Finset/Basic.lean#L133-L139}{\faExternalLink}
+is the type of all finite sets in a type \lstinline{α}.
 It can be imagined as a set bundled with the information that it is finite (but note that the actual definitions of \lstinline{Finset α} and \lstinline{Set α} are quite different).
 \lstinline{MapsTo} is defined in mathlib as
+\href{https://github.com/leanprover-community/mathlib4/blob/ed125a4216d18273cb1b96d4c846d32b85d74faf/Mathlib/Data/Set/Operations.lean#L231-L232}{\faExternalLink}
+
 \begin{lstlisting}
 def MapsTo (f : α → β) (s : Set α) (t : Set β) : Prop :=
   ∀ ⦃x⦄, x ∈ s → f x ∈ t
@@ -86,6 +94,7 @@ Firstly this allows us to conclude that $C$ is closed:
 \begin{lem} \label{lem:Cclosed}
   Let $X$ be a Hausdorff space and and $C$ a CW-complex in $X$ as in the formalised definition.
   Then $C$ is closed.
+  \href{https://github.com/scholzhannah/CWComplexes/blob/7be4872a05b534011cc969eb5b80a4b7f0bf57e2/CWcomplexes/Definition.lean#L234-L238}{\faExternalLink}
 \end{lem}
 \begin{proof}
   Since $C \subseteq C$ it is enough to show that $C \cap \closedCell{n}{i}$ is closed for every $n \in \bN$ and $i \in I_n$.
@@ -153,10 +162,13 @@ The code in the rest of the section will always have the following assumptions:
 variable {X : Type*} [t : TopologicalSpace X] [T2Space X] {C : Set X} [CWComplex C]
 \end{lstlisting}
 
-where \lstinline{T2Space X} expresses that \lstinline{X} is a Hausdorff space.
+where \lstinline{T2Space X}
+\href{https://github.com/leanprover-community/mathlib4/blob/ed125a4216d18273cb1b96d4c846d32b85d74faf/Mathlib/Topology/Separation.lean#L1291-L1297}{\faExternalLink}
+expresses that \lstinline{X} is a Hausdorff space.
 
 We also want to define some notation in Lean.
-Just as we defined $\closedCell{n}{i}$ to represent $Q^n_i(D_i^n)$ and similar notations in Definition \ref{defi:CWComplex2} we can do the same in the formalisation:
+Just as we defined $\closedCell{n}{i}$ to represent $Q^n_i(D_i^n)$ and similar notations in Definition \ref{defi:CWComplex2} we can do the same in the formalisation: 
+\href{https://github.com/scholzhannah/CWComplexes/blob/7be4872a05b534011cc969eb5b80a4b7f0bf57e2/CWcomplexes/Definition.lean#L84-L94}{\faExternalLink}
 
 \begin{lstlisting}
 def openCell (n : ℕ) (i : cell C n) : Set X := map n i '' ball 0 1
@@ -168,6 +180,7 @@ def cellFrontier (n : ℕ) (i : cell C n) : Set X := map n i '' sphere 0 1
 
 We can now state some of the properties of our definition with this new notation.
 We restate \lstinline{pairwiseDisjoint'} in two ways:
+\href{https://github.com/scholzhannah/CWComplexes/blob/7be4872a05b534011cc969eb5b80a4b7f0bf57e2/CWcomplexes/Definition.lean#L96-L103}{\faExternalLink}
 
 \begin{lstlisting}
 lemma pairwiseDisjoint :
@@ -182,6 +195,7 @@ The second one is especially convenient to use as the hypothesis \lstinline{ne} 
 Information on \lstinline{aesop} can be found in \cite{Limperg2023}.
 
 The properties \lstinline{closed'} and \lstinline{union'} can be rewritten with the new notation as follows:
+\href{https://github.com/scholzhannah/CWComplexes/blob/7be4872a05b534011cc969eb5b80a4b7f0bf57e2/CWcomplexes/Definition.lean#L112-L116}{\faExternalLink}
 
 \begin{lstlisting}
 lemma closed (A : Set X) (asubc : A ⊆ C) :
@@ -193,7 +207,8 @@ lemma union : ⋃ (n : ℕ) (j : cell C n), closedCell n j = C := ⋯
 As in Definition \ref{defi:CWComplex2} we also want to define notation for the $n$-skeletons.
 In the first chapter we often chose to start inductions at $-1$ to make the base case trivial.
 When formalising we want to be able to use the already defined induction principles that naturally start at $0$.
-For that purpose we use an auxiliary definition called \lstinline{levelaux} that is shifted by $1$ in comparison to the usual notion of the $n$-skeleton which we call \lstinline{level}:
+For that purpose we use an auxiliary definition called \lstinline{levelaux} that is shifted by $1$ in comparison to the usual notion of the $n$-skeleton which we call \lstinline{level}: 
+\href{https://github.com/scholzhannah/CWComplexes/blob/7be4872a05b534011cc969eb5b80a4b7f0bf57e2/CWcomplexes/Definition.lean#L137-L146}{\faExternalLink}
 
 \begin{lstlisting}
 def levelaux (C : Set X) [CWComplex C] (n : ℕ∞) : Set X :=
@@ -203,10 +218,11 @@ def level (C : Set X) [CWComplex C] (n : ℕ∞) : Set X :=
   levelaux C (n + 1)
 \end{lstlisting}
 
-Note that we are choosing \lstinline{n} in \lstinline{ℕ∞} which is the type of natural numbers extended by infinity which can be written as \lstinline{⊤}.
+Note that we are choosing \lstinline{n} in \lstinline{ℕ∞} \href{https://github.com/leanprover-community/mathlib4/blob/ed125a4216d18273cb1b96d4c846d32b85d74faf/Mathlib/Data/ENat/Basic.lean#L27-L35}{\faExternalLink} which is the type of natural numbers extended by infinity which can be written as \lstinline{⊤}.
 Since \lstinline{level} is defined in terms of \lstinline{levelaux} it is often trivial to derive a lemma about \lstinline{level} from the corresponding lemma about \lstinline{levelaux}.
 
 We can also define what it means for a CW-complex to be finite dimensional, of finite type, or finite:
+\href{https://github.com/scholzhannah/CWComplexes/blob/7be4872a05b534011cc969eb5b80a4b7f0bf57e2/CWcomplexes/Finite.lean#L28-L43}{\faExternalLink}
 
 \begin{lstlisting}
 class FiniteDimensional.{u} {X : Type u} [TopologicalSpace X] (C : Set X) [CWComplex C] : Prop where
@@ -220,13 +236,24 @@ class Finite.{u} {X : Type u} [TopologicalSpace X] (C : Set X) [CWComplex C] : P
   finite_cell (n : ℕ) : Finite (cell C n)
 \end{lstlisting}
 
-Property \lstinline{eventually_isEmpty_cell} is stated in terms of a \emph{filter} which is a concept that appears frequently in mathlib.
+Property \lstinline{eventually_isEmpty_cell} is stated in terms of a \emph{filter}
+\href{https://github.com/leanprover-community/mathlib4/blob/ed125a4216d18273cb1b96d4c846d32b85d74faf/Mathlib/Order/Filter/Basic.lean#L85-L96}{\faExternalLink}
+which is a concept that appears frequently in mathlib.
 They are often used to describe convergence in a topological way.
 As they will not be important to this thesis we will not go into details but information on filters can be found in \cite{Bourbaki1966}.
 The property \lstinline{eventually_isEmpty_cell} is equivalent to \lstinline{∃ a, ∀ (b : ℕ), a ≤ b → IsEmpty (cell C b)}.
 
 To finish of this section here are the statements of some of the main results of Section \ref{sec:mathsdef}.
-They correspond to the results \ref{lem:skeletonunionopenCell}, \ref{lem:Frontiersubsetopen}, \ref{lem:discretelevel0}, \ref{lem:compactintersectsonlyfinite} and \ref{lem:finiteiffcompact}.
+They correspond to the results \ref{lem:skeletonunionopenCell}
+\href{https://github.com/scholzhannah/CWComplexes/blob/7be4872a05b534011cc969eb5b80a4b7f0bf57e2/CWcomplexes/Definition.lean#L320-L322}{\faExternalLink},
+ \ref{lem:Frontiersubsetopen}
+\href{https://github.com/scholzhannah/CWComplexes/blob/7be4872a05b534011cc969eb5b80a4b7f0bf57e2/CWcomplexes/Definition.lean#L420-L452}{\faExternalLink},
+ \ref{lem:discretelevel0}
+\href{https://github.com/scholzhannah/CWComplexes/blob/7be4872a05b534011cc969eb5b80a4b7f0bf57e2/CWcomplexes/Lemmas.lean#L108-L109}{\faExternalLink}, 
+\ref{lem:compactintersectsonlyfinite} 
+\href{https://github.com/scholzhannah/CWComplexes/blob/7be4872a05b534011cc969eb5b80a4b7f0bf57e2/CWcomplexes/Lemmas.lean#L111-L214}{\faExternalLink}
+and \ref{lem:finiteiffcompact}
+\href{https://github.com/scholzhannah/CWComplexes/blob/7be4872a05b534011cc969eb5b80a4b7f0bf57e2/CWcomplexes/Lemmas.lean#L298-L299}{\faExternalLink}.
 
 \begin{lstlisting}
 lemma iUnion_openCell_eq_level (n : ℕ∞) :
@@ -245,4 +272,6 @@ lemma compact_inter_finite (A : Set X) (compact : IsCompact A) :
 lemma compact_iff_finite : IsCompact C ↔ Finite C := ⋯
 \end{lstlisting}
 
-Where \lstinline|{a : α // P a}| is the subtype of \lstinline{α} of all \lstinline{a : α} such that \lstinline{P a} for \lstinline{P : α → Prop}.
+Where \lstinline|{a : α // P a}| is the subtype
+\href{https://github.com/leanprover/lean4/blob/0edf1bac392f7e2fe0266b28b51c498306363a84/src/Init/Prelude.lean#L575-L590}{\faExternalLink}
+of \lstinline{α} of all \lstinline{a : α} such that \lstinline{P a} for \lstinline{P : α → Prop}.

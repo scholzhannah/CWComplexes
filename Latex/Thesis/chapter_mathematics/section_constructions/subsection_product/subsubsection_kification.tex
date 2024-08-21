@@ -9,7 +9,7 @@ Note that we mean quasi-compactness when talking about compactness.
 \begin{defi}
     Let $X$ be a topological space. 
     We call $X$ a \emph{k-space} if 
-    \[A \subseteq X \text{ is open} \iff \text{for all compact sets } C \subseteq X \text{ the intersection } A \cap C \text{ is open in } C.\]
+    \[A \subseteq X \text{ is open} \iff \text{for all compact sets } C \subseteq X \text{ the intersection } A \cap C \text{ is open in } C.\] \href{https://github.com/scholzhannah/CWComplexes/blob/7be4872a05b534011cc969eb5b80a4b7f0bf57e2/CWcomplexes/KSpace.lean#L33-L39}{\faExternalLink}
 \end{defi}
 
 There are a lot of different definitions in the literature. 
@@ -21,7 +21,8 @@ It will also be helpful to characterise k-spaces via closed sets:
 \begin{lem}\label{lem:closediffinkspace}
     Let $X$ be a topological space.
     $X$ is a k-space iff  
-    \[A \subseteq X \text{ is closed} \iff \text{for all compact sets } C \subseteq X \text{ the intersection } A \cap C \text{ is closed in } C.\]
+    \[A \subseteq X \text{ is closed} \iff \text{for all compact sets } C \subseteq X \text{ the intersection } A \cap C \text{ is closed in } C.\] 
+    \href{https://github.com/scholzhannah/CWComplexes/blob/7be4872a05b534011cc969eb5b80a4b7f0bf57e2/CWcomplexes/KSpace.lean#L43-L54}{\faExternalLink}
 \end{lem}
 \begin{proof}
     We only show that forward direction as the backward direction follows in the same way.
@@ -39,20 +40,24 @@ We also define a way to make any topological space into a k-space which we call 
 \begin{defi}
     Let $X$ be a topological space. 
     We can define another topological space $X_c$ on the same set by setting
-    \[A \subseteq X_c \text{ is open} \iff \text{for all compact sets } C \subseteq X \text{ the intersection } A \cap C \text{ is open in } C.\]
+    \[A \subseteq X_c \text{ is open} \iff \text{for all compact sets } C \subseteq X \text{ the intersection } A \cap C \text{ is open in } C.\] 
+    \href{https://github.com/scholzhannah/CWComplexes/blob/7be4872a05b534011cc969eb5b80a4b7f0bf57e2/CWcomplexes/KSpace.lean#L122-L146}{\faExternalLink}
     We call $X_c$ the \emph{k-ification} of $X$.
+    \href{https://github.com/scholzhannah/CWComplexes/blob/7be4872a05b534011cc969eb5b80a4b7f0bf57e2/CWcomplexes/KSpace.lean#L119-L120}{\faExternalLink}
 \end{defi}
 
 It is easy to see that this gives us a finer topology: 
 
 \begin{lem}\label{lem:finertopology}
-    $A \subseteq X$ is open $\implies A \subseteq X_c$ is open.
+    $A \subseteq X$ is open $\implies A \subseteq X_c$ is open. 
+    \href{https://github.com/scholzhannah/CWComplexes/blob/7be4872a05b534011cc969eb5b80a4b7f0bf57e2/CWcomplexes/KSpace.lean#L187-L193}{\faExternalLink}
 \end{lem}
 
 Again it it useful to characterise the closed sets in the k-ification: 
 
 \begin{lem}\label{lem:closediffinkification}
     $A \subseteq X_c$ is closed $\iff A \cap C$ is closed in $C$ for all compact sets $C \subseteq X$.
+    \href{https://github.com/scholzhannah/CWComplexes/blob/7be4872a05b534011cc969eb5b80a4b7f0bf57e2/CWcomplexes/KSpace.lean#L148-L162}{\faExternalLink}
 \end{lem}
 \begin{proof}
     Completely analogous to the proof of Lemma \ref{lem:closediffinkspace}.
@@ -61,7 +66,8 @@ Again it it useful to characterise the closed sets in the k-ification:
 To show that the k-ification actually fulfils its purpose of turning any space into a k-space, we first need the following lemma:
 
 \begin{lem}\label{lem:compactiffcompact}
-    $A \subseteq X$ is compact $\iff A \subseteq X_c$ is compact.
+    $A \subseteq X$ is compact $\iff A \subseteq X_c$ is compact. 
+    \href{https://github.com/scholzhannah/CWComplexes/blob/7be4872a05b534011cc969eb5b80a4b7f0bf57e2/CWcomplexes/KSpace.lean#L238-L243}{\faExternalLink}
 \end{lem}
 \begin{proof}
     For the backward direction notice that Lemma \ref{lem:finertopology} is another way of stating that the map $\id \colon X_c \to X$ is continuous. 
@@ -80,7 +86,8 @@ To show that the k-ification actually fulfils its purpose of turning any space i
 Now we are ready to move on to the promised Lemma:
 
 \begin{lem}\label{lem:kificationiskspace}
-    $X_c$ is a k-space for every topological space $X$.
+    $X_c$ is a k-space for every topological space $X$. 
+    \href{https://github.com/scholzhannah/CWComplexes/blob/7be4872a05b534011cc969eb5b80a4b7f0bf57e2/CWcomplexes/KSpace.lean#L245-L258}{\faExternalLink}
 \end{lem}
 \begin{proof}
     We need to show that a set $A \subseteq X_c$ is open iff $A \cap C$ is open in $C$ for every compact set $C \subseteq X_c$. 
@@ -100,6 +107,7 @@ If we already have a k-space, then the k-ification just maintains the topology o
 \begin{lem}\label{lem:kificationkspace}
     Let $X$ be a k-space.
     Then the topologies of $X$ and $X_c$ coincide.
+    \href{https://github.com/scholzhannah/CWComplexes/blob/7be4872a05b534011cc969eb5b80a4b7f0bf57e2/CWcomplexes/KSpace.lean#L260-L266}{\faExternalLink}
 \end{lem}
 \begin{proof}
     Notice that the characterisation of open sets in $X$ and $X_c$ respectively agree in this setting.
@@ -115,6 +123,7 @@ Going from the k-ification is not a big issue:
 \begin{lem}\label{lem:continuousfromkification}
     Let $f \colon X \to Y$ be a continuous map of topological spaces.
     Then $f \colon X_c \to Y$ is continuous.
+    \href{https://github.com/scholzhannah/CWComplexes/blob/7be4872a05b534011cc969eb5b80a4b7f0bf57e2/CWcomplexes/KSpace.lean#L268-L273}{\faExternalLink}
 \end{lem}
 \begin{proof}
     This follows easily from Lemma \ref{lem:finertopology}.
@@ -127,6 +136,7 @@ The next lemma is the first step towards the answer:
 \begin{lem}\label{lem:continuoustokification}
     Let $X$ be a compact space and $f \colon X \to Y$ be a continuous map. 
     Then $f \colon X \to Y_c$ is continuous.
+    \href{https://github.com/scholzhannah/CWComplexes/blob/7be4872a05b534011cc969eb5b80a4b7f0bf57e2/CWcomplexes/KSpace.lean#L284-L294}{\faExternalLink}
 \end{lem}
 \begin{proof}
     We want to show that for every closed $A \subseteq Y_c$ the preimage $\preim{f}{A}$ is closed in $X$.
@@ -145,6 +155,7 @@ Now this helps us get the following lemma:
 \begin{lem}\label{lem:continuousofcontinuousoncompact}
     Let $f \colon X \to Y$ be a map of topological spaces such that for every compact $C \subseteq X$ the restriction $\restrict{f}{C} \colon C \to Y$ is continuous.
     Then $f \colon X_c \to Y_c$ is continuous.
+    \href{https://github.com/scholzhannah/CWComplexes/blob/7be4872a05b534011cc969eb5b80a4b7f0bf57e2/CWcomplexes/KSpace.lean#L303-L316}{\faExternalLink}
 \end{lem}
 \begin{proof}
     The last lemma together with our assumption tells us that for every compact $C \subseteq X$ the restriction $\restrict{f}{C} \colon C \to Y_c$ is continuous.
@@ -163,6 +174,7 @@ That yields the following corollary:
 \begin{cor}
     Let $f \colon X \to Y$ be a continuous map of topological spaces.
     Then $f \colon X_c \to Y_c$ is continuous.
+    \href{https://github.com/scholzhannah/CWComplexes/blob/7be4872a05b534011cc969eb5b80a4b7f0bf57e2/CWcomplexes/KSpace.lean#L318-L323}{\faExternalLink}
 \end{cor}
 \begin{proof}
     This situation trivially fulfils the conditions of the previous lemma.
@@ -184,6 +196,7 @@ The following proof is from Lemma 46.3 in \cite{Munkres2014}.
 
 \begin{lem} \label{lem:weaklylocallycompactiskspace}
     Weakly locally compact spaces are k-spaces.
+    \href{https://github.com/scholzhannah/CWComplexes/blob/7be4872a05b534011cc969eb5b80a4b7f0bf57e2/CWcomplexes/KSpace.lean#L69-L86}{\faExternalLink}
 \end{lem}
 \begin{proof}
     Let $X$ be a weakly locally compact space. 
@@ -226,7 +239,8 @@ We will need the following characterisation of sequentially closed sets:
 The following proof is based on \cite{Scott2016} and Lemma 46.3 in \cite{Munkres2014}. 
 
 \begin{lem} \label{lem:sequentialiskspace}
-    Sequential Spaces are k-spaces.
+    Sequential Spaces are k-spaces. 
+    \href{https://github.com/scholzhannah/CWComplexes/blob/7be4872a05b534011cc969eb5b80a4b7f0bf57e2/CWcomplexes/KSpace.lean#L88-L114}{\faExternalLink}
 \end{lem}
 \begin{proof}
     Let $X$ be a Sequential Space. 
