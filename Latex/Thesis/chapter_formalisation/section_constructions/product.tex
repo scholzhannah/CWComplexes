@@ -31,9 +31,15 @@ def fromkification (X : Type*) : kification X ≃ X :=
 \end{lstlisting}
 
 Here are the statements of some of the lemmas in Section \ref{sec:kspace}. 
-They correspond to the statements \ref{lem:compactiffcompact}, \ref{lem:kificationiskspace}, \ref{lem:continuousofcontinuousoncompact}, \ref{lem:weaklylocallycompactiskspace} and \ref{lem:sequentialiskspace}.
+They correspond to the statements \ref{lem:weaklylocallycompactiskspace}, \ref{lem:sequentialiskspace}, \ref{lem:compactiffcompact}, \ref{lem:kificationiskspace} and \ref{lem:continuousofcontinuousoncompact}.
 
 \begin{lstlisting}
+instance kspace_of_WeaklyLocallyCompactSpace {X : Type*}[TopologicalSpace X]
+    [WeaklyLocallyCompactSpace X] : 
+  KSpace X := ⋯
+
+instance kspace_of_SequentialSpace {X : Type*} [TopologicalSpace X] [SequentialSpace X]: KSpace X := ⋯
+
 lemma isCompact_iff_isCompact_tokification_image {X : Type*} [TopologicalSpace X] (C : Set X) :
   IsCompact C ↔ IsCompact (tokification X '' C) := ⋯
 
@@ -44,13 +50,9 @@ lemma continuous_kification_of_continuousOn_compact {X Y : Type*}
     [tX : TopologicalSpace X] [tY : TopologicalSpace Y] (f : X → Y) 
     (conton : ∀ (C : Set X), IsCompact C → ContinuousOn f C) :
   Continuous (X := kification X) (Y := kification Y) f := ⋯
-
-instance kspace_of_WeaklyLocallyCompactSpace {X : Type*}[TopologicalSpace X]
-    [WeaklyLocallyCompactSpace X] : 
-  KSpace X := ⋯
-
-instance kspace_of_SequentialSpace {X : Type*} [TopologicalSpace X] [SequentialSpace X]: KSpace X := ⋯
 \end{lstlisting}
+
+When proving statements about different topologies on the same space, formalising in Lean can be very helpful to keep track of what topology needs to be considered when. 
 
 With that we can move on to the product. 
 The assumptions for the rest of the section are:

@@ -1,6 +1,7 @@
 \section{Definition and basic properties of a CW-complex}
 
-We choose to formalise the historical definition instead of the modern one as it is less technical and therefore easier to work with.
+We choose to formalise the historical definition because the modern one would require us to consider the $n$-skeletons as topological spaces which would create a lot of work unifying them to work well together. 
+The historical definition, however, allows us to work in one topological space which avoids this issue.  
 
 The following is our definition of CW-complexes in Lean:
 
@@ -59,7 +60,7 @@ def MapsTo (f : α → β) (s : Set α) (t : Set β) : Prop :=
   ∀ ⦃x⦄, x ∈ s → f x ∈ t
 \end{lstlisting}
 
-and is relatively self-explanatory.
+and is relatively self-explanatory.  
 
 \lstinline{closed'} represents property (iv) of Definition \ref{defi:CWComplex2} and \lstinline{union'} represents property (v).
 
@@ -142,6 +143,9 @@ With that we can move onto the last important difference that our new definition
 While \lstinline{Fin n → ℝ} is a way to represent $\bR^n$ in Lean it does not actually carry the euclidean metric but the maximum metric.
 So instead of considering closed balls we are looking at cubes which does not change our definition since the two are homeomorphic.
 We could use the euclidean metric on $\bR^n$ which would be written as \lstinline{EuclideanSpace ℝ (Fin n)} but since we are mostly arguing abstractly about CW-complexes this is unnecessary and takes up more space.
+
+When proving that something is a CW-complex in Lean it can often be surprising how much longer and more technical the formalised proofs of closure finiteness, i.e. the property \lstinline{mapsto}, can be. 
+One reason for this is that our proofs in the first chapter heavily rely on our intuition about finiteness while Lean obligates us to show finiteness of the union explicitly and in detail.
 
 The code in the rest of the section will always have the following assumptions:
 

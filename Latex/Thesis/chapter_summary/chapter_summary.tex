@@ -1,0 +1,22 @@
+\chapter*{German summary}
+\addcontentsline{toc}{chapter}{German summary}
+
+Diese Arbeit befasst sich mit der Formalisierung von CW-Komplexen im Beweisassistenten Lean. 
+Beweisassistenten können dazu genutzt werden, formal die Richtigkeit von Beweisen in einem logischen digitalen System zu überprüfen. 
+Lean ist unter anderem wegen seiner umfangreichen mathematischen Bibliothek \emph{mathlib} ein sehr beliebter Beweisassistent. 
+Ein Konzept, das in dieser Bibliothek jedoch noch fehlt, sind die CW-Komplexe. 
+In der Topologie sind sie häufig hilreich, um Berechnungen, zum Beispiel von Homologie und Kohomologie, zu vereinfachen. 
+
+Im ersten Kapitel beschäftigen wir uns mit der mathematischen Theorie hinter den CW-Komplexen. 
+Wir konzentrieren uns hierbei auf die historische und nicht die moderne Definition, da uns diese die Formalisierung erleichtert. 
+Wir beweisen einige grundlegende Eigenschaften von CW-Komplexen und beschäftigen uns dann im Detail mit verschiedenen Konstruktionen. 
+Besonders dem Produkt zweier CW-Komplexes widmen wir sehr viel Zeit: Wir zeigen an einem Gegenbeispiel, dass das Produkt nicht notwendigerweise wieder ein CW-Komplex sein muss, führen dann k-Räume eine und beweisen, dass die k-ifizierung eines Produktes von zwei CW-Komplexen immer ein CW-Komplex ist.
+
+Im zweiten Kapitel behandeln wir kurz drei technische Details von Lean: Die Typentheorie, d.h. die zugrundeliegende Logik, von Lean, implizite Argumente und Typklasseninferenz.
+Diese Inhalte sind interessante Zusatzinformation, aber nicht unbedingt notwendig für das Verständnis der Arbeit. 
+
+Im dritten Kapitel beschäftigen wir uns dann mit der Formalisierung von CW-Komplexen in Lean. 
+Wir besprechen, welche Designentscheidungen getroffen wurden und warum, und machen auf Unterschiede in der Formalisierung aufmerksam. 
+Dabei zeigen und erklären wir Ausschnitte des Codes. 
+Wir haben einen Großteil des Inhalts des ersten Kapitels in Lean formalisiert, unter anderem den Zusammenhang zwischen endlichen Unterkomplexen und kompakten Mengen unf die CW-Komplex-Struktur auf der k-ifizierung des Produktes von CW-Komplexen.
+Den kompletten Code findet man unter \url{https://github.com/scholzhannah/CWComplexes}.
