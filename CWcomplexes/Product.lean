@@ -122,19 +122,19 @@ instance CWComplex_product [KSpace (X × Y)] : CWComplex (C ×ˢ D) where
     aesop
   mapsto n i := by
     -- We first use `prodmap_image_sphere` to write the edge of the cell as a union.
-    -- We then use `exists_iff_and_of_upwards_closed` to show that we can verify the
+    -- We then use `exists_iff_and_of_monotone` to show that we can verify the
     -- statement seperately for the two parts of the union.
     -- We then do two completely symmetric proofs.
     classical
     rcases i with ⟨m, l, hmln, j, k⟩
     simp_rw [mapsTo', prodmap_image_sphere, union_subset_iff]
-    rw [exists_iff_and_of_upwards_closed]
+    rw [exists_iff_and_of_monotone]
     swap
-    · refine fun J sub K JleK ↦ sub.trans ?_
+    · refine fun J K JleK sub ↦ sub.trans ?_
       repeat apply iUnion_mono fun _ ↦ ?_
       exact iUnion_subset_iUnion_const (fun a ↦ JleK _ a)
     swap
-    · refine fun J sub K JleK ↦ sub.trans ?_
+    · refine fun J K JleK sub ↦ sub.trans ?_
       repeat apply iUnion_mono fun _ ↦ ?_
       exact iUnion_subset_iUnion_const (fun a ↦ JleK _ a)
     constructor
@@ -271,7 +271,7 @@ instance CWComplex_product_kification : CWComplex (X := kification (X × Y)) (C 
     aesop
   mapsto n i := by
     -- We first use `prodmap_image_sphere` to write the edge of the cell as a union.
-    -- We then use `exists_iff_and_of_upwards_closed` to show that we can verify the
+    -- We then use `exists_iff_and_of_monotone` to show that we can verify the
     -- statement seperately for the two parts of the union.
     -- We then do two completely symmetric proofs.
     classical
@@ -279,13 +279,13 @@ instance CWComplex_product_kification : CWComplex (X := kification (X × Y)) (C 
     simp_rw [mapsTo']
     rw [prodmap_image_sphere]
     simp_rw [union_subset_iff]
-    rw [exists_iff_and_of_upwards_closed]
+    rw [exists_iff_and_of_monotone]
     swap
-    · refine fun J sub K JleK ↦ sub.trans ?_
+    · refine fun J K JleK sub ↦ sub.trans ?_
       repeat apply iUnion_mono fun _ ↦ ?_
       exact iUnion_subset_iUnion_const (fun a ↦ JleK _ a)
     swap
-    · refine fun J sub K JleK ↦ sub.trans ?_
+    · refine fun J K JleK sub ↦ sub.trans ?_
       repeat apply iUnion_mono fun _ ↦ ?_
       exact iUnion_subset_iUnion_const (fun a ↦ JleK _ a)
     constructor

@@ -42,7 +42,7 @@ instance instCWComplexsingleton (x : X) : CWComplex {x} := CWComplexFinite
     | (_ + 1) => PEmpty)
   (map := fun n i ↦
     match n with
-    | 0 => PartialEquiv.const ![] x
+    | 0 => PartialEquiv.single ![] x
     | (_ + 1) => i.elim)
   (eventually_isEmpty_cell := by
     rw [Filter.eventually_atTop]
@@ -57,7 +57,7 @@ instance instCWComplexsingleton (x : X) : CWComplex {x} := CWComplexFinite
     | (_ + 1) => Finite.of_fintype _)
   (source_eq := fun n i ↦ match n with
     | 0 => by
-      simp only [PartialEquiv.const, closedBall, Matrix.empty_eq, dist_self, zero_le_one,
+      simp only [PartialEquiv.single, closedBall, Matrix.empty_eq, dist_self, zero_le_one,
         setOf_true, eq_univ_iff_forall]
       intro _
       simp only [Matrix.empty_eq, mem_singleton_iff]
@@ -82,12 +82,12 @@ instance instCWComplexsingleton (x : X) : CWComplex {x} := CWComplexFinite
     simp only [mem_iUnion, mem_singleton_iff]
     constructor
     · exact fun ⟨n, j, _⟩ ↦  match n with
-        | 0 => by simp_all only [PartialEquiv.const, Function.const_apply, Matrix.zero_empty,
+        | 0 => by simp_all only [PartialEquiv.single, Function.const_apply, Matrix.zero_empty,
           nonempty_closedBall, zero_le_one, Nonempty.image_const, mem_singleton_iff]
         | (_ + 1) => j.elim
     · intro eq
       use 0, default
-      simp only [eq, PartialEquiv.const, Function.const_apply, Matrix.zero_empty,
+      simp only [eq, PartialEquiv.single, Function.const_apply, Matrix.zero_empty,
         nonempty_closedBall, zero_le_one, Nonempty.image_const, mem_singleton_iff])
 
 /-- The interval `Icc (-1) 1` in `ℝ` is a CW-complex.-/
@@ -100,8 +100,8 @@ instance instCWComplexstandardinterval: CWComplex (Icc (-1) 1 : Set ℝ) := CWCo
   (map := fun n i ↦ match n with
     | 0 =>
       match i with
-        | 0 => PartialEquiv.const ![] (-1)
-        | 1 => PartialEquiv.const ![] 1
+        | 0 => PartialEquiv.single ![] (-1)
+        | 1 => PartialEquiv.single ![] 1
     | 1 => (IsometryEquiv.funUnique (Fin 1) ℝ).toPartialEquivOfImageEq (closedBall 0 1)
       (Set.Icc (-1) 1)
       (by rw [IsometryEquiv.coe_toEquiv, IsometryEquiv.image_closedBall,
@@ -128,11 +128,11 @@ instance instCWComplexstandardinterval: CWComplex (Icc (-1) 1 : Set ℝ) := CWCo
     | 0 =>
       match i with
       | 0 => by
-        simp only [PartialEquiv.const, Matrix.empty_eq, closedBall, dist_self, zero_le_one,
+        simp only [PartialEquiv.single, Matrix.empty_eq, closedBall, dist_self, zero_le_one,
           setOf_true]
         exact toFinset_eq_univ.mp rfl
       | 1 => by
-        simp only [PartialEquiv.const, Matrix.empty_eq, closedBall, dist_self, zero_le_one,
+        simp only [PartialEquiv.single, Matrix.empty_eq, closedBall, dist_self, zero_le_one,
           setOf_true]
         exact toFinset_eq_univ.mp rfl
     | 1 => rfl
@@ -152,10 +152,10 @@ instance instCWComplexstandardinterval: CWComplex (Icc (-1) 1 : Set ℝ) := CWCo
     | 0 =>
       match i with
       | 0 => by
-        simp only [PartialEquiv.const, Function.const_zero, Matrix.zero_empty,
+        simp only [PartialEquiv.single, Function.const_zero, Matrix.zero_empty,
           PartialEquiv.coe_symm_mk, continuousOn_singleton]
       | 1 => by
-        simp only [PartialEquiv.const, Function.const_zero, Matrix.zero_empty,
+        simp only [PartialEquiv.single, Function.const_zero, Matrix.zero_empty,
           PartialEquiv.coe_symm_mk, continuousOn_singleton]
     | 1 => ((IsometryEquiv.funUnique (Fin 1) ℝ).symm.continuous).continuousOn
     | (_ + 2) => i.elim
@@ -170,13 +170,13 @@ instance instCWComplexstandardinterval: CWComplex (Icc (-1) 1 : Set ℝ) := CWCo
           | 0 => match i with
             | 0 => (ne rfl).elim
             | 1 => by
-              simp only [PartialEquiv.const, Function.const_apply, Matrix.zero_empty,
+              simp only [PartialEquiv.single, Function.const_apply, Matrix.zero_empty,
                 nonempty_ball, zero_lt_one, Nonempty.image_const, Function.const_one, Pi.one_apply,
                 inter_singleton_eq_empty, mem_singleton_iff]
               linarith
           | 1 => match i with
             | 0 => by
-              simp only [PartialEquiv.const, Function.const_one, Pi.one_apply,
+              simp only [PartialEquiv.single, Function.const_one, Pi.one_apply,
                 Matrix.zero_empty, nonempty_ball, zero_lt_one, Nonempty.image_const,
                 Function.const_apply, inter_singleton_eq_empty, mem_singleton_iff]
               linarith
@@ -185,22 +185,22 @@ instance instCWComplexstandardinterval: CWComplex (Icc (-1) 1 : Set ℝ) := CWCo
           | 0 => by
             simp_rw [Equiv.toPartialEquivOfImageEq_apply, IsometryEquiv.coe_toEquiv,
               IsometryEquiv.image_ball, IsometryEquiv.funUnique_toFun]
-            simp [Matrix.empty_eq, PartialEquiv.const]
+            simp [Matrix.empty_eq, PartialEquiv.single]
           | 1 => by
             simp_rw [Equiv.toPartialEquivOfImageEq_apply, IsometryEquiv.coe_toEquiv,
               IsometryEquiv.image_ball, IsometryEquiv.funUnique_toFun]
-            simp [Matrix.empty_eq, PartialEquiv.const]
+            simp [Matrix.empty_eq, PartialEquiv.single]
         | (_ + 2) => i.elim
       | 1 => match m with
         | 0 => match i with
           | 0 => by
             simp_rw [Equiv.toPartialEquivOfImageEq_apply, IsometryEquiv.coe_toEquiv,
               IsometryEquiv.image_ball, IsometryEquiv.funUnique_toFun]
-            simp [Matrix.empty_eq, PartialEquiv.const]
+            simp [Matrix.empty_eq, PartialEquiv.single]
           | 1 => by
             simp_rw [Equiv.toPartialEquivOfImageEq_apply, IsometryEquiv.coe_toEquiv,
               IsometryEquiv.image_ball, IsometryEquiv.funUnique_toFun]
-            simp [Matrix.empty_eq, PartialEquiv.const]
+            simp [Matrix.empty_eq, PartialEquiv.single]
         | 1 => by simp only [Fin.eq_zero, Fin.isValue, ne_eq, not_true_eq_false] at ne
         | (_ + 2) => i.elim
       | (_ + 2) => j.elim
@@ -219,11 +219,11 @@ instance instCWComplexstandardinterval: CWComplex (Icc (-1) 1 : Set ℝ) := CWCo
       rcases xmem with xeq | xeq
       · subst x
         use 1
-        simp only [PartialEquiv.const, Function.const_one, Pi.one_apply, nonempty_closedBall,
+        simp only [PartialEquiv.single, Function.const_one, Pi.one_apply, nonempty_closedBall,
           zero_le_one, Nonempty.image_const, mem_singleton_iff]
       · subst x
         use 0
-        simp only [PartialEquiv.const, Function.const_apply, nonempty_closedBall, zero_le_one,
+        simp only [PartialEquiv.single, Function.const_apply, nonempty_closedBall, zero_le_one,
           Nonempty.image_const, mem_singleton_iff]
     | (_ + 2) => i.elim
   )
@@ -232,8 +232,8 @@ instance instCWComplexstandardinterval: CWComplex (Icc (-1) 1 : Set ℝ) := CWCo
     · apply iUnion_subset fun n ↦ iUnion_subset fun i ↦ ?_
       exact match n with
         | 0 => match i with
-          | 0 => by simp [Matrix.empty_eq, PartialEquiv.const]
-          | 1 => by simp [Matrix.empty_eq, PartialEquiv.const]
+          | 0 => by simp [Matrix.empty_eq, PartialEquiv.single]
+          | 1 => by simp [Matrix.empty_eq, PartialEquiv.single]
         | 1 => by
           rw [Equiv.toPartialEquivOfImageEq_apply, IsometryEquiv.coe_toEquiv,
             IsometryEquiv.image_closedBall, IsometryEquiv.funUnique_toFun, Pi.zero_apply,

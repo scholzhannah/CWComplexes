@@ -262,13 +262,13 @@ lemma iUnion_level_eq_level (n : ℕ∞) : ⋃ (m : ℕ) (_ : m < n + 1), level 
   constructor
   · intro ⟨i, hin, hiC⟩
     refine ⟨i + 1, ?_, hiC⟩
-    exact ENat.add_coe_lt_add_coe_right.mpr hin
+    exact (ENat.add_finite_lt_add_finite_right ENat.one_ne_top).mpr hin
   · intro ⟨i, hin, hiC⟩
     cases' i with i
     · refine ⟨0, ?_, levelaux_mono (by norm_num) hiC⟩
       exact ENat.add_one_pos
     · refine ⟨i, ?_, hiC⟩
-      exact ENat.add_coe_lt_add_coe_right.mp hin
+      exact (ENat.add_finite_lt_add_finite_right ENat.one_ne_top).mp hin
 
 lemma levelaux_succ_eq_levelaux_union_iUnion_closedCell (n : ℕ) :
     levelaux C (n + 1) = levelaux C n ∪ ⋃ (j : cell C n), closedCell n j := by

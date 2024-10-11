@@ -33,13 +33,13 @@ lemma biInf_lt_eq_iInf {X Y : Type*} [LT X] [NoMaxOrder X] (I : X → Set Y) :
   · apply le_iInf (fun x ↦ ?_)
     obtain ⟨x', xlt⟩ := exists_gt x
     apply iInf_le_of_le x' (iInf_le_of_le x (iInf_le_of_le xlt (le_refl _)))
-  · apply le_iInf fun _ ↦ le_iInf fun _ ↦ le_iInf fun _ ↦ iInf_le _ _
+  · exact le_iInf fun _ ↦ le_iInf fun _ ↦ le_iInf fun _ ↦ iInf_le _ _
 
 lemma biUnion_lt_eq_iUnion {X : Type*} (I : ℕ → Set X) :
-    ⋃ (n : ℕ) (m < n), I m  = ⋃ (n : ℕ), I n := biSup_lt_eq_iSup _
+  ⋃ (n : ℕ) (m < n), I m  = ⋃ (n : ℕ), I n := biSup_lt_eq_iSup _
 
 lemma biInter_lt_eq_iInter {X : Type*} (I : ℕ → Set X) :
-    ⋂ (n : ℕ) (m < n), I m  = ⋂ (n : ℕ), I n := biInf_lt_eq_iInf _
+  ⋂ (n : ℕ) (m < n), I m  = ⋂ (n : ℕ), I n := biInf_lt_eq_iInf _
 
 -- needed in constructions file
 -- in mathlib
@@ -57,12 +57,11 @@ lemma Set.subset_product {α β : Type*} {s : Set (α × β)} :
   fun _ hp ↦ mem_prod.2 ⟨mem_image_of_mem _ hp, mem_image_of_mem _ hp⟩
 
 -- needed in product file
--- change ucP (ucQ) to Monotone P
-lemma exists_iff_and_of_upwards_closed {L : Type*} [SemilatticeSup L] {P Q : L → Prop}
-    (ucP : ∀ l : L, P l → ∀ m ≥ l, P m) (ucQ : ∀ l : L, Q l → ∀ m ≥ l, Q m):
+lemma exists_iff_and_of_monotone {L : Type*} [SemilatticeSup L] {P Q : L → Prop}
+    (monP : Monotone P) (monQ : Monotone Q):
     (∃ i, P i ∧ Q i) ↔ (∃ i, P i) ∧ ∃ i, Q i :=
-  ⟨fun ⟨i, hP, hQ⟩ ↦ ⟨⟨i, hP⟩, ⟨i, hQ⟩⟩, fun ⟨⟨i, hP⟩, ⟨j, hQ⟩⟩ ↦
-    ⟨i ⊔ j, ucP i hP (i ⊔ j) (le_sup_left), ucQ j hQ (i ⊔ j) (le_sup_right)⟩⟩
+  ⟨fun ⟨i, hP, hQ⟩ ↦ ⟨⟨i, hP⟩, ⟨i, hQ⟩⟩,
+    fun ⟨⟨i, hP⟩, ⟨j, hQ⟩⟩ ↦ ⟨i ⊔ j, ⟨monP le_sup_left hP,  monQ le_sup_right hQ⟩⟩⟩
 
 /-! ### ENat-/
 
@@ -72,8 +71,9 @@ lemma ENat.add_one_pos {n : ℕ∞} : 0 < n + 1 := by
   exact le_add_self
 
 -- needed in definition file
--- make k a finite ENat (use ne)
-lemma ENat.add_coe_lt_add_coe_right {n m : ℕ∞} {k : ℕ} : n + k < m + k ↔ n < m := by
+lemma ENat.add_finite_lt_add_finite_right {n m k : ℕ∞} (ne : k ≠ ⊤) : n + k < m + k ↔ n < m := by
+  cases' k with k
+  · contradiction
   cases' n with n
   · simp
   cases' m with m
@@ -83,10 +83,9 @@ lemma ENat.add_coe_lt_add_coe_right {n m : ℕ∞} {k : ℕ} : n + k < m + k ↔
 /-! ### Different maps -/
 
 -- needed in this file and in examples file
--- change the name to single
 /-- `Function.const` as a `PartialEquiv`.
   It consists of two constant maps in opposite directions. -/
-def PartialEquiv.const {X Y : Type*} (x : X) (y : Y) : PartialEquiv X Y where
+def PartialEquiv.single {X Y : Type*} (x : X) (y : Y) : PartialEquiv X Y where
   toFun := Function.const X y
   invFun := Function.const Y x
   source := {x}
