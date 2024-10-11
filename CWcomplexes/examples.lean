@@ -91,7 +91,7 @@ instance instCWComplexsingleton (x : X) : CWComplex {x} := CWComplexFinite
         nonempty_closedBall, zero_le_one, Nonempty.image_const, mem_singleton_iff])
 
 /-- The interval `Icc (-1) 1` in `ℝ` is a CW-complex.-/
-instance instCWComplexstandardinterval_test: CWComplex (Icc (-1) 1 : Set ℝ) := CWComplexFinite
+instance instCWComplexstandardinterval: CWComplex (Icc (-1) 1 : Set ℝ) := CWComplexFinite
   (cell := fun n ↦ match n with
     | 0 => Fin 2
     | 1 => Fin 1

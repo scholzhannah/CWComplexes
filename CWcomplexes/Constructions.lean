@@ -137,8 +137,10 @@ def CWComplex_disjointUnion (disjoint : Disjoint C D) : CWComplex (C ∪ D) wher
 
 end
 
-/-- The image of a CW-coplex under a homeomorphisms is again a CW-complex.-/
-def CWComplex_of_Homeomorph.{u} {X Y : Type  u} [TopologicalSpace X] [TopologicalSpace Y]
+-- assume that C and D are closed and only require the homeomorphism on C and D
+
+/-- The image of a CW-complex under a homeomorphisms is again a CW-complex.-/
+def CWComplex_of_Homeomorph.{u} {X Y : Type u} [TopologicalSpace X] [TopologicalSpace Y]
     (C : Set X) (D : Set Y) [CWComplex C] (f : X ≃ₜ Y) (imf : f '' C = D) :
     CWComplex D where
   cell := cell C

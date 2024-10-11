@@ -332,7 +332,7 @@ instance CWComplex_product_kification : CWComplex (X := kification (X × Y)) (C 
         exact ⟨A ∩ K, this, by simp only [left_eq_inter, inter_subset_right]⟩
       -- We have `A ∩ K ⊆ (Prod.fst '' K ∩ C) × (Prod.snd '' K ∩ D)`.
       -- Since `Prod.fst '' K` and `Prod.snd '' K` are compact by `IsCompact.image` they are
-      -- subsets of a finite union of cells. We call these union `E` and `F`.
+      -- subsets of a finite union of cells. We call these unions `E` and `F`.
       -- So we have `K ⊆ E ×ˢ F`.
       -- But `E ×ˢ F` is just a finite union of cells of the product.
       -- Therefore we are done by `isClosed_iUnion_of_finite` and the assumption `hA`.

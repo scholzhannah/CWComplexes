@@ -19,14 +19,30 @@ noncomputable section
 
 /-! ### Basic logic and set theory-/
 
--- needed in definition file
+lemma biSup_lt_eq_iSup {X Y : Type*} [LT X] [NoMaxOrder X] (I : X → Set Y) :
+    ⨆ (x : X) (x' < x), I x' = ⨆ x, I x := by
+  apply le_antisymm
+  · exact iSup_le fun _ ↦ iSup_le fun _ ↦ iSup_le fun _ ↦ le_iSup _ _
+  · apply iSup_le (fun x ↦ ?_)
+    obtain ⟨x', xlt⟩ := exists_gt x
+    exact le_iSup_of_le x' (le_iSup_of_le x (le_iSup_of_le xlt (le_refl _)))
+
+lemma biInf_lt_eq_iInf {X Y : Type*} [LT X] [NoMaxOrder X] (I : X → Set Y) :
+    ⨅ (x : X) (x' < x), I x' = ⨅ x, I x := by
+  apply le_antisymm
+  · apply le_iInf (fun x ↦ ?_)
+    obtain ⟨x', xlt⟩ := exists_gt x
+    apply iInf_le_of_le x' (iInf_le_of_le x (iInf_le_of_le xlt (le_refl _)))
+  · apply le_iInf fun _ ↦ le_iInf fun _ ↦ le_iInf fun _ ↦ iInf_le _ _
+
 lemma biUnion_lt_eq_iUnion {X : Type*} (I : ℕ → Set X) :
-    ⋃ (n : ℕ) (m < n), I m  = ⋃ (n : ℕ), I n := by
-  ext
-  simp_rw [Set.mem_iUnion]
-  exact ⟨fun ⟨_, m, _, mem⟩ ↦ ⟨m, mem⟩, fun ⟨n, mem⟩ ↦  ⟨n + 1, n, lt_add_one n, mem⟩⟩
+    ⋃ (n : ℕ) (m < n), I m  = ⋃ (n : ℕ), I n := biSup_lt_eq_iSup _
+
+lemma biInter_lt_eq_iInter {X : Type*} (I : ℕ → Set X) :
+    ⋂ (n : ℕ) (m < n), I m  = ⋂ (n : ℕ), I n := biInf_lt_eq_iInf _
 
 -- needed in constructions file
+-- in mathlib
 lemma Set.iUnion_sum {X Y Z: Type*} {f : X ⊕ Y → Set Z} :
     ⋃ x : X ⊕ Y, f x = (⋃ x : X, f (.inl x)) ∪ ⋃ x : Y, f (.inr x) := by
   ext; simp
@@ -41,6 +57,7 @@ lemma Set.subset_product {α β : Type*} {s : Set (α × β)} :
   fun _ hp ↦ mem_prod.2 ⟨mem_image_of_mem _ hp, mem_image_of_mem _ hp⟩
 
 -- needed in product file
+-- change ucP (ucQ) to Monotone P
 lemma exists_iff_and_of_upwards_closed {L : Type*} [SemilatticeSup L] {P Q : L → Prop}
     (ucP : ∀ l : L, P l → ∀ m ≥ l, P m) (ucQ : ∀ l : L, Q l → ∀ m ≥ l, Q m):
     (∃ i, P i ∧ Q i) ↔ (∃ i, P i) ∧ ∃ i, Q i :=
@@ -55,6 +72,7 @@ lemma ENat.add_one_pos {n : ℕ∞} : 0 < n + 1 := by
   exact le_add_self
 
 -- needed in definition file
+-- make k a finite ENat (use ne)
 lemma ENat.add_coe_lt_add_coe_right {n m : ℕ∞} {k : ℕ} : n + k < m + k ↔ n < m := by
   cases' n with n
   · simp
@@ -65,6 +83,7 @@ lemma ENat.add_coe_lt_add_coe_right {n m : ℕ∞} {k : ℕ} : n + k < m + k ↔
 /-! ### Different maps -/
 
 -- needed in this file and in examples file
+-- change the name to single
 /-- `Function.const` as a `PartialEquiv`.
   It consists of two constant maps in opposite directions. -/
 def PartialEquiv.const {X Y : Type*} (x : X) (y : Y) : PartialEquiv X Y where
@@ -120,6 +139,7 @@ def IsometryEquiv.finArrowProdHomeomorphFinAddArrow {X : Type*} [PseudoEMetricSp
 
 /-! ### Topology -/
 
+-- generalize to IsEmpty typeclass
 -- needed in examples file
 lemma closedBall_zero_dim_singleton {X : Type*} {h : PseudoMetricSpace (Fin 0 → X)} :
     (Metric.closedBall ![] 1 : Set (Fin 0 → X)) = {![]} := by
@@ -132,6 +152,7 @@ lemma sphere_zero_dim_empty {X : Type*} {h : PseudoMetricSpace (Fin 0 → X)} :
   simp only [Metric.sphere, Matrix.empty_eq, dist_self, zero_ne_one, Set.setOf_false]
 
 -- needed in kification file
+-- make A and B implicit
 /-- This lemma states that a set `A` is open in a set `B` iff `Aᶜ` is closed in `B`.-/
 lemma open_in_iff_compl_closed_in {X : Type*} [TopologicalSpace X] (A B : Set X) :
     (∃ (C : Set X), IsOpen C ∧  A ∩ B = C ∩ B) ↔
@@ -146,6 +167,7 @@ lemma open_in_iff_compl_closed_in {X : Type*} [TopologicalSpace X] (A B : Set X)
     rw [inter_eq_inter_iff_compl, compl_compl]
     exact ⟨isOpen_compl_iff.2 closedC, hC⟩
 
+-- switch order of cont and conton
 -- needed in constructions file and product file
 lemma ContinuousOn.image_comp_continuous {α β γ : Type*} [TopologicalSpace α] [TopologicalSpace β]
     [TopologicalSpace γ] {g : β → γ} {f : α → β} {s : Set α} (cont : Continuous f)
@@ -171,10 +193,6 @@ lemma T2Space.mono {X : Type*} {s t : TopologicalSpace X}
     exact ⟨u, v, le _ openu, le _ openv, huv⟩
 
 /-! ### Lemmas that I am not using but relate to things I have defined above -/
-
-lemma PartialEquiv.const_continuousOn {X Y : Type*} [TopologicalSpace X] [TopologicalSpace Y]
-    (x : X) (y : Y) : ContinuousOn (PartialEquiv.const x y) {x}
-  := continuousOn_singleton (PartialEquiv.const x y) x
 
 /-- The natural `Equiv` between `(Fin m → X) × (Fin n → X)` and `(Fin (m + n) → X)`.-/
 def Equiv.finArrowProdEQuivFinAddArrow {X : Type*} (m n : ℕ) :

@@ -44,6 +44,8 @@ noncomputable section
 
 open Metric Set
 
+-- make closed' only one direction
+
 /-- Characterizing when a subspace `C` of a topological space `X` is a CW-complex.
   Note that this requires `C` to be a closed subspace. Otherwise choose `X` to be `C`.
   A lot of lemmas will require `[T2Space X]`.-/
@@ -232,9 +234,9 @@ lemma cellFrontier_zero_eq_empty {j : cell C 0} : cellFrontier 0 j = ∅ := by
   simp [cellFrontier, sphere_zero_dim_empty]
 
 lemma isClosed [T2Space X] : IsClosed C := by
-  rw [closed (C := C) _ (by rfl)]
+  rw [closed _ (by rfl)]
   intros
-  rw [Set.inter_eq_right.2 (closedCell_subset_complex _ _)]
+  rw [inter_eq_right.2 (closedCell_subset_complex _ _)]
   exact isClosed_closedCell
 
 lemma iUnion_levelaux_eq_levelaux (n : ℕ∞) :
@@ -305,7 +307,7 @@ lemma iUnion_openCell_eq_levelaux (n : ℕ∞) :
       ⋃ (m : ℕ), ⋃ (_ : (m : ℕ∞) < ⊤), ⋃ j, openCell m j
       _ = ⋃ m, ⋃ (j : cell C m), openCell m j := by
         simp_rw [ENat.coe_lt_top, iUnion_true]
-      _ = ⋃ m, ⋃ l, ⋃ (_ : l < m), ⋃ (j : cell C l), openCell l j := (biUnion_lt_eq_iUnion _).symm
+      _ = ⋃ m, ⋃ l, ⋃ (_ : l < m), ⋃ (j : cell C l), openCell l j := (biSup_lt_eq_iSup _).symm
       _ = ⋃ (m : ℕ), levelaux C m := by
         apply iUnion_congr
         intro n
@@ -314,7 +316,7 @@ lemma iUnion_openCell_eq_levelaux (n : ℕ∞) :
       _ = ⋃ m, ⋃ l, ⋃ (_ : l < m), ⋃ (j : cell C l), closedCell l j := by
         unfold levelaux
         norm_cast
-      _ = ⋃ m, ⋃ (j : cell C m), closedCell m j := biUnion_lt_eq_iUnion _
+      _ = ⋃ m, ⋃ (j : cell C m), closedCell m j := biSup_lt_eq_iSup _
       _ = levelaux C ⊤ := by rw [levelaux_top, union]
 
 lemma iUnion_openCell_eq_level (n : ℕ∞) :
