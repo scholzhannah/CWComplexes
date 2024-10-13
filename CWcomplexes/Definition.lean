@@ -243,7 +243,7 @@ lemma iUnion_levelaux_eq_levelaux (n : ℕ∞) :
     ⋃ (m : ℕ) (_ : m < n + 1), levelaux C m = levelaux C n := by
   apply subset_antisymm
   · simp_rw [iUnion_subset_iff]
-    exact fun _ h ↦  levelaux_mono (ENat.le_of_lt_add_one h)
+    exact fun _ h ↦  levelaux_mono (Order.le_of_lt_add_one h)
   · by_cases h : n = ⊤
     · intro x xmem
       simp only [levelaux, h, ENat.coe_lt_top, iUnion_true, mem_iUnion, top_add, Nat.cast_lt]
@@ -347,7 +347,7 @@ lemma exists_mem_openCell_of_mem_level {n : ℕ∞} {x : X} (xmemlvl : x ∈ lev
     ∃ (m : ℕ) (_ : m ≤ n) (j : cell C m), x ∈ openCell m j := by
   rw [level] at xmemlvl
   obtain ⟨m, mlen, _⟩ := exists_mem_openCell_of_mem_levelaux xmemlvl
-  use m, ENat.le_of_lt_add_one mlen
+  use m, Order.le_of_lt_add_one mlen
 
 /-- A level and an open cell of a higher dimension are disjoint -/
 lemma levelaux_inter_openCell_eq_empty {n : ℕ∞} {m : ℕ} {j : cell C m} (nlem : n ≤ m) :
@@ -379,12 +379,12 @@ lemma levelaux_inter_closedCell_eq_levelaux_inter_cellFrontier {n : ℕ∞} {m :
 lemma level_inter_closedCell_eq_level_inter_cellFrontier {n : ℕ∞} {m : ℕ} {j : cell C m}
     (nltm : n < m) :
     level C n ∩ closedCell m j = level C n ∩ cellFrontier m j :=
-  levelaux_inter_closedCell_eq_levelaux_inter_cellFrontier (ENat.add_one_le_of_lt nltm)
+  levelaux_inter_closedCell_eq_levelaux_inter_cellFrontier (Order.add_one_le_of_lt nltm)
 
 /-- Version of `levelaux_inter_closedCell_eq_levelaux_inter_cellFrontier` using `level`.-/
 lemma level_inter_openCell_eq_empty {n : ℕ∞} {m : ℕ} {j : cell C m}  (nltm : n < m) :
     level C n ∩ openCell m j = ∅ :=
-  levelaux_inter_openCell_eq_empty (ENat.add_one_le_of_lt nltm)
+  levelaux_inter_openCell_eq_empty (Order.add_one_le_of_lt nltm)
 
 /-- If for all `m ≤ n` and every `i : cell C m` the intersection `A ∩ closedCell m j` is closed
   then `A ∩ cellFrontier (n + 1) j` is closed for every `j : cell C (n + 1)`.-/
@@ -416,8 +416,7 @@ lemma isClosed_of_isClosed_inter_openCell_or_isClosed_inter_closedCell [T2Space 
   rcases h with h1 | h2
   · rw [← cellFrontier_union_openCell_eq_closedCell, inter_union_distrib_left]
     exact (isClosed_inter_cellFrontier_succ_of_le_isClosed_inter_closedCell hn j).union h1
-  · simp_rw [Nat.succ_eq_add_one]
-    exact h2
+  · exact h2
 
 /-- A version of `cellFrontier_subset_finite_closedCell` using open cells: The edge of a cell is
   contained in a finite union of open cells of a lower dimension.-/

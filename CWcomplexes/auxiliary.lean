@@ -43,12 +43,6 @@ lemma biUnion_lt_eq_iUnion {X : Type*} (I : ℕ → Set X) :
 lemma biInter_lt_eq_iInter {X : Type*} (I : ℕ → Set X) :
   ⋂ (n : ℕ) (m < n), I m  = ⋂ (n : ℕ), I n := biInf_lt_eq_iInf _
 
--- needed in constructions file
--- in mathlib
-lemma Set.iUnion_sum {X Y Z: Type*} {f : X ⊕ Y → Set Z} :
-    ⋃ x : X ⊕ Y, f x = (⋃ x : X, f (.inl x)) ∪ ⋃ x : Y, f (.inr x) := by
-  ext; simp
-
 --needed in this file
 lemma inter_eq_inter_iff_compl {X : Type*} {A B C : Set X} : A ∩ B = C ∩ B ↔ Aᶜ ∩ B = Cᶜ ∩ B := by
   constructor <;> (intro; simp_all [Set.ext_iff, not_iff_not])
@@ -69,7 +63,7 @@ lemma exists_iff_and_of_monotone {L : Type*} [SemilatticeSup L] {P Q : L → Pro
 
 -- needed in definition file
 lemma ENat.add_one_pos {n : ℕ∞} : 0 < n + 1 := by
-  rw [← ENat.one_le_iff_pos]
+  rw [← Order.one_le_iff_pos]
   exact le_add_self
 
 -- needed in definition file
@@ -156,7 +150,7 @@ lemma sphere_eq_empty_of_unique {X : Type*} [Unique X] [PseudoMetricSpace X] {ε
   simp [Metric.sphere, Unique.eq_default, ne_of_lt h]
 
 -- needed in definition file and examples file
-lemma sphere_zero_dim_empty {X : Type*} {h : PseudoMetricSpace (Fin 0 → X)} :
+lemma sphere_zero_dim_empty {X : Type*} [PseudoMetricSpace (Fin 0 → X)] :
     (Metric.sphere ![] 1 : Set (Fin 0 → X)) = ∅ := sphere_eq_empty_of_unique zero_lt_one
 
 -- needed in kification file
