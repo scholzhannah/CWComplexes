@@ -35,9 +35,11 @@ lemma biInf_lt_eq_iInf {X Y : Type*} [LT X] [NoMaxOrder X] (I : X → Set Y) :
     apply iInf_le_of_le x' (iInf_le_of_le x (iInf_le_of_le xlt (le_refl _)))
   · exact le_iInf fun _ ↦ le_iInf fun _ ↦ le_iInf fun _ ↦ iInf_le _ _
 
+-- is this needed?
 lemma biUnion_lt_eq_iUnion {X : Type*} (I : ℕ → Set X) :
   ⋃ (n : ℕ) (m < n), I m  = ⋃ (n : ℕ), I n := biSup_lt_eq_iSup _
 
+-- is this needed?
 lemma biInter_lt_eq_iInter {X : Type*} (I : ℕ → Set X) :
   ⋂ (n : ℕ) (m < n), I m  = ⋂ (n : ℕ), I n := biInf_lt_eq_iInf _
 
@@ -138,22 +140,28 @@ def IsometryEquiv.finArrowProdHomeomorphFinAddArrow {X : Type*} [PseudoEMetricSp
 
 /-! ### Topology -/
 
--- generalize to IsEmpty typeclass
--- needed in examples file
-lemma closedBall_zero_dim_singleton {X : Type*} {h : PseudoMetricSpace (Fin 0 → X)} :
-    (Metric.closedBall ![] 1 : Set (Fin 0 → X)) = {![]} := by
+lemma closedBall_eq_singleton_of_unique {X : Type*} [Unique X] [PseudoMetricSpace X] {ε : ℝ}
+    (h : 0 ≤ ε) : Metric.closedBall default ε = {default (α := X)} := by
   ext
-  simp only [Matrix.empty_eq, Metric.mem_closedBall, dist_self, zero_le_one, Set.mem_singleton_iff]
+  simp [Unique.eq_default, h]
+
+-- needed because this cannot be done by a rewrite
+-- needed in examples file
+lemma closedBall_zero_dim_singleton {X : Type*} [PseudoMetricSpace (Fin 0 → X)] :
+    (Metric.closedBall ![] 1 : Set (Fin 0 → X)) = {![]} :=
+  closedBall_eq_singleton_of_unique zero_le_one
+
+lemma sphere_eq_empty_of_unique {X : Type*} [Unique X] [PseudoMetricSpace X] {ε : ℝ} (h : 0 < ε) :
+    (Metric.sphere default ε : Set X) = ∅ := by
+  simp [Metric.sphere, Unique.eq_default, ne_of_lt h]
 
 -- needed in definition file and examples file
 lemma sphere_zero_dim_empty {X : Type*} {h : PseudoMetricSpace (Fin 0 → X)} :
-    (Metric.sphere ![] 1 : Set (Fin 0 → X)) = ∅ := by
-  simp only [Metric.sphere, Matrix.empty_eq, dist_self, zero_ne_one, Set.setOf_false]
+    (Metric.sphere ![] 1 : Set (Fin 0 → X)) = ∅ := sphere_eq_empty_of_unique zero_lt_one
 
 -- needed in kification file
--- make A and B implicit
 /-- This lemma states that a set `A` is open in a set `B` iff `Aᶜ` is closed in `B`.-/
-lemma open_in_iff_compl_closed_in {X : Type*} [TopologicalSpace X] (A B : Set X) :
+lemma open_in_iff_compl_closed_in {X : Type*} [TopologicalSpace X] {A B : Set X} :
     (∃ (C : Set X), IsOpen C ∧  A ∩ B = C ∩ B) ↔
     ∃ (C : Set X), IsClosed C ∧  Aᶜ ∩ B = C ∩ B := by
   constructor
@@ -166,11 +174,10 @@ lemma open_in_iff_compl_closed_in {X : Type*} [TopologicalSpace X] (A B : Set X)
     rw [inter_eq_inter_iff_compl, compl_compl]
     exact ⟨isOpen_compl_iff.2 closedC, hC⟩
 
--- switch order of cont and conton
 -- needed in constructions file and product file
 lemma ContinuousOn.image_comp_continuous {α β γ : Type*} [TopologicalSpace α] [TopologicalSpace β]
-    [TopologicalSpace γ] {g : β → γ} {f : α → β} {s : Set α} (cont : Continuous f)
-    (conton : ContinuousOn g (f '' s)) : ContinuousOn (g ∘ f) s :=
+    [TopologicalSpace γ] {g : β → γ} {f : α → β} {s : Set α} (conton : ContinuousOn g (f '' s))
+    (cont : Continuous f) : ContinuousOn (g ∘ f) s :=
   conton.comp cont.continuousOn (s.mapsTo_image f)
 
 -- needed in examples file

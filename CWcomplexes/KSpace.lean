@@ -51,7 +51,7 @@ lemma closed_iff {X : Type*} [TopologicalSpace X] [KSpace X] {A : Set X} :
     _ ↔ ∀ (B : Set X), IsCompact B → ∃ (C : Set X), IsClosed C ∧ A ∩ B = C ∩ B := by
       congrm ∀ B, IsCompact B → ?_
       nth_rw 2 [← compl_compl A]
-      exact open_in_iff_compl_closed_in Aᶜ B
+      exact open_in_iff_compl_closed_in
 
 /-- If every set `A` is closed iff for every compact `B` the intersection `A ∩ C` is closed in `C`,
   then the space is a k-space. -/
@@ -64,7 +64,7 @@ lemma kspace_of_closed_iff {X : Type*} [TopologicalSpace X]
     _ ↔ ∀ (B : Set X), IsCompact B → ∃ (C : Set X), IsClosed C ∧ Aᶜ ∩ B = C ∩ B := closed_iff Aᶜ
     _ ↔ ∀ (B : Set X), IsCompact B → ∃ (C : Set X), IsOpen C ∧ A ∩ B = C ∩ B := by
       congrm ∀ B, IsCompact B → ?_
-      exact (open_in_iff_compl_closed_in A B).symm
+      exact (open_in_iff_compl_closed_in).symm
 
 /-- Every weakly locally compact space is a k-space.-/
 instance kspace_of_WeaklyLocallyCompactSpace {X : Type*} [TopologicalSpace X]
@@ -159,7 +159,7 @@ lemma kification.closed_iff {X : Type*} [t : TopologicalSpace X] {A : Set X} :
     _ ↔ ∀ (B : Set X), IsCompact B → ∃ (C : Set X), IsClosed C ∧ A ∩ B = C ∩ B := by
       congrm ∀ B, IsCompact B → ?_
       nth_rw 2 [← compl_compl A]
-      exact open_in_iff_compl_closed_in Aᶜ B
+      exact open_in_iff_compl_closed_in
 
 /-- The map taking a space to its k-ification.-/
 def tokification (X : Type*) : X ≃ kification X :=

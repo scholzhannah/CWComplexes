@@ -95,11 +95,11 @@ instance CWComplex_product [KSpace (X × Y)] : CWComplex (C ×ˢ D) where
     rcases i with  ⟨m, l, hmln, j, k⟩
     simp only [Equiv.transPartialEquiv_eq_trans, PartialEquiv.coe_trans, prodmap]
     apply ContinuousOn.image_comp_continuous
-    · rw [Equiv.toPartialEquiv_apply, IsometryEquiv.coe_toEquiv]
-      exact (prodisometryequiv hmln).continuous
     · rw [Equiv.toPartialEquiv_apply, IsometryEquiv.coe_toEquiv, prodisometryequiv_image_closedBall]
       simp only [PartialEquiv.prod_coe]
       exact ContinuousOn.prod_map (CWComplex.cont _ _) (CWComplex.cont _ _)
+    · rw [Equiv.toPartialEquiv_apply, IsometryEquiv.coe_toEquiv]
+      exact (prodisometryequiv hmln).continuous
   cont_symm n i := by
     rcases i with ⟨m, l, hmln, j, k⟩
     simp only [Equiv.transPartialEquiv_eq_trans, PartialEquiv.coe_trans_symm,
@@ -241,13 +241,13 @@ instance CWComplex_product_kification : CWComplex (X := kification (X × Y)) (C 
     rcases i with  ⟨m, l, hmln, j, k⟩
     simp only [Equiv.transPartialEquiv_eq_trans, PartialEquiv.coe_trans, prodmap]
     apply ContinuousOn.image_comp_continuous
-    · rw [Equiv.toPartialEquiv_apply, IsometryEquiv.coe_toEquiv]
-      exact (prodisometryequiv hmln).continuous
     · rw [Equiv.toPartialEquiv_apply, IsometryEquiv.coe_toEquiv, prodisometryequiv_image_closedBall]
       simp only [PartialEquiv.prod_coe]
       apply continuousOn_compact_to_kification
         (by rw [closedBall_prod_same]; exact isCompact_closedBall _ _)
       exact ContinuousOn.prod_map (CWComplex.cont _ _) (CWComplex.cont _ _)
+    · rw [Equiv.toPartialEquiv_apply, IsometryEquiv.coe_toEquiv]
+      exact (prodisometryequiv hmln).continuous
   cont_symm n i := by
     rcases i with ⟨m, l, hmln, j, k⟩
     simp only [Equiv.transPartialEquiv_eq_trans, PartialEquiv.coe_trans_symm,

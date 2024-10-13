@@ -150,7 +150,7 @@ def CWComplex_of_Homeomorph.{u} {X Y : Type u} [TopologicalSpace X] [Topological
   cont_symm n i := by
     simp only [PartialEquiv.transEquiv_eq_trans, PartialEquiv.trans_target,
       Equiv.toPartialEquiv_symm_apply, ← image_equiv_eq_preimage_symm]
-    apply ContinuousOn.image_comp_continuous f.continuous_invFun
+    refine ContinuousOn.image_comp_continuous (f := f.invFun) ?_ f.continuous_invFun
     simp [Equiv.invFun_as_coe, Homeomorph.coe_symm_toEquiv, Set.image_image, cont_symm (C := C)]
   pairwiseDisjoint' := by
     have := pairwiseDisjoint' (C := C)
