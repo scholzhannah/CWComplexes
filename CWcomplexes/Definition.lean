@@ -174,7 +174,7 @@ lemma closure_openCell_eq_closedCell [T2Space X] {n : ℕ} {j : cell C n} :
   simp only [levelaux, lt_top_iff_ne_top, ne_eq, ENat.coe_ne_top, not_false_eq_true, iUnion_true,
     ← union]
 
-@[simp] lemma level_top : level C ⊤ = C := by simp only [level, top_add, levelaux_top]
+@[simp] lemma level_top : level C ⊤ = C := levelaux_top
 
 lemma levelaux_mono {n m : ℕ∞} (h : m ≤ n) : levelaux C m ⊆ levelaux C n := by
   intro x xmem
@@ -182,8 +182,8 @@ lemma levelaux_mono {n m : ℕ∞} (h : m ≤ n) : levelaux C m ⊆ levelaux C n
   obtain ⟨l , lltm, xmeml⟩ := xmem
   exact ⟨l, lt_of_lt_of_le lltm h, xmeml⟩
 
-lemma level_mono {n m : ℕ∞} (h : m ≤ n) : level C m ⊆ level C n := by
-  simp only [level, levelaux_mono (add_le_add_right h 1)]
+lemma level_mono {n m : ℕ∞} (h : m ≤ n) : level C m ⊆ level C n :=
+  levelaux_mono (add_le_add_right h 1)
 
 lemma closedCell_subset_levelaux (n : ℕ) (j : cell C n) :
     closedCell n j ⊆ levelaux C (n + 1) := by
@@ -244,14 +244,12 @@ lemma iUnion_levelaux_eq_levelaux (n : ℕ∞) :
   apply subset_antisymm
   · simp_rw [iUnion_subset_iff]
     exact fun _ h ↦  levelaux_mono (Order.le_of_lt_add_one h)
-  · by_cases h : n = ⊤
+  · cases' n with n
     · intro x xmem
-      simp only [levelaux, h, ENat.coe_lt_top, iUnion_true, mem_iUnion, top_add, Nat.cast_lt]
-        at xmem ⊢
+      simp only [levelaux, ENat.coe_lt_top, iUnion_true, mem_iUnion, top_add, Nat.cast_lt] at xmem ⊢
       obtain ⟨m, i, xmem⟩ := xmem
       exact ⟨m + 1, ⟨m, lt_add_one m, ⟨i, xmem⟩⟩⟩
-    · rw [← ENat.coe_toNat h]
-      apply subset_iUnion_of_subset (ENat.toNat n)
+    · apply subset_iUnion_of_subset n
       norm_cast
       simp
 
