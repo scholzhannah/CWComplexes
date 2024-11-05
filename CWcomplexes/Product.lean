@@ -32,8 +32,8 @@ def prodcell (C : Set X) (D : Set Y) [CWComplex C] [CWComplex D] (n : ℕ) :=
 
 /-- The natural `IsometryEquiv` `(Fin n → ℝ) ≃ᵢ (Fin m → ℝ) × (Fin l → ℝ)` when `n = m + n`.-/
 def prodisometryequiv {n m l : ℕ}  (hmln : m + l = n) :=
-  (IsometryEquiv.arrowCongrLeftofFintype (X := ℝ) (finCongr hmln.symm)).trans
-  ((IsometryEquiv.finArrowProdHomeomorphFinAddArrow m l).symm)
+  (IsometryEquiv.piCongrLeft (Y := fun _ ↦ ℝ) (finCongr hmln.symm)).trans
+  ((Fin.appendIsometry m l).symm)
 
 /-- The characterstic maps of the product of CW-complexes.-/
 def prodmap {n m l : ℕ} (hmln : m + l = n) (j : cell C m) (k : cell D l) :=
@@ -122,13 +122,13 @@ instance CWComplex_product [KSpace (X × Y)] : CWComplex (C ×ˢ D) where
     aesop
   mapsto n i := by
     -- We first use `prodmap_image_sphere` to write the edge of the cell as a union.
-    -- We then use `exists_iff_and_of_monotone` to show that we can verify the
+    -- We then use `exists_and_iff_of_monotone` to show that we can verify the
     -- statement seperately for the two parts of the union.
     -- We then do two completely symmetric proofs.
     classical
     rcases i with ⟨m, l, hmln, j, k⟩
     simp_rw [mapsTo', prodmap_image_sphere, union_subset_iff]
-    rw [exists_iff_and_of_monotone]
+    rw [← exists_and_iff_of_monotone]
     swap
     · refine fun J K JleK sub ↦ sub.trans ?_
       repeat apply iUnion_mono fun _ ↦ ?_
@@ -271,7 +271,7 @@ instance CWComplex_product_kification : CWComplex (X := kification (X × Y)) (C 
     aesop
   mapsto n i := by
     -- We first use `prodmap_image_sphere` to write the edge of the cell as a union.
-    -- We then use `exists_iff_and_of_monotone` to show that we can verify the
+    -- We then use `exists_and_iff_of_monotone` to show that we can verify the
     -- statement seperately for the two parts of the union.
     -- We then do two completely symmetric proofs.
     classical
@@ -279,7 +279,7 @@ instance CWComplex_product_kification : CWComplex (X := kification (X × Y)) (C 
     simp_rw [mapsTo']
     rw [prodmap_image_sphere]
     simp_rw [union_subset_iff]
-    rw [exists_iff_and_of_monotone]
+    rw [← exists_and_iff_of_monotone]
     swap
     · refine fun J K JleK sub ↦ sub.trans ?_
       repeat apply iUnion_mono fun _ ↦ ?_

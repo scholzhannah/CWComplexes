@@ -74,8 +74,9 @@ instance instCWComplexsingleton (x : X) : CWComplex {x} := CWComplexFinite
         | (_ + 1) => i.elim
       | (_ + 1) => j.elim)
   (mapsto := fun n i ↦ match n with
-    | 0 => by simp only [Matrix.zero_empty, sphere_zero_dim_empty, not_lt_zero', iUnion_of_empty,
-      iUnion_empty, mapsTo_empty_iff]
+    | 0 => by simp only [Matrix.zero_empty, ne_eq, one_ne_zero, not_false_eq_true,
+      sphere_eq_empty_of_subsingleton, not_lt_zero', iUnion_of_empty, iUnion_empty,
+      mapsTo_empty_iff]
     | (_ + 1) => i.elim)
   (union' := by
     ext y
@@ -142,8 +143,10 @@ instance instCWComplexstandardinterval: CWComplex (Icc (-1) 1 : Set ℝ) := CWCo
     match n with
     | 0 =>
       match i with
-      | 0 => by simp only [Matrix.empty_eq, closedBall_zero_dim_singleton, continuousOn_singleton]
-      | 1 => by simp only [Matrix.empty_eq, closedBall_zero_dim_singleton, continuousOn_singleton]
+      | 0 => by simp only [Matrix.empty_eq, zero_le_one, closedBall_eq_singleton_of_subsingleton,
+        continuousOn_singleton]
+      | 1 => by simp only [Matrix.empty_eq, zero_le_one, closedBall_eq_singleton_of_subsingleton,
+        continuousOn_singleton]
     | 1 => ((IsometryEquiv.funUnique (Fin 1) ℝ).continuous).continuousOn
     | (_ + 2) => i.elim
   )
@@ -207,8 +210,8 @@ instance instCWComplexstandardinterval: CWComplex (Icc (-1) 1 : Set ℝ) := CWCo
   )
   (mapsto := fun n i ↦ match n with
     | 0 => match i with
-      | 0 => by simp [sphere_zero_dim_empty]
-      | 1 => by simp [sphere_zero_dim_empty]
+      | 0 => by simp [sphere_eq_empty_of_subsingleton]
+      | 1 => by simp [sphere_eq_empty_of_subsingleton]
     | 1 => by
       simp_rw [mapsTo', Equiv.toPartialEquivOfImageEq_apply, IsometryEquiv.coe_toEquiv,
         IsometryEquiv.image_sphere, IsometryEquiv.funUnique_toFun, Pi.zero_apply, Nat.lt_one_iff, iUnion_iUnion_eq_left, Matrix.zero_empty]

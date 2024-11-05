@@ -4,7 +4,7 @@ import CWcomplexes.Definition
 # Finite CW-complexes
 
 In this file we define what it means for a CW-complex to finite dimensional, of finite type or
-finite. We define constructors with relaxeed conditions for CW-complexes of finite type and
+finite. We define constructors with relaxed conditions for CW-complexes of finite type and
 finite CW-complexes.
 
 ## Main definitions

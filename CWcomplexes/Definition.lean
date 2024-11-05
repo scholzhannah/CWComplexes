@@ -231,7 +231,7 @@ lemma openCell_zero_eq_singleton {j : cell C 0} : openCell 0 j = {map 0 j ![]} :
   simp [openCell, Matrix.empty_eq]
 
 lemma cellFrontier_zero_eq_empty {j : cell C 0} : cellFrontier 0 j = ∅ := by
-  simp [cellFrontier, sphere_zero_dim_empty]
+  simp [cellFrontier, sphere_eq_empty_of_subsingleton]
 
 lemma isClosed [T2Space X] : IsClosed C := by
   rw [closed _ (by rfl)]
@@ -260,13 +260,13 @@ lemma iUnion_level_eq_level (n : ℕ∞) : ⋃ (m : ℕ) (_ : m < n + 1), level 
   constructor
   · intro ⟨i, hin, hiC⟩
     refine ⟨i + 1, ?_, hiC⟩
-    exact (ENat.add_finite_lt_add_finite_right ENat.one_ne_top).mpr hin
+    exact (ENat.add_lt_add_iff_right ENat.one_ne_top).mpr hin
   · intro ⟨i, hin, hiC⟩
     cases' i with i
     · refine ⟨0, ?_, levelaux_mono (by norm_num) hiC⟩
       exact ENat.add_one_pos
     · refine ⟨i, ?_, hiC⟩
-      exact (ENat.add_finite_lt_add_finite_right ENat.one_ne_top).mp hin
+      exact (ENat.add_lt_add_iff_right ENat.one_ne_top).mp hin
 
 lemma levelaux_succ_eq_levelaux_union_iUnion_closedCell (n : ℕ) :
     levelaux C (n + 1) = levelaux C n ∪ ⋃ (j : cell C n), closedCell n j := by
@@ -305,7 +305,7 @@ lemma iUnion_openCell_eq_levelaux (n : ℕ∞) :
       ⋃ (m : ℕ), ⋃ (_ : (m : ℕ∞) < ⊤), ⋃ j, openCell m j
       _ = ⋃ m, ⋃ (j : cell C m), openCell m j := by
         simp_rw [ENat.coe_lt_top, iUnion_true]
-      _ = ⋃ m, ⋃ l, ⋃ (_ : l < m), ⋃ (j : cell C l), openCell l j := (biSup_lt_eq_iSup _).symm
+      _ = ⋃ m, ⋃ l, ⋃ (_ : l < m), ⋃ (j : cell C l), openCell l j := biSup_lt_eq_iSup.symm
       _ = ⋃ (m : ℕ), levelaux C m := by
         apply iUnion_congr
         intro n
@@ -314,7 +314,7 @@ lemma iUnion_openCell_eq_levelaux (n : ℕ∞) :
       _ = ⋃ m, ⋃ l, ⋃ (_ : l < m), ⋃ (j : cell C l), closedCell l j := by
         unfold levelaux
         norm_cast
-      _ = ⋃ m, ⋃ (j : cell C m), closedCell m j := biSup_lt_eq_iSup _
+      _ = ⋃ m, ⋃ (j : cell C m), closedCell m j := biSup_lt_eq_iSup
       _ = levelaux C ⊤ := by rw [levelaux_top, union]
 
 lemma iUnion_openCell_eq_level (n : ℕ∞) :

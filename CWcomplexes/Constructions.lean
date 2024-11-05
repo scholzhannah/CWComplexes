@@ -34,7 +34,7 @@ instance CWComplex_levelaux (n : ℕ∞) : CWComplex (levelaux C n) where
   mapsto := by
     intro l ⟨i, lltn⟩
     obtain ⟨I, hI⟩ := cellFrontier_subset_finite_closedCell (C := C) l i
-    use fun (m : ℕ) ↦ (I m).subtype (fun j ↦ m < n)
+    use fun (m : ℕ) ↦ (I m).subtype (fun _ ↦ m < n)
     simp_rw [mapsTo', iUnion_subtype]
     apply subset_trans hI (iUnion_mono fun m ↦ iUnion_mono fun mltl ↦ iUnion_mono fun j ↦ ?_ )
     simp_all only [(Nat.cast_lt.2 mltl).trans lltn, Finset.mem_subtype, iUnion_true,

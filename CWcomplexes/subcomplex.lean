@@ -357,7 +357,7 @@ lemma cell_mem_finite_subcomplex (n : ℕ) (i : cell C n) :
   constructor
   · have : Finite (sub' ⇂ C) := finite_subcomplex_finite_iUnion_finite_subcomplex
       fun ⟨m, j⟩ ↦ (hsub m.1 m.2 j.1).1
-    exact finite_attach_cell (C := C) (finite := this) n.succ i _
+    exact finite_attach_cell (C := C) (finite := this) n.succ i _ _
   · simp only [attach_cell, subcomplex_iUnion_subcomplex, Subcomplex', mem_iUnion, Sigma.exists,
     Subtype.exists, exists_prop, setOf_or, sub', cw']
     right

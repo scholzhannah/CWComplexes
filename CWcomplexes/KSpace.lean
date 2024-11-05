@@ -323,4 +323,4 @@ lemma continuous_kification_of_continuous {X Y : Type*} [tX : TopologicalSpace X
   exact cont.continuousOn
 
 instance t2space_kification_of_t2space {X : Type*} [TopologicalSpace X] [a : T2Space X] :
-  T2Space (kification X) := T2Space.mono kification_le (t2 := a)
+  T2Space (kification X) := t2Space_antitone kification_le a
