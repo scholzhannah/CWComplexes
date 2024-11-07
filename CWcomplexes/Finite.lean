@@ -40,7 +40,7 @@ class Finite.{u} {X : Type u} [TopologicalSpace X] (C : Set X) [CWComplex C] : P
   /-- For some natural number `n` the type `cell C m` is empty for all `m ≥ n`.-/
   eventually_isEmpty_cell : ∀ᶠ n in Filter.atTop, IsEmpty (cell C n)
   /-- `cell C n` is finite for every `n`.-/
-  finite_cell (n : ℕ) : Finite (cell C n)
+  finite_cell (n : ℕ) : _root_.Finite (cell C n)
 
 /-- If we want to construct a CW-complex of finite type, we can add the condition `finite_cell` and
   relax the condition `mapsto`.-/
