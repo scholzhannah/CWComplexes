@@ -71,3 +71,19 @@ lemma affineHomeomorph_trans {𝕜 : Type*} [Field 𝕜] [NoZeroDivisors 𝕜] [
   ext
   simp_rw [Homeomorph.trans_apply, affineHomeomorph_apply]
   ring
+
+lemma isClosed_left_of_isClosed_union {X : Type*} [TopologicalSpace X] {A B : Set X}
+    (hAB : SeparatedNhds A B) (closedAB : IsClosed (A ∪ B)) : IsClosed A := by
+  obtain ⟨U, V, hU, hV, hAU, hBV, hUV⟩ := hAB
+  rw [← isOpen_compl_iff] at closedAB ⊢
+  suffices Aᶜ = (A ∪ B)ᶜ ∪ V by
+    rw [this]
+    exact closedAB.union hV
+  have : B ∩ Vᶜ = ∅ := by aesop
+  rw [← compl_inj_iff, Set.compl_union, compl_compl, compl_compl, Set.union_inter_distrib_right,
+    this, Set.union_empty, Set.left_eq_inter, Set.subset_compl_comm]
+  exact (hUV.mono_left hAU).subset_compl_left
+
+lemma isClosed_right_of_isClosed_union {X : Type*} [TopologicalSpace X] {A B : Set X}
+    (hAB : SeparatedNhds A B) (closedAB : IsClosed (A ∪ B)) : IsClosed B :=
+  isClosed_left_of_isClosed_union hAB.symm (Set.union_comm _ _ ▸ closedAB)

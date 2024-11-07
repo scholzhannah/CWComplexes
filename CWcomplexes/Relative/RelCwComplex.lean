@@ -196,6 +196,12 @@ lemma levelaux_mono {n m : ℕ∞} (h : m ≤ n) : levelaux C D m ⊆ levelaux C
 lemma level_mono {n m : ℕ∞} (h : m ≤ n) : level C D m ⊆ level C D n :=
   levelaux_mono (add_le_add_right h 1)
 
+lemma levelaux_subset_complex {n : ℕ∞} : levelaux C D n ⊆ C := by
+  simp_rw [← levelaux_top (C := C) (D := D)]
+  exact levelaux_mono (OrderTop.le_top n)
+
+lemma level_subset_complex {n : ℕ∞} : level C D n ⊆ C := levelaux_subset_complex
+
 lemma closedCell_subset_levelaux (n : ℕ) (j : cell C D n) :
     closedCell n j ⊆ levelaux C D (n + 1) := by
   intro x xmem
