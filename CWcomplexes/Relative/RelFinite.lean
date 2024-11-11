@@ -23,7 +23,7 @@ finite CW-complexes.
 
 open Metric Set
 
-namespace RelCWComplex
+namespace CWComplex
 
 /-- A CW-complex is finite dimensional if `cell C D n` is empty for all but finitely many `n`.-/
 class FiniteDimensional.{u} {X : Type u} [TopologicalSpace X] (C D : Set X) [RelCWComplex C D] :
@@ -58,6 +58,7 @@ def RelCWComplexFiniteType.{u} {X : Type u} [TopologicalSpace X] (C D : Set X)
       MapsTo (map n i) (sphere 0 1) (D ∪ ⋃ (m < n) (j : cell m), map m j '' closedBall 0 1))
     (closed' : ∀ (A : Set X) (asubc : A ⊆ C),
     ((∀ n j, IsClosed (A ∩ map n j '' closedBall 0 1)) ∧ IsClosed (A ∩ D)) → IsClosed A)
+    (isClosedBase : IsClosed D)
     (union' : D ∪ ⋃ (n : ℕ) (j : cell n), map n j '' closedBall 0 1 = C) :
     RelCWComplex C D where
   cell := cell
@@ -72,6 +73,7 @@ def RelCWComplexFiniteType.{u} {X : Type u} [TopologicalSpace X] (C D : Set X)
     simp only [Finite.mem_toFinset, mem_univ, iUnion_true]
     exact mapsto n i
   closed' := closed'
+  isClosedBase := isClosedBase
   union' := union'
 
 /-- If we want to construct a finite CW-complex we can add the conditions `eventually_isEmpty_cell`
@@ -89,6 +91,7 @@ def RelCWComplexFinite.{u} {X : Type u} [TopologicalSpace X] [T2Space X] (C D : 
     (disjointBase' : ∀ (n : ℕ) (i : cell n), Disjoint (map n i '' ball 0 1) D)
     (mapsto : ∀ (n : ℕ) (i : cell n),
       MapsTo (map n i) (sphere 0 1) (D ∪ ⋃ (m < n) (j : cell m), map m j '' closedBall 0 1))
+    (isClosedBase : IsClosed D)
     (union' : D ∪ ⋃ (n : ℕ) (j : cell n), map n j '' closedBall 0 1 = C) :
     RelCWComplex C D where
   cell := cell
@@ -123,6 +126,7 @@ def RelCWComplexFinite.{u} {X : Type u} [TopologicalSpace X] [T2Space X] (C D : 
       simp only [hN n h, iUnion_of_empty, mem_empty_iff_false] at xmem
     simp_rw [inter_union_distrib_left, inter_iUnion]
     exact h.2.union (isClosed_iUnion_of_finite (fun n ↦ isClosed_iUnion_of_finite (h.1 n.1)))
+  isClosedBase := isClosedBase
   union' := union'
 
 variable {X : Type*} [t : TopologicalSpace X] {C D : Set X} [RelCWComplex C D]

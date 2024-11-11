@@ -15,7 +15,7 @@ noncomputable section
 
 open Metric Set
 
-namespace RelCWComplex
+namespace CWComplex
 
 variable {X : Type*} [t : TopologicalSpace X] [T2Space X] {C D : Set X} [RelCWComplex C D]
 
@@ -23,7 +23,7 @@ section
 
 
 /-- `levelaux n` is a CW-complex for every `n : ℕ∞`.-/
-instance RelCWComplex_levelaux (n : ℕ∞) (hD : IsClosed D) : RelCWComplex (levelaux C D n) D where
+instance RelCWComplex_levelaux (n : ℕ∞) : RelCWComplex (levelaux C D n) D where
   cell l := {x : cell C D l // l < n}
   map l i := map (C := C) (D := D) l i
   source_eq l i:= source_eq (C := C) (D := D) l i
@@ -33,7 +33,7 @@ instance RelCWComplex_levelaux (n : ℕ∞) (hD : IsClosed D) : RelCWComplex (le
     simp_rw [PairwiseDisjoint, Set.Pairwise, Function.onFun, disjoint_iff_inter_eq_empty]
     intro ⟨a, ja, _⟩ _ ⟨b, jb, map_mk⟩ _ ne
     exact disjoint_openCell_of_ne (by aesop)
-  disjointBase' := fun l ⟨i, _⟩ ↦ disjointBase' l i
+  disjointBase' := fun l ⟨i, _⟩ ↦ disjointBase l i
   mapsto := by
     intro l ⟨i, lltn⟩
     obtain ⟨I, hI⟩ := cellFrontier_subset_finite_closedCell (C := C) l i
@@ -50,7 +50,7 @@ instance RelCWComplex_levelaux (n : ℕ∞) (hD : IsClosed D) : RelCWComplex (le
     -- and `levelaux_inter_openCell_eq_empty`.
     intro ⟨h1, h2⟩
     simp_rw [Subtype.forall] at h1
-    apply isClosed_of_isClosed_inter_openCell_or_isClosed_inter_closedCell this hD h2
+    apply isClosed_of_isClosed_inter_openCell_or_isClosed_inter_closedCell this h2
     intro m _ j
     by_cases mlt : m < n
     · exact Or.intro_right _ (h1 m j mlt)
@@ -58,6 +58,7 @@ instance RelCWComplex_levelaux (n : ℕ∞) (hD : IsClosed D) : RelCWComplex (le
     push_neg at mlt
     rw [← inter_eq_left.2 asublevel, inter_assoc, levelaux_inter_openCell_eq_empty mlt, inter_empty]
     exact isClosed_empty
+  isClosedBase := isClosedBase C
   union' := by
     congr
     apply iUnion_congr fun m ↦ ?_
@@ -65,14 +66,14 @@ instance RelCWComplex_levelaux (n : ℕ∞) (hD : IsClosed D) : RelCWComplex (le
     rfl
 
 /-- `level n` is a CW-complex for every `n : ℕ∞`.-/
-instance RelCWComplex_level (n : ℕ∞) (hD : IsClosed D) : RelCWComplex (level C D n) D :=
-  RelCWComplex_levelaux _ hD
+instance RelCWComplex_level (n : ℕ∞) : RelCWComplex (level C D n) D :=
+  RelCWComplex_levelaux _
 
 variable {E F : Set X} [RelCWComplex E F]
 
 /-- The union of two disjoint CW-complexes is again a CW-complex.-/
-def CWComplex_disjointUnion (disjoint : Disjoint C E) (hD : IsClosed D) (hF : IsClosed F)
-    (hDF : SeparatedNhds D F) : RelCWComplex (C ∪ E) (D ∪ F) where
+def CWComplex_disjointUnion (disjoint : Disjoint C E) (hDF : SeparatedNhds D F) :
+    RelCWComplex (C ∪ E) (D ∪ F) where
   cell n := Sum (cell C D n) (cell E F n)
   map n := Sum.elim (map (C := C) n) (map (C := E) n)
   source_eq n i := match i with
@@ -99,10 +100,10 @@ def CWComplex_disjointUnion (disjoint : Disjoint C E) (hD : IsClosed D) (hF : Is
   disjointBase' := by
     intro n cn
     rcases cn with cn | cn
-    · exact (disjointBase' (C := C) (D := D) _ _).union_right
+    · exact (disjointBase (C := C) (D := D) _ _).union_right
        (disjoint.mono (openCell_subset_complex _ _) base_subset_complex)
     · exact (disjoint.symm.mono (openCell_subset_complex n cn) base_subset_complex).union_right
-        (disjointBase' (C := E) (D := F) _ _)
+        (disjointBase (C := E) (D := F) _ _)
   mapsto n i := by
     classical
     rcases i with ic | id
@@ -134,20 +135,21 @@ def CWComplex_disjointUnion (disjoint : Disjoint C E) (hD : IsClosed D) (hF : Is
     rw [inter_union_distrib_left] at h2
     have : SeparatedNhds (A ∩ D) (A ∩ F) := hDF.mono inter_subset_right inter_subset_right
     apply IsClosed.union
-    · rw [closed hD (A ∩ C) inter_subset_right]
+    · rw [closed C D (A ∩ C) inter_subset_right]
       constructor
       · intro n j
         rw [inter_right_comm]
-        exact (h1 n (Sum.inl j)).inter (isClosed hD)
+        exact (h1 n (Sum.inl j)).inter (isClosed (D := D))
       · rw [inter_assoc, (inter_eq_right (s := C)).2 base_subset_complex]
         exact isClosed_left_of_isClosed_union this h2
-    · rw [closed hF (A ∩ E) inter_subset_right]
+    · rw [closed E F (A ∩ E) inter_subset_right]
       constructor
       · intro n j
         rw [inter_right_comm]
-        exact (h1 n (Sum.inr j)).inter (isClosed hF)
+        exact (h1 n (Sum.inr j)).inter (isClosed (D := F))
       · rw [inter_assoc, (inter_eq_right (s := E)).2 base_subset_complex]
         exact isClosed_right_of_isClosed_union this h2
+  isClosedBase := (isClosedBase C).union (isClosedBase E)
   union' := by
     simp_rw [← union (C := C) (D := D), ← union (C := E) (D := F), ← union_assoc,
       union_right_comm D _ F, union_assoc (D ∪ F), ← iUnion_union_distrib, iUnion_sum]

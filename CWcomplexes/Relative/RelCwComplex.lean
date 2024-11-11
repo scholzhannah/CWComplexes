@@ -77,11 +77,15 @@ class RelCWComplex.{u} {X : Type u} [TopologicalSpace X] (C D : Set X) where
     every closed cell and `D` is closed. Use `closed` in the namespace `RelCWComplex` instead.-/
   closed' (A : Set X) (asubc : A ⊆ C) :
     ((∀ n j, IsClosed (A ∩ map n j '' closedBall 0 1)) ∧ IsClosed (A ∩ D)) → IsClosed A
+  /-- The base `D` is closed.-/
+  isClosedBase : IsClosed D
   /-- The union of all closed cells equals `C`. Use `union` in the namespace `RelCWComplex`
     instead.-/
   union' : D ∪ ⋃ (n : ℕ) (j : cell n), map n j '' closedBall 0 1 = C
 
-namespace RelCWComplex
+namespace CWComplex
+
+export RelCWComplex (cell map source_eq cont cont_symm mapsto isClosedBase)
 
 variable {X : Type*} [t : TopologicalSpace X] {C D : Set X} [RelCWComplex C D]
 
@@ -98,9 +102,11 @@ def closedCell (n : ℕ) (i : cell C D n) : Set X := map n i '' closedBall 0 1
 def cellFrontier (n : ℕ) (i : cell C D n) : Set X := map n i '' sphere 0 1
 
 lemma pairwiseDisjoint :
-  (univ : Set (Σ n, cell C D n)).PairwiseDisjoint (fun ni ↦ openCell ni.1 ni.2) := pairwiseDisjoint'
+    (univ : Set (Σ n, cell C D n)).PairwiseDisjoint (fun ni ↦ openCell ni.1 ni.2) :=
+  RelCWComplex.pairwiseDisjoint'
 
-lemma disjointBase (n : ℕ) (i : cell C D n) : Disjoint (openCell n i) D := disjointBase' n i
+lemma disjointBase (n : ℕ) (i : cell C D n) : Disjoint (openCell n i) D :=
+  RelCWComplex.disjointBase' n i
 
 lemma disjoint_openCell_of_ne {n m : ℕ} {i : cell C D n} {j : cell C D m}
     (ne : (⟨n, i⟩ : Σ n, cell C D n) ≠ ⟨m, j⟩) : openCell n i ∩ openCell m j = ∅ := by
@@ -116,7 +122,7 @@ lemma cellFrontier_subset_finite_closedCell (n : ℕ) (i : cell C D n) :
   rw [mapsTo'] at hI
   exact hI
 
-lemma union : D ∪ ⋃ (n : ℕ) (j : cell C D n), closedCell n j = C := union'
+lemma union : D ∪ ⋃ (n : ℕ) (j : cell C D n), closedCell n j = C := RelCWComplex.union'
 
 lemma openCell_subset_closedCell (n : ℕ) (i : cell C D n) : openCell n i ⊆ closedCell n i :=
   image_mono Metric.ball_subset_closedBall
@@ -171,15 +177,15 @@ lemma closure_openCell_eq_closedCell [T2Space X] {n : ℕ} {j : cell C D n} :
   rw [closure_ball 0 (by exact one_ne_zero)]
   exact cont n j
 
-lemma closed [T2Space X] (closedD : IsClosed D) (A : Set X) (asubc : A ⊆ C) :
+lemma closed (C D : Set X) [RelCWComplex C D] [T2Space X] (A : Set X) (asubc : A ⊆ C) :
     IsClosed A ↔ (∀ n (j : cell C D n), IsClosed (A ∩ closedCell n j)) ∧ IsClosed (A ∩ D) := by
   constructor
   · intro closedA
     constructor
     · intro n j
       exact closedA.inter isClosed_closedCell
-    · exact closedA.inter closedD
-  · exact closed' A asubc
+    · exact closedA.inter (isClosedBase C)
+  · exact RelCWComplex.closed' A asubc
 
 @[simp] lemma levelaux_top : levelaux C D ⊤ = C := by
   simp [levelaux, union]
@@ -267,14 +273,15 @@ lemma base_subset_complex : D ⊆ C := by
   simp_rw [← level_top (C := C) (D := D)]
   exact base_subset_level ⊤
 
-lemma isClosed [T2Space X] (closedD : IsClosed D) : IsClosed C := by
-  rw [closed closedD _ (by rfl)]
+-- I don't know why I need to add all the hypothesese again? I think new update on hypotheses...
+lemma isClosed [T2Space X] {D : Set X} [RelCWComplex C D] : IsClosed C := by
+  rw [closed (C := C) (D := D) C (by rfl)]
   constructor
   · intros
     rw [inter_eq_right.2 (closedCell_subset_complex _ _)]
     exact isClosed_closedCell
   · rw [inter_eq_right.2 base_subset_complex]
-    exact closedD
+    exact isClosedBase C
 
 lemma iUnion_levelaux_eq_levelaux (n : ℕ∞) :
     ⋃ (m : ℕ) (_ : m < n + 1), levelaux C D m = levelaux C D n := by
@@ -479,10 +486,10 @@ lemma isClosed_inter_cellFrontier_succ_of_le_isClosed_inter_closedCell [T2Space 
 /-- If for every cell either `A ∩ openCell n j` or `A ∩ closedCell n j` is closed then
   `A` is closed. -/
 lemma isClosed_of_isClosed_inter_openCell_or_isClosed_inter_closedCell [T2Space X] {A : Set X}
-    (asub : A ⊆ C) (hD : IsClosed D) (hDA : IsClosed (A ∩ D))
+    (asub : A ⊆ C) (hDA : IsClosed (A ∩ D))
     (h : ∀ n (_ : 0 < n), ∀ (j : cell C D n),
     IsClosed (A ∩ openCell n j) ∨ IsClosed (A ∩ closedCell n j)) : IsClosed A := by
-  rw [closed hD A asub]
+  rw [closed (C := C) (D := D) A asub]
   refine ⟨?_, hDA⟩
   intro n j
   induction' n using Nat.case_strong_induction_on with n hn

@@ -72,6 +72,8 @@ lemma affineHomeomorph_trans {𝕜 : Type*} [Field 𝕜] [NoZeroDivisors 𝕜] [
   simp_rw [Homeomorph.trans_apply, affineHomeomorph_apply]
   ring
 
+-- write an equivalence version
+
 lemma isClosed_left_of_isClosed_union {X : Type*} [TopologicalSpace X] {A B : Set X}
     (hAB : SeparatedNhds A B) (closedAB : IsClosed (A ∪ B)) : IsClosed A := by
   obtain ⟨U, V, hU, hV, hAU, hBV, hUV⟩ := hAB
