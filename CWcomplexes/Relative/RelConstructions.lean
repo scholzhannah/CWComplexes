@@ -157,3 +157,51 @@ def CWComplex_disjointUnion (disjoint : Disjoint C E) (hDF : SeparatedNhds D F) 
 
 
 end
+
+def RelCWComplex_of_Homeomorph.{u} {X Y : Type u} [TopologicalSpace X] [TopologicalSpace Y]
+    (C D : Set X) (E F : Set Y) [RelCWComplex C D] (hC : IsClosed C) (hD : IsClosed D)
+    (f : PartialEquiv X Y) (hfC1 : f.source = C) (hfE1 : f.target = E) (hDF : f '' D = F)
+    (hfC2 : ContinuousOn f C) (hfE2 : ContinuousOn f.symm E)  :
+    RelCWComplex E F where
+  cell := cell C D
+  map n i := (map n i).trans f
+  source_eq n i := sorry
+  cont n i := by
+    apply hfC2.comp (cont n i)
+    rw [mapsTo']
+    exact closedCell_subset_complex n i
+  cont_symm n i := by
+    rw [PartialEquiv.coe_trans_symm, PartialEquiv.trans_target'', hfC1,
+      ← PartialEquiv.image_source_eq_target, source_eq n i, inter_eq_right.2
+      (by exact closedCell_subset_complex n i)]
+    refine ((cont_symm n i).comp (hfE2.mono ?_) ?_)
+    · rw [← hfE1, ← f.image_source_eq_target, hfC1]
+      exact image_mono (closedCell_subset_complex n i)
+    · rw [mapsTo', f.symm_image_image_of_subset_source
+        (by rw [hfC1]; exact closedCell_subset_complex n i), ← PartialEquiv.image_source_eq_target,
+        source_eq n i]
+  pairwiseDisjoint' := by
+    have := pairwiseDisjoint (C := C) (D := D)
+    simp only [PairwiseDisjoint, Set.Pairwise, mem_univ, ne_eq, Function.onFun,
+      PartialEquiv.coe_trans, Function.comp_apply, forall_const] at this ⊢
+    intro ⟨n, j⟩ ⟨m, i⟩ ne
+    simp only [PartialEquiv.coe_trans, Function.comp_apply, ← image_image]
+    refine (this ne).image ?_ (openCell_subset_complex n j) (openCell_subset_complex m i)
+    rw [← hfC1]
+    exact f.injOn
+  disjointBase' n i := by
+    simp only [PartialEquiv.coe_trans, Function.comp_apply, ← hDF, ← image_image]
+    refine (RelCWComplex.disjointBase' n i).image ?_ (openCell_subset_complex n i)
+      base_subset_complex
+    rw [← hfC1]
+    exact f.injOn
+  mapsto n i := by
+    obtain ⟨I, hI⟩ := mapsto (C := C) n i
+    use I
+    rw [mapsTo'] at hI ⊢
+    simp only [PartialEquiv.coe_trans, Function.comp_apply, ← image_image, ← image_iUnion (f := f),
+      preimage_union, ← hDF, ← image_union]
+    exact image_mono hI
+  closed' := sorry
+  isClosedBase := sorry -- does this even hold?
+  union' := sorry
