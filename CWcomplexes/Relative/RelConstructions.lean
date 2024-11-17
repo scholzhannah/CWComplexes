@@ -17,13 +17,13 @@ open Metric Set
 
 namespace CWComplex
 
-variable {X : Type*} [t : TopologicalSpace X] [T2Space X] {C D : Set X} [RelCWComplex C D]
+variable {X : Type*} [t : TopologicalSpace X] [T2Space X] {C D : Set X}
 
 section
 
 
 /-- `levelaux n` is a CW-complex for every `n : ℕ∞`.-/
-instance RelCWComplex_levelaux (n : ℕ∞) : RelCWComplex (levelaux C D n) D where
+instance RelCWComplex_levelaux [RelCWComplex C D] (n : ℕ∞) : RelCWComplex (levelaux C D n) D where
   cell l := {x : cell C D l // l < n}
   map l i := map (C := C) (D := D) l i
   source_eq l i:= source_eq (C := C) (D := D) l i
@@ -36,7 +36,7 @@ instance RelCWComplex_levelaux (n : ℕ∞) : RelCWComplex (levelaux C D n) D wh
   disjointBase' := fun l ⟨i, _⟩ ↦ disjointBase l i
   mapsto := by
     intro l ⟨i, lltn⟩
-    obtain ⟨I, hI⟩ := cellFrontier_subset_finite_closedCell (C := C) l i
+    obtain ⟨I, hI⟩ := cellFrontier_subset_base_union_finite_closedCell (C := C) l i
     use fun (m : ℕ) ↦ (I m).subtype (fun _ ↦ m < n)
     simp_rw [mapsTo', iUnion_subtype]
     refine subset_trans hI (union_subset_union_right _ ?_)
@@ -66,14 +66,12 @@ instance RelCWComplex_levelaux (n : ℕ∞) : RelCWComplex (levelaux C D n) D wh
     rfl
 
 /-- `level n` is a CW-complex for every `n : ℕ∞`.-/
-instance RelCWComplex_level (n : ℕ∞) : RelCWComplex (level C D n) D :=
+instance RelCWComplex_level [RelCWComplex C D] (n : ℕ∞) : RelCWComplex (level C D n) D :=
   RelCWComplex_levelaux _
 
-variable {E F : Set X} [RelCWComplex E F]
-
 /-- The union of two disjoint CW-complexes is again a CW-complex.-/
-def CWComplex_disjointUnion (disjoint : Disjoint C E) (hDF : SeparatedNhds D F) :
-    RelCWComplex (C ∪ E) (D ∪ F) where
+def RelCWComplex_disjointUnion [RelCWComplex C D] {E F : Set X} [RelCWComplex E F]
+    (disjoint : Disjoint C E) (hDF : SeparatedNhds D F) : RelCWComplex (C ∪ E) (D ∪ F) where
   cell n := Sum (cell C D n) (cell E F n)
   map n := Sum.elim (map (C := C) n) (map (C := E) n)
   source_eq n i := match i with
@@ -107,7 +105,7 @@ def CWComplex_disjointUnion (disjoint : Disjoint C E) (hDF : SeparatedNhds D F) 
   mapsto n i := by
     classical
     rcases i with ic | id
-    · obtain ⟨I, hI⟩ := cellFrontier_subset_finite_closedCell n ic
+    · obtain ⟨I, hI⟩ := cellFrontier_subset_base_union_finite_closedCell n ic
       use fun m ↦ (I m).image Sum.inl
       rw [mapsTo', union_assoc]
       apply hI.trans
@@ -115,7 +113,7 @@ def CWComplex_disjointUnion (disjoint : Disjoint C E) (hDF : SeparatedNhds D F) 
       apply subset_union_of_subset_right
       simp only [Finset.mem_image, iUnion_exists, biUnion_and', iUnion_iUnion_eq_right]
       rfl
-    · obtain ⟨I, hI⟩ := cellFrontier_subset_finite_closedCell n id
+    · obtain ⟨I, hI⟩ := cellFrontier_subset_base_union_finite_closedCell n id
       use fun m ↦ (I m).image Sum.inr
       rw [mapsTo', union_comm D, union_assoc]
       apply hI.trans
@@ -155,6 +153,71 @@ def CWComplex_disjointUnion (disjoint : Disjoint C E) (hDF : SeparatedNhds D F) 
       union_right_comm D _ F, union_assoc (D ∪ F), ← iUnion_union_distrib, iUnion_sum]
     rfl
 
+-- how should this be done? Should it use
+
+-- The union of two disjoint CW-complexes is again a CW-complex.-/
+def CWComplex_disjointUnion [CWComplex C] [CWComplex E] (disjoint : Disjoint C E) :
+    CWComplex (C ∪ E) := CWComplex.mk (C ∪ E)
+  (cell := fun n ↦ Sum (cell C ∅ n) (cell E ∅ n))
+  (map := fun n ↦ Sum.elim (map (C := C) n) (map (C := E) n))
+  (source_eq := fun n i ↦ match i with
+    | Sum.inl x => source_eq n x
+    | Sum.inr x => source_eq n x)
+  (cont := fun n i ↦ match i with
+    | Sum.inl x => cont n x
+    | Sum.inr x => cont n x)
+  (cont_symm := fun n i ↦ match i with
+    | Sum.inl x => cont_symm n x
+    | Sum.inr x => cont_symm n x)
+  (pairwiseDisjoint' := by
+    simp_rw [PairwiseDisjoint, Set.Pairwise, Function.onFun, disjoint_iff_inter_eq_empty]
+    intro ⟨n, cn⟩ _ ⟨m, cm⟩ _ ne
+    rcases cn with cn | cn
+    rcases cm with cm | cm
+    · exact disjoint_openCell_of_ne (by aesop)
+    · exact subset_eq_empty (inter_subset_inter (openCell_subset_complex n cn)
+        (openCell_subset_complex m cm)) (disjoint_iff_inter_eq_empty.1 disjoint)
+    rcases cm with cm | cm
+    · exact subset_eq_empty (inter_subset_inter (openCell_subset_complex n cn)
+        (openCell_subset_complex m cm)) (disjoint_iff_inter_eq_empty.1 (disjoint_comm.1 disjoint))
+    · exact disjoint_openCell_of_ne (by aesop))
+  (mapsto := by
+    classical
+    intro n i
+    rcases i with ic | id
+    · obtain ⟨I, hI⟩ := cellFrontier_subset_finite_closedCell n ic
+      use fun m ↦ (I m).image Sum.inl
+      rw [mapsTo']
+      apply hI.trans
+      simp only [Finset.mem_image, iUnion_exists, biUnion_and', iUnion_iUnion_eq_right]
+      rfl
+    · obtain ⟨I, hI⟩ := cellFrontier_subset_finite_closedCell n id
+      use fun m ↦ (I m).image Sum.inr
+      rw [mapsTo']
+      apply hI.trans
+      simp only [Finset.mem_image, iUnion_exists, biUnion_and', iUnion_iUnion_eq_right]
+      rfl)
+  (closed' := by
+    intro A Asub h
+    -- We show closedness separately for `A ∩ C` and `A ∩ D` which then follow from
+    -- the property `closed'` of `C` and `D`.
+    suffices IsClosed ((A ∩ C) ∪ (A ∩ E)) by
+      convert this using 1
+      simp only [union_inter_distrib_left, union_eq_right.2 inter_subset_left,
+        inter_union_distrib_right, left_eq_inter, subset_inter_iff, subset_union_left, Asub,
+        and_self]
+    apply IsClosed.union
+    · rw [closedAB C (A ∩ C) inter_subset_right]
+      intro n j
+      rw [inter_right_comm]
+      exact (h n (Sum.inl j)).inter (isClosed (C := C) (D := ∅))
+    · rw [closedAB E (A ∩ E) inter_subset_right]
+      intro n j
+      rw [inter_right_comm]
+      exact (h n (Sum.inr j)).inter (isClosed (C := E) (D := ∅)))
+  (union' := by
+    simp_rw [← unionAB (C := C), ← unionAB (C := E), ← iUnion_union_distrib, iUnion_sum]
+    rfl)
 
 end
 

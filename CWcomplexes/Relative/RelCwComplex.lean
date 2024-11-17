@@ -83,38 +83,74 @@ class RelCWComplex.{u} {X : Type u} [TopologicalSpace X] (C D : Set X) where
     instead.-/
   union' : D ∪ ⋃ (n : ℕ) (j : cell n), map n j '' closedBall 0 1 = C
 
+abbrev CWComplex {X : Type*} [TopologicalSpace X] (C : Set X) := RelCWComplex C ∅
+
+def CWComplex.mk {X : Type u} [TopologicalSpace X] (C : Set X)
+    (cell : (n : ℕ) → Type u) (map : (n : ℕ)  → (i : cell n) → PartialEquiv (Fin n → ℝ) X)
+    (source_eq : ∀ (n : ℕ) (i : cell n), (map n i).source = closedBall 0 1)
+    (cont : ∀ (n : ℕ) (i : cell n), ContinuousOn (map n i) (closedBall 0 1))
+    (cont_symm : ∀ (n : ℕ) (i : cell n), ContinuousOn (map n i).symm (map n i).target)
+    (pairwiseDisjoint' :
+      (univ : Set (Σ n, cell n)).PairwiseDisjoint (fun ni ↦ map ni.1 ni.2 '' ball 0 1))
+    (mapsto: ∀ n i, ∃ I : Π m, Finset (cell m),
+      MapsTo (map n i) (sphere 0 1) (⋃ (m < n) (j ∈ I m), map m j '' closedBall 0 1))
+    (closed' : ∀ (A : Set X), (asubc : A ⊆ C) →
+      (∀ n j, IsClosed (A ∩ map n j '' closedBall 0 1)) → IsClosed A)
+    (union' : ⋃ (n : ℕ) (j : cell n), map n j '' closedBall 0 1 = C) : CWComplex C where
+  cell := cell
+  map := map
+  source_eq := source_eq
+  cont := cont
+  cont_symm := cont_symm
+  pairwiseDisjoint' := pairwiseDisjoint'
+  disjointBase' := by simp only [disjoint_empty, implies_true]
+  mapsto := by simpa only [empty_union]
+  closed' := by simpa only [inter_empty, isClosed_empty, and_true]
+  isClosedBase := isClosed_empty
+  union' := by simpa only [empty_union]
+
+-- this does not do what I want it to do
+-- abbrev cell {X : Type*} [TopologicalSpace X] (C : Set X) [CWComplex C] (n : ℕ) :=
+--  RelCWComplex.cell C ∅ n
+
 namespace CWComplex
 
 export RelCWComplex (cell map source_eq cont cont_symm mapsto isClosedBase)
 
-variable {X : Type*} [t : TopologicalSpace X] {C D : Set X} [RelCWComplex C D]
+variable {X : Type*} [t : TopologicalSpace X] {C D : Set X}
 
 /-- The open `n`-cell given by the index `i`. Use this instead of `map n i '' ball 0 1` whenever
   possible.-/
-def openCell (n : ℕ) (i : cell C D n) : Set X := map n i '' ball 0 1
+def openCell [RelCWComplex C D] (n : ℕ) (i : cell C D n) : Set X := map n i '' ball 0 1
 
 /-- The closed `n`-cell given by the index `i`. Use this instead of `map n i '' closedBall 0 1
   whenever possible.`-/
-def closedCell (n : ℕ) (i : cell C D n) : Set X := map n i '' closedBall 0 1
+def closedCell [RelCWComplex C D] (n : ℕ) (i : cell C D n) : Set X := map n i '' closedBall 0 1
 
 /-- The edge of the `n`-cell given by the index `i`. Use this instead of `map n i '' sphere 0 1`
   whenever possible. -/
-def cellFrontier (n : ℕ) (i : cell C D n) : Set X := map n i '' sphere 0 1
+def cellFrontier [RelCWComplex C D] (n : ℕ) (i : cell C D n) : Set X := map n i '' sphere 0 1
 
-lemma pairwiseDisjoint :
+lemma mapstoAB [CWComplex C] (n : ℕ) (i : cell C ∅ n) : ∃ I : Π m, Finset (cell C ∅ m),
+    MapsTo (map n i) (sphere 0 1) (⋃ (m < n) (j ∈ I m), map m j '' closedBall 0 1) := by
+  have := mapsto n i
+  simp_rw [empty_union] at this
+  exact this
+
+lemma pairwiseDisjoint [RelCWComplex C D] :
     (univ : Set (Σ n, cell C D n)).PairwiseDisjoint (fun ni ↦ openCell ni.1 ni.2) :=
   RelCWComplex.pairwiseDisjoint'
 
-lemma disjointBase (n : ℕ) (i : cell C D n) : Disjoint (openCell n i) D :=
+lemma disjointBase [RelCWComplex C D] (n : ℕ) (i : cell C D n) : Disjoint (openCell n i) D :=
   RelCWComplex.disjointBase' n i
 
-lemma disjoint_openCell_of_ne {n m : ℕ} {i : cell C D n} {j : cell C D m}
+lemma disjoint_openCell_of_ne [RelCWComplex C D] {n m : ℕ} {i : cell C D n} {j : cell C D m}
     (ne : (⟨n, i⟩ : Σ n, cell C D n) ≠ ⟨m, j⟩) : openCell n i ∩ openCell m j = ∅ := by
   have := pairwiseDisjoint (C := C) (D := D)
   simp only [PairwiseDisjoint, Set.Pairwise, Function.onFun, disjoint_iff_inter_eq_empty] at this
   exact this (mem_univ _) (mem_univ _) ne
 
-lemma cellFrontier_subset_finite_closedCell (n : ℕ) (i : cell C D n) :
+lemma cellFrontier_subset_base_union_finite_closedCell [RelCWComplex C D] (n : ℕ) (i : cell C D n) :
     ∃ I : Π m, Finset (cell C D m), cellFrontier n i ⊆
     D ∪ ⋃ (m < n) (j ∈ I m), closedCell m j := by
   rcases mapsto n i with ⟨I, hI⟩
@@ -122,25 +158,40 @@ lemma cellFrontier_subset_finite_closedCell (n : ℕ) (i : cell C D n) :
   rw [mapsTo'] at hI
   exact hI
 
-lemma union : D ∪ ⋃ (n : ℕ) (j : cell C D n), closedCell n j = C := RelCWComplex.union'
+lemma cellFrontier_subset_finite_closedCell [CWComplex C] (n : ℕ) (i : cell C ∅ n) :
+    ∃ I : Π m, Finset (cell C ∅ m), cellFrontier n i ⊆ ⋃ (m < n) (j ∈ I m), closedCell m j := by
+  rcases mapsto n i with ⟨I, hI⟩
+  use I
+  rw [mapsTo', empty_union] at hI
+  exact hI
 
-lemma openCell_subset_closedCell (n : ℕ) (i : cell C D n) : openCell n i ⊆ closedCell n i :=
-  image_mono Metric.ball_subset_closedBall
+lemma union [RelCWComplex C D] : D ∪ ⋃ (n : ℕ) (j : cell C D n), closedCell n j = C :=
+  RelCWComplex.union'
 
-lemma cellFrontier_subset_closedCell (n : ℕ) (i : cell C D n) : cellFrontier n i ⊆ closedCell n i :=
-  image_mono Metric.sphere_subset_closedBall
+lemma unionAB [CWComplex C] : ⋃ (n : ℕ) (j : cell C ∅ n), closedCell n j = C := by
+  have := RelCWComplex.union' (C := C) (D := ∅)
+  rw [empty_union] at this
+  exact this
 
-lemma cellFrontier_union_openCell_eq_closedCell (n : ℕ) (i : cell C D n) :
+lemma openCell_subset_closedCell [RelCWComplex C D] (n : ℕ) (i : cell C D n) :
+    openCell n i ⊆ closedCell n i := image_mono Metric.ball_subset_closedBall
+
+lemma cellFrontier_subset_closedCell [RelCWComplex C D] (n : ℕ) (i : cell C D n) :
+    cellFrontier n i ⊆ closedCell n i := image_mono Metric.sphere_subset_closedBall
+
+lemma cellFrontier_union_openCell_eq_closedCell [RelCWComplex C D] (n : ℕ) (i : cell C D n) :
     cellFrontier n i ∪ openCell n i = closedCell n i := by
   rw [cellFrontier, openCell, closedCell, ← image_union]
   congrm map n i '' ?_
   exact sphere_union_ball
 
-lemma map_zero_mem_openCell (n : ℕ) (i : cell C D n) : map n i 0 ∈ openCell n i := by
+lemma map_zero_mem_openCell [RelCWComplex C D] (n : ℕ) (i : cell C D n) :
+    map n i 0 ∈ openCell n i := by
   apply mem_image_of_mem
   simp only [mem_ball, dist_self, zero_lt_one]
 
-lemma map_zero_mem_closedCell (n : ℕ) (i : cell C D n) : map n i 0 ∈ closedCell n i :=
+lemma map_zero_mem_closedCell [RelCWComplex C D] (n : ℕ) (i : cell C D n) :
+    map n i 0 ∈ closedCell n i :=
   openCell_subset_closedCell _ _ (map_zero_mem_openCell _ _)
 
 /-- A non-standard definition of the `n`-th level of a CW-complex for `n ∈ ℕ ∪ ∞` useful for
@@ -154,22 +205,27 @@ def levelaux (C D : Set X) [RelCWComplex C D] (n : ℕ∞) : Set X :=
 def level (C D : Set X) [RelCWComplex C D] (n : ℕ∞) : Set X :=
   levelaux C D (n + 1)
 
-lemma levelaux_zero_eq_base : levelaux C D 0 = D := by
+lemma levelaux_zero_eq_base [RelCWComplex C D] : levelaux C D 0 = D := by
   simp only [levelaux, ENat.not_lt_zero, iUnion_of_empty, iUnion_empty, union_empty]
 
-lemma isCompact_closedCell {n : ℕ} {i : cell C D n} : IsCompact (closedCell n i) :=
-  (isCompact_closedBall _ _).image_of_continuousOn (cont n i)
+-- is this lemma useful? Probably not...
+lemma levelaux_zero_eq_empty [CWComplex C] : levelaux C ∅ 0 = ∅ := levelaux_zero_eq_base
 
-lemma isClosed_closedCell [T2Space X] {n : ℕ} {i : cell C D n} :
+lemma isCompact_closedCell [RelCWComplex C D] {n : ℕ} {i : cell C D n} :
+    IsCompact (closedCell n i) := (isCompact_closedBall _ _).image_of_continuousOn (cont n i)
+
+lemma isClosed_closedCell [RelCWComplex C D] [T2Space X] {n : ℕ} {i : cell C D n} :
   IsClosed (closedCell n i) := isCompact_closedCell.isClosed
 
-lemma isCompact_cellFrontier {n : ℕ} {i : cell C D n} : IsCompact (cellFrontier n i) :=
+lemma isCompact_cellFrontier [RelCWComplex C D] {n : ℕ} {i : cell C D n} :
+    IsCompact (cellFrontier n i) :=
   (isCompact_sphere _ _).image_of_continuousOn ((cont n i).mono sphere_subset_closedBall)
 
-lemma isClosed_cellFrontier [T2Space X] {n : ℕ} {i : cell C D n} : IsClosed (cellFrontier n i) :=
+lemma isClosed_cellFrontier [RelCWComplex C D] [T2Space X] {n : ℕ} {i : cell C D n} :
+    IsClosed (cellFrontier n i) :=
   isCompact_cellFrontier.isClosed
 
-lemma closure_openCell_eq_closedCell [T2Space X] {n : ℕ} {j : cell C D n} :
+lemma closure_openCell_eq_closedCell [RelCWComplex C D] [T2Space X] {n : ℕ} {j : cell C D n} :
     closure (openCell n j) = closedCell n j := by
   apply subset_antisymm (isClosed_closedCell.closure_subset_iff.2 (openCell_subset_closedCell n j))
   rw [closedCell, ← closure_ball 0 (by exact one_ne_zero)]
@@ -187,54 +243,63 @@ lemma closed (C D : Set X) [RelCWComplex C D] [T2Space X] (A : Set X) (asubc : A
     · exact closedA.inter (isClosedBase C)
   · exact RelCWComplex.closed' A asubc
 
-@[simp] lemma levelaux_top : levelaux C D ⊤ = C := by
+lemma closedAB (C : Set X) [CWComplex C] [T2Space X] (A : Set X) (asubc : A ⊆ C) :
+    IsClosed A ↔ ∀ n (j : cell C ∅ n), IsClosed (A ∩ closedCell n j) := by
+  have := closed C ∅ A asubc
+  simp_all
+
+@[simp] lemma levelaux_top [RelCWComplex C D] : levelaux C D ⊤ = C := by
   simp [levelaux, union]
 
-@[simp] lemma level_top : level C D ⊤ = C := levelaux_top
+@[simp] lemma level_top [RelCWComplex C D] : level C D ⊤ = C := levelaux_top
 
-lemma levelaux_mono {n m : ℕ∞} (h : m ≤ n) : levelaux C D m ⊆ levelaux C D n := by
+lemma levelaux_mono [RelCWComplex C D] {n m : ℕ∞} (h : m ≤ n) :
+    levelaux C D m ⊆ levelaux C D n := by
   apply union_subset_union_right
   intro x xmem
   simp_rw [mem_iUnion, exists_prop] at xmem ⊢
   obtain ⟨l , lltm, xmeml⟩ := xmem
   exact ⟨l, lt_of_lt_of_le lltm h, xmeml⟩
 
-lemma level_mono {n m : ℕ∞} (h : m ≤ n) : level C D m ⊆ level C D n :=
+lemma level_mono [RelCWComplex C D] {n m : ℕ∞} (h : m ≤ n) : level C D m ⊆ level C D n :=
   levelaux_mono (add_le_add_right h 1)
 
-lemma levelaux_subset_complex {n : ℕ∞} : levelaux C D n ⊆ C := by
+lemma levelaux_subset_complex [RelCWComplex C D] {n : ℕ∞} : levelaux C D n ⊆ C := by
   simp_rw [← levelaux_top (C := C) (D := D)]
   exact levelaux_mono (OrderTop.le_top n)
 
-lemma level_subset_complex {n : ℕ∞} : level C D n ⊆ C := levelaux_subset_complex
+lemma level_subset_complex [RelCWComplex C D] {n : ℕ∞} : level C D n ⊆ C := levelaux_subset_complex
 
-lemma closedCell_subset_levelaux (n : ℕ) (j : cell C D n) :
+lemma closedCell_subset_levelaux [RelCWComplex C D] (n : ℕ) (j : cell C D n) :
     closedCell n j ⊆ levelaux C D (n + 1) := by
   intro x xmem
   right
   simp_rw [mem_iUnion, exists_prop]
   refine ⟨n, (by norm_cast; exact lt_add_one n), ⟨j,xmem⟩⟩
 
-lemma closedCell_subset_level (n : ℕ) (j : cell C D n) : closedCell n j ⊆ level C D n :=
+lemma closedCell_subset_level [RelCWComplex C D] (n : ℕ) (j : cell C D n) :
+    closedCell n j ⊆ level C D n :=
   closedCell_subset_levelaux n j
 
-lemma closedCell_subset_complex (n : ℕ) (j : cell C D n) : closedCell n j ⊆ C :=
+lemma closedCell_subset_complex [RelCWComplex C D] (n : ℕ) (j : cell C D n) : closedCell n j ⊆ C :=
   (closedCell_subset_level n j).trans
     (by simp_rw [← level_top (C := C) (D := D)]; exact level_mono le_top)
 
-lemma openCell_subset_levelaux (n : ℕ) (j : cell C D n) : openCell n j ⊆ levelaux C D (n + 1) :=
+lemma openCell_subset_levelaux [RelCWComplex C D] (n : ℕ) (j : cell C D n) :
+    openCell n j ⊆ levelaux C D (n + 1) :=
   (openCell_subset_closedCell _ _).trans (closedCell_subset_levelaux _ _ )
 
-lemma openCell_subset_level (n : ℕ) (j : cell C D n) : openCell n j ⊆ level C D n :=
+lemma openCell_subset_level [RelCWComplex C D] (n : ℕ) (j : cell C D n) :
+    openCell n j ⊆ level C D n :=
   (openCell_subset_closedCell _ _).trans (closedCell_subset_level _ _)
 
-lemma openCell_subset_complex (n : ℕ) (j : cell C D n) : openCell n j ⊆ C := by
+lemma openCell_subset_complex [RelCWComplex C D] (n : ℕ) (j : cell C D n) : openCell n j ⊆ C := by
   apply subset_trans (openCell_subset_level _ _)
     (by simp_rw [← level_top (C := C) (D := D)]; exact level_mono le_top)
 
-lemma cellFrontier_subset_levelaux (n : ℕ) (j : cell C D n) :
-    cellFrontier n j ⊆  levelaux C D n := by
-  obtain ⟨I, hI⟩ := cellFrontier_subset_finite_closedCell n j
+lemma cellFrontier_subset_levelaux [RelCWComplex C D] (n : ℕ) (j : cell C D n) :
+    cellFrontier n j ⊆ levelaux C D n := by
+  obtain ⟨I, hI⟩ := cellFrontier_subset_base_union_finite_closedCell n j
   refine subset_trans hI (fun x xmem ↦ ?_)
   rcases xmem with xmem | xmem
   · left
@@ -244,37 +309,39 @@ lemma cellFrontier_subset_levelaux (n : ℕ) (j : cell C D n) :
     obtain ⟨i, iltn, j, _, xmem⟩ := xmem
     exact ⟨i, by norm_cast, j, xmem⟩
 
-lemma cellFrontier_subset_level (n : ℕ) (j : cell C D (n + 1)) :
+lemma cellFrontier_subset_level [RelCWComplex C D] (n : ℕ) (j : cell C D (n + 1)) :
     cellFrontier (n + 1) j ⊆ level C D n :=
   cellFrontier_subset_levelaux _ _
 
-lemma iUnion_cellFrontier_subset_levelaux (l : ℕ) :
+lemma iUnion_cellFrontier_subset_levelaux [RelCWComplex C D] (l : ℕ) :
     ⋃ (j : cell C D l), cellFrontier l j ⊆ levelaux C D l :=
   iUnion_subset  (fun _ ↦ cellFrontier_subset_levelaux _ _)
 
-lemma iUnion_cellFrontier_subset_level (l : ℕ) :
+lemma iUnion_cellFrontier_subset_level [RelCWComplex C D] (l : ℕ) :
     ⋃ (j : cell C D l), cellFrontier l j ⊆ level C D l :=
   (iUnion_cellFrontier_subset_levelaux l).trans (levelaux_mono le_self_add)
 
-lemma closedCell_zero_eq_singleton {j : cell C D 0} : closedCell 0 j = {map 0 j ![]} := by
+lemma closedCell_zero_eq_singleton [RelCWComplex C D] {j : cell C D 0} :
+    closedCell 0 j = {map 0 j ![]} := by
   simp [closedCell, Matrix.empty_eq]
 
-lemma openCell_zero_eq_singleton {j : cell C D 0} : openCell 0 j = {map 0 j ![]} := by
+lemma openCell_zero_eq_singleton [RelCWComplex C D] {j : cell C D 0} :
+    openCell 0 j = {map 0 j ![]} := by
   simp [openCell, Matrix.empty_eq]
 
-lemma cellFrontier_zero_eq_empty {j : cell C D 0} : cellFrontier 0 j = ∅ := by
+lemma cellFrontier_zero_eq_empty [RelCWComplex C D] {j : cell C D 0} : cellFrontier 0 j = ∅ := by
   simp [cellFrontier, sphere_eq_empty_of_subsingleton]
 
-lemma base_subset_levelaux (n : ℕ∞) : D ⊆ levelaux C D n := subset_union_left
+lemma base_subset_levelaux [RelCWComplex C D] (n : ℕ∞) : D ⊆ levelaux C D n := subset_union_left
 
-lemma base_subset_level (n : ℕ∞) : D ⊆ level C D n := base_subset_levelaux (n + 1)
+lemma base_subset_level [RelCWComplex C D] (n : ℕ∞) : D ⊆ level C D n :=
+  base_subset_levelaux (n + 1)
 
-lemma base_subset_complex : D ⊆ C := by
+lemma base_subset_complex [RelCWComplex C D] : D ⊆ C := by
   simp_rw [← level_top (C := C) (D := D)]
   exact base_subset_level ⊤
 
--- I don't know why I need to add all the hypothesese again? I think new update on hypotheses...
-lemma isClosed [T2Space X] {D : Set X} [RelCWComplex C D] : IsClosed C := by
+lemma isClosed [T2Space X] [RelCWComplex C D] : IsClosed C := by
   rw [closed (C := C) (D := D) C (by rfl)]
   constructor
   · intros
@@ -283,7 +350,7 @@ lemma isClosed [T2Space X] {D : Set X} [RelCWComplex C D] : IsClosed C := by
   · rw [inter_eq_right.2 base_subset_complex]
     exact isClosedBase C
 
-lemma iUnion_levelaux_eq_levelaux (n : ℕ∞) :
+lemma iUnion_levelaux_eq_levelaux [RelCWComplex C D] (n : ℕ∞) :
     ⋃ (m : ℕ) (_ : m < n + 1), levelaux C D m = levelaux C D n := by
   apply subset_antisymm
   · simp_rw [iUnion_subset_iff]
@@ -305,7 +372,8 @@ lemma iUnion_levelaux_eq_levelaux (n : ℕ∞) :
       norm_cast
       simp
 
-lemma iUnion_level_eq_level (n : ℕ∞) : ⋃ (m : ℕ) (_ : m < n + 1), level C D m = level C D n := by
+lemma iUnion_level_eq_level [RelCWComplex C D] (n : ℕ∞) :
+    ⋃ (m : ℕ) (_ : m < n + 1), level C D m = level C D n := by
   simp_rw [level, ← iUnion_levelaux_eq_levelaux (n + 1)]
   ext
   simp only [mem_iUnion, exists_prop]
@@ -320,19 +388,19 @@ lemma iUnion_level_eq_level (n : ℕ∞) : ⋃ (m : ℕ) (_ : m < n + 1), level 
     · refine ⟨i, ?_, hiC⟩
       exact (ENat.add_lt_add_iff_right ENat.one_ne_top).mp hin
 
-lemma levelaux_succ_eq_levelaux_union_iUnion_closedCell (n : ℕ) :
+lemma levelaux_succ_eq_levelaux_union_iUnion_closedCell [RelCWComplex C D] (n : ℕ) :
     levelaux C D (n + 1) = levelaux C D n ∪ ⋃ (j : cell C D n), closedCell n j := by
   rw [levelaux, levelaux, union_assoc]
   congr
   norm_cast
   exact biUnion_lt_succ _ _
 
-lemma level_succ_eq_level_union_iUnion (n : ℕ) :
+lemma level_succ_eq_level_union_iUnion [RelCWComplex C D] (n : ℕ) :
     level C D (n + 1) = level C D n ∪ ⋃ (j : cell C D (↑n + 1)), closedCell (n + 1) j :=
   levelaux_succ_eq_levelaux_union_iUnion_closedCell _
 
 /-- A version of the definition of `levelaux` with open cells. -/
-lemma iUnion_openCell_eq_levelaux (n : ℕ∞) :
+lemma iUnion_openCell_eq_levelaux [RelCWComplex C D] (n : ℕ∞) :
     D ∪ ⋃ (m : ℕ) (_ : m < n) (j : cell C D m), openCell m j = levelaux C D n := by
   induction' n using ENat.nat_induction with n hn hn
   · simp [levelaux]
@@ -382,16 +450,28 @@ lemma iUnion_openCell_eq_levelaux (n : ℕ∞) :
         exact biSup_lt_eq_iSup
       _ = levelaux C D ⊤ := by rw [levelaux_top, union]
 
-lemma iUnion_openCell_eq_level (n : ℕ∞) :
+lemma iUnion_openCell_eq_levelauxAB [CWComplex C] (n : ℕ∞) :
+    ⋃ (m : ℕ) (_ : m < n) (j : cell C ∅ m), openCell m j = levelaux C ∅ n := by
+  rw [← iUnion_openCell_eq_levelaux, empty_union]
+
+lemma iUnion_openCell_eq_level [RelCWComplex C D] (n : ℕ∞) :
     D ∪ ⋃ (m : ℕ) (_ : m < n + 1) (j : cell C D m), openCell m j = level C D n :=
   iUnion_openCell_eq_levelaux _
 
-lemma iUnion_openCell : D ∪ ⋃ (n : ℕ) (j : cell C D n), openCell n j = C := by
+lemma iUnion_openCell_eq_levelAB [CWComplex C] (n : ℕ∞) :
+    ⋃ (m : ℕ) (_ : m < n + 1) (j : cell C ∅ m), openCell m j = level C ∅ n :=
+  iUnion_openCell_eq_levelauxAB _
+
+lemma iUnion_openCell [RelCWComplex C D] : D ∪ ⋃ (n : ℕ) (j : cell C D n), openCell n j = C := by
   simp only [← levelaux_top (C := C) (D := D), ← iUnion_openCell_eq_levelaux,
     ENat.coe_lt_top, iUnion_true]
 
+lemma iUnion_openCellAB [CWComplex C] : ⋃ (n : ℕ) (j : cell C ∅ n), openCell n j = C := by
+  have := iUnion_openCell (C := C) (D := ∅)
+  simp_all
+
 /-- The contraposition of `disjoint_openCell_of_ne`.-/
-lemma eq_cell_of_not_disjoint {n : ℕ} {j : cell C D n} {m : ℕ} {i : cell C D m}
+lemma eq_cell_of_not_disjoint [RelCWComplex C D] {n : ℕ} {j : cell C D n} {m : ℕ} {i : cell C D m}
     (notdisjoint: ¬ Disjoint (openCell n j) (openCell m i)) :
     (⟨n, j⟩ : (Σ n, cell C D n)) = ⟨m, i⟩ := by
   by_contra h'
@@ -402,7 +482,8 @@ lemma eq_cell_of_not_disjoint {n : ℕ} {j : cell C D n} {m : ℕ} {i : cell C D
   exact this (x := ⟨n, j⟩) (mem_univ _) (y := ⟨m, i⟩) (mem_univ _) h'
 
 -- Alternatively I could add `x ∉ D` as a hypothesis
-lemma exists_mem_openCell_of_mem_levelaux {n : ℕ∞} {x : X} (xmemlvl : x ∈ levelaux C D n) :
+lemma exists_mem_openCell_of_mem_levelaux [RelCWComplex C D] {n : ℕ∞} {x : X}
+    (xmemlvl : x ∈ levelaux C D n) :
     x ∈ D ∨ ∃ (m : ℕ) (_ : m < n) (j : cell C D m), x ∈ openCell m j := by
   rw [← iUnion_openCell_eq_levelaux] at xmemlvl
   rcases xmemlvl with xmem | xmem
@@ -413,7 +494,15 @@ lemma exists_mem_openCell_of_mem_levelaux {n : ℕ∞} {x : X} (xmemlvl : x ∈ 
     obtain ⟨m, mltn, j, _⟩ := xmem
     use m, mltn, j
 
-lemma exists_mem_openCell_of_mem_level {n : ℕ∞} {x : X} (xmemlvl : x ∈ level C D n) :
+lemma exists_mem_openCell_of_mem_levelauxAB [CWComplex C] {n : ℕ∞} {x : X}
+    (xmemlvl : x ∈ levelaux C ∅ n) :
+    ∃ (m : ℕ) (_ : m < n) (j : cell C ∅ m), x ∈ openCell m j := by
+  rcases exists_mem_openCell_of_mem_levelaux (C := C) (D := ∅) (n := n) xmemlvl with h | h
+  · contradiction
+  · exact h
+
+lemma exists_mem_openCell_of_mem_level [RelCWComplex C D] {n : ℕ∞} {x : X}
+    (xmemlvl : x ∈ level C D n) :
     x ∈ D ∨ ∃ (m : ℕ) (_ : m ≤ n) (j : cell C D m), x ∈ openCell m j := by
   rw [level] at xmemlvl
   rcases exists_mem_openCell_of_mem_levelaux xmemlvl with xmem | xmem
@@ -423,9 +512,16 @@ lemma exists_mem_openCell_of_mem_level {n : ℕ∞} {x : X} (xmemlvl : x ∈ lev
     obtain ⟨m, mlen, _⟩ := xmem
     use m, Order.le_of_lt_add_one mlen
 
+lemma exists_mem_openCell_of_mem_levelAB [CWComplex C] {n : ℕ∞} {x : X}
+    (xmemlvl : x ∈ level C ∅ n) :
+    ∃ (m : ℕ) (_ : m ≤ n) (j : cell C ∅ m), x ∈ openCell m j := by
+  rcases exists_mem_openCell_of_mem_level (C := C) (D := ∅) (n := n) xmemlvl with h | h
+  · contradiction
+  · exact h
+
 /-- A level and an open cell of a higher dimension are disjoint -/
-lemma levelaux_inter_openCell_eq_empty {n : ℕ∞} {m : ℕ} {j : cell C D m} (nlem : n ≤ m) :
-    levelaux C D n ∩ openCell m j = ∅ := by
+lemma levelaux_inter_openCell_eq_empty [RelCWComplex C D] {n : ℕ∞} {m : ℕ} {j : cell C D m}
+    (nlem : n ≤ m) : levelaux C D n ∩ openCell m j = ∅ := by
   -- This is a consequence of `iUnion_openCell_eq_levelaux` and `disjoint_openCell_of_ne`
   simp_rw [← iUnion_openCell_eq_levelaux, union_inter_distrib_right, iUnion_inter, union_empty_iff,
     iUnion_eq_empty]
@@ -443,14 +539,16 @@ lemma levelaux_inter_openCell_eq_empty {n : ℕ∞} {m : ℕ} {j : cell C D m} (
   exact LT.lt.false (LT.lt.trans_le llt nlem)
 
 /-- A level and an open cell of a higher dimension are disjoint -/
-lemma level_inter_openCell_eq_empty {n : ℕ∞} {m : ℕ} {j : cell C D m} (nlem : n < m) :
-    level C D n ∩ openCell m j = ∅ :=
+lemma level_inter_openCell_eq_empty [RelCWComplex C D] {n : ℕ∞} {m : ℕ} {j : cell C D m}
+    (nlem : n < m) : level C D n ∩ openCell m j = ∅ :=
   levelaux_inter_openCell_eq_empty (Order.add_one_le_of_lt nlem)
+
+-- here new lemma
 
 /-- A level intersected with a closed cell of a higher dimension is the level intersected with
   the edge of the cell.-/
-lemma levelaux_inter_closedCell_eq_levelaux_inter_cellFrontier {n : ℕ∞} {m : ℕ} {j : cell C D m}
-    (nlem : n ≤ m) :
+lemma levelaux_inter_closedCell_eq_levelaux_inter_cellFrontier [RelCWComplex C D] {n : ℕ∞} {m : ℕ}
+    {j : cell C D m} (nlem : n ≤ m) :
     levelaux C D n ∩ closedCell m j = levelaux C D n ∩ cellFrontier m j := by
   refine subset_antisymm ?_ (inter_subset_inter_right _ (cellFrontier_subset_closedCell _ _))
   rw [← cellFrontier_union_openCell_eq_closedCell, inter_union_distrib_left]
@@ -459,20 +557,20 @@ lemma levelaux_inter_closedCell_eq_levelaux_inter_cellFrontier {n : ℕ∞} {m :
   exact empty_subset (levelaux C D n ∩ cellFrontier m j)
 
 /-- Version of `levelaux_inter_openCell_eq_empty` using `level`.-/
-lemma level_inter_closedCell_eq_level_inter_cellFrontier {n : ℕ∞} {m : ℕ} {j : cell C D m}
-    (nltm : n < m) :
+lemma level_inter_closedCell_eq_level_inter_cellFrontier [RelCWComplex C D] {n : ℕ∞} {m : ℕ}
+    {j : cell C D m} (nltm : n < m) :
     level C D n ∩ closedCell m j = level C D n ∩ cellFrontier m j :=
   levelaux_inter_closedCell_eq_levelaux_inter_cellFrontier (Order.add_one_le_of_lt nltm)
 
 /-- If for all `m ≤ n` and every `i : cell C D m` the intersection `A ∩ closedCell m j` is closed
   and `A ∩ D` is closed then `A ∩ cellFrontier (n + 1) j` is closed for every
   `j : cell C D (n + 1)`.-/
-lemma isClosed_inter_cellFrontier_succ_of_le_isClosed_inter_closedCell [T2Space X] {A : Set X}
-    {n : ℕ} (hn : ∀ m ≤ n, ∀ (j : cell C D m),
+lemma isClosed_inter_cellFrontier_succ_of_le_isClosed_inter_closedCell [RelCWComplex C D]
+    [T2Space X] {A : Set X} {n : ℕ} (hn : ∀ m ≤ n, ∀ (j : cell C D m),
     IsClosed (A ∩ closedCell m j)) (j : cell C D (n + 1)) (hD : IsClosed (A ∩ D)) :
     IsClosed (A ∩ cellFrontier (n + 1) j) := by
   -- this is a consequence of `cellFrontier_subset_finite_closedCell`
-  obtain ⟨I, hI⟩ := cellFrontier_subset_finite_closedCell (n + 1) j
+  obtain ⟨I, hI⟩ := cellFrontier_subset_base_union_finite_closedCell (n + 1) j
   rw [← inter_eq_right.2 hI, ← inter_assoc]
   refine IsClosed.inter ?_ isClosed_cellFrontier
   simp_rw [inter_union_distrib_left, inter_iUnion,
@@ -483,10 +581,17 @@ lemma isClosed_inter_cellFrontier_succ_of_le_isClosed_inter_closedCell [T2Space 
   rw [← iUnion_subtype (fun i ↦ i ∈ I m) (fun i ↦ A ∩ closedCell (↑m) i.1)]
   exact isClosed_iUnion_of_finite (fun ⟨j, _⟩ ↦ hn m (Nat.le_of_lt_succ mlt) j)
 
+lemma isClosed_inter_cellFrontier_succ_of_le_isClosed_inter_closedCellAB [CWComplex C]
+    [T2Space X] {A : Set X} {n : ℕ} (hn : ∀ m ≤ n, ∀ (j : cell C ∅ m),
+    IsClosed (A ∩ closedCell m j)) (j : cell C ∅ (n + 1)) :
+    IsClosed (A ∩ cellFrontier (n + 1) j) :=
+  isClosed_inter_cellFrontier_succ_of_le_isClosed_inter_closedCell hn j (by simp only [inter_empty,
+    isClosed_empty])
+
 /-- If for every cell either `A ∩ openCell n j` or `A ∩ closedCell n j` is closed then
   `A` is closed. -/
-lemma isClosed_of_isClosed_inter_openCell_or_isClosed_inter_closedCell [T2Space X] {A : Set X}
-    (asub : A ⊆ C) (hDA : IsClosed (A ∩ D))
+lemma isClosed_of_isClosed_inter_openCell_or_isClosed_inter_closedCell [RelCWComplex C D]
+    [T2Space X] {A : Set X} (asub : A ⊆ C) (hDA : IsClosed (A ∩ D))
     (h : ∀ n (_ : 0 < n), ∀ (j : cell C D n),
     IsClosed (A ∩ openCell n j) ∨ IsClosed (A ∩ closedCell n j)) : IsClosed A := by
   rw [closed (C := C) (D := D) A asub]
@@ -501,10 +606,18 @@ lemma isClosed_of_isClosed_inter_openCell_or_isClosed_inter_closedCell [T2Space 
     exact (isClosed_inter_cellFrontier_succ_of_le_isClosed_inter_closedCell hn j hDA).union h1
   · exact h2
 
+/-- If for every cell either `A ∩ openCell n j` or `A ∩ closedCell n j` is closed then
+  `A` is closed. -/
+lemma isClosed_of_isClosed_inter_openCell_or_isClosed_inter_closedCellAB [CWComplex C]
+    [T2Space X] {A : Set X} (asub : A ⊆ C) (h : ∀ n (_ : 0 < n), ∀ (j : cell C ∅ n),
+    IsClosed (A ∩ openCell n j) ∨ IsClosed (A ∩ closedCell n j)) : IsClosed A :=
+  isClosed_of_isClosed_inter_openCell_or_isClosed_inter_closedCell asub (by simp only [inter_empty,
+    isClosed_empty]) h
 
 /-- A version of `cellFrontier_subset_finite_closedCell` using open cells: The edge of a cell is
   contained in a finite union of open cells of a lower dimension.-/
-lemma cellFrontier_subset_finite_openCell (n : ℕ) (i : cell C D n) : ∃ I : Π m, Finset (cell C D m),
+lemma cellFrontier_subset_finite_openCell [RelCWComplex C D] (n : ℕ) (i : cell C D n) :
+    ∃ I : Π m, Finset (cell C D m),
     cellFrontier n i ⊆ D ∪ (⋃ (m < n) (j ∈ I m), openCell m j) := by
   induction' n using Nat.case_strong_induction_on with n hn
   · simp [cellFrontier_zero_eq_empty]
@@ -512,7 +625,7 @@ lemma cellFrontier_subset_finite_openCell (n : ℕ) (i : cell C D n) : ∃ I : �
     -- the induction hypothesis to the finitely many cells that
     -- `cellFrontier_subset_finite_closedCell` gives us.
     classical
-    rcases cellFrontier_subset_finite_closedCell (Nat.succ n) i with ⟨J, hJ⟩
+    rcases cellFrontier_subset_base_union_finite_closedCell (Nat.succ n) i with ⟨J, hJ⟩
     choose p hp using hn
     let I m := J m ∪ (Finset.biUnion (Finset.range n.succ)
       (fun l ↦ Finset.biUnion (J l) (fun y ↦ if h : l ≤ n then p l h y m else ∅)))
@@ -543,3 +656,11 @@ lemma cellFrontier_subset_finite_openCell (n : ℕ) (i : cell C D n) : ∃ I : �
       use l, llen, j
       simp only [Nat.succ_eq_add_one, Finset.mem_union, I]
       exact ⟨Or.intro_left _ jmem, xmemopenCell⟩
+
+/-- A version of `cellFrontier_subset_finite_closedCell` using open cells: The edge of a cell is
+  contained in a finite union of open cells of a lower dimension.-/
+lemma cellFrontier_subset_finite_openCellAB [CWComplex C] (n : ℕ) (i : cell C ∅ n) :
+    ∃ I : Π m, Finset (cell C ∅ m),
+    cellFrontier n i ⊆ ⋃ (m < n) (j ∈ I m), openCell m j := by
+  have := cellFrontier_subset_finite_openCell n i
+  simp_all only [empty_union]
