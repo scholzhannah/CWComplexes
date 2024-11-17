@@ -684,3 +684,8 @@ lemma cellFrontier_subset_finite_openCellAB [CWComplex C] (n : ℕ) (i : cell C 
     cellFrontier n i ⊆ ⋃ (m < n) (j ∈ I m), openCell m j := by
   have := cellFrontier_subset_finite_openCell n i
   simp_all only [empty_union]
+
+
+namespace RelCWComplex
+
+export CWComplex (isClosed)
