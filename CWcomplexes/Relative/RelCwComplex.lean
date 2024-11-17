@@ -543,7 +543,27 @@ lemma level_inter_openCell_eq_empty [RelCWComplex C D] {n : ℕ∞} {m : ℕ} {j
     (nlem : n < m) : level C D n ∩ openCell m j = ∅ :=
   levelaux_inter_openCell_eq_empty (Order.add_one_le_of_lt nlem)
 
--- here new lemma
+lemma base_inter_iUnion_openCell_eq_empty [T2Space X] [RelCWComplex C D] :
+    D ∩ ⋃ (n : ℕ) (j : cell C D n), openCell n j = ∅ := by
+  simp_rw [inter_iUnion, iUnion_eq_empty]
+  intro n i
+  rw [inter_comm, (disjointBase n i).inter_eq]
+
+lemma interior_base_inter_closedCell_eq_empty [T2Space X] [RelCWComplex C D] {n : ℕ}
+    {j : cell C D n} : interior D ∩ closedCell n j = ∅ := by
+  by_contra h
+  push_neg at h
+  rw [← closure_openCell_eq_closedCell, inter_comm,
+    closure_inter_open_nonempty_iff isOpen_interior] at h
+  rcases h with ⟨x, xmemcell, xmemD⟩
+  suffices x ∈ levelaux C D 0 ∩ openCell n j by
+    rw [levelaux_inter_openCell_eq_empty n.cast_nonneg'] at this
+    exact this
+  exact ⟨base_subset_levelaux 0 (interior_subset xmemD), xmemcell⟩
+
+lemma interior_base_inter_iUnion_closedCell_eq_empty [T2Space X] [RelCWComplex C D] :
+    interior D ∩ ⋃ (n : ℕ) (j : cell C D n), closedCell n j = ∅ := by
+  simp_rw [inter_iUnion, interior_base_inter_closedCell_eq_empty, iUnion_empty]
 
 /-- A level intersected with a closed cell of a higher dimension is the level intersected with
   the edge of the cell.-/
