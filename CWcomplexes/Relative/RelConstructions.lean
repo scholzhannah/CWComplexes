@@ -158,14 +158,19 @@ def CWComplex_disjointUnion (disjoint : Disjoint C E) (hDF : SeparatedNhds D F) 
 
 end
 
-def RelCWComplex_of_Homeomorph.{u} {X Y : Type u} [TopologicalSpace X] [TopologicalSpace Y]
-    (C D : Set X) (E F : Set Y) [RelCWComplex C D] (hC : IsClosed C) (hD : IsClosed D)
+-- this is getting way to ugly. Somehow one needs to avoid working with the PartialEquiv and
+-- instead restrict to a Homeomorphism
+
+def RelCWComplex_of_Homeomorph.{u} {X Y : Type u} [TopologicalSpace X] [T2Space X] [TopologicalSpace Y]
+    (C D : Set X) (E F : Set Y) [RelCWComplex C D] (hC : IsClosed C) (hE : IsClosed E)
     (f : PartialEquiv X Y) (hfC1 : f.source = C) (hfE1 : f.target = E) (hDF : f '' D = F)
     (hfC2 : ContinuousOn f C) (hfE2 : ContinuousOn f.symm E)  :
     RelCWComplex E F where
   cell := cell C D
   map n i := (map n i).trans f
-  source_eq n i := sorry
+  source_eq n i := by
+    rw [PartialEquiv.trans_source, source_eq, inter_eq_left, hfC1, ← image_subset_iff]
+    exact closedCell_subset_complex n i
   cont n i := by
     apply hfC2.comp (cont n i)
     rw [mapsTo']
@@ -202,6 +207,54 @@ def RelCWComplex_of_Homeomorph.{u} {X Y : Type u} [TopologicalSpace X] [Topologi
     simp only [PartialEquiv.coe_trans, Function.comp_apply, ← image_image, ← image_iUnion (f := f),
       preimage_union, ← hDF, ← image_union]
     exact image_mono hI
-  closed' := sorry
-  isClosedBase := sorry -- does this even hold?
-  union' := sorry
+  closed' A Asub := by
+    have hDF' : f.IsImage D F := by
+      apply PartialEquiv.IsImage.of_image_eq
+      rw [hfC1, inter_eq_right.2 base_subset_complex, hfE1, ← hDF, ← hfE1,
+        ← f.image_source_eq_target, hfC1, ← f.injOn.image_inter (by rw [hfC1])
+        (by rw [hfC1]; exact base_subset_complex), inter_eq_right.2 base_subset_complex]
+    intro ⟨h1, h2⟩
+    have : f.IsImage (f.symm '' A) A := by sorry
+    have : f '' (f.symm '' A) = A := by
+      rw [← (inter_eq_right (s := f.source) (t := f.symm '' A)).2
+      (by rw [← f.symm_image_target_eq_source, hfE1]; exact image_mono Asub),
+      this.image_eq, inter_eq_right, hfE1]
+      exact Asub
+    have : A = E ∩ f.symm ⁻¹' (f.symm '' A) := by
+      sorry
+    rw [this]
+    apply hfE2.preimage_isClosed_of_isClosed hE
+    rw [closed C D]
+    · constructor
+      · intro n j
+        specialize h1 n j
+        simp at h1
+        have : f.symm '' F = D := by
+          rw [← (inter_eq_right (s := f.target) (t := F)).2
+            (by rw [← hDF, ← f.image_source_eq_target, hfC1]; exact image_mono base_subset_complex),
+            hDF'.symm_image_eq, inter_eq_right, hfC1]
+          exact base_subset_complex
+
+        sorry
+      ·
+        sorry
+    · sorry
+  isClosedBase := by
+    have : f.IsImage D F := by
+      apply PartialEquiv.IsImage.of_image_eq
+      rw [hfC1, inter_eq_right.2 base_subset_complex, hfE1, ← hDF, ← hfE1,
+        ← f.image_source_eq_target, hfC1, ← f.injOn.image_inter (by rw [hfC1])
+        (by rw [hfC1]; exact base_subset_complex), inter_eq_right.2 base_subset_complex]
+    have : f.symm ⁻¹' D ∩ E = F := by
+      calc
+        f.symm ⁻¹' D ∩ E = f.symm.source ∩ f.symm ⁻¹' D := by rw [inter_comm, f.symm_source, hfE1]
+        _ = f.symm.source ∩ F := by
+          rw [← PartialEquiv.IsImage.iff_preimage_eq, PartialEquiv.IsImage.symm_iff]
+          exact this
+        _ = F := by simp only [PartialEquiv.symm_source, ← f.image_source_eq_target, hfC1, ← hDF,
+          inter_eq_right, image_mono base_subset_complex]
+    rw [← this, inter_comm]
+    exact hfE2.preimage_isClosed_of_isClosed hE (isClosedBase C)
+  union' := by
+    simp [← hDF, ← hfE1, ← f.image_source_eq_target, hfC1, ← RelCWComplex.union' (C := C) (D := D),
+      image_union, image_iUnion, ← image_image]
