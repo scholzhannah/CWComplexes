@@ -58,7 +58,7 @@ lemma closed_iff {X : Type*} [TopologicalSpace X] [KSpace X] {A : Set X} :
 lemma kspace_of_closed_iff {X : Type*} [TopologicalSpace X]
     (closed_iff : ∀ (A : Set X), IsClosed A ↔ ∀ (B : Set X),
     IsCompact B → ∃ (C : Set X), IsClosed C ∧ A ∩ B = C ∩ B) : KSpace X where
-  isOpen_iff := fun A ↦
+  isOpen_iff A :=
     calc
     IsOpen A ↔ IsClosed Aᶜ := isClosed_compl_iff.symm
     _ ↔ ∀ (B : Set X), IsCompact B → ∃ (C : Set X), IsClosed C ∧ Aᶜ ∩ B = C ∩ B := closed_iff Aᶜ
