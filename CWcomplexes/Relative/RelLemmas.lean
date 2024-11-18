@@ -348,7 +348,7 @@ lemma compact_of_finiteAB {X : Type*} [t : TopologicalSpace X] {C : Set X} [CWCo
   rw [← union (C := C) (D := ∅), iUnion_sigma', empty_union]
   exact isCompact_iUnion (fun ⟨n, i⟩ ↦ isCompact_closedCell)
 
-/-- A CW-complex is compact iff it is finite. -/
+/-- A relative CW-complex with compact base is compact iff it is finite. -/
 lemma compact_iff_finite [RelCWComplex C D] (hD : IsCompact D) :
   IsCompact C ↔ Finite C D := ⟨finite_of_compact, fun h ↦ compact_of_finite h hD⟩
 
