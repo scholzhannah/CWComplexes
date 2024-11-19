@@ -37,13 +37,13 @@ open Metric Set
 
 namespace CWComplex
 
-variable {X : Type*} [t : TopologicalSpace X] [T2Space X] {C D : Set X}
+variable {X : Type*} [t : TopologicalSpace X] {C D : Set X}
 
 section
 
 /-- A subcomplex is a closed subspace of a CW-complex that is the union of open cells of the
   CW-complex.-/
-class Subcomplex (C D : Set X) [RelCWComplex C D] (E : Set X) where
+class RelSubcomplex (C D : Set X) [RelCWComplex C D] (E : Set X) where
   /-- The indexing set of cells of the subcomplex.-/
   I : Π n, Set (cell C D n)
   /-- A subcomplex is closed.-/
@@ -51,11 +51,19 @@ class Subcomplex (C D : Set X) [RelCWComplex C D] (E : Set X) where
   /-- The union of all open cells of the subcomplex equals the subcomplex.-/
   union : D ∪ ⋃ (n : ℕ) (j : I n), openCell (C := C) (D := D) n j = E
 
+abbrev Subcomplex (C E : Set X) [CWComplex C]  := RelSubcomplex C ∅ E
+
+lemma Subcomplex.union {C E : Set X} [CWComplex C] [Subcomplex C E] :
+    ⋃ (n : ℕ) (j : RelSubcomplex.I (C := C) (D := ∅) E n), openCell (C := C) (D := ∅) n j = E := by
+  have := RelSubcomplex.union (C := C) (D := ∅) (E := E)
+  rw [empty_union] at this
+  exact this
+
 /-- An alternative version of `Subcomplex`: Instead of requiring that `E` is closed it requires
   that for every cell of the subcomplex the corresponding closed cell is a subset of `E`.-/
-def Subcomplex' (C D : Set X) [RelCWComplex C D] (E : Set X) (I : Π n, Set (cell C D n))
+def RelSubcomplex' [T2Space X] (C D : Set X) [RelCWComplex C D] (E : Set X) (I : Π n, Set (cell C D n))
     (closedCell_subset : ∀ (n : ℕ) (i : I n), closedCell (C := C) (D := D) n i ⊆ E)
-    (union : D ∪ ⋃ (n : ℕ) (j : I n), openCell (C := C) (D := D) n j = E) : Subcomplex C D E where
+    (union : D ∪ ⋃ (n : ℕ) (j : I n), openCell (C := C) (D := D) n j = E) : RelSubcomplex C D E where
   I := I
   closed := by
     have EsubC : E ⊆ C := by
@@ -91,49 +99,24 @@ def Subcomplex' (C D : Set X) [RelCWComplex C D] (E : Set X) (I : Π n, Set (cel
 
 /-- An alternative version of `Subcomplex`: Instead of requiring that `E` is closed it requires
   that for every cell of the subcomplex the corresponding closed cell is a subset of `E`.-/
-def Subcomplex'AB (C : Set X) [CWComplex C] (E : Set X) (I : Π n, Set (cell C ∅ n))
+def Subcomplex' [T2Space X] (C : Set X) [CWComplex C] (E : Set X) (I : Π n, Set (cell C ∅ n))
     (closedCell_subset : ∀ (n : ℕ) (i : I n), closedCell (C := C) (D := ∅) n i ⊆ E)
-    (union : ⋃ (n : ℕ) (j : I n), openCell (C := C) (D := ∅) n j = E) : Subcomplex C ∅ E where
-  I := I
-  closed := by
-    have EsubC : E ⊆ C := by
-      simp_rw [← union, ← iUnion_openCell (C := C) (D := ∅), empty_union]
-      exact iUnion_mono fun n ↦ iUnion_subset fun i ↦ by apply subset_iUnion_of_subset ↑i; rfl
-    apply isClosed_of_isClosed_inter_openCell_or_isClosed_inter_closedCell (D := ∅) EsubC
-      (by rw [inter_empty]; exact isClosed_empty)
-    intro n _ j
-    by_cases h : j ∈ I n
-    · right
-      suffices closedCell n j ⊆ E by
-        rw [inter_eq_right.2 this]
-        exact isClosed_closedCell
-      exact closedCell_subset n ⟨j, h⟩
-    · left
-      simp_rw [← union, iUnion_inter]
-      suffices ⋃ m, ⋃ (i : ↑(I m)), openCell m (i : cell C ∅ m) ∩ openCell (C := C) n j = ∅ by
-        rw [this]
-        exact isClosed_empty
-      apply iUnion_eq_empty.2 fun m ↦ iUnion_eq_empty.2 fun i ↦ ?_
-      apply disjoint_openCell_of_ne
-      aesop
-  union := by
-    rw [empty_union]
-    exact union
+    (union : ⋃ (n : ℕ) (j : I n), openCell (C := C) (D := ∅) n j = E) : Subcomplex C E :=
+  RelSubcomplex' C ∅ E I closedCell_subset (by rw [empty_union]; exact union)
 
 /-- An alternative version of `Subcomplex`: Instead of requiring that `E` is closed it requires that
   `E` is a CW-complex. -/
-def Subcomplex'' (C D : Set X) [RelCWComplex C D] (E : Set X) (I : Π n, Set (cell C D n))
+def RelSubcomplex'' [T2Space X] (C D : Set X) [RelCWComplex C D] (E : Set X) (I : Π n, Set (cell C D n))
     [RelCWComplex E D]
-    (union : D ∪ ⋃ (n : ℕ) (j : I n), openCell (C := C) (D := D) n j = E) : Subcomplex C D E where
+    (union : D ∪ ⋃ (n : ℕ) (j : I n), openCell (C := C) (D := D) n j = E) : RelSubcomplex C D E where
   I := I
   closed := CWComplex.isClosed (D := D)
   union := union
 
 /-- An alternative version of `Subcomplex`: Instead of requiring that `E` is closed it requires that
   `E` is a CW-complex. -/
-def Subcomplex''AB (C : Set X) [CWComplex C] (E : Set X) (I : Π n, Set (cell C ∅ n))
-    [CWComplex E]
-    (union : ⋃ (n : ℕ) (j : I n), openCell (C := C) (D := ∅) n j = E) : Subcomplex C ∅ E where
+def Subcomplex'' [T2Space X] (C : Set X) [CWComplex C] (E : Set X) (I : Π n, Set (cell C ∅ n)) [CWComplex E]
+    (union : ⋃ (n : ℕ) (j : I n), openCell (C := C) (D := ∅) n j = E) : Subcomplex C E where
   I := I
   closed := CWComplex.isClosed (D := ∅)
   union := by
@@ -142,8 +125,159 @@ def Subcomplex''AB (C : Set X) [CWComplex C] (E : Set X) (I : Π n, Set (cell C 
 
 namespace Subcomplex
 
-lemma subset_complex {X : Type*} [TopologicalSpace X] {C D : Set X} [RelCWComplex C D]
-    (E : Set X) [subcomplex : Subcomplex C D E] : E ⊆ C := by
+lemma subset_complex [RelCWComplex C D] (E : Set X) [subcomplex : RelSubcomplex C D E] : E ⊆ C := by
   simp_rw [← subcomplex.union, ← iUnion_openCell (C := C) (D := D)]
   apply union_subset_union_right D
   exact iUnion_mono fun n ↦ iUnion_subset fun i ↦ by apply subset_iUnion_of_subset ↑i; rfl
+
+/-- A subcomplex is the union of its closed cells.-/
+lemma union_closedCell [T2Space X] [RelCWComplex C D] (E : Set X)
+    [subcomplex : RelSubcomplex C D E] :
+    D ∪ ⋃ (n : ℕ) (j : subcomplex.I n), closedCell (C := C) (D := D) n j = E := by
+  apply subset_antisymm
+  · apply union_subset
+    · rw [← RelSubcomplex.union (C := C) (D := D) (E := E)]
+      exact subset_union_left
+    · apply iUnion_subset fun n ↦ iUnion_subset fun i ↦ ?_
+      simp_rw [← closure_openCell_eq_closedCell, subcomplex.closed.closure_subset_iff,
+        ← subcomplex.union]
+      apply subset_union_of_subset_right
+      exact subset_iUnion_of_subset n
+        (subset_iUnion (fun (i : ↑(RelSubcomplex.I E n)) ↦ openCell (C := C) (D := D) n ↑i) i)
+  · simp_rw [← subcomplex.union]
+    apply union_subset_union_right
+    apply iUnion_mono fun n ↦ iUnion_mono fun (i : ↑(RelSubcomplex.I E n)) ↦ ?_
+    exact openCell_subset_closedCell (C := C) (D := D) n i
+
+/-- A subcomplex is the union of its closed cells.-/
+lemma union_closedCellAB [T2Space X] [CWComplex C] (E : Set X) [subcomplex : Subcomplex C E] :
+    ⋃ (n : ℕ) (j : subcomplex.I n), closedCell (C := C) (D := ∅) n j = E := by
+  apply subset_antisymm
+  · apply iUnion_subset fun n ↦ iUnion_subset fun i ↦ ?_
+    simp_rw [← closure_openCell_eq_closedCell, subcomplex.closed.closure_subset_iff,
+      ← subcomplex.union]
+    exact subset_iUnion_of_subset n
+      (subset_iUnion (fun (i : ↑(RelSubcomplex.I E n)) ↦ openCell (C := C) (D := ∅) n ↑i) i)
+  · simp_rw [← subcomplex.union]
+    apply iUnion_mono fun n ↦ iUnion_mono fun (i : ↑(subcomplex.I n)) ↦ ?_
+    exact openCell_subset_closedCell (C := C) (D := ∅) n i
+
+
+def RelSub (C D E : Set X) [RelCWComplex C D] [RelSubcomplex C D E] : Set X := E
+
+/-- `E ⇂(D) C` should be used to say that `E` is a subcomplex of `C` relative to `D`. -/
+scoped macro E:term " ⇂(" D:term ") " C:term : term => `(RelSub $C $D $E)
+
+/-- A synonym for `E` that includes the CW-Complex `C` to get access to typeclass inference.
+ Use the notation `E ⇂ C` in the namespace `Subcomplex`.-/
+def Sub (E : Set X) (C : Set X) [CWComplex C] [Subcomplex C E] : Set X := E
+
+/-- `E ⇂ C` should be used to say that `E` is a subcomplex of `C`. -/
+scoped infixr:35 " ⇂ "  => Sub
+
+/-- A subcomplex is again a CW-complex. -/
+instance CWComplex_RelSubcomplex [T2Space X] [RelCWComplex C D] (E : Set X)
+    [subcomplex : RelSubcomplex C D E] : RelCWComplex (E ⇂(D) C) D where
+  cell n := subcomplex.I n
+  map n i := map (C := C) (D := D) n i
+  source_eq n i := source_eq (C := C) (D := D) n i
+  cont n i := cont (C := C) (D := D) n i
+  cont_symm n i := cont_symm (C := C) (D := D) n i
+  pairwiseDisjoint' := by
+    simp only [PairwiseDisjoint, Set.Pairwise, mem_univ, ne_eq, Function.onFun,
+      disjoint_iff_inter_eq_empty, true_implies, Sigma.forall, Subtype.forall,
+      not_and]
+    intro n j _ m i _ eq
+    apply disjoint_openCell_of_ne
+    aesop
+  disjointBase' := fun n i ↦ RelCWComplex.disjointBase' (C := C) (D := D) n i
+  mapsto := by
+    intro n i
+    rcases cellFrontier_subset_finite_openCell (C := C) (D := D) n i with ⟨J, hJ⟩
+    use fun m ↦ Finset.preimage (J m) (fun (x : subcomplex.I m) ↦ ↑x) (by simp [InjOn])
+    rw [mapsTo']
+    intro x xmem
+    simp_rw [iUnion_coe_set, mem_union, mem_iUnion, exists_prop, exists_and_right]
+    replace hJ := hJ xmem
+    by_cases h : x ∈ D
+    · left
+      exact h
+    simp only [mem_union, h, mem_iUnion, exists_prop, false_or] at hJ
+    right
+    obtain ⟨m, mltn, j, jmem, xmemopen⟩ := hJ
+    use m, mltn, j
+    refine ⟨?_, openCell_subset_closedCell _ _ xmemopen⟩
+    suffices j ∈ subcomplex.I m by
+      use this
+      simp only [Finset.mem_preimage, jmem]
+    have : x ∈ E := by
+      rw [← Subcomplex.union_closedCell (C := C) (D := D) (E := E)]
+      right
+      refine mem_of_subset_of_mem ?_ xmem
+      refine subset_iUnion_of_subset n (subset_iUnion_of_subset ↑i ?_)
+      exact cellFrontier_subset_closedCell (C := C)  (D := D) n ↑i
+    simp only [← subcomplex.union, iUnion_coe_set, mem_union, h, mem_iUnion, exists_prop,
+      false_or] at this
+    obtain ⟨l, o, xmemopen'⟩ := this
+    suffices (⟨m, j⟩ : Σ n, cell C D n) = ⟨l, ↑o⟩ by aesop
+    apply eq_cell_of_not_disjoint
+    rw [not_disjoint_iff]
+    use x
+    exact ⟨xmemopen, xmemopen'.2⟩
+  closed' A Asub closed := by
+    apply isClosed_of_isClosed_inter_openCell_or_isClosed_inter_closedCell (D := D)
+      (subset_trans Asub (Subcomplex.subset_complex (C := C) (D := D) E)) closed.2
+    intro n _ j
+    by_cases h : j ∈ subcomplex.I n
+    · exact Or.intro_right _ (closed.1 n ⟨j, h⟩)
+    left
+    suffices A ∩ openCell n j = ∅ by
+      rw [this]
+      exact isClosed_empty
+    rw [← subset_empty_iff]
+    apply subset_trans (inter_subset_inter_left _ Asub)
+    simp_rw [RelSub, ← subcomplex.union, subset_empty_iff, union_inter_distrib_right, iUnion_inter, union_empty_iff]
+    constructor
+    · rw [inter_comm]
+      exact (RelCWComplex.disjointBase' n j).inter_eq
+    · exact iUnion_eq_empty.2 fun m ↦ iUnion_eq_empty.2 fun i ↦ disjoint_openCell_of_ne (by aesop)
+  isClosedBase := RelCWComplex.isClosedBase (C := C) (D := D)
+  union' := Subcomplex.union_closedCell (E := E) (D := D)
+
+/-- A subcomplex of a finite CW-complex is again finite.-/
+instance finite_subcomplex_of_finite [T2Space X] [RelCWComplex C D] [finite : Finite C D] (E : Set X)
+  [subcomplex : RelSubcomplex C D E] : Finite (E ⇂(D) C) D where
+  eventually_isEmpty_cell := by
+    have := finite.eventually_isEmpty_cell
+    simp only [Filter.eventually_atTop, ge_iff_le] at this ⊢
+    obtain ⟨n, hn⟩ := this
+    use n
+    intro b nleb
+    simp only [CWComplex_RelSubcomplex, isEmpty_subtype, hn b nleb, IsEmpty.forall_iff]
+  finite_cell n :=
+    let _ := finite.finite_cell n
+    toFinite (RelSubcomplex.I E n)
+
+
+-- need a version for CWcomplexes without `[Nonempty J]`
+/-- A union of subcomplexes is again a subcomplex.-/
+instance subcomplex_iUnion_subcomplex [T2Space X] [RelCWComplex C D] (J : Type*) [Nonempty J]
+    (sub : J → Set X) [cw : ∀ (j : J), RelSubcomplex C D (sub j)] :
+    RelSubcomplex C D (⋃ (j : J), sub j) := RelSubcomplex' C D _
+  (fun (n : ℕ) ↦ ⋃ (j : J), (cw j).I n)
+  (by
+    intro n ⟨i, imem⟩
+    rw [mem_iUnion] at imem
+    obtain ⟨j, imemj⟩ := imem
+    apply subset_iUnion_of_subset j
+    rw [← Subcomplex.union_closedCell (C := C) (D := D) (E := sub j)]
+    apply subset_union_of_subset_right
+    exact subset_iUnion_of_subset n (subset_iUnion
+      (fun (j : ↑(RelSubcomplex.I (sub j) n)) ↦ closedCell (C := C) (D := D) n ↑j) ⟨i, imemj⟩))
+  (by
+    simp_rw [← (cw _).union]
+    rw [← union_iUnion, iUnion_comm]
+    congrm D ∪ ?_
+    apply iUnion_congr fun n ↦ ?_
+    simp_rw [iUnion_subtype, mem_iUnion, iUnion_exists,
+      iUnion_comm (fun x ↦ fun i ↦ ⋃ (_ : x ∈ RelSubcomplex.I (sub i) n), openCell n x)])

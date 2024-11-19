@@ -114,6 +114,7 @@ def Sub (E : Set X) (C : Set X) [CWComplex C] [Subcomplex C E] : Set X := E
 /-- `E ⇂ C` should be used to say that `E` is a subcomplex of `C`. -/
 scoped infixr:35 " ⇂ "  => Sub
 
+
 /-- A subcomplex is again a CW-complex. -/
 instance CWComplex_subcomplex (E : Set X) [subcomplex : Subcomplex C E] : CWComplex (E ⇂ C) where
   cell n := subcomplex.I n
