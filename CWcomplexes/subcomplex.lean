@@ -310,7 +310,7 @@ lemma finite_attach_cell (n : ℕ) (i : cell C n) (E : Set X) [sub : Subcomplex 
     [finite : Finite (E ⇂ C)] (subset : ∃ (I : Π m, Set (cell C m)),
     (∀ m < n, I m ⊆ sub.I m) ∧  cellFrontier n i ⊆
     (⋃ (m < n) (j ∈ I m), closedCell (C := C) m j)) :
-    let subcomplex := attach_cell n i E subset
+    let _subcomplex := attach_cell n i E subset
     Finite (E ∪ openCell n i ⇂ C) where
   eventually_isEmpty_cell := by
     have := finite.eventually_isEmpty_cell
@@ -365,7 +365,7 @@ lemma cell_mem_finite_subcomplex (n : ℕ) (i : cell C n) :
     rfl
 
 lemma closedCell_subset_finite_subcomplex (n : ℕ) (i : cell C n) :
-    ∃ (E : Set X) (subE : Subcomplex C E), Finite (E ⇂ C) ∧ closedCell n i ⊆ E := by
+    ∃ (E : Set X) (_subE : Subcomplex C E), Finite (E ⇂ C) ∧ closedCell n i ⊆ E := by
   obtain ⟨E, subE, hE1, hE2⟩ := cell_mem_finite_subcomplex n i
   use E, subE
   refine ⟨hE1, ?_⟩
@@ -375,7 +375,7 @@ lemma closedCell_subset_finite_subcomplex (n : ℕ) (i : cell C n) :
 /-- Every finite set of cells is contained in some finite subcomplex.-/
 lemma finite_iUnion_subset_subcomplex (I : (n : ℕ) → Set (cell C n))
     [finite : _root_.Finite (Σ n, I n)] :
-    ∃ (E : Set X) (sub : Subcomplex C E), CWComplex.Finite (E ⇂ C) ∧
+    ∃ (E : Set X) (_sub : Subcomplex C E), CWComplex.Finite (E ⇂ C) ∧
     (⋃ (n : ℕ) (i : I n), map (C := C) n i '' closedBall 0 1) ⊆ E := by
   choose sub cw finite subset using closedCell_subset_finite_subcomplex (C := C)
   use ⋃ (x : Σ n, I n), sub x.1 x.2, inferInstance
@@ -386,7 +386,7 @@ lemma finite_iUnion_subset_subcomplex (I : (n : ℕ) → Set (cell C n))
 
 /-- Every compact set in a CW-complex is contained in a finite subcomplex.-/
 lemma compact_subset_finite_subcomplex {B : Set X} (compact : IsCompact B) :
-    ∃ (E : Set X) (sub : Subcomplex C E), CWComplex.Finite (E ⇂ C) ∧ B ∩ C ⊆ E := by
+    ∃ (E : Set X) (_sub : Subcomplex C E), CWComplex.Finite (E ⇂ C) ∧ B ∩ C ⊆ E := by
   have : _root_.Finite (Σ n, { j | ¬Disjoint B (openCell (C:= C) n j)}) :=
     compact_inter_finite (C := C) B compact
   obtain ⟨E, sub, finite, subset⟩ :=
