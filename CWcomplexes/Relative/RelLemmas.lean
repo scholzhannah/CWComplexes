@@ -298,27 +298,50 @@ lemma compact_inter_finite_subset' [RelCWComplex C D] (A : Set X) (compact : IsC
 
 -- I will probably need a relative version of this someday but right now I don't know what.
 
-/-- For a set `A` the intersection `A ∩ C` is a subset of all the cells of `C` that `A` meets.
-  This is useful when applied together with `compact_inter_finite`.-/
-lemma subset_not_disjoint' {X : Type*} [t : TopologicalSpace X] {C : Set X}
-    [CWComplex C] (A : Set X) : A ∩ C ⊆ ⋃ (x : Σ (m : ℕ),
-    {j : cell C ∅ m // ¬ Disjoint A (openCell m j)}), openCell (C := C) (D := ∅) x.1 x.2 := by
+/-- For a set `A` the intersection `A ∩ C` is a subset of the base and all the cells of `C`
+  that `A` meets. This is useful when applied together with `compact_inter_finite`.-/
+lemma subset_not_disjoint' {X : Type*} [t : TopologicalSpace X] {C D : Set X}
+    [RelCWComplex C D] (A : Set X) : A ∩ C ⊆ D ∪ ⋃ (x : Σ (m : ℕ),
+    {j : cell C D m // ¬ Disjoint A (openCell m j)}), openCell (C := C) (D := D) x.1 x.2 := by
   intro x ⟨xmem1, xmem2⟩
-  simp only [mem_iUnion]
-  simp only [← iUnion_openCellAB, mem_iUnion] at xmem2
+  rw [← iUnion_openCell (C := C) (D := D)] at xmem2
+  rcases xmem2 with xmem2 | xmem2
+  · exact mem_union_left _ xmem2
+  right
+  simp only [mem_iUnion] at xmem2 ⊢
   rcases xmem2 with ⟨m, j, hmj⟩
   use ⟨m, j, not_disjoint_iff.2 ⟨x, xmem1, hmj⟩⟩
 
-/-- A version of `subset_not_disjoint'` using closed cells.-/
-lemma subset_not_disjoint {X : Type*} [t : TopologicalSpace X] {C : Set X}
+/-- For a set `A` the intersection `A ∩ C` is a subset of all the cells of `C` that `A` meets.
+  This is useful when applied together with `compact_inter_finite`.-/
+lemma subset_not_disjoint'AB {X : Type*} [t : TopologicalSpace X] {C : Set X}
     [CWComplex C] (A : Set X) : A ∩ C ⊆ ⋃ (x : Σ (m : ℕ),
-    {j : cell C ∅ m // ¬ Disjoint A (openCell m j)}), closedCell (C := C) (D := ∅) x.1 x.2 := by
+    {j : cell C ∅ m // ¬ Disjoint A (openCell m j)}), openCell (C := C) (D := ∅) x.1 x.2 := by
+  have := subset_not_disjoint' A (C := C) (D := ∅)
+  rw [empty_union] at this
+  exact this
+
+/-- A version of `subset_not_disjoint'` using closed cells.-/
+lemma subset_not_disjoint {X : Type*} [t : TopologicalSpace X] {C D : Set X}
+    [RelCWComplex C D] (A : Set X) : A ∩ C ⊆ D ∪ ⋃ (x : Σ (m : ℕ),
+    {j : cell C D m // ¬ Disjoint A (openCell m j)}), closedCell (C := C) (D := D) x.1 x.2 := by
   intro x ⟨xmem1, xmem2⟩
-  simp only [mem_iUnion]
-  simp only [← iUnion_openCellAB, mem_iUnion] at xmem2
+  rw [← iUnion_openCell (C := C) (D := D)] at xmem2
+  rcases xmem2 with xmem2 | xmem2
+  · exact mem_union_left _ xmem2
+  right
+  simp only [mem_iUnion] at xmem2 ⊢
   rcases xmem2 with ⟨m, j, hmj⟩
   use ⟨m, j, not_disjoint_iff.2 ⟨x, xmem1, hmj⟩⟩
   exact openCell_subset_closedCell _ _ hmj
+
+/-- A version of `subset_not_disjoint'` using closed cells.-/
+lemma subset_not_disjointAB {X : Type*} [t : TopologicalSpace X] {C : Set X}
+    [CWComplex C] (A : Set X) : A ∩ C ⊆ ⋃ (x : Σ (m : ℕ),
+    {j : cell C ∅ m // ¬ Disjoint A (openCell m j)}), closedCell (C := C) (D := ∅) x.1 x.2 := by
+  have := subset_not_disjoint (C := C) (D := ∅) A
+  rw [empty_union] at this
+  exact this
 
 /-- A compact CW-complex is finite.-/
 lemma finite_of_compact [RelCWComplex C D] (compact : IsCompact C) : CWComplex.Finite C D := by

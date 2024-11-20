@@ -37,7 +37,8 @@ class FiniteType.{u} {X : Type u} [TopologicalSpace X] (C D : Set X) [RelCWCompl
   finite_cell (n : ℕ) : Finite (cell C D n)
 
 /-- A CW-complex is finite if it is finite dimensional and of finite type.-/
-class Finite.{u} {X : Type u} [TopologicalSpace X] (C D : Set X) [RelCWComplex C D] : Prop where
+class Finite.{u} {X : Type u} [TopologicalSpace X] (C : Set X) (D : Set X := ∅) [RelCWComplex C D] :
+    Prop where
   /-- For some natural number `n` the type `cell C D m` is empty for all `m ≥ n`.-/
   eventually_isEmpty_cell : ∀ᶠ n in Filter.atTop, IsEmpty (cell C D n)
   /-- `cell C D n` is finite for every `n`.-/
