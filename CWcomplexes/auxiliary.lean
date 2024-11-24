@@ -75,12 +75,12 @@ lemma affineHomeomorph_trans {𝕜 : Type*} [Field 𝕜] [NoZeroDivisors 𝕜] [
 -- write an equivalence version
 
 lemma isClosed_left_of_isClosed_union {X : Type*} [TopologicalSpace X] {A B : Set X}
-    (hAB : SeparatedNhds A B) (closedAB : IsClosed (A ∪ B)) : IsClosed A := by
+    (hAB : SeparatedNhds A B) (hAB' : IsClosed (A ∪ B)) : IsClosed A := by
   obtain ⟨U, V, hU, hV, hAU, hBV, hUV⟩ := hAB
-  rw [← isOpen_compl_iff] at closedAB ⊢
+  rw [← isOpen_compl_iff] at hAB' ⊢
   suffices Aᶜ = (A ∪ B)ᶜ ∪ V by
     rw [this]
-    exact closedAB.union hV
+    exact hAB'.union hV
   have : B ∩ Vᶜ = ∅ := by aesop
   rw [← compl_inj_iff, Set.compl_union, compl_compl, compl_compl, Set.union_inter_distrib_right,
     this, Set.union_empty, Set.left_eq_inter, Set.subset_compl_comm]

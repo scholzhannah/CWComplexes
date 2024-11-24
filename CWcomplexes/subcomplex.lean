@@ -400,13 +400,12 @@ lemma compact_subset_finite_subcomplex {B : Set X} (compact : IsCompact B) :
 /-- The levels of a CW-complex constitute subcomplexes. -/
 instance subcomplex_levelaux (n : ℕ∞) : Subcomplex C (levelaux C n) := Subcomplex'' _ _
   (fun l ↦ {x : cell C l | l < n})
-  (inferInstance)
+  inferInstance
   (by
     rw [← iUnion_openCell_eq_levelaux]
     apply iUnion_congr fun m ↦ ?_
     simp_rw [iUnion_subtype, mem_setOf_eq]
-    rw [iUnion_comm]
-  )
+    rw [iUnion_comm])
 
 /-- The levels of a CW-complex constitute subcomplexes. -/
 instance subcomplex_level (n : ℕ∞) : Subcomplex C (level C n) := subcomplex_levelaux _

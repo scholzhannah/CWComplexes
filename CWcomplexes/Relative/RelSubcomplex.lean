@@ -639,7 +639,8 @@ lemma finite_iUnion_subset_RelSubcomplex [T2Space X] [RelCWComplex C D]
     simp_all
 
 /-- Every compact set in a CW-complex is contained in a finite subcomplex.-/
-lemma compact_subset_finite_Relsubcomplex [T2Space X] [RelCWComplex C D] {B : Set X} (compact : IsCompact B) :
+lemma compact_subset_finite_RelSubcomplex [T2Space X] [RelCWComplex C D] {B : Set X}
+    (compact : IsCompact B) :
     ∃ (E : Set X) (_sub : RelSubcomplex C D E), Finite E D ∧ B ∩ C ⊆ E := by
   have : _root_.Finite (Σ n, { j | ¬Disjoint B (openCell (C:= C) n j)}) :=
     compact_inter_finite (C := C) (D := D) B compact
