@@ -153,8 +153,6 @@ def RelCWComplex_disjointUnion [RelCWComplex C D] {E F : Set X} [RelCWComplex E 
       union_right_comm D _ F, union_assoc (D ∪ F), ← iUnion_union_distrib, iUnion_sum]
     rfl
 
--- how should this be done? Should it use
-
 -- The union of two disjoint CW-complexes is again a CW-complex.-/
 def CWComplex_disjointUnion [CWComplex C] [CWComplex E] (disjoint : Disjoint C E) :
     CWComplex (C ∪ E) := CWComplex.mk (C ∪ E)
@@ -220,6 +218,86 @@ def CWComplex_disjointUnion [CWComplex C] [CWComplex E] (disjoint : Disjoint C E
     rfl)
 
 end
+
+-- don't know how to define this nicely
+
+variable {na : ℕ}
+
+def RelCWComplex_attach_cell.{u} {X : Type u} [TopologicalSpace X] (C D : Set X) [RelCWComplex C D]
+    {n : ℕ} (map' : PartialEquiv (Fin n → ℝ) X) (source_eq' : map'.source = closedBall 0 1)
+    (cont' : ContinuousOn map' (closedBall 0 1))
+    (cont_symm' : ContinuousOn map'.symm map'.target)
+    (disjoint' : ∀ m (i : cell C D m), Disjoint (map' '' ball 0 1) (openCell m i))
+    (disjointBase' : Disjoint (map' '' ball 0 1) D)
+    (mapsto' : ∃ I : Π m, Finset (cell C D m),
+      MapsTo map' (sphere 0 1) (D ∪ ⋃ (m < n) (j ∈ I m), closedCell m j)) :
+    RelCWComplex (map' '' closedBall 0 1 ∪ C) D where
+  cell m := cell (C := C) (D := D) m ⊕ {x : Sort u // m = n} -- this needs to be something like PUnit
+  map m i := match i with
+    | Sum.inl j => map m j
+    | Sum.inr ⟨j, hj⟩ => hj ▸ map'
+  source_eq m i := match i with
+    | Sum.inl j => source_eq m j
+    | Sum.inr ⟨j, hj⟩ => hj ▸ source_eq'
+  cont m i := match i with
+    | Sum.inl j => cont m j
+    | Sum.inr ⟨j, hj⟩ => hj ▸ cont'
+  cont_symm m i := match i with
+    | Sum.inl j => cont_symm m j
+    | Sum.inr ⟨j, hj⟩ => hj ▸ cont_symm'
+  pairwiseDisjoint' := by
+    rw [PairwiseDisjoint, Set.Pairwise]
+    exact fun ⟨n1, j1⟩ _ ⟨n2, j2⟩ _ ↦ match j1 with
+      | Sum.inl j1 => match j2 with
+        | Sum.inl j2 => by
+          have := RelCWComplex.pairwiseDisjoint' (C := C) (D := D)
+          rw [PairwiseDisjoint, Set.Pairwise] at this
+          intro ne
+          apply @this ⟨n1, j1⟩ (mem_univ _) ⟨n2, j2⟩ (mem_univ _)
+          aesop
+        | Sum.inr ⟨j2, hj2⟩ => sorry
+      | Sum.inr ⟨j1, hj1⟩ => match j2 with
+        | Sum.inl j2 => sorry
+        | Sum.inr ⟨j2, hj2⟩ => by
+          intro ne
+          exfalso
+          apply ne
+          simp [hj1, hj2]
+
+          sorry
+  disjointBase' m i := match i with
+    | Sum.inl j => RelCWComplex.disjointBase' m j
+    | Sum.inr ⟨j, hj⟩ => hj ▸ disjointBase'
+  mapsto m i := match i with
+    | Sum.inl j => by
+      classical
+      obtain ⟨I, hI⟩ := mapsto m j
+      use fun m ↦ (I m).image Sum.inl
+      simp [hI]
+    | Sum.inr ⟨j, hj⟩ => by
+      classical
+      subst hj
+      obtain ⟨I, hI⟩ := mapsto'
+      use fun m ↦ (I m).image Sum.inl
+      simpa
+  closed' := sorry
+  isClosedBase := isClosedBase (C := C) (D := D)
+  union' := by
+    simp_rw [← union (C := C) (D := D), ← union_assoc, union_comm _ D, union_assoc]
+    congrm D ∪ ?_
+    ext
+    simp only [mem_iUnion, Sum.exists, Subtype.exists, mem_union]
+    constructor
+    · intro ⟨m, h⟩
+      rcases h with ⟨j, hj⟩ | ⟨j, rfl, hj⟩
+      · exact .inr ⟨m, ⟨j, hj⟩⟩
+      · exact .inl hj
+    · intro h
+      rcases h with hj | ⟨m, j, hj⟩
+      · exact ⟨n, .inr ⟨PUnit, ⟨rfl, hj⟩⟩⟩
+      · exact ⟨m, .inl ⟨j, hj⟩⟩
+
+
 
 -- this is getting way to ugly. Somehow one needs to avoid working with the PartialEquiv and
 -- instead restrict to a Homeomorphism
