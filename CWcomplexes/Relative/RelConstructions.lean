@@ -219,11 +219,8 @@ def CWComplex_disjointUnion [CWComplex C] [CWComplex E] (disjoint : Disjoint C E
 
 end
 
--- don't know how to define this nicely
-
-variable {na : ℕ}
-
-def RelCWComplex_attach_cell.{u} {X : Type u} [TopologicalSpace X] (C D : Set X) [RelCWComplex C D]
+def RelCWComplex_attach_cell.{u} {X : Type u} [TopologicalSpace X] [T2Space X] (C D : Set X)
+    [RelCWComplex C D]
     {n : ℕ} (map' : PartialEquiv (Fin n → ℝ) X) (source_eq' : map'.source = closedBall 0 1)
     (cont' : ContinuousOn map' (closedBall 0 1))
     (cont_symm' : ContinuousOn map'.symm map'.target)
@@ -232,7 +229,7 @@ def RelCWComplex_attach_cell.{u} {X : Type u} [TopologicalSpace X] (C D : Set X)
     (mapsto' : ∃ I : Π m, Finset (cell C D m),
       MapsTo map' (sphere 0 1) (D ∪ ⋃ (m < n) (j ∈ I m), closedCell m j)) :
     RelCWComplex (map' '' closedBall 0 1 ∪ C) D where
-  cell m := cell (C := C) (D := D) m ⊕ {x : Sort u // m = n} -- this needs to be something like PUnit
+  cell m := cell (C := C) (D := D) m ⊕ {x : PUnit.{u + 1} // m = n}
   map m i := match i with
     | Sum.inl j => map m j
     | Sum.inr ⟨j, hj⟩ => hj ▸ map'
@@ -255,16 +252,20 @@ def RelCWComplex_attach_cell.{u} {X : Type u} [TopologicalSpace X] (C D : Set X)
           intro ne
           apply @this ⟨n1, j1⟩ (mem_univ _) ⟨n2, j2⟩ (mem_univ _)
           aesop
-        | Sum.inr ⟨j2, hj2⟩ => sorry
+        | Sum.inr ⟨j2, hj2⟩ => by
+          intro _
+          subst n2
+          simp_rw [disjoint_comm]
+          exact disjoint' n1 j1
       | Sum.inr ⟨j1, hj1⟩ => match j2 with
-        | Sum.inl j2 => sorry
+        | Sum.inl j2 => by
+          intro _
+          subst n1
+          exact disjoint' n2 j2
         | Sum.inr ⟨j2, hj2⟩ => by
           intro ne
-          exfalso
-          apply ne
-          simp [hj1, hj2]
-
-          sorry
+          subst hj1 hj2
+          simp_all only [mem_univ, ne_eq, not_true_eq_false]
   disjointBase' m i := match i with
     | Sum.inl j => RelCWComplex.disjointBase' m j
     | Sum.inr ⟨j, hj⟩ => hj ▸ disjointBase'
@@ -280,7 +281,19 @@ def RelCWComplex_attach_cell.{u} {X : Type u} [TopologicalSpace X] (C D : Set X)
       obtain ⟨I, hI⟩ := mapsto'
       use fun m ↦ (I m).image Sum.inl
       simpa
-  closed' := sorry
+  closed' A Asub := by
+    intro ⟨h1, h2⟩
+    have : A = A ∩ map' '' closedBall 0 1 ∪ A ∩ C := by
+      rw [← inter_union_distrib_left, inter_eq_left.2 Asub]
+    rw [this]
+    apply (h1 n (.inr ⟨PUnit.unit, rfl⟩)).union
+    rw [closed C D (A := A ∩ C) inter_subset_right]
+    constructor
+    · intro n j
+      rw [inter_assoc, inter_eq_right.2 (closedCell_subset_complex n j)]
+      exact h1 n (.inl j)
+    · rw [inter_assoc, inter_eq_right.2 (base_subset_complex (C := C))]
+      exact h2
   isClosedBase := isClosedBase (C := C) (D := D)
   union' := by
     simp_rw [← union (C := C) (D := D), ← union_assoc, union_comm _ D, union_assoc]
@@ -294,7 +307,7 @@ def RelCWComplex_attach_cell.{u} {X : Type u} [TopologicalSpace X] (C D : Set X)
       · exact .inl hj
     · intro h
       rcases h with hj | ⟨m, j, hj⟩
-      · exact ⟨n, .inr ⟨PUnit, ⟨rfl, hj⟩⟩⟩
+      · exact ⟨n, .inr ⟨PUnit.unit, ⟨rfl, hj⟩⟩⟩
       · exact ⟨m, .inl ⟨j, hj⟩⟩
 
 
