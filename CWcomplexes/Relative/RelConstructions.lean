@@ -310,7 +310,57 @@ def RelCWComplex_attach_cell.{u} {X : Type u} [TopologicalSpace X] [T2Space X] (
       · exact ⟨n, .inr ⟨PUnit.unit, ⟨rfl, hj⟩⟩⟩
       · exact ⟨m, .inl ⟨j, hj⟩⟩
 
+def RelCWComplex_attach_cell_of_Fintype.{u} {X : Type u} [TopologicalSpace X] [T2Space X]
+    (C D : Set X) [RelCWComplex C D] [FiniteType C D]
+    {n : ℕ} (map' : PartialEquiv (Fin n → ℝ) X) (source_eq' : map'.source = closedBall 0 1)
+    (cont' : ContinuousOn map' (closedBall 0 1))
+    (cont_symm' : ContinuousOn map'.symm map'.target)
+    (disjoint' : ∀ m (i : cell C D m), Disjoint (map' '' ball 0 1) (openCell m i))
+    (disjointBase' : Disjoint (map' '' ball 0 1) D)
+    (mapsto' : MapsTo map' (sphere 0 1) (D ∪ ⋃ (m < n) (j : cell C D m), closedCell m j)) :
+    RelCWComplex (map' '' closedBall 0 1 ∪ C) D := RelCWComplex_attach_cell C D map'
+  (source_eq' := source_eq')
+  (cont' := cont')
+  (cont_symm' := cont_symm')
+  (disjoint' := disjoint')
+  (disjointBase' := disjointBase')
+  (mapsto' := by
+    use fun m ↦ finite_univ.toFinset
+    simpa)
 
+def CWComplex_attach_cell.{u} {X : Type u} [TopologicalSpace X] [T2Space X] (C : Set X)
+    [CWComplex C]
+    {n : ℕ} (map' : PartialEquiv (Fin n → ℝ) X) (source_eq' : map'.source = closedBall 0 1)
+    (cont' : ContinuousOn map' (closedBall 0 1))
+    (cont_symm' : ContinuousOn map'.symm map'.target)
+    (disjoint' : ∀ m (i : cell C ∅ m), Disjoint (map' '' ball 0 1) (openCell m i))
+    (mapsto' : ∃ I : Π m, Finset (cell C ∅ m),
+      MapsTo map' (sphere 0 1) (⋃ (m < n) (j ∈ I m), closedCell m j)) :
+    CWComplex (map' '' closedBall 0 1 ∪ C) := RelCWComplex_attach_cell C ∅ map'
+  (source_eq' := source_eq')
+  (cont' := cont')
+  (cont_symm' := cont_symm')
+  (disjoint' := disjoint')
+  (disjointBase' := disjoint_empty _)
+  (mapsto' := by
+    simp_rw [empty_union]
+    exact mapsto')
+
+def CWComplex_attach_cell_of_Fintype.{u} {X : Type u} [TopologicalSpace X] [T2Space X] (C : Set X)
+  [CWComplex C] [FiniteType C]
+    {n : ℕ} (map' : PartialEquiv (Fin n → ℝ) X) (source_eq' : map'.source = closedBall 0 1)
+    (cont' : ContinuousOn map' (closedBall 0 1))
+    (cont_symm' : ContinuousOn map'.symm map'.target)
+    (disjoint' : ∀ m (i : cell C ∅ m), Disjoint (map' '' ball 0 1) (openCell m i))
+    (mapsto' : MapsTo map' (sphere 0 1) (⋃ (m < n) (j : cell C ∅ m), closedCell m j)) :
+    CWComplex (map' '' closedBall 0 1 ∪ C) := CWComplex_attach_cell C map'
+  (source_eq' := source_eq')
+  (cont' := cont')
+  (cont_symm' := cont_symm')
+  (disjoint' := disjoint')
+  (mapsto' := by
+    use fun m ↦ finite_univ.toFinset
+    simpa)
 
 -- this is getting way to ugly. Somehow one needs to avoid working with the PartialEquiv and
 -- instead restrict to a Homeomorphism

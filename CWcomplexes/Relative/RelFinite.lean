@@ -32,7 +32,8 @@ class FiniteDimensional.{u} {X : Type u} [TopologicalSpace X] (C D : Set X) [Rel
   eventually_isEmpty_cell : ∀ᶠ n in Filter.atTop, IsEmpty (cell C D n)
 
 /-- A CW-complex is of finite type if `cell C D n` is finite for every `n`.-/
-class FiniteType.{u} {X : Type u} [TopologicalSpace X] (C D : Set X) [RelCWComplex C D] : Prop where
+class FiniteType.{u} {X : Type u} [TopologicalSpace X] (C : Set X) (D : Set X := ∅)
+    [RelCWComplex C D] : Prop where
   /-- `cell C n` is finite for every `n`.-/
   finite_cell (n : ℕ) : Finite (cell C D n)
 
@@ -43,6 +44,14 @@ class Finite.{u} {X : Type u} [TopologicalSpace X] (C : Set X) (D : Set X := ∅
   eventually_isEmpty_cell : ∀ᶠ n in Filter.atTop, IsEmpty (cell C D n)
   /-- `cell C D n` is finite for every `n`.-/
   finite_cell (n : ℕ) : _root_.Finite (cell C D n)
+
+instance FiniteType.inst_finite_cell {X : Type u} [TopologicalSpace X] (C D : Set X)
+    [RelCWComplex C D] [FiniteType C D] {n : ℕ} : _root_.Finite (cell C D n) :=
+  FiniteType.finite_cell n
+
+instance Finite.inst_FiniteType {X : Type u} [TopologicalSpace X] (C D : Set X)
+    [RelCWComplex C D] [Finite C D] : FiniteType C D where
+  finite_cell := Finite.finite_cell
 
 /-- If we want to construct a relative CW-complex of finite type, we can add the condition
   `finite_cell` and relax the condition `mapsto`.-/
