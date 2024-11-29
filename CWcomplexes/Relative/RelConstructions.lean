@@ -314,7 +314,7 @@ def RelCWComplex_attach_cell.{u} {X : Type u} [TopologicalSpace X] [T2Space X] (
       · exact ⟨m, .inl j, hj⟩
 
 def RelCWComplex_attach_cell_of_Fintype.{u} {X : Type u} [TopologicalSpace X] [T2Space X]
-    (C D : Set X) [RelCWComplex C D] [FiniteType C D]
+    (C D : Set X) [RelCWComplex C D] [FiniteType C]
     {n : ℕ} (map' : PartialEquiv (Fin n → ℝ) X) (source_eq' : map'.source = closedBall 0 1)
     (cont' : ContinuousOn map' (closedBall 0 1))
     (cont_symm' : ContinuousOn map'.symm map'.target)

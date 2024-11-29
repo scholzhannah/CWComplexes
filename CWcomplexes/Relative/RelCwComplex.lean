@@ -191,7 +191,7 @@ lemma map_zero_mem_closedCell [RelCWComplex C D] (n : ℕ) (i : cell C n) :
   openCell_subset_closedCell _ _ (map_zero_mem_openCell _ _)
 
 /-- A non-standard definition of the `n`-th level of a CW-complex for `n ∈ ℕ ∪ ∞` useful for
-  induction. The standard `level` is defined in terms of levelaux. `levelaux` is preferred
+  induction. The standard `level` is defined in terms of levelaux. `levelaux` is preferred in
   statements. You should then derive the statement about `level`. -/
 def levelaux (C : Set X) {D : Set X} [RelCWComplex C D] (n : ℕ∞) : Set X :=
   D ∪ ⋃ (m : ℕ) (_ : m < n) (j : cell C m), closedCell m j

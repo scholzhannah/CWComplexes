@@ -342,7 +342,7 @@ lemma subset_not_disjointAB {X : Type*} [t : TopologicalSpace X] {C : Set X}
   exact this
 
 /-- A compact CW-complex is finite.-/
-lemma finite_of_compact [RelCWComplex C D] (compact : IsCompact C) : CWComplex.Finite C D := by
+lemma finite_of_compact [RelCWComplex C D] (compact : IsCompact C) : CWComplex.Finite C := by
   apply finite_of_finite_cells
   have : ∀ m (j : cell C m), ¬Disjoint C (openCell m j) := by
     intro m j
@@ -357,22 +357,23 @@ lemma finite_of_compact [RelCWComplex C D] (compact : IsCompact C) : CWComplex.F
 
 /-- A finite relative CW-complex with compact base is compact.-/
 lemma compact_of_finite {X : Type*} [t : TopologicalSpace X] {C D : Set X} [RelCWComplex C D]
-    (finite : CWComplex.Finite C D) (hD: IsCompact D) : IsCompact C := by
+    [finite : CWComplex.Finite C] (hD: IsCompact D) : IsCompact C := by
   rw [finite_iff_finite_cells] at finite
   rw [← union (C := C) (D := D), iUnion_sigma']
   exact hD.union (isCompact_iUnion (fun ⟨n, i⟩ ↦ isCompact_closedCell))
 
 /-- A finite CW-complex is compact.-/
 lemma compact_of_finiteAB {X : Type*} [t : TopologicalSpace X] {C : Set X} [CWComplex C]
-    (finite : CWComplex.Finite C ∅) : IsCompact C := by
+    [finite : CWComplex.Finite C] : IsCompact C := by
   rw [finite_iff_finite_cells] at finite
   rw [← union (C := C) (D := ∅), iUnion_sigma', empty_union]
   exact isCompact_iUnion (fun ⟨n, i⟩ ↦ isCompact_closedCell)
 
 /-- A relative CW-complex with compact base is compact iff it is finite. -/
 lemma compact_iff_finite [RelCWComplex C D] (hD : IsCompact D) :
-  IsCompact C ↔ Finite C D := ⟨finite_of_compact, fun h ↦ compact_of_finite h hD⟩
+    IsCompact C ↔ Finite C :=
+  ⟨finite_of_compact, fun _ ↦ compact_of_finite hD⟩
 
 /-- A CW-complex is compact iff it is finite. -/
-lemma compact_iff_finiteAB [CWComplex C] : IsCompact C ↔ Finite C ∅ :=
-  ⟨finite_of_compact, fun h ↦ compact_of_finite h isCompact_empty⟩
+lemma compact_iff_finiteAB [CWComplex C] : IsCompact C ↔ Finite C :=
+  ⟨finite_of_compact, fun _ ↦ compact_of_finite isCompact_empty⟩

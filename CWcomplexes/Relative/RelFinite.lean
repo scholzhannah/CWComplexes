@@ -26,19 +26,19 @@ open Metric Set
 namespace CWComplex
 
 /-- A CW-complex is finite dimensional if `cell C n` is empty for all but finitely many `n`.-/
-class FiniteDimensional.{u} {X : Type u} [TopologicalSpace X] (C D : Set X) [RelCWComplex C D] :
-    Prop where
+class FiniteDimensional.{u} {X : Type u} [TopologicalSpace X] (C : Set X) {D : Set X}
+    [RelCWComplex C D] : Prop where
   /-- For some natural number `n` the type `cell C m` is empty for all `m ≥ n`.-/
   eventually_isEmpty_cell : ∀ᶠ n in Filter.atTop, IsEmpty (cell C n)
 
 /-- A CW-complex is of finite type if `cell C n` is finite for every `n`.-/
-class FiniteType.{u} {X : Type u} [TopologicalSpace X] (C : Set X) (D : Set X := ∅)
+class FiniteType.{u} {X : Type u} [TopologicalSpace X] (C : Set X) {D : Set X}
     [RelCWComplex C D] : Prop where
   /-- `cell C n` is finite for every `n`.-/
   finite_cell (n : ℕ) : Finite (cell C n)
 
 /-- A CW-complex is finite if it is finite dimensional and of finite type.-/
-class Finite.{u} {X : Type u} [TopologicalSpace X] (C : Set X) (D : Set X := ∅) [RelCWComplex C D] :
+class Finite.{u} {X : Type u} [TopologicalSpace X] (C : Set X) {D : Set X} [RelCWComplex C D] :
     Prop where
   /-- For some natural number `n` the type `cell C m` is empty for all `m ≥ n`.-/
   eventually_isEmpty_cell : ∀ᶠ n in Filter.atTop, IsEmpty (cell C n)
@@ -46,11 +46,11 @@ class Finite.{u} {X : Type u} [TopologicalSpace X] (C : Set X) (D : Set X := ∅
   finite_cell (n : ℕ) : _root_.Finite (cell C n)
 
 instance FiniteType.inst_finite_cell {X : Type u} [TopologicalSpace X] (C D : Set X)
-    [RelCWComplex C D] [FiniteType C D] {n : ℕ} : _root_.Finite (cell C n) :=
+    [RelCWComplex C D] [FiniteType C] {n : ℕ} : _root_.Finite (cell C n) :=
   FiniteType.finite_cell n
 
 instance Finite.inst_FiniteType {X : Type u} [TopologicalSpace X] (C D : Set X)
-    [RelCWComplex C D] [Finite C D] : FiniteType C D where
+    [RelCWComplex C D] [Finite C] : FiniteType C where
   finite_cell := Finite.finite_cell
 
 /-- If we want to construct a relative CW-complex of finite type, we can add the condition
@@ -205,7 +205,7 @@ variable {X : Type*} [TopologicalSpace X] {C D : Set X} [RelCWComplex C D]
 
 variable {X : Type*} [t : TopologicalSpace X] {C D : Set X} [RelCWComplex C D]
 
-lemma finite_of_finite_cells (finite : _root_.Finite (Σ n, cell C n)) : Finite C D where
+lemma finite_of_finite_cells (finite : _root_.Finite (Σ n, cell C n)) : Finite C where
   eventually_isEmpty_cell := by
     simp only [Filter.eventually_atTop, ge_iff_le]
     by_cases h : IsEmpty (Σ n, cell C n)
@@ -230,7 +230,7 @@ lemma finite_of_finite_cells (finite : _root_.Finite (Σ n, cell C n)) : Finite 
     linarith [A.le_max' m mmem]
   finite_cell := fun _ ↦ Finite.of_injective (Sigma.mk _) sigma_mk_injective
 
-lemma finite_cells_of_finite (finite : Finite C D) : _root_.Finite (Σ n, cell C n) := by
+lemma finite_cells_of_finite (finite : Finite C) : _root_.Finite (Σ n, cell C n) := by
   -- We show that there is a bijection between `Σ n, cell C n` and
   -- `Σ (m : {m : ℕ // m < n}), cell C m`.
   have finitelvl := finite.eventually_isEmpty_cell
@@ -250,5 +250,5 @@ lemma finite_cells_of_finite (finite : Finite C D) : _root_.Finite (Σ n, cell C
   rw [← Equiv.finite_iff f]
   exact Finite.instSigma
 
-lemma finite_iff_finite_cells : Finite C D ↔ _root_.Finite (Σ n, cell C n) :=
+lemma finite_iff_finite_cells : Finite C ↔ _root_.Finite (Σ n, cell C n) :=
   ⟨finite_cells_of_finite, finite_of_finite_cells⟩
