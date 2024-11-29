@@ -24,7 +24,7 @@ section
 
 /-- `levelaux n` is a CW-complex for every `n : ℕ∞`.-/
 instance RelCWComplex_levelaux [RelCWComplex C D] (n : ℕ∞) : RelCWComplex (levelaux C D n) D where
-  cell l := {x : cell C D l // l < n}
+  cell l := {x : cell C l // l < n}
   map l i := map (C := C) (D := D) l i
   source_eq l i:= source_eq (C := C) (D := D) l i
   cont l i := cont (C := C) (D := D) l i
@@ -72,7 +72,7 @@ instance RelCWComplex_level [RelCWComplex C D] (n : ℕ∞) : RelCWComplex (leve
 /-- The union of two disjoint CW-complexes is again a CW-complex.-/
 def RelCWComplex_disjointUnion [RelCWComplex C D] {E F : Set X} [RelCWComplex E F]
     (disjoint : Disjoint C E) (hDF : SeparatedNhds D F) : RelCWComplex (C ∪ E) (D ∪ F) where
-  cell n := Sum (cell C D n) (cell E F n)
+  cell n := Sum (cell C n) (cell E n)
   map n := Sum.elim (map (C := C) n) (map (C := E) n)
   source_eq n i := match i with
     | Sum.inl x => source_eq n x
@@ -156,7 +156,7 @@ def RelCWComplex_disjointUnion [RelCWComplex C D] {E F : Set X} [RelCWComplex E 
 -- The union of two disjoint CW-complexes is again a CW-complex.-/
 def CWComplex_disjointUnion [CWComplex C] [CWComplex E] (disjoint : Disjoint C E) :
     CWComplex (C ∪ E) := CWComplex.mk (C ∪ E)
-  (cell := fun n ↦ Sum (cell C ∅ n) (cell E ∅ n))
+  (cell := fun n ↦ Sum (cell C n) (cell E n))
   (map := fun n ↦ Sum.elim (map (C := C) n) (map (C := E) n))
   (source_eq := fun n i ↦ match i with
     | Sum.inl x => source_eq n x
@@ -226,9 +226,9 @@ def RelCWComplex_attach_cell.{u} {X : Type u} [TopologicalSpace X] [T2Space X] (
     {n : ℕ} (map' : PartialEquiv (Fin n → ℝ) X) (source_eq' : map'.source = closedBall 0 1)
     (cont' : ContinuousOn map' (closedBall 0 1))
     (cont_symm' : ContinuousOn map'.symm map'.target)
-    (disjoint' : ∀ m (i : cell C D m), Disjoint (map' '' ball 0 1) (openCell m i))
+    (disjoint' : ∀ m (i : cell C m), Disjoint (map' '' ball 0 1) (openCell m i))
     (disjointBase' : Disjoint (map' '' ball 0 1) D)
-    (mapsto' : ∃ I : Π m, Finset (cell C D m),
+    (mapsto' : ∃ I : Π m, Finset (cell C m),
       MapsTo map' (sphere 0 1) (D ∪ ⋃ (m < n) (j ∈ I m), closedCell m j)) :
     RelCWComplex (map' '' closedBall 0 1 ∪ C) D where
   cell m := cell (C := C) (D := D) m ⊕' m = n
@@ -318,9 +318,9 @@ def RelCWComplex_attach_cell_of_Fintype.{u} {X : Type u} [TopologicalSpace X] [T
     {n : ℕ} (map' : PartialEquiv (Fin n → ℝ) X) (source_eq' : map'.source = closedBall 0 1)
     (cont' : ContinuousOn map' (closedBall 0 1))
     (cont_symm' : ContinuousOn map'.symm map'.target)
-    (disjoint' : ∀ m (i : cell C D m), Disjoint (map' '' ball 0 1) (openCell m i))
+    (disjoint' : ∀ m (i : cell C m), Disjoint (map' '' ball 0 1) (openCell m i))
     (disjointBase' : Disjoint (map' '' ball 0 1) D)
-    (mapsto' : MapsTo map' (sphere 0 1) (D ∪ ⋃ (m < n) (j : cell C D m), closedCell m j)) :
+    (mapsto' : MapsTo map' (sphere 0 1) (D ∪ ⋃ (m < n) (j : cell C m), closedCell m j)) :
     RelCWComplex (map' '' closedBall 0 1 ∪ C) D := RelCWComplex_attach_cell C D map'
   (source_eq' := source_eq')
   (cont' := cont')
@@ -336,8 +336,8 @@ def CWComplex_attach_cell.{u} {X : Type u} [TopologicalSpace X] [T2Space X] (C :
     {n : ℕ} (map' : PartialEquiv (Fin n → ℝ) X) (source_eq' : map'.source = closedBall 0 1)
     (cont' : ContinuousOn map' (closedBall 0 1))
     (cont_symm' : ContinuousOn map'.symm map'.target)
-    (disjoint' : ∀ m (i : cell C ∅ m), Disjoint (map' '' ball 0 1) (openCell m i))
-    (mapsto' : ∃ I : Π m, Finset (cell C ∅ m),
+    (disjoint' : ∀ m (i : cell C m), Disjoint (map' '' ball 0 1) (openCell m i))
+    (mapsto' : ∃ I : Π m, Finset (cell C m),
       MapsTo map' (sphere 0 1) (⋃ (m < n) (j ∈ I m), closedCell m j)) :
     CWComplex (map' '' closedBall 0 1 ∪ C) := RelCWComplex_attach_cell C ∅ map'
   (source_eq' := source_eq')
@@ -354,8 +354,8 @@ def CWComplex_attach_cell_of_Fintype.{u} {X : Type u} [TopologicalSpace X] [T2Sp
     {n : ℕ} (map' : PartialEquiv (Fin n → ℝ) X) (source_eq' : map'.source = closedBall 0 1)
     (cont' : ContinuousOn map' (closedBall 0 1))
     (cont_symm' : ContinuousOn map'.symm map'.target)
-    (disjoint' : ∀ m (i : cell C ∅ m), Disjoint (map' '' ball 0 1) (openCell m i))
-    (mapsto' : MapsTo map' (sphere 0 1) (⋃ (m < n) (j : cell C ∅ m), closedCell m j)) :
+    (disjoint' : ∀ m (i : cell C m), Disjoint (map' '' ball 0 1) (openCell m i))
+    (mapsto' : MapsTo map' (sphere 0 1) (⋃ (m < n) (j : cell C m), closedCell m j)) :
     CWComplex (map' '' closedBall 0 1 ∪ C) := CWComplex_attach_cell C map'
   (source_eq' := source_eq')
   (cont' := cont')
@@ -373,7 +373,7 @@ def RelCWComplex_of_Homeomorph.{u} {X Y : Type u} [TopologicalSpace X] [T2Space 
     (f : PartialEquiv X Y) (hfC1 : f.source = C) (hfE1 : f.target = E) (hDF : f '' D = F)
     (hfC2 : ContinuousOn f C) (hfE2 : ContinuousOn f.symm E)  :
     RelCWComplex E F where
-  cell := cell C D
+  cell := cell C
   map n i := (map n i).trans f
   source_eq n i := by
     rw [PartialEquiv.trans_source, source_eq, inter_eq_left, hfC1, ← image_subset_iff]

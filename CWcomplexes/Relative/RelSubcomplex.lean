@@ -45,7 +45,7 @@ section
   CW-complex.-/
 class RelSubcomplex (C D : Set X) [RelCWComplex C D] (E : Set X) where
   /-- The indexing set of cells of the subcomplex.-/
-  I : Π n, Set (cell C D n)
+  I : Π n, Set (cell C n)
   /-- A subcomplex is closed.-/
   closed : IsClosed E
   /-- The union of all open cells of the subcomplex equals the subcomplex.-/
@@ -61,7 +61,7 @@ lemma Subcomplex.union {C E : Set X} [CWComplex C] [Subcomplex C E] :
 
 /-- An alternative version of `Subcomplex`: Instead of requiring that `E` is closed it requires
   that for every cell of the subcomplex the corresponding closed cell is a subset of `E`.-/
-def RelSubcomplex' [T2Space X] (C D : Set X) [RelCWComplex C D] (E : Set X) (I : Π n, Set (cell C D n))
+def RelSubcomplex' [T2Space X] (C D : Set X) [RelCWComplex C D] (E : Set X) (I : Π n, Set (cell C n))
     (closedCell_subset : ∀ (n : ℕ) (i : I n), closedCell (C := C) (D := D) n i ⊆ E)
     (union : D ∪ ⋃ (n : ℕ) (j : I n), openCell (C := C) (D := D) n j = E) : RelSubcomplex C D E where
   I := I
@@ -89,7 +89,7 @@ def RelSubcomplex' [T2Space X] (C D : Set X) [RelCWComplex C D] (E : Set X) (I :
       · rw [inter_comm, (disjointBase n j).inter_eq]
         exact isClosed_empty
       · simp_rw [iUnion_inter]
-        suffices ⋃ m, ⋃ (i : ↑(I m)), openCell m (i : cell C D m) ∩ openCell (C := C) n j = ∅ by
+        suffices ⋃ m, ⋃ (i : ↑(I m)), openCell m (i : cell C m) ∩ openCell (C := C) n j = ∅ by
           rw [this]
           exact isClosed_empty
         apply iUnion_eq_empty.2 fun m ↦ iUnion_eq_empty.2 fun i ↦ ?_
@@ -99,14 +99,14 @@ def RelSubcomplex' [T2Space X] (C D : Set X) [RelCWComplex C D] (E : Set X) (I :
 
 /-- An alternative version of `Subcomplex`: Instead of requiring that `E` is closed it requires
   that for every cell of the subcomplex the corresponding closed cell is a subset of `E`.-/
-def Subcomplex' [T2Space X] (C : Set X) [CWComplex C] (E : Set X) (I : Π n, Set (cell C ∅ n))
+def Subcomplex' [T2Space X] (C : Set X) [CWComplex C] (E : Set X) (I : Π n, Set (cell C n))
     (closedCell_subset : ∀ (n : ℕ) (i : I n), closedCell (C := C) (D := ∅) n i ⊆ E)
     (union : ⋃ (n : ℕ) (j : I n), openCell (C := C) (D := ∅) n j = E) : Subcomplex C E :=
   RelSubcomplex' C ∅ E I closedCell_subset (by rw [empty_union]; exact union)
 
 /-- An alternative version of `Subcomplex`: Instead of requiring that `E` is closed it requires that
   `E` is a CW-complex. -/
-def RelSubcomplex'' [T2Space X] (C D : Set X) [RelCWComplex C D] (E : Set X) (I : Π n, Set (cell C D n))
+def RelSubcomplex'' [T2Space X] (C D : Set X) [RelCWComplex C D] (E : Set X) (I : Π n, Set (cell C n))
     [RelCWComplex E D]
     (union : D ∪ ⋃ (n : ℕ) (j : I n), openCell (C := C) (D := D) n j = E) : RelSubcomplex C D E where
   I := I
@@ -115,7 +115,7 @@ def RelSubcomplex'' [T2Space X] (C D : Set X) [RelCWComplex C D] (E : Set X) (I 
 
 /-- An alternative version of `Subcomplex`: Instead of requiring that `E` is closed it requires that
   `E` is a CW-complex. -/
-def Subcomplex'' [T2Space X] (C : Set X) [CWComplex C] (E : Set X) (I : Π n, Set (cell C ∅ n)) [CWComplex E]
+def Subcomplex'' [T2Space X] (C : Set X) [CWComplex C] (E : Set X) (I : Π n, Set (cell C n)) [CWComplex E]
     (union : ⋃ (n : ℕ) (j : I n), openCell (C := C) (D := ∅) n j = E) : Subcomplex C E where
   I := I
   closed := CWComplex.isClosed (D := ∅)
@@ -212,7 +212,7 @@ instance RelCWComplex_RelSubcomplex [T2Space X] [RelCWComplex C D] (E : Set X)
     simp only [← subcomplex.union, iUnion_coe_set, mem_union, h, mem_iUnion, exists_prop,
       false_or] at this
     obtain ⟨l, o, xmemopen'⟩ := this
-    suffices (⟨m, j⟩ : Σ n, cell C D n) = ⟨l, ↑o⟩ by aesop
+    suffices (⟨m, j⟩ : Σ n, cell C n) = ⟨l, ↑o⟩ by aesop
     apply eq_cell_of_not_disjoint
     rw [not_disjoint_iff]
     use x
@@ -345,9 +345,9 @@ instance finite_base [T2Space X] [RelCWComplex C D] : Finite D D where
     simp [RelCWComplex_RelSubcomplex, RelSubcomplex_base]
     exact Finite.of_subsingleton
 
-def attach_base [T2Space X] [RelCWComplex C D] (n : ℕ) (i : cell C D n) (hD: cellFrontier n i ⊆ D) :
+def attach_base [T2Space X] [RelCWComplex C D] (n : ℕ) (i : cell C n) (hD: cellFrontier n i ⊆ D) :
     RelSubcomplex C D (D ∪ closedCell n i) where
-  I m := {x | HEq (⟨m, x⟩ : Σ m, cell C D m) (⟨n, i⟩ : Σ n, cell C D n)}
+  I m := {x | HEq (⟨m, x⟩ : Σ m, cell C m) (⟨n, i⟩ : Σ n, cell C n)}
   closed := (isClosedBase C).union isClosed_closedCell
   union := by
     rw [← cellFrontier_union_openCell_eq_closedCell, ← union_assoc, union_eq_left.2 hD]
@@ -362,7 +362,7 @@ def attach_base [T2Space X] [RelCWComplex C D] (n : ℕ) (i : cell C D n) (hD: c
     · intro h
       use n, i
 
-lemma finite_attach_base [T2Space X] [RelCWComplex C D] (n : ℕ) (i : cell C D n)
+lemma finite_attach_base [T2Space X] [RelCWComplex C D] (n : ℕ) (i : cell C n)
     (hD: cellFrontier n i ⊆ D) :
     letI _subcomplex := attach_base n i hD
     Finite (D ∪ closedCell n i) D :=
@@ -384,18 +384,18 @@ lemma finite_attach_base [T2Space X] [RelCWComplex C D] (n : ℕ) (i : cell C D 
         simp only [RelCWComplex_RelSubcomplex, attach_base, coe_setOf, mem_setOf_eq, heq_eq_eq,
           Sigma.mk.inj_iff, true_and]
         exact Finite.of_subsingleton
-      · suffices IsEmpty (cell (D ∪ closedCell n i) D m) by
+      · suffices IsEmpty (cell (D ∪ closedCell n i) m) by
           exact Finite.of_subsingleton
         simp only [RelCWComplex_RelSubcomplex, attach_base, coe_setOf, mem_setOf_eq, heq_eq_eq,
           Sigma.mk.inj_iff, isEmpty_subtype, not_and, _subcomplex]
         intro c eq
         contradiction}
 
-instance cellzero [T2Space X] [RelCWComplex C D] (i : cell C D 0) :
+instance cellzero [T2Space X] [RelCWComplex C D] (i : cell C 0) :
   RelSubcomplex C D (D ∪ closedCell 0 i) := attach_base 0 i (by simp [cellFrontier_zero_eq_empty])
 
-instance cellzeroAB [T2Space X] [CWComplex C] (i : cell C ∅ 0) : Subcomplex C (closedCell 0 i) where
-  I n := {x | HEq (⟨n, x⟩ : Σ n, cell C ∅ n) (⟨0, i⟩ : Σ n, cell C ∅ n)}
+instance cellzeroAB [T2Space X] [CWComplex C] (i : cell C 0) : Subcomplex C (closedCell 0 i) where
+  I n := {x | HEq (⟨n, x⟩ : Σ n, cell C n) (⟨0, i⟩ : Σ n, cell C n)}
   closed := by
     rw [closedCell_zero_eq_singleton]
     exact isClosed_singleton
@@ -415,11 +415,11 @@ instance cellzeroAB [T2Space X] [CWComplex C] (i : cell C ∅ 0) : Subcomplex C 
       simp only [closedCell_zero_eq_singleton, openCell_zero_eq_singleton, subset_singleton_iff,
         mem_singleton_iff, imp_self, implies_true]
 
-instance finite_cellzero [T2Space X] [RelCWComplex C D] (i : cell C D 0) :
+instance finite_cellzero [T2Space X] [RelCWComplex C D] (i : cell C 0) :
     Finite (D ∪ closedCell 0 i) D :=
   finite_attach_base 0 i (by simp [cellFrontier_zero_eq_empty])
 
-instance finite_cellzeroAB [T2Space X] [CWComplex C] (i : cell C ∅ 0) :
+instance finite_cellzeroAB [T2Space X] [CWComplex C] (i : cell C 0) :
     Finite (closedCell 0 i) where
   eventually_isEmpty_cell := by
     simp only [Filter.eventually_atTop, ge_iff_le]
@@ -438,7 +438,7 @@ instance finite_cellzeroAB [T2Space X] [CWComplex C] (i : cell C ∅ 0) :
       simp only [heq_eq_eq, Sigma.mk.inj_iff, true_and, setOf_eq_eq_singleton]
       exact Finite.of_fintype _
     · rw [finite_coe_iff]
-      suffices {x | HEq (⟨n, x⟩ : Σ n, cell C ∅ n) (⟨0, i⟩ : Σ n, cell C ∅ n)} = ∅ by
+      suffices {x | HEq (⟨n, x⟩ : Σ n, cell C n) (⟨0, i⟩ : Σ n, cell C n)} = ∅ by
         rw [this]
         exact finite_empty
       apply eq_empty_of_forall_not_mem
@@ -449,12 +449,12 @@ instance finite_cellzeroAB [T2Space X] [CWComplex C] (i : cell C ∅ 0) :
 
 /-- The subcomplex that results from attaching a cell to a subcomplex when the edge of the cell is
   contained in the original subcomplex.-/
-def attach_cell [T2Space X] [RelCWComplex C D] (n : ℕ) (i : cell C D n) (E : Set X)
+def attach_cell [T2Space X] [RelCWComplex C D] (n : ℕ) (i : cell C n) (E : Set X)
     [sub : RelSubcomplex C D E]
-    (subset : ∃ (I : Π m, Set (cell C D m)), (∀ m < n, I m ⊆ sub.I m) ∧  cellFrontier n i ⊆
+    (subset : ∃ (I : Π m, Set (cell C m)), (∀ m < n, I m ⊆ sub.I m) ∧  cellFrontier n i ⊆
     (D ∪ ⋃ (m < n) (j ∈ I m), closedCell (C := C) m j)) :
     RelSubcomplex C D (E ∪ openCell n i) where
-  I l := {j : cell C D l | j ∈ sub.I l ∨ (⟨l, j⟩ : Σ n, cell C D n) = ⟨n, i⟩}
+  I l := {j : cell C l | j ∈ sub.I l ∨ (⟨l, j⟩ : Σ n, cell C n) = ⟨n, i⟩}
   closed := by
     suffices cellFrontier n i ⊆ E by
       rw [← union_eq_left.2 this, union_assoc, cellFrontier_union_openCell_eq_closedCell]
@@ -490,11 +490,11 @@ def attach_cell [T2Space X] [RelCWComplex C D] (n : ℕ) (i : cell C D n) (E : S
 
 /-- The subcomplex that results from attaching a cell to a subcomplex when the edge of the cell is
   contained in the original subcomplex.-/
-def attach_cellAB [T2Space X] [CWComplex C] (n : ℕ) (i : cell C ∅ n) (E : Set X) [sub : Subcomplex C E]
-    (subset : ∃ (I : Π m, Set (cell C ∅ m)), (∀ m < n, I m ⊆ sub.I m) ∧  cellFrontier n i ⊆
+def attach_cellAB [T2Space X] [CWComplex C] (n : ℕ) (i : cell C n) (E : Set X) [sub : Subcomplex C E]
+    (subset : ∃ (I : Π m, Set (cell C m)), (∀ m < n, I m ⊆ sub.I m) ∧  cellFrontier n i ⊆
     (⋃ (m < n) (j ∈ I m), closedCell (C := C) m j)) :
     Subcomplex C (E ∪ openCell n i) where
-  I l := {j : cell C ∅ l | j ∈ sub.I l ∨ (⟨l, j⟩ : Σ n, cell C ∅ n) = ⟨n, i⟩}
+  I l := {j : cell C l | j ∈ sub.I l ∨ (⟨l, j⟩ : Σ n, cell C n) = ⟨n, i⟩}
   closed := by
     suffices cellFrontier n i ⊆ E by
       rw [← union_eq_left.2 this, union_assoc, cellFrontier_union_openCell_eq_closedCell]
@@ -524,9 +524,9 @@ def attach_cellAB [T2Space X] [CWComplex C] (n : ℕ) (i : cell C ∅ n) (E : Se
       · use m, ⟨j.1, Or.intro_left _ j.2⟩
       · use n, ⟨i, Or.intro_right _ rfl⟩
 
-lemma finite_attach_cell [T2Space X] [RelCWComplex C D] (n : ℕ) (i : cell C D n) (E : Set X)
+lemma finite_attach_cell [T2Space X] [RelCWComplex C D] (n : ℕ) (i : cell C n) (E : Set X)
     [sub : RelSubcomplex C D E]
-    [finite : Finite (E ⇂ C) D] (subset : ∃ (I : Π m, Set (cell C D m)),
+    [finite : Finite (E ⇂ C) D] (subset : ∃ (I : Π m, Set (cell C m)),
     (∀ m < n, I m ⊆ sub.I m) ∧  cellFrontier n i ⊆
     (D ∪ ⋃ (m < n) (j ∈ I m), closedCell (C := C) m j)) :
     letI _subcomplex := attach_cell n i E subset
@@ -555,15 +555,15 @@ lemma finite_attach_cell [T2Space X] [RelCWComplex C D] (n : ℕ) (i : cell C D 
       setOf_false, empty_inter, finite_coe_iff, finite_union, finite_empty, and_true]
     exact finite.finite_cell m}
 
-lemma finite_attach_cellAB [T2Space X] [CWComplex C] (n : ℕ) (i : cell C ∅ n) (E : Set X)
-    [sub : Subcomplex C E] [finite : Finite (E ⇂ C)] (subset : ∃ (I : Π m, Set (cell C ∅ m)),
+lemma finite_attach_cellAB [T2Space X] [CWComplex C] (n : ℕ) (i : cell C n) (E : Set X)
+    [sub : Subcomplex C E] [finite : Finite (E ⇂ C)] (subset : ∃ (I : Π m, Set (cell C m)),
     (∀ m < n, I m ⊆ sub.I m) ∧ cellFrontier n i ⊆ (⋃ (m < n) (j ∈ I m), closedCell (C := C) m j)):
     let _subcomplex := attach_cellAB n i E subset
     Finite (E ∪ openCell n i) := finite_attach_cell n i E
   (by simp_rw [empty_union]; exact subset)
 
 /-- Every cell is part of a finite subcomplex.-/
-lemma cell_mem_finite_RelSubcomplex [T2Space X] [RelCWComplex C D] (n : ℕ) (i : cell C D n) :
+lemma cell_mem_finite_RelSubcomplex [T2Space X] [RelCWComplex C D] (n : ℕ) (i : cell C n) :
     ∃ (E : Set X) (subE : RelSubcomplex C D E), Finite E D ∧ i ∈ subE.I n := by
   induction' n using Nat.case_strong_induction_on with n hn
   · use (D ∪ closedCell 0 i), (Subcomplex.cellzero i)
@@ -592,7 +592,7 @@ lemma cell_mem_finite_RelSubcomplex [T2Space X] [RelCWComplex C D] (n : ℕ) (i 
     obtain ⟨m, mlt, j, jmem, _⟩ := xmem
     use m, Nat.le_of_lt_succ mlt, j
   let cw' : RelSubcomplex C D sub' := relSubcomplex_iUnion_RelSubcomplex _ _
-  have : ∃ (I : Π m, Set (cell C D m)),
+  have : ∃ (I : Π m, Set (cell C m)),
       (∀ m < n.succ , I m ⊆ cw'.I m) ∧  cellFrontier n.succ i ⊆
       (D ∪ ⋃ (m < n.succ) (j ∈ I m), closedCell (C := C) (D := D) m j) := by
     use fun m ↦ I m
@@ -612,7 +612,7 @@ lemma cell_mem_finite_RelSubcomplex [T2Space X] [RelCWComplex C D] (n : ℕ) (i 
     right
     rfl
 
-lemma closedCell_subset_finite_RelSubcomplex [T2Space X] [RelCWComplex C D] (n : ℕ) (i : cell C D n) :
+lemma closedCell_subset_finite_RelSubcomplex [T2Space X] [RelCWComplex C D] (n : ℕ) (i : cell C n) :
     ∃ (E : Set X) (_subE : RelSubcomplex C D E), Finite E D ∧ closedCell n i ⊆ E := by
   obtain ⟨E, subE, hE1, hE2⟩ := cell_mem_finite_RelSubcomplex n i
   use E, subE
@@ -623,7 +623,7 @@ lemma closedCell_subset_finite_RelSubcomplex [T2Space X] [RelCWComplex C D] (n :
 
 /-- Every finite set of cells is contained in some finite subcomplex.-/
 lemma finite_iUnion_subset_RelSubcomplex [T2Space X] [RelCWComplex C D]
-    (I : (n : ℕ) → Set (cell C D n)) [finite : _root_.Finite (Σ n, I n)] :
+    (I : (n : ℕ) → Set (cell C n)) [finite : _root_.Finite (Σ n, I n)] :
     ∃ (E : Set X) (_sub : RelSubcomplex C D E), CWComplex.Finite E D ∧
     (⋃ (n : ℕ) (i : I n), map (C := C) (D := D) n i '' closedBall 0 1) ⊆ E := by
   by_cases nonempty : Nonempty (Σ n, I n)
@@ -657,7 +657,7 @@ lemma compact_subset_finite_RelSubcomplex [T2Space X] [RelCWComplex C D] {B : Se
 /-- The levels of a CW-complex constitute subcomplexes. -/
 instance relSubcomplex_levelaux [T2Space X] [RelCWComplex C D] (n : ℕ∞) : RelSubcomplex C D (levelaux C D n) :=
   RelSubcomplex'' _ _ (levelaux C D n)
-  (fun l ↦ {x : cell C D l | l < n})
+  (fun l ↦ {x : cell C l | l < n})
   (by
     rw [← iUnion_openCell_eq_levelaux]
     congrm D ∪ ?_
