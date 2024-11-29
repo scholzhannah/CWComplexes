@@ -219,6 +219,8 @@ def CWComplex_disjointUnion [CWComplex C] [CWComplex E] (disjoint : Disjoint C E
 
 end
 
+-- generalized finite version of this
+
 def RelCWComplex_attach_cell.{u} {X : Type u} [TopologicalSpace X] [T2Space X] (C D : Set X)
     [RelCWComplex C D]
     {n : ℕ} (map' : PartialEquiv (Fin n → ℝ) X) (source_eq' : map'.source = closedBall 0 1)
@@ -229,64 +231,64 @@ def RelCWComplex_attach_cell.{u} {X : Type u} [TopologicalSpace X] [T2Space X] (
     (mapsto' : ∃ I : Π m, Finset (cell C D m),
       MapsTo map' (sphere 0 1) (D ∪ ⋃ (m < n) (j ∈ I m), closedCell m j)) :
     RelCWComplex (map' '' closedBall 0 1 ∪ C) D where
-  cell m := cell (C := C) (D := D) m ⊕ {x : PUnit.{u + 1} // m = n}
+  cell m := cell (C := C) (D := D) m ⊕' m = n
   map m i := match i with
-    | Sum.inl j => map m j
-    | Sum.inr ⟨j, hj⟩ => hj ▸ map'
+    | .inl j => map m j
+    | .inr hj => hj ▸ map'
   source_eq m i := match i with
-    | Sum.inl j => source_eq m j
-    | Sum.inr ⟨j, hj⟩ => hj ▸ source_eq'
+    | .inl j => source_eq m j
+    | .inr hj => hj ▸ source_eq'
   cont m i := match i with
-    | Sum.inl j => cont m j
-    | Sum.inr ⟨j, hj⟩ => hj ▸ cont'
+    | .inl j => cont m j
+    | .inr hj => hj ▸ cont'
   cont_symm m i := match i with
-    | Sum.inl j => cont_symm m j
-    | Sum.inr ⟨j, hj⟩ => hj ▸ cont_symm'
+    | .inl j => cont_symm m j
+    | .inr hj => hj ▸ cont_symm'
   pairwiseDisjoint' := by
     rw [PairwiseDisjoint, Set.Pairwise]
     exact fun ⟨n1, j1⟩ _ ⟨n2, j2⟩ _ ↦ match j1 with
-      | Sum.inl j1 => match j2 with
-        | Sum.inl j2 => by
+      | .inl j1 => match j2 with
+        | .inl j2 => by
           have := RelCWComplex.pairwiseDisjoint' (C := C) (D := D)
           rw [PairwiseDisjoint, Set.Pairwise] at this
           intro ne
           apply @this ⟨n1, j1⟩ (mem_univ _) ⟨n2, j2⟩ (mem_univ _)
           aesop
-        | Sum.inr ⟨j2, hj2⟩ => by
+        | .inr hj2 => by
           intro _
           subst n2
           simp_rw [disjoint_comm]
           exact disjoint' n1 j1
-      | Sum.inr ⟨j1, hj1⟩ => match j2 with
-        | Sum.inl j2 => by
+      | .inr hj1 => match j2 with
+        | .inl j2 => by
           intro _
           subst n1
           exact disjoint' n2 j2
-        | Sum.inr ⟨j2, hj2⟩ => by
+        | .inr hj2 => by
           intro ne
           subst hj1 hj2
           simp_all only [mem_univ, ne_eq, not_true_eq_false]
   disjointBase' m i := match i with
-    | Sum.inl j => RelCWComplex.disjointBase' m j
-    | Sum.inr ⟨j, hj⟩ => hj ▸ disjointBase'
+    | .inl j => RelCWComplex.disjointBase' m j
+    | .inr hj => hj ▸ disjointBase'
   mapsto m i := match i with
-    | Sum.inl j => by
+    | .inl j => by
       classical
       obtain ⟨I, hI⟩ := mapsto m j
-      use fun m ↦ (I m).image Sum.inl
+      use fun m ↦ (I m).image .inl
       simp [hI]
-    | Sum.inr ⟨j, hj⟩ => by
+    | .inr hj => by
       classical
       subst hj
       obtain ⟨I, hI⟩ := mapsto'
-      use fun m ↦ (I m).image Sum.inl
+      use fun m ↦ (I m).image .inl
       simpa
   closed' A Asub := by
     intro ⟨h1, h2⟩
     have : A = A ∩ map' '' closedBall 0 1 ∪ A ∩ C := by
       rw [← inter_union_distrib_left, inter_eq_left.2 Asub]
     rw [this]
-    apply (h1 n (.inr ⟨PUnit.unit, rfl⟩)).union
+    apply (h1 n (.inr rfl)).union
     rw [closed C D (A := A ∩ C) inter_subset_right]
     constructor
     · intro n j
@@ -301,14 +303,15 @@ def RelCWComplex_attach_cell.{u} {X : Type u} [TopologicalSpace X] [T2Space X] (
     ext
     simp only [mem_iUnion, Sum.exists, Subtype.exists, mem_union]
     constructor
-    · intro ⟨m, h⟩
-      rcases h with ⟨j, hj⟩ | ⟨j, rfl, hj⟩
-      · exact .inr ⟨m, ⟨j, hj⟩⟩
-      · exact .inl hj
+    · intro ⟨m, i, h⟩
+      rcases i with j | h'
+      · exact .inr ⟨m, ⟨j, h⟩⟩
+      · subst h'
+        exact .inl h
     · intro h
       rcases h with hj | ⟨m, j, hj⟩
-      · exact ⟨n, .inr ⟨PUnit.unit, ⟨rfl, hj⟩⟩⟩
-      · exact ⟨m, .inl ⟨j, hj⟩⟩
+      · exact ⟨n, .inr rfl, hj⟩
+      · exact ⟨m, .inl j, hj⟩
 
 def RelCWComplex_attach_cell_of_Fintype.{u} {X : Type u} [TopologicalSpace X] [T2Space X]
     (C D : Set X) [RelCWComplex C D] [FiniteType C D]

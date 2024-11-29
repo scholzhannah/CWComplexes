@@ -21,8 +21,6 @@ namespace CWComplex
 
 variable {X : Type*} [t : TopologicalSpace X] [T2Space X] {C D : Set X}
 
-#check RelCWComplex.isClosed
--- why does `(RelCWComplex_levelaux n).isClosed` not work?
 
 lemma isClosed_levelaux [RelCWComplex C D] (n : ℕ∞) :
     IsClosed (levelaux C D n) := @isClosed _ _ _ _ _ (RelCWComplex_levelaux n)
