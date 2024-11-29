@@ -23,7 +23,7 @@ section
 
 
 /-- `levelaux n` is a CW-complex for every `n : ℕ∞`.-/
-instance RelCWComplex_levelaux [RelCWComplex C D] (n : ℕ∞) : RelCWComplex (levelaux C D n) D where
+instance RelCWComplex_levelaux [RelCWComplex C D] (n : ℕ∞) : RelCWComplex (levelaux C n) D where
   cell l := {x : cell C l // l < n}
   map l i := map (C := C) (D := D) l i
   source_eq l i:= source_eq (C := C) (D := D) l i
@@ -66,7 +66,7 @@ instance RelCWComplex_levelaux [RelCWComplex C D] (n : ℕ∞) : RelCWComplex (l
     rfl
 
 /-- `level n` is a CW-complex for every `n : ℕ∞`.-/
-instance RelCWComplex_level [RelCWComplex C D] (n : ℕ∞) : RelCWComplex (level C D n) D :=
+instance RelCWComplex_level [RelCWComplex C D] (n : ℕ∞) : RelCWComplex (level C n) D :=
   RelCWComplex_levelaux _
 
 /-- The union of two disjoint CW-complexes is again a CW-complex.-/

@@ -23,12 +23,12 @@ variable {X : Type*} [t : TopologicalSpace X] [T2Space X] {C D : Set X}
 
 
 lemma isClosed_levelaux [RelCWComplex C D] (n : ℕ∞) :
-    IsClosed (levelaux C D n) := @isClosed _ _ _ _ _ (RelCWComplex_levelaux n)
+    IsClosed (levelaux C n) := @isClosed _ _ _ _ _ (RelCWComplex_levelaux n)
 
-lemma isClosed_level [RelCWComplex C D] (n : ℕ∞) : IsClosed (level C D n) := isClosed_levelaux _
+lemma isClosed_level [RelCWComplex C D] (n : ℕ∞) : IsClosed (level C n) := isClosed_levelaux _
 
 lemma closed_iff_inter_levelaux_closed [RelCWComplex C D] {A : Set X} (asubc : A ⊆ C) :
-    IsClosed A ↔ ∀ (n : ℕ), IsClosed (A ∩ levelaux C D n) := by
+    IsClosed A ↔ ∀ (n : ℕ), IsClosed (A ∩ levelaux C n) := by
   refine ⟨fun closedA _ ↦  IsClosed.inter closedA (isClosed_levelaux _), ?_⟩
   intro h
   rw [closed C D A asubc]
@@ -43,7 +43,7 @@ lemma closed_iff_inter_levelaux_closed [RelCWComplex C D] {A : Set X} (asubc : A
   `levelaux C n ` and every cell of dimension `n` is closed.-/
 lemma inter_levelaux_succ_closed_iff_inter_levelaux_closed_and_inter_closedCell_closed
     [RelCWComplex C D] (A : Set X) :
-    IsClosed (A ∩ levelaux C D (Nat.succ n)) ↔ IsClosed (A ∩ levelaux C D n) ∧
+    IsClosed (A ∩ levelaux C (Nat.succ n)) ↔ IsClosed (A ∩ levelaux C n) ∧
     ∀ (j : cell C n), IsClosed (A ∩ closedCell n j) := by
   constructor
   · intro hclosed
@@ -52,21 +52,21 @@ lemma inter_levelaux_succ_closed_iff_inter_levelaux_closed_and_inter_closedCell_
         ← inter_assoc]
       exact hclosed.inter (isClosed_levelaux n)
     · intro j
-      have : A ∩ levelaux C D n.succ ⊆ C := by
+      have : A ∩ levelaux C n.succ ⊆ C := by
         apply subset_trans inter_subset_right
         simp_rw [← levelaux_top (C := C) (D := D)]
         exact levelaux_mono le_top
-      rw [closed C D (A ∩ levelaux C D n.succ) this] at hclosed
+      rw [closed C D (A ∩ levelaux C n.succ) this] at hclosed
       replace hclosed := hclosed.1 n j
       rw [inter_assoc, Nat.succ_eq_add_one, Nat.cast_add, Nat.cast_one,
         inter_eq_right.2 (closedCell_subset_levelaux n j)] at hclosed
       exact hclosed
   · intro ⟨closed1, closed2⟩
-    have sub : A ∩ levelaux C D n.succ ⊆ C := by
+    have sub : A ∩ levelaux C n.succ ⊆ C := by
       apply subset_trans inter_subset_right
       simp_rw [← levelaux_top (C := C) (D := D)]
       exact levelaux_mono le_top
-    have : IsClosed (A ∩ levelaux C D ↑n.succ ∩ D) := by
+    have : IsClosed (A ∩ levelaux C ↑n.succ ∩ D) := by
       simp_rw [inter_assoc, ← levelaux_zero_eq_base (C := C),
         inter_eq_right.2 (levelaux_mono n.succ.cast_nonneg')]
       rw [← inter_eq_right.2 (levelaux_mono n.cast_nonneg'), ← inter_assoc, levelaux_zero_eq_base]
@@ -77,13 +77,13 @@ lemma inter_levelaux_succ_closed_iff_inter_levelaux_closed_and_inter_closedCell_
     · right
       rw [inter_assoc, ← inter_eq_right.2
         ((closedCell_subset_levelaux m j).trans (levelaux_mono (by norm_cast : (m : ℕ∞) + 1 ≤ n))),
-        ← inter_assoc (levelaux _ _ _),
+        ← inter_assoc (levelaux _ _),
         inter_eq_right.2 (levelaux_mono (by norm_cast; exact Nat.le_succ n)), ← inter_assoc]
       exact closed1.inter isClosed_closedCell
     by_cases msucceqn : m = n
     · right
       subst msucceqn
-      rw [inter_assoc, inter_comm (levelaux _ _ m.succ), ← inter_assoc]
+      rw [inter_assoc, inter_comm (levelaux _ m.succ), ← inter_assoc]
       exact (closed2 _).inter (isClosed_levelaux _)
     left
     have : n.succ ≤ m := by
@@ -97,7 +97,7 @@ lemma inter_levelaux_succ_closed_iff_inter_levelaux_closed_and_inter_closedCell_
    `j : cell C n`.-/
 lemma induction_isClosed_levelaux [RelCWComplex C D] {A : Set X} (asub : A ⊆ C)
     (start : IsClosed (A ∩ D))
-    (step : ∀ (n : ℕ), (∀ m (_ : m ≤ n), IsClosed (A ∩ levelaux C D m)) →
+    (step : ∀ (n : ℕ), (∀ m (_ : m ≤ n), IsClosed (A ∩ levelaux C m)) →
     ∀ j, IsClosed (A ∩ closedCell (C := C) (D := D) n j)) :
     IsClosed A := by
   rw [closed_iff_inter_levelaux_closed (D := D) asub]
@@ -110,7 +110,7 @@ lemma induction_isClosed_levelaux [RelCWComplex C D] {A : Set X} (asub : A ⊆ C
 /--  A set `A` in a CW-complex is closed if assuming that the intersection `A ∩ levelaux C m` is
   closed for all `m ≤ n` implies that `A ∩ closedCell n j` is closed for every `j : cell C n`.-/
 lemma induction_isClosed_levelauxAB [CWComplex C] {A : Set X} (asub : A ⊆ C)
-    (step : ∀ (n : ℕ), (∀ m (_ : m ≤ n), IsClosed (A ∩ levelaux C ∅ m)) →
+    (step : ∀ (n : ℕ), (∀ m (_ : m ≤ n), IsClosed (A ∩ levelaux C m)) →
     ∀ j, IsClosed (A ∩ closedCell (C := C) (D := ∅) n j)) :
     IsClosed A := by
   rw [closed_iff_inter_levelaux_closed (D := ∅) asub]
@@ -121,7 +121,7 @@ lemma induction_isClosed_levelauxAB [CWComplex C] {A : Set X} (asub : A ⊆ C)
   exact ⟨hn n n.le_refl, step n hn⟩
 
 /-- `levelaux C 1` is discrete.-/
-lemma isDiscrete_levelaux_one [CWComplex C] {A : Set X} : IsClosed (A ∩ levelaux C ∅ 1) := by
+lemma isDiscrete_levelaux_one [CWComplex C] {A : Set X} : IsClosed (A ∩ levelaux C 1) := by
   apply isClosed_of_isClosed_inter_openCell_or_isClosed_inter_closedCellAB (C := C)
     (inter_subset_right.trans
     (by simp_rw [← levelaux_top (C := C) (D := ∅)]; apply levelaux_mono le_top))
@@ -133,7 +133,7 @@ lemma isDiscrete_levelaux_one [CWComplex C] {A : Set X} : IsClosed (A ∩ levela
   exact isClosed_empty
 
 /-- `level 0` is discrete.-/
-lemma isDiscrete_level_zero [CWComplex C] {A : Set X} : IsClosed (A ∩ level C ∅ 0) :=
+lemma isDiscrete_level_zero [CWComplex C] {A : Set X} : IsClosed (A ∩ level C 0) :=
   isDiscrete_levelaux_one
 
 /-- A compact set can only meet finitely many open cells.-/

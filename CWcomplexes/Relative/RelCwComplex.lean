@@ -17,7 +17,7 @@ together.
 * `openCell n i` : An open cell of dimension `n`.
 * `closedCell n i` : A closed cell of dimension `n`.
 * `cellFrontier n i` : The edge of a cell of dimension `n`.
-* `level C D n` : The `n`-th level of the CW-complex `C`.
+* `level C n` : The `n`-th level of the CW-complex `C`.
 
 ## Main statements
 * `iUnion_openCell_eq_level` : The levels can also be seen as a union of open cells.
@@ -109,10 +109,6 @@ def CWComplex.mk {X : Type u} [TopologicalSpace X] (C : Set X)
   isClosedBase := isClosed_empty
   union' := by simpa only [empty_union]
 
--- this does not do what I want it to do
--- abbrev cell {X : Type*} [TopologicalSpace X] (C : Set X) [CWComplex C] (n : ℕ) :=
---  RelCWComplex.cell C n
-
 namespace CWComplex
 
 export RelCWComplex (cell map source_eq cont cont_symm mapsto isClosedBase)
@@ -197,19 +193,19 @@ lemma map_zero_mem_closedCell [RelCWComplex C D] (n : ℕ) (i : cell C n) :
 /-- A non-standard definition of the `n`-th level of a CW-complex for `n ∈ ℕ ∪ ∞` useful for
   induction. The standard `level` is defined in terms of levelaux. `levelaux` is preferred
   statements. You should then derive the statement about `level`. -/
-def levelaux (C D : Set X) [RelCWComplex C D] (n : ℕ∞) : Set X :=
+def levelaux (C : Set X) {D : Set X} [RelCWComplex C D] (n : ℕ∞) : Set X :=
   D ∪ ⋃ (m : ℕ) (_ : m < n) (j : cell C m), closedCell m j
 
 /-- The `n`-th level of a CW-complex, for `n ∈ ℕ ∪ ∞`. For statements use `levelaux` instead
   and then derive the statement about `level`.-/
-def level (C D : Set X) [RelCWComplex C D] (n : ℕ∞) : Set X :=
-  levelaux C D (n + 1)
+def level (C : Set X) {D : Set X} [RelCWComplex C D] (n : ℕ∞) : Set X :=
+  levelaux C (n + 1)
 
-lemma levelaux_zero_eq_base [RelCWComplex C D] : levelaux C D 0 = D := by
+lemma levelaux_zero_eq_base [RelCWComplex C D] : levelaux C 0 = D := by
   simp only [levelaux, ENat.not_lt_zero, iUnion_of_empty, iUnion_empty, union_empty]
 
 -- is this lemma useful? Probably not...
-lemma levelaux_zero_eq_empty [CWComplex C] : levelaux C ∅ 0 = ∅ := levelaux_zero_eq_base
+lemma levelaux_zero_eq_empty [CWComplex C] : levelaux C 0 = ∅ := levelaux_zero_eq_base
 
 lemma isCompact_closedCell [RelCWComplex C D] {n : ℕ} {i : cell C n} :
     IsCompact (closedCell n i) := (isCompact_closedBall _ _).image_of_continuousOn (cont n i)
@@ -248,37 +244,37 @@ lemma closedAB (C : Set X) [CWComplex C] [T2Space X] (A : Set X) (asubc : A ⊆ 
   have := closed C ∅ A asubc
   simp_all
 
-@[simp] lemma levelaux_top [RelCWComplex C D] : levelaux C D ⊤ = C := by
+@[simp] lemma levelaux_top [RelCWComplex C D] : levelaux C ⊤ = C := by
   simp [levelaux, union]
 
-@[simp] lemma level_top [RelCWComplex C D] : level C D ⊤ = C := levelaux_top
+@[simp] lemma level_top [RelCWComplex C D] : level C ⊤ = C := levelaux_top
 
 lemma levelaux_mono [RelCWComplex C D] {n m : ℕ∞} (h : m ≤ n) :
-    levelaux C D m ⊆ levelaux C D n := by
+    levelaux C m ⊆ levelaux C n := by
   apply union_subset_union_right
   intro x xmem
   simp_rw [mem_iUnion, exists_prop] at xmem ⊢
   obtain ⟨l , lltm, xmeml⟩ := xmem
   exact ⟨l, lt_of_lt_of_le lltm h, xmeml⟩
 
-lemma level_mono [RelCWComplex C D] {n m : ℕ∞} (h : m ≤ n) : level C D m ⊆ level C D n :=
+lemma level_mono [RelCWComplex C D] {n m : ℕ∞} (h : m ≤ n) : level C m ⊆ level C n :=
   levelaux_mono (add_le_add_right h 1)
 
-lemma levelaux_subset_complex [RelCWComplex C D] {n : ℕ∞} : levelaux C D n ⊆ C := by
+lemma levelaux_subset_complex [RelCWComplex C D] {n : ℕ∞} : levelaux C n ⊆ C := by
   simp_rw [← levelaux_top (C := C) (D := D)]
   exact levelaux_mono (OrderTop.le_top n)
 
-lemma level_subset_complex [RelCWComplex C D] {n : ℕ∞} : level C D n ⊆ C := levelaux_subset_complex
+lemma level_subset_complex [RelCWComplex C D] {n : ℕ∞} : level C n ⊆ C := levelaux_subset_complex
 
 lemma closedCell_subset_levelaux [RelCWComplex C D] (n : ℕ) (j : cell C n) :
-    closedCell n j ⊆ levelaux C D (n + 1) := by
+    closedCell n j ⊆ levelaux C (n + 1) := by
   intro x xmem
   right
   simp_rw [mem_iUnion, exists_prop]
   refine ⟨n, (by norm_cast; exact lt_add_one n), ⟨j,xmem⟩⟩
 
 lemma closedCell_subset_level [RelCWComplex C D] (n : ℕ) (j : cell C n) :
-    closedCell n j ⊆ level C D n :=
+    closedCell n j ⊆ level C n :=
   closedCell_subset_levelaux n j
 
 lemma closedCell_subset_complex [RelCWComplex C D] (n : ℕ) (j : cell C n) : closedCell n j ⊆ C :=
@@ -286,11 +282,11 @@ lemma closedCell_subset_complex [RelCWComplex C D] (n : ℕ) (j : cell C n) : cl
     (by simp_rw [← level_top (C := C) (D := D)]; exact level_mono le_top)
 
 lemma openCell_subset_levelaux [RelCWComplex C D] (n : ℕ) (j : cell C n) :
-    openCell n j ⊆ levelaux C D (n + 1) :=
+    openCell n j ⊆ levelaux C (n + 1) :=
   (openCell_subset_closedCell _ _).trans (closedCell_subset_levelaux _ _ )
 
 lemma openCell_subset_level [RelCWComplex C D] (n : ℕ) (j : cell C n) :
-    openCell n j ⊆ level C D n :=
+    openCell n j ⊆ level C n :=
   (openCell_subset_closedCell _ _).trans (closedCell_subset_level _ _)
 
 lemma openCell_subset_complex [RelCWComplex C D] (n : ℕ) (j : cell C n) : openCell n j ⊆ C := by
@@ -298,7 +294,7 @@ lemma openCell_subset_complex [RelCWComplex C D] (n : ℕ) (j : cell C n) : open
     (by simp_rw [← level_top (C := C) (D := D)]; exact level_mono le_top)
 
 lemma cellFrontier_subset_levelaux [RelCWComplex C D] (n : ℕ) (j : cell C n) :
-    cellFrontier n j ⊆ levelaux C D n := by
+    cellFrontier n j ⊆ levelaux C n := by
   obtain ⟨I, hI⟩ := cellFrontier_subset_base_union_finite_closedCell n j
   refine subset_trans hI (fun x xmem ↦ ?_)
   rcases xmem with xmem | xmem
@@ -310,15 +306,15 @@ lemma cellFrontier_subset_levelaux [RelCWComplex C D] (n : ℕ) (j : cell C n) :
     exact ⟨i, by norm_cast, j, xmem⟩
 
 lemma cellFrontier_subset_level [RelCWComplex C D] (n : ℕ) (j : cell C (n + 1)) :
-    cellFrontier (n + 1) j ⊆ level C D n :=
+    cellFrontier (n + 1) j ⊆ level C n :=
   cellFrontier_subset_levelaux _ _
 
 lemma iUnion_cellFrontier_subset_levelaux [RelCWComplex C D] (l : ℕ) :
-    ⋃ (j : cell C l), cellFrontier l j ⊆ levelaux C D l :=
+    ⋃ (j : cell C l), cellFrontier l j ⊆ levelaux C l :=
   iUnion_subset  (fun _ ↦ cellFrontier_subset_levelaux _ _)
 
 lemma iUnion_cellFrontier_subset_level [RelCWComplex C D] (l : ℕ) :
-    ⋃ (j : cell C l), cellFrontier l j ⊆ level C D l :=
+    ⋃ (j : cell C l), cellFrontier l j ⊆ level C l :=
   (iUnion_cellFrontier_subset_levelaux l).trans (levelaux_mono le_self_add)
 
 lemma closedCell_zero_eq_singleton [RelCWComplex C D] {j : cell C 0} :
@@ -332,9 +328,9 @@ lemma openCell_zero_eq_singleton [RelCWComplex C D] {j : cell C 0} :
 lemma cellFrontier_zero_eq_empty [RelCWComplex C D] {j : cell C 0} : cellFrontier 0 j = ∅ := by
   simp [cellFrontier, sphere_eq_empty_of_subsingleton]
 
-lemma base_subset_levelaux [RelCWComplex C D] (n : ℕ∞) : D ⊆ levelaux C D n := subset_union_left
+lemma base_subset_levelaux [RelCWComplex C D] (n : ℕ∞) : D ⊆ levelaux C n := subset_union_left
 
-lemma base_subset_level [RelCWComplex C D] (n : ℕ∞) : D ⊆ level C D n :=
+lemma base_subset_level [RelCWComplex C D] (n : ℕ∞) : D ⊆ level C n :=
   base_subset_levelaux (n + 1)
 
 lemma base_subset_complex [RelCWComplex C D] : D ⊆ C := by
@@ -351,7 +347,7 @@ lemma isClosed [T2Space X] [RelCWComplex C D] : IsClosed C := by
     exact isClosedBase C
 
 lemma iUnion_levelaux_eq_levelaux [RelCWComplex C D] (n : ℕ∞) :
-    ⋃ (m : ℕ) (_ : m < n + 1), levelaux C D m = levelaux C D n := by
+    ⋃ (m : ℕ) (_ : m < n + 1), levelaux C m = levelaux C n := by
   apply subset_antisymm
   · simp_rw [iUnion_subset_iff]
     exact fun _ h ↦  levelaux_mono (Order.le_of_lt_add_one h)
@@ -373,7 +369,7 @@ lemma iUnion_levelaux_eq_levelaux [RelCWComplex C D] (n : ℕ∞) :
       simp
 
 lemma iUnion_level_eq_level [RelCWComplex C D] (n : ℕ∞) :
-    ⋃ (m : ℕ) (_ : m < n + 1), level C D m = level C D n := by
+    ⋃ (m : ℕ) (_ : m < n + 1), level C m = level C n := by
   simp_rw [level, ← iUnion_levelaux_eq_levelaux (n + 1)]
   ext
   simp only [mem_iUnion, exists_prop]
@@ -389,19 +385,19 @@ lemma iUnion_level_eq_level [RelCWComplex C D] (n : ℕ∞) :
       exact (ENat.add_lt_add_iff_right ENat.one_ne_top).mp hin
 
 lemma levelaux_succ_eq_levelaux_union_iUnion_closedCell [RelCWComplex C D] (n : ℕ) :
-    levelaux C D (n + 1) = levelaux C D n ∪ ⋃ (j : cell C n), closedCell n j := by
+    levelaux C (n + 1) = levelaux C n ∪ ⋃ (j : cell C n), closedCell n j := by
   rw [levelaux, levelaux, union_assoc]
   congr
   norm_cast
   exact biUnion_lt_succ _ _
 
 lemma level_succ_eq_level_union_iUnion [RelCWComplex C D] (n : ℕ) :
-    level C D (n + 1) = level C D n ∪ ⋃ (j : cell C (↑n + 1)), closedCell (n + 1) j :=
+    level C (n + 1) = level C n ∪ ⋃ (j : cell C (↑n + 1)), closedCell (n + 1) j :=
   levelaux_succ_eq_levelaux_union_iUnion_closedCell _
 
 /-- A version of the definition of `levelaux` with open cells. -/
 lemma iUnion_openCell_eq_levelaux [RelCWComplex C D] (n : ℕ∞) :
-    D ∪ ⋃ (m : ℕ) (_ : m < n) (j : cell C m), openCell m j = levelaux C D n := by
+    D ∪ ⋃ (m : ℕ) (_ : m < n) (j : cell C m), openCell m j = levelaux C n := by
   induction' n using ENat.nat_induction with n hn hn
   · simp [levelaux]
   · calc
@@ -410,22 +406,22 @@ lemma iUnion_openCell_eq_levelaux [RelCWComplex C D] (n : ℕ∞) :
         congr
         norm_cast
         exact biUnion_lt_succ _ _
-      _ = D ∪ (levelaux C D n ∪ ⋃ (j : cell C n), openCell n j) := by
+      _ = D ∪ (levelaux C n ∪ ⋃ (j : cell C n), openCell n j) := by
         simp_rw [← union_assoc, ← hn, ← union_assoc, union_self]
         norm_cast
-      _ = D ∪ (levelaux C D n ∪ (⋃ (j : cell C n), cellFrontier n j) ∪
+      _ = D ∪ (levelaux C n ∪ (⋃ (j : cell C n), cellFrontier n j) ∪
           ⋃ (j : cell C n), openCell n j) := by
         congr
         exact (union_eq_left.2 (iUnion_cellFrontier_subset_levelaux n)).symm
-      _ = D ∪ (levelaux C D n ∪ ⋃ (j : cell C n), closedCell n j) := by
+      _ = D ∪ (levelaux C n ∪ ⋃ (j : cell C n), closedCell n j) := by
         simp_rw [union_assoc, ← iUnion_union_distrib, cellFrontier_union_openCell_eq_closedCell]
-      _ = D ∪ levelaux C D n.succ := by
+      _ = D ∪ levelaux C n.succ := by
         unfold levelaux
         simp_rw [union_assoc]
         congr
         norm_cast
         exact (biUnion_lt_succ _ _).symm
-      _ = levelaux C D n.succ := by
+      _ = levelaux C n.succ := by
         rw [union_eq_right]
         exact base_subset_levelaux n.succ
   · calc
@@ -435,7 +431,7 @@ lemma iUnion_openCell_eq_levelaux [RelCWComplex C D] (n : ℕ∞) :
       _ = D ∪ ⋃ m, ⋃ l, ⋃ (_ : l < m), ⋃ (j : cell C l), openCell l j := by
         congr
         exact biSup_lt_eq_iSup.symm
-      _ = ⋃ (m : ℕ), levelaux C D m := by
+      _ = ⋃ (m : ℕ), levelaux C m := by
         rw [union_iUnion]
         apply iUnion_congr
         intro n
@@ -448,18 +444,18 @@ lemma iUnion_openCell_eq_levelaux [RelCWComplex C D] (n : ℕ∞) :
       _ = D ∪ ⋃ m, ⋃ (j : cell C m), closedCell m j := by
         congr
         exact biSup_lt_eq_iSup
-      _ = levelaux C D ⊤ := by rw [levelaux_top, union]
+      _ = levelaux C ⊤ := by rw [levelaux_top, union]
 
 lemma iUnion_openCell_eq_levelauxAB [CWComplex C] (n : ℕ∞) :
-    ⋃ (m : ℕ) (_ : m < n) (j : cell C m), openCell m j = levelaux C ∅ n := by
+    ⋃ (m : ℕ) (_ : m < n) (j : cell C m), openCell m j = levelaux C n := by
   rw [← iUnion_openCell_eq_levelaux, empty_union]
 
 lemma iUnion_openCell_eq_level [RelCWComplex C D] (n : ℕ∞) :
-    D ∪ ⋃ (m : ℕ) (_ : m < n + 1) (j : cell C m), openCell m j = level C D n :=
+    D ∪ ⋃ (m : ℕ) (_ : m < n + 1) (j : cell C m), openCell m j = level C n :=
   iUnion_openCell_eq_levelaux _
 
 lemma iUnion_openCell_eq_levelAB [CWComplex C] (n : ℕ∞) :
-    ⋃ (m : ℕ) (_ : m < n + 1) (j : cell C m), openCell m j = level C ∅ n :=
+    ⋃ (m : ℕ) (_ : m < n + 1) (j : cell C m), openCell m j = level C n :=
   iUnion_openCell_eq_levelauxAB _
 
 lemma iUnion_openCell [RelCWComplex C D] : D ∪ ⋃ (n : ℕ) (j : cell C n), openCell n j = C := by
@@ -483,7 +479,7 @@ lemma eq_cell_of_not_disjoint [RelCWComplex C D] {n : ℕ} {j : cell C n} {m : �
 
 -- Alternatively I could add `x ∉ D` as a hypothesis
 lemma exists_mem_openCell_of_mem_levelaux [RelCWComplex C D] {n : ℕ∞} {x : X}
-    (xmemlvl : x ∈ levelaux C D n) :
+    (xmemlvl : x ∈ levelaux C n) :
     x ∈ D ∨ ∃ (m : ℕ) (_ : m < n) (j : cell C m), x ∈ openCell m j := by
   rw [← iUnion_openCell_eq_levelaux] at xmemlvl
   rcases xmemlvl with xmem | xmem
@@ -495,14 +491,14 @@ lemma exists_mem_openCell_of_mem_levelaux [RelCWComplex C D] {n : ℕ∞} {x : X
     use m, mltn, j
 
 lemma exists_mem_openCell_of_mem_levelauxAB [CWComplex C] {n : ℕ∞} {x : X}
-    (xmemlvl : x ∈ levelaux C ∅ n) :
+    (xmemlvl : x ∈ levelaux C n) :
     ∃ (m : ℕ) (_ : m < n) (j : cell C m), x ∈ openCell m j := by
   rcases exists_mem_openCell_of_mem_levelaux (C := C) (D := ∅) (n := n) xmemlvl with h | h
   · contradiction
   · exact h
 
 lemma exists_mem_openCell_of_mem_level [RelCWComplex C D] {n : ℕ∞} {x : X}
-    (xmemlvl : x ∈ level C D n) :
+    (xmemlvl : x ∈ level C n) :
     x ∈ D ∨ ∃ (m : ℕ) (_ : m ≤ n) (j : cell C m), x ∈ openCell m j := by
   rw [level] at xmemlvl
   rcases exists_mem_openCell_of_mem_levelaux xmemlvl with xmem | xmem
@@ -513,7 +509,7 @@ lemma exists_mem_openCell_of_mem_level [RelCWComplex C D] {n : ℕ∞} {x : X}
     use m, Order.le_of_lt_add_one mlen
 
 lemma exists_mem_openCell_of_mem_levelAB [CWComplex C] {n : ℕ∞} {x : X}
-    (xmemlvl : x ∈ level C ∅ n) :
+    (xmemlvl : x ∈ level C n) :
     ∃ (m : ℕ) (_ : m ≤ n) (j : cell C m), x ∈ openCell m j := by
   rcases exists_mem_openCell_of_mem_level (C := C) (D := ∅) (n := n) xmemlvl with h | h
   · contradiction
@@ -521,7 +517,7 @@ lemma exists_mem_openCell_of_mem_levelAB [CWComplex C] {n : ℕ∞} {x : X}
 
 /-- A level and an open cell of a higher dimension are disjoint -/
 lemma levelaux_inter_openCell_eq_empty [RelCWComplex C D] {n : ℕ∞} {m : ℕ} {j : cell C m}
-    (nlem : n ≤ m) : levelaux C D n ∩ openCell m j = ∅ := by
+    (nlem : n ≤ m) : levelaux C n ∩ openCell m j = ∅ := by
   -- This is a consequence of `iUnion_openCell_eq_levelaux` and `disjoint_openCell_of_ne`
   simp_rw [← iUnion_openCell_eq_levelaux, union_inter_distrib_right, iUnion_inter, union_empty_iff,
     iUnion_eq_empty]
@@ -540,7 +536,7 @@ lemma levelaux_inter_openCell_eq_empty [RelCWComplex C D] {n : ℕ∞} {m : ℕ}
 
 /-- A level and an open cell of a higher dimension are disjoint -/
 lemma level_inter_openCell_eq_empty [RelCWComplex C D] {n : ℕ∞} {m : ℕ} {j : cell C m}
-    (nlem : n < m) : level C D n ∩ openCell m j = ∅ :=
+    (nlem : n < m) : level C n ∩ openCell m j = ∅ :=
   levelaux_inter_openCell_eq_empty (Order.add_one_le_of_lt nlem)
 
 lemma base_inter_iUnion_openCell_eq_empty [T2Space X] [RelCWComplex C D] :
@@ -556,7 +552,7 @@ lemma interior_base_inter_closedCell_eq_empty [T2Space X] [RelCWComplex C D] {n 
   rw [← closure_openCell_eq_closedCell, inter_comm,
     closure_inter_open_nonempty_iff isOpen_interior] at h
   rcases h with ⟨x, xmemcell, xmemD⟩
-  suffices x ∈ levelaux C D 0 ∩ openCell n j by
+  suffices x ∈ levelaux C 0 ∩ openCell n j by
     rw [levelaux_inter_openCell_eq_empty n.cast_nonneg'] at this
     exact this
   exact ⟨base_subset_levelaux 0 (interior_subset xmemD), xmemcell⟩
@@ -569,17 +565,17 @@ lemma interior_base_inter_iUnion_closedCell_eq_empty [T2Space X] [RelCWComplex C
   the edge of the cell.-/
 lemma levelaux_inter_closedCell_eq_levelaux_inter_cellFrontier [RelCWComplex C D] {n : ℕ∞} {m : ℕ}
     {j : cell C m} (nlem : n ≤ m) :
-    levelaux C D n ∩ closedCell m j = levelaux C D n ∩ cellFrontier m j := by
+    levelaux C n ∩ closedCell m j = levelaux C n ∩ cellFrontier m j := by
   refine subset_antisymm ?_ (inter_subset_inter_right _ (cellFrontier_subset_closedCell _ _))
   rw [← cellFrontier_union_openCell_eq_closedCell, inter_union_distrib_left]
   apply union_subset (by rfl)
   rw [levelaux_inter_openCell_eq_empty nlem]
-  exact empty_subset (levelaux C D n ∩ cellFrontier m j)
+  exact empty_subset (levelaux C n ∩ cellFrontier m j)
 
 /-- Version of `levelaux_inter_openCell_eq_empty` using `level`.-/
 lemma level_inter_closedCell_eq_level_inter_cellFrontier [RelCWComplex C D] {n : ℕ∞} {m : ℕ}
     {j : cell C m} (nltm : n < m) :
-    level C D n ∩ closedCell m j = level C D n ∩ cellFrontier m j :=
+    level C n ∩ closedCell m j = level C n ∩ cellFrontier m j :=
   levelaux_inter_closedCell_eq_levelaux_inter_cellFrontier (Order.add_one_le_of_lt nltm)
 
 /-- If for all `m ≤ n` and every `i : cell C m` the intersection `A ∩ closedCell m j` is closed

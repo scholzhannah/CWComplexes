@@ -655,8 +655,9 @@ lemma compact_subset_finite_RelSubcomplex [T2Space X] [RelCWComplex C D] {B : Se
   exact subset
 
 /-- The levels of a CW-complex constitute subcomplexes. -/
-instance relSubcomplex_levelaux [T2Space X] [RelCWComplex C D] (n : ℕ∞) : RelSubcomplex C D (levelaux C D n) :=
-  RelSubcomplex'' _ _ (levelaux C D n)
+instance relSubcomplex_levelaux [T2Space X] [RelCWComplex C D] (n : ℕ∞) :
+    RelSubcomplex C D (levelaux C n) :=
+  RelSubcomplex'' _ _ (levelaux C n)
   (fun l ↦ {x : cell C l | l < n})
   (by
     rw [← iUnion_openCell_eq_levelaux]
@@ -667,7 +668,7 @@ instance relSubcomplex_levelaux [T2Space X] [RelCWComplex C D] (n : ℕ∞) : Re
 
 /-- The levels of a CW-complex constitute subcomplexes. -/
 instance subcomplex_level [T2Space X] [RelCWComplex C D] (n : ℕ∞) :
-  RelSubcomplex C D (level C D n) := relSubcomplex_levelaux _
+  RelSubcomplex C D (level C n) := relSubcomplex_levelaux _
 
 end Subcomplex
 
