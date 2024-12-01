@@ -96,6 +96,7 @@ instance FiniteDimensional_RelCWComplex_levelaux_of_lt_top [RelCWComplex C D] [F
     (n : ℕ∞) (hn : n < ⊤) : FiniteDimensional (levelaux C n) where
   eventually_isEmpty_cell := by
     simp only [RelCWComplex_levelaux_cell_eq, Filter.eventually_atTop, ge_iff_le]
+    use n.lift hn
     sorry
 
 /-- The union of two disjoint CW-complexes is again a CW-complex.-/
