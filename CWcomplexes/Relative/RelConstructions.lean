@@ -221,8 +221,8 @@ end
 
 -- generalized finite version of this
 
-def RelCWComplex_attach_cell.{u} {X : Type u} [TopologicalSpace X] [T2Space X] (C D : Set X)
-    [RelCWComplex C D]
+def RelCWComplex_attach_cell.{u} {X : Type u} [TopologicalSpace X] [T2Space X] (C : Set X)
+    {D : Set X} [RelCWComplex C D]
     {n : ℕ} (map' : PartialEquiv (Fin n → ℝ) X) (source_eq' : map'.source = closedBall 0 1)
     (cont' : ContinuousOn map' (closedBall 0 1))
     (cont_symm' : ContinuousOn map'.symm map'.target)
@@ -321,7 +321,7 @@ def RelCWComplex_attach_cell_of_Fintype.{u} {X : Type u} [TopologicalSpace X] [T
     (disjoint' : ∀ m (i : cell C m), Disjoint (map' '' ball 0 1) (openCell m i))
     (disjointBase' : Disjoint (map' '' ball 0 1) D)
     (mapsto' : MapsTo map' (sphere 0 1) (D ∪ ⋃ (m < n) (j : cell C m), closedCell m j)) :
-    RelCWComplex (map' '' closedBall 0 1 ∪ C) D := RelCWComplex_attach_cell C D map'
+    RelCWComplex (map' '' closedBall 0 1 ∪ C) D := RelCWComplex_attach_cell C map'
   (source_eq' := source_eq')
   (cont' := cont')
   (cont_symm' := cont_symm')
@@ -339,7 +339,7 @@ def CWComplex_attach_cell.{u} {X : Type u} [TopologicalSpace X] [T2Space X] (C :
     (disjoint' : ∀ m (i : cell C m), Disjoint (map' '' ball 0 1) (openCell m i))
     (mapsto' : ∃ I : Π m, Finset (cell C m),
       MapsTo map' (sphere 0 1) (⋃ (m < n) (j ∈ I m), closedCell m j)) :
-    CWComplex (map' '' closedBall 0 1 ∪ C) := RelCWComplex_attach_cell C ∅ map'
+    CWComplex (map' '' closedBall 0 1 ∪ C) := RelCWComplex_attach_cell C map'
   (source_eq' := source_eq')
   (cont' := cont')
   (cont_symm' := cont_symm')
@@ -369,7 +369,7 @@ def CWComplex_attach_cell_of_Fintype.{u} {X : Type u} [TopologicalSpace X] [T2Sp
 -- instead restrict to a Homeomorphism
 
 def RelCWComplex_of_Homeomorph.{u} {X Y : Type u} [TopologicalSpace X] [T2Space X] [TopologicalSpace Y]
-    (C D : Set X) (E F : Set Y) [RelCWComplex C D] (hC : IsClosed C) (hE : IsClosed E)
+    (C : Set X) {D : Set X} (E : Set Y) {F : Set Y} [RelCWComplex C D] (hC : IsClosed C) (hE : IsClosed E)
     (f : PartialEquiv X Y) (hfC1 : f.source = C) (hfE1 : f.target = E) (hDF : f '' D = F)
     (hfC2 : ContinuousOn f C) (hfE2 : ContinuousOn f.symm E)  :
     RelCWComplex E F where

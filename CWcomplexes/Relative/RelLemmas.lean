@@ -298,7 +298,7 @@ lemma compact_inter_finite_subset' [RelCWComplex C D] (A : Set X) (compact : IsC
 
 /-- For a set `A` the intersection `A ∩ C` is a subset of the base and all the cells of `C`
   that `A` meets. This is useful when applied together with `compact_inter_finite`.-/
-lemma subset_not_disjoint' {X : Type*} [t : TopologicalSpace X] {C D : Set X}
+lemma subset_not_disjoint' {X : Type*} [TopologicalSpace X] {C D : Set X}
     [RelCWComplex C D] (A : Set X) : A ∩ C ⊆ D ∪ ⋃ (x : Σ (m : ℕ),
     {j : cell C m // ¬ Disjoint A (openCell m j)}), openCell (C := C) (D := D) x.1 x.2 := by
   intro x ⟨xmem1, xmem2⟩
@@ -312,7 +312,7 @@ lemma subset_not_disjoint' {X : Type*} [t : TopologicalSpace X] {C D : Set X}
 
 /-- For a set `A` the intersection `A ∩ C` is a subset of all the cells of `C` that `A` meets.
   This is useful when applied together with `compact_inter_finite`.-/
-lemma subset_not_disjoint'AB {X : Type*} [t : TopologicalSpace X] {C : Set X}
+lemma subset_not_disjoint'AB {X : Type*} [TopologicalSpace X] {C : Set X}
     [CWComplex C] (A : Set X) : A ∩ C ⊆ ⋃ (x : Σ (m : ℕ),
     {j : cell C m // ¬ Disjoint A (openCell m j)}), openCell (C := C) (D := ∅) x.1 x.2 := by
   have := subset_not_disjoint' A (C := C) (D := ∅)
@@ -320,7 +320,7 @@ lemma subset_not_disjoint'AB {X : Type*} [t : TopologicalSpace X] {C : Set X}
   exact this
 
 /-- A version of `subset_not_disjoint'` using closed cells.-/
-lemma subset_not_disjoint {X : Type*} [t : TopologicalSpace X] {C D : Set X}
+lemma subset_not_disjoint {X : Type*} [TopologicalSpace X] {C D : Set X}
     [RelCWComplex C D] (A : Set X) : A ∩ C ⊆ D ∪ ⋃ (x : Σ (m : ℕ),
     {j : cell C m // ¬ Disjoint A (openCell m j)}), closedCell (C := C) (D := D) x.1 x.2 := by
   intro x ⟨xmem1, xmem2⟩
@@ -334,7 +334,7 @@ lemma subset_not_disjoint {X : Type*} [t : TopologicalSpace X] {C D : Set X}
   exact openCell_subset_closedCell _ _ hmj
 
 /-- A version of `subset_not_disjoint'` using closed cells.-/
-lemma subset_not_disjointAB {X : Type*} [t : TopologicalSpace X] {C : Set X}
+lemma subset_not_disjointAB {X : Type*} [TopologicalSpace X] {C : Set X}
     [CWComplex C] (A : Set X) : A ∩ C ⊆ ⋃ (x : Σ (m : ℕ),
     {j : cell C m // ¬ Disjoint A (openCell m j)}), closedCell (C := C) (D := ∅) x.1 x.2 := by
   have := subset_not_disjoint (C := C) (D := ∅) A
@@ -356,14 +356,14 @@ lemma finite_of_compact [RelCWComplex C D] (compact : IsCompact C) : CWComplex.F
   exact compact_inter_finite C compact
 
 /-- A finite relative CW-complex with compact base is compact.-/
-lemma compact_of_finite {X : Type*} [t : TopologicalSpace X] {C D : Set X} [RelCWComplex C D]
+lemma compact_of_finite {X : Type*} [TopologicalSpace X] {C D : Set X} [RelCWComplex C D]
     [finite : CWComplex.Finite C] (hD: IsCompact D) : IsCompact C := by
   rw [finite_iff_finite_cells] at finite
   rw [← union (C := C) (D := D), iUnion_sigma']
   exact hD.union (isCompact_iUnion (fun ⟨n, i⟩ ↦ isCompact_closedCell))
 
 /-- A finite CW-complex is compact.-/
-lemma compact_of_finiteAB {X : Type*} [t : TopologicalSpace X] {C : Set X} [CWComplex C]
+lemma compact_of_finiteAB {X : Type*} [TopologicalSpace X] {C : Set X} [CWComplex C]
     [finite : CWComplex.Finite C] : IsCompact C := by
   rw [finite_iff_finite_cells] at finite
   rw [← union (C := C) (D := ∅), iUnion_sigma', empty_union]
