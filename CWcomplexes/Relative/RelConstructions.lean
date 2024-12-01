@@ -1,6 +1,7 @@
 import CWcomplexes.Relative.RelFinite
 import Mathlib.Analysis.NormedSpace.Real
 import CWcomplexes.Auxiliary
+import Mathlib.Data.ENat.Basic
 
 /-!
 # Constructions with CW-complexes
@@ -65,9 +66,37 @@ instance RelCWComplex_levelaux [RelCWComplex C D] (n : ℕ∞) : RelCWComplex (l
     rw [iUnion_subtype, iUnion_comm]
     rfl
 
+@[simp]
+lemma RelCWComplex_levelaux_cell_eq [RelCWComplex C D] {n : ℕ∞} {l : ℕ} :
+    cell (levelaux C n) l = {x : cell C l // l < n} :=
+  rfl
+
 /-- `level n` is a CW-complex for every `n : ℕ∞`.-/
 instance RelCWComplex_level [RelCWComplex C D] (n : ℕ∞) : RelCWComplex (level C n) D :=
   RelCWComplex_levelaux _
+
+@[simp]
+lemma RelCWComplex_level_cell_eq [RelCWComplex C D] {n : ℕ∞} {l : ℕ} :
+    cell (level C n) l = {x : cell C l // l < n + 1} :=
+  rfl
+
+instance FiniteDimensional_RelCWComplex_levelaux [RelCWComplex C D] [FiniteDimensional C] (n : ℕ∞) :
+    FiniteDimensional (levelaux C n) where
+  eventually_isEmpty_cell := by
+    have := FiniteDimensional.eventually_isEmpty_cell (C := C) (D := D)
+    simp only [Filter.eventually_atTop, ge_iff_le, RelCWComplex_levelaux_cell_eq,
+      not_lt] at this ⊢
+    obtain ⟨N, hN⟩ := this
+    use N
+    intro b hNb
+    specialize hN b hNb
+    infer_instance
+
+instance FiniteDimensional_RelCWComplex_levelaux_of_lt_top [RelCWComplex C D] [FiniteDimensional C]
+    (n : ℕ∞) (hn : n < ⊤) : FiniteDimensional (levelaux C n) where
+  eventually_isEmpty_cell := by
+    simp only [RelCWComplex_levelaux_cell_eq, Filter.eventually_atTop, ge_iff_le]
+    sorry
 
 /-- The union of two disjoint CW-complexes is again a CW-complex.-/
 def RelCWComplex_disjointUnion [RelCWComplex C D] {E F : Set X} [RelCWComplex E F]
