@@ -55,7 +55,7 @@ instance Finite.inst_FiniteType {X : Type u} [TopologicalSpace X] (C D : Set X)
 
 /-- If we want to construct a relative CW-complex of finite type, we can add the condition
   `finite_cell` and relax the condition `mapsto`.-/
-def RelCWComplexFiniteType.{u} {X : Type u} [TopologicalSpace X] (C D : Set X)
+def RelCWComplexFiniteType.{u} {X : Type u} [TopologicalSpace X] (C : Set X) (D : outParam (Set X))
     (cell : (n : ℕ) → Type u) (map : (n : ℕ)  → (i : cell n) → PartialEquiv (Fin n → ℝ) X)
     (finite_cell : ∀ (n : ℕ), _root_.Finite (cell n))
     (source_eq : ∀ (n : ℕ) (i : cell n), (map n i).source = closedBall 0 1)
@@ -120,8 +120,8 @@ def CWComplexFiniteType.{u} {X : Type u} [TopologicalSpace X] (C : Set X)
 /-- If we want to construct a finite relative CW-complex we can add the conditions
   `eventually_isEmpty_cell` and `finite_cell`, relax the condition `mapsto` and remove the condition
    `closed'`.-/
-def RelCWComplexFinite.{u} {X : Type u} [TopologicalSpace X] [T2Space X] (C D : Set X)
-    (cell : (n : ℕ) → Type u)
+def RelCWComplexFinite.{u} {X : Type u} [TopologicalSpace X] [T2Space X] (C : Set X)
+    (D : outParam (Set X)) (cell : (n : ℕ) → Type u)
     (map : (n : ℕ)  → (i : cell n) → PartialEquiv (Fin n → ℝ) X)
     (eventually_isEmpty_cell : ∀ᶠ n in Filter.atTop, IsEmpty (cell n))
     (finite_cell : ∀ (n : ℕ), _root_.Finite (cell n))
@@ -230,7 +230,7 @@ lemma finite_of_finite_cells (finite : _root_.Finite (Σ n, cell C n)) : Finite 
     linarith [A.le_max' m mmem]
   finite_cell := fun _ ↦ Finite.of_injective (Sigma.mk _) sigma_mk_injective
 
-lemma finite_cells_of_finite (finite : Finite C) : _root_.Finite (Σ n, cell C n) := by
+lemma finite_cells_of_finite [finite : Finite C] : _root_.Finite (Σ n, cell C n) := by
   -- We show that there is a bijection between `Σ n, cell C n` and
   -- `Σ (m : {m : ℕ // m < n}), cell C m`.
   have finitelvl := finite.eventually_isEmpty_cell
@@ -251,4 +251,4 @@ lemma finite_cells_of_finite (finite : Finite C) : _root_.Finite (Σ n, cell C n
   exact Finite.instSigma
 
 lemma finite_iff_finite_cells : Finite C ↔ _root_.Finite (Σ n, cell C n) :=
-  ⟨finite_cells_of_finite, finite_of_finite_cells⟩
+  ⟨fun h ↦ finite_cells_of_finite (finite := h), finite_of_finite_cells⟩
