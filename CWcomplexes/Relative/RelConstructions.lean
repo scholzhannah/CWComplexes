@@ -92,12 +92,39 @@ instance FiniteDimensional_RelCWComplex_levelaux [RelCWComplex C D] [FiniteDimen
     specialize hN b hNb
     infer_instance
 
-instance FiniteDimensional_RelCWComplex_levelaux_of_lt_top [RelCWComplex C D] [FiniteDimensional C]
-    (n : ℕ∞) (hn : n < ⊤) : FiniteDimensional (levelaux C n) where
+instance FiniteDimensional_RelCWComplex_level [RelCWComplex C D] [FiniteDimensional C] (n : ℕ∞) :
+    FiniteDimensional (level C n) :=
+  FiniteDimensional_RelCWComplex_levelaux _
+
+instance FiniteDimensional_RelCWComplex_levelaux_of_Nat [RelCWComplex C D] [FiniteDimensional C]
+    (n : ℕ) : FiniteDimensional (levelaux C n) where
   eventually_isEmpty_cell := by
     simp only [RelCWComplex_levelaux_cell_eq, Filter.eventually_atTop, ge_iff_le]
-    use n.lift hn
-    sorry
+    use n
+    intro b hnb
+    simp [hnb]
+
+instance FiniteDimensional_RelCWComplex_level_of_Nat [RelCWComplex C D] [FiniteDimensional C]
+    (n : ℕ) : FiniteDimensional (level C n) :=
+  FiniteDimensional_RelCWComplex_levelaux_of_Nat _
+
+instance FiniteType_RelCWComplex_levelaux [RelCWComplex C D] [FiniteType C] (n : ℕ∞) :
+    FiniteType (levelaux C n) where
+  finite_cell := by
+    intro m
+    simp only [RelCWComplex_levelaux_cell_eq]
+    infer_instance
+
+instance FiniteType_RelCWComplex_level [RelCWComplex C D] [FiniteType C] (n : ℕ∞) :
+    FiniteType (level C n) :=
+  FiniteType_RelCWComplex_levelaux _
+
+instance Finite_RelCWComplex_levelaux [RelCWComplex C D] [Finite C] (n : ℕ∞) :
+    Finite (levelaux C n) := inferInstance
+
+instance Finite_RelCWComplex_level [RelCWComplex C D] [Finite C] (n : ℕ∞) :
+    Finite (level C n) :=
+  Finite_RelCWComplex_levelaux _
 
 /-- The union of two disjoint CW-complexes is again a CW-complex.-/
 def RelCWComplex_disjointUnion [RelCWComplex C D] {E F : Set X} [RelCWComplex E F]
@@ -247,9 +274,95 @@ def CWComplex_disjointUnion [CWComplex C] [CWComplex E] (disjoint : Disjoint C E
     simp_rw [← unionAB (C := C), ← unionAB (C := E), ← iUnion_union_distrib, iUnion_sum]
     rfl)
 
+@[simp]
+lemma RelCWComplex_disjointUnion_cell_eq [RelCWComplex C D] {E F : Set X} [RelCWComplex E F]
+    (disjoint : Disjoint C E) (hDF : SeparatedNhds D F) (n : ℕ) :
+    letI _complex := RelCWComplex_disjointUnion disjoint hDF
+    cell (C ∪ E) n = Sum (cell C n) (cell E n) :=
+  rfl
+
+@[simp]
+lemma CWComplex_disjointUnion_cell_eq [CWComplex C] [CWComplex E] (disjoint : Disjoint C E)
+    (n : ℕ) :
+    letI _complex := CWComplex_disjointUnion disjoint
+    cell (C ∪ E) n = Sum (cell C n) (cell E n) :=
+  rfl
+
+lemma FiniteDimensional_RelCWComplex_disjointUnion [RelCWComplex C D] {E F : Set X}
+    [RelCWComplex E F] [FiniteDimensional C] [FiniteDimensional E]
+    (disjoint : Disjoint C E) (hDF : SeparatedNhds D F) :
+    letI _complex := RelCWComplex_disjointUnion disjoint hDF
+    FiniteDimensional (C ∪ E) :=
+  let _complex := RelCWComplex_disjointUnion disjoint hDF
+  {eventually_isEmpty_cell := by
+    have h1 := FiniteDimensional.eventually_isEmpty_cell (C := C) (D := D)
+    have h2 := FiniteDimensional.eventually_isEmpty_cell (C := E) (D := F)
+    simp only [Filter.eventually_atTop, ge_iff_le, RelCWComplex_disjointUnion_cell_eq,
+      isEmpty_sum] at h1 h2 ⊢
+    obtain ⟨N1, hN1⟩ := h1
+    obtain ⟨N2, hN2⟩ := h2
+    use N1 ⊔ N2
+    intro b hN1N2b
+    exact ⟨hN1 b (le_of_max_le_left hN1N2b), hN2 b (le_of_max_le_right hN1N2b)⟩}
+
+lemma FiniteDimensional_CWComplex_disjointUnion [CWComplex C] {E : Set X}
+    [CWComplex E] [FiniteDimensional C] [FiniteDimensional E]
+    (disjoint : Disjoint C E) :
+    letI _complex := CWComplex_disjointUnion disjoint
+    FiniteDimensional (C ∪ E) :=
+  let _complex := CWComplex_disjointUnion disjoint
+  {eventually_isEmpty_cell := by
+    have h1 := FiniteDimensional.eventually_isEmpty_cell (C := C) (D := ∅)
+    have h2 := FiniteDimensional.eventually_isEmpty_cell (C := E) (D := ∅)
+    simp only [Filter.eventually_atTop, ge_iff_le, CWComplex_disjointUnion_cell_eq, isEmpty_sum]
+      at h1 h2 ⊢
+    obtain ⟨N1, hN1⟩ := h1
+    obtain ⟨N2, hN2⟩ := h2
+    use N1 ⊔ N2
+    intro b hN1N2b
+    exact ⟨hN1 b (le_of_max_le_left hN1N2b), hN2 b (le_of_max_le_right hN1N2b)⟩}
+
+lemma FiniteType_RelCWComplex_disjointUnion [RelCWComplex C D] {E F : Set X}
+    [RelCWComplex E F] [FiniteType C] [FiniteType E]
+    (disjoint : Disjoint C E) (hDF : SeparatedNhds D F) :
+    letI _complex := RelCWComplex_disjointUnion disjoint hDF
+    FiniteType (C ∪ E) :=
+  let _complex := RelCWComplex_disjointUnion disjoint hDF
+  {finite_cell := fun n ↦ by
+    simp only [RelCWComplex_disjointUnion_cell_eq]
+    infer_instance}
+
+lemma FiniteType_CWComplex_disjointUnion [CWComplex C] {E : Set X}
+    [CWComplex E] [FiniteType C] [FiniteType E]
+    (disjoint : Disjoint C E) :
+    letI _complex := CWComplex_disjointUnion disjoint
+    FiniteType (C ∪ E) :=
+  let _complex := CWComplex_disjointUnion disjoint
+  {finite_cell := fun n ↦ by
+    simp only [CWComplex_disjointUnion_cell_eq]
+    infer_instance}
+
+lemma Finite_RelCWComplex_disjointUnion [RelCWComplex C D] {E F : Set X}
+    [RelCWComplex E F] [Finite C] [Finite E]
+    (disjoint : Disjoint C E) (hDF : SeparatedNhds D F) :
+    letI _complex := RelCWComplex_disjointUnion disjoint hDF
+    Finite (C ∪ E) :=
+  let _complex := RelCWComplex_disjointUnion disjoint hDF
+  let _finiteDimensional := FiniteDimensional_RelCWComplex_disjointUnion disjoint hDF
+  let _finiteType := FiniteType_RelCWComplex_disjointUnion disjoint hDF
+  inferInstance
+
+lemma Finite_CWComplex_disjointUnion [CWComplex C] {E : Set X}
+    [CWComplex E] [Finite C] [Finite E] (disjoint : Disjoint C E) :
+    letI _complex := CWComplex_disjointUnion disjoint
+    Finite (C ∪ E) :=
+  let _complex := CWComplex_disjointUnion disjoint
+  let _finiteDimensional := FiniteDimensional_CWComplex_disjointUnion disjoint
+  let _finiteType := FiniteType_CWComplex_disjointUnion disjoint
+  inferInstance
+
 end
 
--- generalized finite version of this
 
 def RelCWComplex_attach_cell.{u} {X : Type u} [TopologicalSpace X] [T2Space X] (C : Set X)
     {D : Set X} [RelCWComplex C D]
