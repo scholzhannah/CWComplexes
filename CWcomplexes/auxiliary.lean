@@ -4,6 +4,7 @@ import Mathlib.Topology.Sets.Compacts
 import Mathlib.Topology.MetricSpace.Isometry
 import Mathlib.Analysis.Normed.Group.Basic
 import Mathlib.Data.Fintype.Lattice
+import Mathlib.Data.Fintype.Sum
 
 /-!
 # Auxiliary lemmas and definitions
@@ -89,3 +90,14 @@ lemma isClosed_left_of_isClosed_union {X : Type*} [TopologicalSpace X] {A B : Se
 lemma isClosed_right_of_isClosed_union {X : Type*} [TopologicalSpace X] {A B : Set X}
     (hAB : SeparatedNhds A B) (closedAB : IsClosed (A ∪ B)) : IsClosed B :=
   isClosed_left_of_isClosed_union hAB.symm (Set.union_comm _ _ ▸ closedAB)
+
+open Finset
+
+instance (α : Type u) (β : Type v) [Fintype α] [Fintype β] : Fintype (α ⊕' β) where
+  elems := sorry --univ.disjSum univ
+  complete := sorry -- by rintro (_ | _) <;> simp
+
+instance {α β : Type*} [Finite α] [Finite β] : Finite (α ⊕' β) := by
+  haveI := Fintype.ofFinite α
+  haveI := Fintype.ofFinite β
+  infer_instance
