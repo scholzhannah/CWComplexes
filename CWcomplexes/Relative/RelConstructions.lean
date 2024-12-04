@@ -727,6 +727,21 @@ lemma Finite_CWComplex_attach_cell_of_Fintype {X : Type*} [TopologicalSpace X] [
 -- this is getting way to ugly. Somehow one needs to avoid working with the PartialEquiv and
 -- instead restrict to a Homeomorphism
 
+open Set.Notation in
+def RelCWComplex_restrict [RelCWComplex C D] (Y : Set X) (hCY : C ⊆ Y) :
+    RelCWComplex (X := Y) (Y ↓∩ C) (Y ↓∩ D) where
+  cell := cell C
+  map n i :=  sorry --map (C := C) (D := D) n i
+  source_eq := sorry
+  cont := sorry
+  cont_symm := sorry
+  pairwiseDisjoint' := sorry
+  disjointBase' := sorry
+  mapsto := sorry
+  closed' := sorry
+  isClosedBase := sorry
+  union' := sorry
+
 def RelCWComplex_of_Homeomorph.{u} {X Y : Type u} [TopologicalSpace X] [T2Space X] [TopologicalSpace Y]
     (C : Set X) {D : Set X} (E : Set Y) {F : Set Y} [RelCWComplex C D] (hC : IsClosed C) (hE : IsClosed E)
     (f : PartialEquiv X Y) (hfC1 : f.source = C) (hfE1 : f.target = E) (hDF : f '' D = F)

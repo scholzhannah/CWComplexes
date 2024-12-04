@@ -204,7 +204,6 @@ def level (C : Set X) {D : Set X} [RelCWComplex C D] (n : ℕ∞) : Set X :=
 lemma levelaux_zero_eq_base [RelCWComplex C D] : levelaux C 0 = D := by
   simp only [levelaux, ENat.not_lt_zero, iUnion_of_empty, iUnion_empty, union_empty]
 
--- is this lemma useful? Probably not...
 lemma levelaux_zero_eq_empty [CWComplex C] : levelaux C 0 = ∅ := levelaux_zero_eq_base
 
 lemma isCompact_closedCell [RelCWComplex C D] {n : ℕ} {i : cell C n} :
