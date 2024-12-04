@@ -95,3 +95,13 @@ lemma isClosed_union_iff_isClosed {X : Type*} [TopologicalSpace X] {A B : Set X}
 
 instance {α β : Sort*} [Finite α] [Finite β] : Finite (α ⊕' β) := by
   sorry
+
+-- not needed anymore but probably still good to contribute?
+@[elab_as_elim]
+theorem ENat.nat_strong_induction {P : ℕ∞ → Prop} (a : ℕ∞) (h0 : P 0)
+    (hsuc : ∀ n : ℕ, (∀ m (_ : m ≤ n), P m) → P n.succ)
+    (htop : (∀ n : ℕ, P n) → P ⊤) : P a := by
+  have A : ∀ n : ℕ, P n := fun n => Nat.caseStrongRecOn n h0 hsuc
+  cases a
+  · exact htop A
+  · exact A _
