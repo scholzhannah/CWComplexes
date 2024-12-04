@@ -45,22 +45,22 @@ class Finite.{u} {X : Type u} [TopologicalSpace X] (C : Set X) {D : Set X} [RelC
   /-- `cell C n` is finite for every `n`.-/
   finite_cell (n : ℕ) : _root_.Finite (cell C n)
 
-instance FiniteType.inst_finite_cell {X : Type u} [TopologicalSpace X] (C D : Set X)
+instance FiniteType.inst_finite_cell {X : Type u} [TopologicalSpace X] (C : Set X) {D : Set X}
     [RelCWComplex C D] [FiniteType C] {n : ℕ} : _root_.Finite (cell C n) :=
   FiniteType.finite_cell n
 
-instance Finite.inst_FiniteDimensional {X : Type u} [TopologicalSpace X] (C D : Set X)
+instance Finite.inst_FiniteDimensional {X : Type u} [TopologicalSpace X] (C : Set X) {D : Set X}
     [RelCWComplex C D] [Finite C] : FiniteDimensional C where
   eventually_isEmpty_cell := Finite.eventually_isEmpty_cell
 
-instance Finite.inst_FiniteType {X : Type u} [TopologicalSpace X] (C D : Set X)
+instance Finite.inst_FiniteType {X : Type u} [TopologicalSpace X] (C : Set X) {D : Set X}
     [RelCWComplex C D] [Finite C] : FiniteType C where
   finite_cell := Finite.finite_cell
 
-instance inst_Finite_of_FiniteDimensional_FiniteType {X : Type u} [TopologicalSpace X] (C D : Set X)
-    [RelCWComplex C D] [FiniteDimensional C] [FiniteType C] : Finite C where
+instance inst_Finite_of_FiniteDimensional_FiniteType {X : Type u} [TopologicalSpace X] (C : Set X)
+    {D : Set X} [RelCWComplex C D] [FiniteDimensional C] [FiniteType C] : Finite C where
   eventually_isEmpty_cell := FiniteDimensional.eventually_isEmpty_cell
-  finite_cell _ := FiniteType.inst_finite_cell C D
+  finite_cell _ := FiniteType.inst_finite_cell C
 
 /-- If we want to construct a relative CW-complex of finite type, we can add the condition
   `finite_cell` and relax the condition `mapsto`.-/

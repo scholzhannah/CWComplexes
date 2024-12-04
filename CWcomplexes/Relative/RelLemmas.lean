@@ -22,16 +22,15 @@ namespace CWComplex
 variable {X : Type*} [t : TopologicalSpace X] [T2Space X] {C D : Set X}
 
 
-lemma isClosed_levelaux [RelCWComplex C D] (n : ℕ∞) :
-    IsClosed (levelaux C n) := @isClosed _ _ _ _ _ (RelCWComplex_levelaux n)
+lemma isClosed_levelaux [RelCWComplex C D] (n : ℕ∞) : IsClosed (levelaux C n) := isClosed
 
-lemma isClosed_level [RelCWComplex C D] (n : ℕ∞) : IsClosed (level C n) := isClosed_levelaux _
+lemma isClosed_level [RelCWComplex C D] (n : ℕ∞) : IsClosed (level C n) := isClosed
 
 lemma closed_iff_inter_levelaux_closed [RelCWComplex C D] {A : Set X} (asubc : A ⊆ C) :
     IsClosed A ↔ ∀ (n : ℕ), IsClosed (A ∩ levelaux C n) := by
   refine ⟨fun closedA _ ↦  IsClosed.inter closedA (isClosed_levelaux _), ?_⟩
   intro h
-  rw [closed C D A asubc]
+  rw [closed C A asubc]
   constructor
   · intro n j
     rw [(Set.inter_eq_right.2 (closedCell_subset_levelaux n j)).symm, ← inter_assoc]
@@ -56,7 +55,7 @@ lemma inter_levelaux_succ_closed_iff_inter_levelaux_closed_and_inter_closedCell_
         apply subset_trans inter_subset_right
         simp_rw [← levelaux_top (C := C) (D := D)]
         exact levelaux_mono le_top
-      rw [closed C D (A ∩ levelaux C n.succ) this] at hclosed
+      rw [closed C (A ∩ levelaux C n.succ) this] at hclosed
       replace hclosed := hclosed.1 n j
       rw [inter_assoc, Nat.succ_eq_add_one, Nat.cast_add, Nat.cast_one,
         inter_eq_right.2 (closedCell_subset_levelaux n j)] at hclosed

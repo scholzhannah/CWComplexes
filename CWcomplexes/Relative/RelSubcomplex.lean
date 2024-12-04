@@ -61,9 +61,10 @@ lemma Subcomplex.union {C E : Set X} [CWComplex C] [Subcomplex C E] :
 
 /-- An alternative version of `Subcomplex`: Instead of requiring that `E` is closed it requires
   that for every cell of the subcomplex the corresponding closed cell is a subset of `E`.-/
-def RelSubcomplex' [T2Space X] (C D : Set X) [RelCWComplex C D] (E : Set X) (I : Π n, Set (cell C n))
-    (closedCell_subset : ∀ (n : ℕ) (i : I n), closedCell (C := C) (D := D) n i ⊆ E)
-    (union : D ∪ ⋃ (n : ℕ) (j : I n), openCell (C := C) (D := D) n j = E) : RelSubcomplex C E where
+def RelSubcomplex' [T2Space X] (C : Set X) {D : Set X} [RelCWComplex C D] (E : Set X)
+    (I : Π n, Set (cell C n))
+    (closedCell_subset : ∀ (n : ℕ) (i : I n), closedCell (C := C) n i ⊆ E)
+    (union : D ∪ ⋃ (n : ℕ) (j : I n), openCell (C := C) n j = E) : RelSubcomplex C E where
   I := I
   closed := by
     have EsubC : E ⊆ C := by
@@ -102,12 +103,12 @@ def RelSubcomplex' [T2Space X] (C D : Set X) [RelCWComplex C D] (E : Set X) (I :
 def Subcomplex' [T2Space X] (C : Set X) [CWComplex C] (E : Set X) (I : Π n, Set (cell C n))
     (closedCell_subset : ∀ (n : ℕ) (i : I n), closedCell (C := C) (D := ∅) n i ⊆ E)
     (union : ⋃ (n : ℕ) (j : I n), openCell (C := C) (D := ∅) n j = E) : Subcomplex C E :=
-  RelSubcomplex' C ∅ E I closedCell_subset (by rw [empty_union]; exact union)
+  RelSubcomplex' C E I closedCell_subset (by rw [empty_union]; exact union)
 
 /-- An alternative version of `Subcomplex`: Instead of requiring that `E` is closed it requires that
   `E` is a CW-complex. -/
-def RelSubcomplex'' [T2Space X] (C D : Set X) [RelCWComplex C D] (E : Set X) (I : Π n, Set (cell C n))
-    [RelCWComplex E D]
+def RelSubcomplex'' [T2Space X] (C : Set X) {D : Set X} [RelCWComplex C D] (E : Set X)
+    (I : Π n, Set (cell C n)) [RelCWComplex E D]
     (union : D ∪ ⋃ (n : ℕ) (j : I n), openCell (C := C) (D := D) n j = E) : RelSubcomplex C E where
   I := I
   closed := CWComplex.isClosed (D := D)
@@ -115,8 +116,9 @@ def RelSubcomplex'' [T2Space X] (C D : Set X) [RelCWComplex C D] (E : Set X) (I 
 
 /-- An alternative version of `Subcomplex`: Instead of requiring that `E` is closed it requires that
   `E` is a CW-complex. -/
-def Subcomplex'' [T2Space X] (C : Set X) [CWComplex C] (E : Set X) (I : Π n, Set (cell C n)) [CWComplex E]
-    (union : ⋃ (n : ℕ) (j : I n), openCell (C := C) (D := ∅) n j = E) : Subcomplex C E where
+def Subcomplex'' [T2Space X] (C : Set X) [CWComplex C] (E : Set X) (I : Π n, Set (cell C n))
+    [CWComplex E] (union : ⋃ (n : ℕ) (j : I n), openCell (C := C) (D := ∅) n j = E) :
+    Subcomplex C E where
   I := I
   closed := CWComplex.isClosed (D := ∅)
   union := by
@@ -259,7 +261,7 @@ instance finite_subcomplex_of_finite [T2Space X] [RelCWComplex C D] [finite : Fi
 /-- A union of subcomplexes is again a subcomplex.-/
 instance relSubcomplex_iUnion_RelSubcomplex [T2Space X] [RelCWComplex C D] (J : Type*) [Nonempty J]
     (sub : J → Set X) [cw : ∀ (j : J), RelSubcomplex C (sub j)] :
-    RelSubcomplex C (⋃ (j : J), sub j) := RelSubcomplex' C D _
+    RelSubcomplex C (⋃ (j : J), sub j) := RelSubcomplex' C _
   (fun (n : ℕ) ↦ ⋃ (j : J), (cw j).I n)
   (by
     intro n ⟨i, imem⟩
@@ -491,7 +493,8 @@ def attach_cell [T2Space X] [RelCWComplex C D] (n : ℕ) (i : cell C n) (E : Set
 
 /-- The subcomplex that results from attaching a cell to a subcomplex when the edge of the cell is
   contained in the original subcomplex.-/
-def attach_cellAB [T2Space X] [CWComplex C] (n : ℕ) (i : cell C n) (E : Set X) [sub : Subcomplex C E]
+def attach_cellAB [T2Space X] [CWComplex C] (n : ℕ) (i : cell C n) (E : Set X)
+    [sub : Subcomplex C E]
     (subset : ∃ (I : Π m, Set (cell C m)), (∀ m < n, I m ⊆ sub.I m) ∧  cellFrontier n i ⊆
     (⋃ (m < n) (j ∈ I m), closedCell (C := C) m j)) :
     Subcomplex C (E ∪ openCell n i) where
@@ -656,9 +659,9 @@ lemma compact_subset_finite_RelSubcomplex [T2Space X] [RelCWComplex C D] {B : Se
   exact subset
 
 /-- The levels of a CW-complex constitute subcomplexes. -/
-instance relSubcomplex_levelaux [T2Space X] [RelCWComplex C D] (n : ℕ∞) :
+instance RelSubcomplex_levelaux [T2Space X] [RelCWComplex C D] (n : ℕ∞) :
     RelSubcomplex C (levelaux C n) :=
-  RelSubcomplex'' _ _ (levelaux C n)
+  RelSubcomplex'' _ (levelaux C n)
   (fun l ↦ {x : cell C l | l < n})
   (by
     rw [← iUnion_openCell_eq_levelaux]
@@ -669,7 +672,7 @@ instance relSubcomplex_levelaux [T2Space X] [RelCWComplex C D] (n : ℕ∞) :
 
 /-- The levels of a CW-complex constitute subcomplexes. -/
 instance subcomplex_level [T2Space X] [RelCWComplex C D] (n : ℕ∞) :
-  RelSubcomplex C (level C n) := relSubcomplex_levelaux _
+  RelSubcomplex C (level C n) := RelSubcomplex_levelaux _
 
 end Subcomplex
 

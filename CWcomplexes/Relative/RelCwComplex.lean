@@ -228,7 +228,7 @@ lemma closure_openCell_eq_closedCell [RelCWComplex C D] [T2Space X] {n : ℕ} {j
   rw [closure_ball 0 (by exact one_ne_zero)]
   exact cont n j
 
-lemma closed (C D : Set X) [RelCWComplex C D] [T2Space X] (A : Set X) (asubc : A ⊆ C) :
+lemma closed (C : Set X) {D : Set X} [RelCWComplex C D] [T2Space X] (A : Set X) (asubc : A ⊆ C) :
     IsClosed A ↔ (∀ n (j : cell C n), IsClosed (A ∩ closedCell n j)) ∧ IsClosed (A ∩ D) := by
   constructor
   · intro closedA
@@ -240,7 +240,7 @@ lemma closed (C D : Set X) [RelCWComplex C D] [T2Space X] (A : Set X) (asubc : A
 
 lemma closedAB (C : Set X) [CWComplex C] [T2Space X] (A : Set X) (asubc : A ⊆ C) :
     IsClosed A ↔ ∀ n (j : cell C n), IsClosed (A ∩ closedCell n j) := by
-  have := closed C ∅ A asubc
+  have := closed C A asubc
   simp_all
 
 @[simp] lemma levelaux_top [RelCWComplex C D] : levelaux C ⊤ = C := by
