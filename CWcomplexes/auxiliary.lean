@@ -63,14 +63,6 @@ lemma open_in_iff_compl_closed_in {X : Type*} [TopologicalSpace X] {A B : Set X}
     rw [inter_eq_inter_iff_compl, compl_compl]
     exact ⟨isOpen_compl_iff.2 closedC, hC⟩
 
--- needed in examples file
-lemma affineHomeomorph_trans {𝕜 : Type*} [Field 𝕜] [NoZeroDivisors 𝕜] [TopologicalSpace 𝕜]
-    [TopologicalRing 𝕜] (a b c d : 𝕜) (h1 : a ≠ 0) (h2 : c ≠ 0) :
-    (affineHomeomorph a b h1).trans (affineHomeomorph c d h2) =
-    affineHomeomorph (c * a) (c * b + d) (mul_ne_zero h2 h1)  := by
-  ext
-  simp_rw [Homeomorph.trans_apply, affineHomeomorph_apply]
-  ring
 
 -- write an equivalence version
 
@@ -92,6 +84,32 @@ lemma isClosed_union_iff_isClosed {X : Type*} [TopologicalSpace X] {A B : Set X}
     (hAB : SeparatedNhds A B) : IsClosed (A ∪ B) ↔ IsClosed A ∧ IsClosed B :=
   ⟨fun h ↦ ⟨isClosed_left_of_isClosed_union hAB h, isClosed_right_of_isClosed_union hAB h⟩,
     fun ⟨h1, h2⟩ ↦ h1.union h2⟩
+
+/-! ### ↓∩-/
+
+-- what would the notation be called in lemma names
+
+open Set.Notation
+
+lemma test {X : Type*} {s t : Set X} : (s ↓∩ t)ᶜ = s ↓∩ tᶜ := rfl
+
+lemma isOpen_inter_of_isOpen_in_isOpen {X : Type*} [TopologicalSpace X] {s t : Set X}
+    (hs : IsOpen s) (hst : IsOpen (s ↓∩ t)) : IsOpen (s ∩ t) := by
+  rw [isOpen_induced_iff] at hst
+  obtain ⟨u, hu, hust⟩ := hst
+  rw [Subtype.preimage_val_eq_preimage_val_iff] at hust
+  rw [← hust]
+  exact hs.inter hu
+
+lemma isClosed_inter_of_isClosed_in_isClosed {X : Type*} [TopologicalSpace X] {s t : Set X}
+    (hs : IsClosed s) (hst : IsClosed (s ↓∩ t)) : IsClosed (s ∩ t) := by
+  rw [isClosed_induced_iff] at hst
+  obtain ⟨u, hu, hust⟩ := hst
+  rw [Subtype.preimage_val_eq_preimage_val_iff] at hust
+  rw [← hust]
+  exact hs.inter hu
+
+/-! ### Random-/
 
 instance {α β : Sort*} [Finite α] [Finite β] : Finite (α ⊕' β) := by
   sorry

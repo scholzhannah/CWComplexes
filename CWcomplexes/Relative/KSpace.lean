@@ -1,6 +1,7 @@
 import Mathlib.Topology.Sets.Compacts
 import Mathlib.Topology.Defs.Induced
 import Mathlib.Topology.RestrictGen
+import CWcomplexes.Auxiliary
 
 open Set Set.Notation Topology
 
@@ -114,7 +115,7 @@ def tokification (X : Type*) : X ≃ kification X :=
   ⟨fun x ↦ x, fun x ↦ x, fun _ ↦ rfl, fun _ ↦ rfl⟩
 
 lemma tokification_image {X : Type*} [TopologicalSpace X] (A : Set X) :
-    tokification X '' A = A := by
+    tokification X '' A = (A : Set (kification X)) := by
   simp [tokification]
 
 lemma tokification_symm_image {X : Type*} [TopologicalSpace X] (A : Set X) :
@@ -165,3 +166,98 @@ lemma isCompact_iff_isCompact_tokification_image {X : Type*} [TopologicalSpace X
     suffices IsCompact ((tokification X).symm '' K) by
       simpa [tokification_symm_image]
     exact hK.image continuous_fromkification
+
+/-- The compact sets of a topological space and its k-ification agree.-/
+lemma isCompact_iff_isCompact_in_kification {X : Type*} [TopologicalSpace X] (C : Set X) :
+    IsCompact C ↔ IsCompact (X := kification X) C := by
+  suffices IsCompact C ↔ IsCompact (tokification X '' C) by
+    simpa only [tokification, Equiv.coe_fn_mk, Set.image_id']
+  exact isCompact_iff_isCompact_tokification_image C
+
+/-- The k-ification makes any space into a k-space.-/
+instance kspace_kification {X : Type*} [TopologicalSpace X] : KSpace (kification X) where
+  restrictGenTopology := {
+    isOpen_of_forall_induced := by
+      intro A h
+      rw [kification.isOpen_iff]
+      intro K hK
+      obtain ⟨E, hE, hEA⟩ :=
+        h (tokification X '' K) ((isCompact_iff_isCompact_tokification_image K).1 hK)
+      rw [kification.isOpen_iff] at hE
+      obtain ⟨F, openF, hF⟩ := hE K hK
+      refine ⟨F, openF, ?_⟩
+      rw [tokification_image] at hEA
+      simp only [kification] at hEA
+      rw [hF, hEA]}
+
+/-- The k-ification preserves the topology of k-spaces.-/
+lemma kification_kspace_eq_self {X :Type*} [t : TopologicalSpace X] [KSpace X] :
+    t = instkification := by
+  simp_rw [TopologicalSpace.ext_iff, instkification]
+  intro s
+  rw [KSpace.isOpen_iff]
+  trivial
+
+lemma from_kification_continuous_of_continuous {X Y : Type*} [tX : TopologicalSpace X]
+    [tY : TopologicalSpace Y] (f : X → Y) (cont : Continuous f) :
+    Continuous (X := kification X) f := by
+  rw [continuous_def] at cont ⊢
+  intro s opens
+  exact (TopologicalSpace.le_def.1 kification_le) (f ⁻¹' s) (cont s opens)
+
+lemma from_kification_continuousOn_of_continuousOn {X Y : Type*} [tX : TopologicalSpace X]
+    [tY : TopologicalSpace Y] (f : X → Y) (s : Set X) (conton : ContinuousOn f s) :
+    ContinuousOn (X := kification X) f s := by
+  rw [continuousOn_iff'] at conton ⊢
+  intro t opent
+  rcases conton t opent with ⟨u, openu, usub⟩
+  use u
+  exact ⟨(TopologicalSpace.le_def.1 kification_le) u openu, usub⟩
+
+lemma continuous_compact_to_kification {X Y : Type*} [tX : TopologicalSpace X]
+    [tY : TopologicalSpace Y] [CompactSpace X] (f : X → Y) (cont : Continuous f) :
+    Continuous (Y := kification Y) f := by
+  simp_rw [continuous_iff_isClosed]
+  intro s hs
+  simp_rw [kification.isClosed_iff, isClosed_induced_iff,
+    Subtype.preimage_val_eq_preimage_val_iff] at hs
+  obtain ⟨t, ht, hst⟩ := hs (Set.range f) (isCompact_range cont)
+  suffices IsClosed (f ⁻¹' (Set.range f ∩ s)) by
+    simpa only [preimage_inter, preimage_range, univ_inter]
+  rw [← hst, Set.preimage_inter, Set.preimage_range, Set.univ_inter]
+  exact ht.preimage cont
+
+lemma continuousOn_compact_to_kification {X Y : Type*} [tX : TopologicalSpace X]
+    [tY : TopologicalSpace Y] {A : Set X} (compact : IsCompact A)
+    (f : X → Y) (conton : ContinuousOn f A) : ContinuousOn (Y := kification Y) f A := by
+  rw [continuousOn_iff_continuous_restrict] at conton ⊢
+  have _ := isCompact_iff_compactSpace.1 compact
+  exact continuous_compact_to_kification (A.restrict f) conton
+
+lemma continuous_kification_of_continuousOn_compact {X Y : Type*} [tX : TopologicalSpace X]
+    [tY : TopologicalSpace Y] (f : X → Y) (conton : ∀ (C : Set X), IsCompact C → ContinuousOn f C) :
+    Continuous (X := kification X) (Y := kification Y) f := by
+  have conton' :  ∀ (C : Set X), IsCompact C → ContinuousOn (Y := kification Y) f C :=
+    fun C compactC ↦ continuousOn_compact_to_kification compactC f (conton C compactC)
+  rw [continuous_def]
+  intro V openV
+  simp only [kification.isOpen_iff]
+  intro C compactC
+  specialize conton' C compactC
+  rw [continuousOn_iff'] at conton'
+  obtain ⟨U, openU, hU⟩ := conton' V openV
+  suffices IsOpen (C ↓∩ (f ⁻¹' V ∩ C)) by
+    rw [preimage_inter, Subtype.coe_preimage_self, inter_univ] at this
+    exact this
+  rw [hU, preimage_inter, Subtype.coe_preimage_self, inter_univ]
+  exact isOpen_induced openU
+
+lemma continuous_kification_of_continuous {X Y : Type*} [tX : TopologicalSpace X]
+    [tY : TopologicalSpace Y] (f : X → Y) (cont : Continuous f) :
+    @Continuous (kification X) (kification Y) instkification instkification f := by
+  apply continuous_kification_of_continuousOn_compact
+  intros
+  exact cont.continuousOn
+
+instance t2space_kification_of_t2space {X : Type*} [TopologicalSpace X] [a : T2Space X] :
+  T2Space (kification X) := t2Space_antitone kification_le a
