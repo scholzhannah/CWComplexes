@@ -243,20 +243,25 @@ instance RelCWComplex_RelSubcomplex [T2Space X] [RelCWComplex C D] (E : Set X)
 instance CWComplex_Subcomplex [T2Space X] [CWComplex C] (E : Set X)
     [subcomplex : Subcomplex C E] : CWComplex (E ⇂ C) := RelCWComplex_RelSubcomplex (C := C) E
 
-/-- A subcomplex of a finite CW-complex is again finite.-/
-instance finite_subcomplex_of_finite [T2Space X] [RelCWComplex C D] [finite : Finite C] (E : Set X)
-  [subcomplex : RelSubcomplex C E] : Finite E where
+instance finiteType_subcomplex_of_finiteType [T2Space X] [RelCWComplex C D] [FiniteType C]
+    (E : Set X) [RelSubcomplex C E] : FiniteType E where
+  finite_cell n :=
+    let _ := FiniteType.finite_cell (C := C) (D := D) n
+    toFinite (RelSubcomplex.I E n)
+
+instance finiteDimensional_subcomplex_of_finiteDimensional [T2Space X] [RelCWComplex C D]
+    [FiniteDimensional C] (E : Set X) [RelSubcomplex C E] : FiniteDimensional E where
   eventually_isEmpty_cell := by
-    have := finite.eventually_isEmpty_cell
+    have := FiniteDimensional.eventually_isEmpty_cell (C := C) (D := D)
     simp only [Filter.eventually_atTop, ge_iff_le] at this ⊢
     obtain ⟨n, hn⟩ := this
     use n
     intro b nleb
     simp only [RelCWComplex_RelSubcomplex, isEmpty_subtype, hn b nleb, IsEmpty.forall_iff]
-  finite_cell n :=
-    let _ := finite.finite_cell n
-    toFinite (RelSubcomplex.I E n)
 
+/-- A subcomplex of a finite CW-complex is again finite.-/
+instance finite_subcomplex_of_finite [T2Space X] [RelCWComplex C D] [Finite C] (E : Set X)
+  [RelSubcomplex C E] : Finite E := inferInstance
 
 /-- A union of subcomplexes is again a subcomplex.-/
 instance relSubcomplex_iUnion_RelSubcomplex [T2Space X] [RelCWComplex C D] (J : Type*) [Nonempty J]
@@ -300,37 +305,60 @@ instance subcomplex_iUnion_subcomplex [T2Space X] [CWComplex C] (J : Type*)
     simp_rw [iUnion_subtype, mem_iUnion, iUnion_exists,
       iUnion_comm (fun x ↦ fun i ↦ ⋃ (_ : x ∈ RelSubcomplex.I (sub i) n), openCell n x)])
 
-/-- A finite union of finite subcomplexes is again a finite subcomplex.-/
-instance finite_RelSubcomplex_finite_iUnion_finite_RelSubcomplex [T2Space X] [RelCWComplex C D]
-    {J : Type*} [Nonempty J] [_root_.Finite J] {sub : J → Set X}
+/-- A finite union of finite-dimensional subcomplexes is again a finite-dimensional subcomplex.-/
+instance finiteDimensional_RelSubcomplex_finite_iUnion_finiteDimensional_RelSubcomplex
+    [T2Space X] [RelCWComplex C D] {J : Type*} [Nonempty J] [_root_.Finite J] {sub : J → Set X}
     [cw : ∀ (j : J), RelSubcomplex C (sub j)]
-    [finite : ∀ (j : J), Finite (sub j ⇂ C)] : Finite (⋃ j, sub j) where
+    [finite : ∀ (j : J), FiniteDimensional (sub j ⇂ C)] : FiniteDimensional (⋃ j, sub j) where
   eventually_isEmpty_cell := by
     have h j := (finite j).eventually_isEmpty_cell
     simp only [Filter.eventually_iff, relSubcomplex_iUnion_RelSubcomplex, RelCWComplex_RelSubcomplex,
       RelSubcomplex', iUnion_eq_empty, isEmpty_coe_sort, setOf_forall, Filter.iInter_mem] at h ⊢
     exact h
-  finite_cell := by
-    have h j := (finite j).finite_cell
-    intro n
-    simp only [relSubcomplex_iUnion_RelSubcomplex, Subcomplex'', RelCWComplex_RelSubcomplex] at h ⊢
-    apply Finite.Set.finite_iUnion
 
-/-- A finite union of finite subcomplexes is again a finite subcomplex.-/
-instance finite_subcomplex_finite_iUnion_finite_subcomplex [T2Space X] [CWComplex C] {J : Type*}
+/-- A finite union of finite-dimensionl subcomplexes is again a finite-dimensional subcomplex.-/
+instance finiteDimensional_subcomplex_finite_iUnion_finiteDimensional_subcomplex
+    [T2Space X] [CWComplex C] {J : Type*}
     [_root_.Finite J] {sub : J → Set X} [cw : ∀ (j : J), Subcomplex C (sub j)]
-    [finite : ∀ (j : J), Finite (sub j ⇂ C)] : Finite (⋃ j, sub j) where
+    [finite : ∀ (j : J), FiniteDimensional (sub j ⇂ C)] : FiniteDimensional (⋃ j, sub j) where
   eventually_isEmpty_cell := by
     have h j := (finite j).eventually_isEmpty_cell
     simp only [CWComplex_Subcomplex, RelCWComplex_RelSubcomplex, isEmpty_coe_sort,
       Filter.eventually_iff, subcomplex_iUnion_subcomplex, Subcomplex', RelSubcomplex',
       iUnion_eq_empty, setOf_forall, Filter.iInter_mem] at h ⊢
     exact h
+
+/-- A finite union of subcomplexes of finite type is again a subcomplex of finite type.-/
+instance finiteType_RelSubcomplex_finite_iUnion_finiteType_RelSubcomplex [T2Space X]
+    [RelCWComplex C D] {J : Type*} [Nonempty J] [_root_.Finite J] {sub : J → Set X}
+    [cw : ∀ (j : J), RelSubcomplex C (sub j)]
+    [finite : ∀ (j : J), FiniteType (sub j ⇂ C)] : FiniteType (⋃ j, sub j) where
+ finite_cell := by
+    have h j := (finite j).finite_cell
+    intro n
+    simp only [relSubcomplex_iUnion_RelSubcomplex, Subcomplex'', RelCWComplex_RelSubcomplex] at h ⊢
+    apply Finite.Set.finite_iUnion
+
+/-- A finite union of subcomplexes of finite type is again a subcomplex of finite type.-/
+instance finiteType_subcomplex_finite_iUnion_finiteType_subcomplex [T2Space X] [CWComplex C]
+    {J : Type*} [_root_.Finite J] {sub : J → Set X} [cw : ∀ (j : J), Subcomplex C (sub j)]
+    [finite : ∀ (j : J), FiniteType (sub j ⇂ C)] : FiniteType (⋃ j, sub j) where
   finite_cell := by
     have h j := (finite j).finite_cell
     intro n
     simp only [subcomplex_iUnion_subcomplex, Subcomplex'', RelCWComplex_RelSubcomplex] at h ⊢
     apply Finite.Set.finite_iUnion
+
+/-- A finite union of finite subcomplexes is again a finite subcomplex.-/
+instance finite_RelSubcomplex_finite_iUnion_finite_RelSubcomplex [T2Space X] [RelCWComplex C D]
+    {J : Type*} [Nonempty J] [_root_.Finite J] {sub : J → Set X}
+    [cw : ∀ (j : J), RelSubcomplex C (sub j)]
+    [finite : ∀ (j : J), Finite (sub j ⇂ C)] : Finite (⋃ j, sub j) := inferInstance
+
+/-- A finite union of finite subcomplexes is again a finite subcomplex.-/
+instance finite_subcomplex_finite_iUnion_finite_subcomplex [T2Space X] [CWComplex C] {J : Type*}
+    [_root_.Finite J] {sub : J → Set X} [cw : ∀ (j : J), Subcomplex C (sub j)]
+    [finite : ∀ (j : J), Finite (sub j ⇂ C)] : Finite (⋃ j, sub j) := inferInstance
 
 instance RelSubcomplex_base [RelCWComplex C D] : RelSubcomplex C D where
   I n := ∅
@@ -528,17 +556,17 @@ def attach_cellAB [T2Space X] [CWComplex C] (n : ℕ) (i : cell C n) (E : Set X)
       · use m, ⟨j.1, Or.intro_left _ j.2⟩
       · use n, ⟨i, Or.intro_right _ rfl⟩
 
-lemma finite_attach_cell [T2Space X] [RelCWComplex C D] (n : ℕ) (i : cell C n) (E : Set X)
-    [sub : RelSubcomplex C E]
-    [finite : Finite (E ⇂ C)] (subset : ∃ (I : Π m, Set (cell C m)),
+lemma finiteDimensional_attach_cell [T2Space X] [RelCWComplex C D] (n : ℕ) (i : cell C n)
+    (E : Set X) [sub : RelSubcomplex C E]
+    [FiniteDimensional (E ⇂ C)] (subset : ∃ (I : Π m, Set (cell C m)),
     (∀ m < n, I m ⊆ sub.I m) ∧  cellFrontier n i ⊆
     (D ∪ ⋃ (m < n) (j ∈ I m), closedCell (C := C) m j)) :
     letI _subcomplex := attach_cell n i E subset
-    Finite ((E ∪ openCell n i) ⇂ C) :=
+    FiniteDimensional ((E ∪ openCell n i) ⇂ C) :=
   let _subcomplex := attach_cell n i E subset
   {
   eventually_isEmpty_cell := by
-    have := finite.eventually_isEmpty_cell
+    have := FiniteDimensional.eventually_isEmpty_cell (C := E ⇂ C) (D := D)
     simp only [Filter.eventually_atTop, ge_iff_le] at this ⊢
     obtain ⟨a, ha⟩ := this
     use a.max (n + 1)
@@ -547,7 +575,17 @@ lemma finite_attach_cell [T2Space X] [RelCWComplex C D] (n : ℕ) (i : cell C n)
       not_and] at ha ⊢
     intro x
     refine ⟨ha b (le_of_max_le_left le) x, ?_⟩
-    aesop
+    aesop}
+
+lemma finiteType_attach_cell [T2Space X] [RelCWComplex C D] (n : ℕ) (i : cell C n) (E : Set X)
+    [sub : RelSubcomplex C E]
+    [finite : FiniteType (E ⇂ C)] (subset : ∃ (I : Π m, Set (cell C m)),
+    (∀ m < n, I m ⊆ sub.I m) ∧  cellFrontier n i ⊆
+    (D ∪ ⋃ (m < n) (j ∈ I m), closedCell (C := C) m j)) :
+    letI _subcomplex := attach_cell n i E subset
+    FiniteType ((E ∪ openCell n i) ⇂ C) :=
+  let _subcomplex := attach_cell n i E subset
+  {
   finite_cell := by
     intro m
     by_cases h : m = n
@@ -559,8 +597,33 @@ lemma finite_attach_cell [T2Space X] [RelCWComplex C D] (n : ℕ) (i : cell C n)
       setOf_false, empty_inter, finite_coe_iff, finite_union, finite_empty, and_true]
     exact finite.finite_cell m}
 
+lemma finite_attach_cell [T2Space X] [RelCWComplex C D] (n : ℕ) (i : cell C n) (E : Set X)
+    [sub : RelSubcomplex C E] [Finite (E ⇂ C)] (subset : ∃ (I : Π m, Set (cell C m)),
+    (∀ m < n, I m ⊆ sub.I m) ∧  cellFrontier n i ⊆
+    (D ∪ ⋃ (m < n) (j ∈ I m), closedCell (C := C) m j)) :
+    letI _subcomplex := attach_cell n i E subset
+    Finite ((E ∪ openCell n i) ⇂ C) :=
+  let _subcomplex := attach_cell n i E subset
+  let _finiteDimensional := finiteDimensional_attach_cell n i E subset
+  let _finiteType := finiteType_attach_cell n i E subset
+  inferInstance
+
+lemma finiteDimensional_attach_cellAB [T2Space X] [CWComplex C] (n : ℕ) (i : cell C n) (E : Set X)
+    [sub : Subcomplex C E] [FiniteDimensional (E ⇂ C)] (subset : ∃ (I : Π m, Set (cell C m)),
+    (∀ m < n, I m ⊆ sub.I m) ∧ cellFrontier n i ⊆ (⋃ (m < n) (j ∈ I m), closedCell (C := C) m j)):
+    let _subcomplex := attach_cellAB n i E subset
+    FiniteDimensional (E ∪ openCell n i) := finiteDimensional_attach_cell n i E
+  (by simp_rw [empty_union]; exact subset)
+
+lemma finiteType_attach_cellAB [T2Space X] [CWComplex C] (n : ℕ) (i : cell C n) (E : Set X)
+    [sub : Subcomplex C E] [FiniteType (E ⇂ C)] (subset : ∃ (I : Π m, Set (cell C m)),
+    (∀ m < n, I m ⊆ sub.I m) ∧ cellFrontier n i ⊆ (⋃ (m < n) (j ∈ I m), closedCell (C := C) m j)):
+    let _subcomplex := attach_cellAB n i E subset
+    FiniteType (E ∪ openCell n i) := finiteType_attach_cell n i E
+  (by simp_rw [empty_union]; exact subset)
+
 lemma finite_attach_cellAB [T2Space X] [CWComplex C] (n : ℕ) (i : cell C n) (E : Set X)
-    [sub : Subcomplex C E] [finite : Finite (E ⇂ C)] (subset : ∃ (I : Π m, Set (cell C m)),
+    [sub : Subcomplex C E] [Finite (E ⇂ C)] (subset : ∃ (I : Π m, Set (cell C m)),
     (∀ m < n, I m ⊆ sub.I m) ∧ cellFrontier n i ⊆ (⋃ (m < n) (j ∈ I m), closedCell (C := C) m j)):
     let _subcomplex := attach_cellAB n i E subset
     Finite (E ∪ openCell n i) := finite_attach_cell n i E
@@ -610,7 +673,7 @@ lemma cell_mem_finite_RelSubcomplex [T2Space X] [RelCWComplex C D] (n : ℕ) (i 
   constructor
   · have : Finite (sub' ⇂ C) := finite_RelSubcomplex_finite_iUnion_finite_RelSubcomplex
      (finite := fun ⟨m, j⟩ ↦ (hsub m.1 m.2 j.1).1)
-    exact finite_attach_cell (C := C) (finite := this) n.succ i _ _
+    exact finite_attach_cell n.succ i _ _
   · simp only [attach_cell, subcomplex_iUnion_subcomplex, Subcomplex', mem_iUnion, Sigma.exists,
     Subtype.exists, exists_prop, setOf_or, sub', cw']
     right
@@ -671,7 +734,7 @@ instance RelSubcomplex_levelaux [T2Space X] [RelCWComplex C D] (n : ℕ∞) :
     rw [iUnion_comm])
 
 /-- The levels of a CW-complex constitute subcomplexes. -/
-instance subcomplex_level [T2Space X] [RelCWComplex C D] (n : ℕ∞) :
+instance RelSubcomplex_level [T2Space X] [RelCWComplex C D] (n : ℕ∞) :
   RelSubcomplex C (level C n) := RelSubcomplex_levelaux _
 
 end Subcomplex
