@@ -25,6 +25,7 @@ noncomputable section
 lemma inter_eq_inter_iff_compl {X : Type*} {A B C : Set X} : A ∩ B = C ∩ B ↔ Aᶜ ∩ B = Cᶜ ∩ B := by
   constructor <;> (intro; simp_all [Set.ext_iff, not_iff_not])
 
+-- **PR**
 --needed in product file
 lemma Set.subset_product {α β : Type*} {s : Set (α × β)} :
     s ⊆ (Prod.fst '' s) ×ˢ (Prod.snd '' s) :=
@@ -132,9 +133,11 @@ theorem ENat.nat_strong_induction {P : ℕ∞ → Prop} (a : ℕ∞) (h0 : P 0)
   · exact htop A
   · exact A _
 
+-- **PR**
 theorem iUnion_psigma {γ : α → Type*} (s : PSigma γ → Set β) : ⋃ ia, s ia = ⋃ i, ⋃ a, s ⟨i, a⟩ :=
   iSup_psigma _
 
+-- **PR**
 theorem iUnion_psigma' {γ : α → Type*} (s : ∀ i, γ i → Set β) :
     ⋃ i, ⋃ a, s i a = ⋃ ia : PSigma γ, s ia.1 ia.2 :=
   iSup_psigma' _

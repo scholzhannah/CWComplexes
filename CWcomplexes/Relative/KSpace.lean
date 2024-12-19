@@ -1,6 +1,7 @@
 import Mathlib.Topology.Sets.Compacts
 import Mathlib.Topology.Defs.Induced
 import Mathlib.Topology.RestrictGen
+import Mathlib.Topology.Compactness.CompactlyGeneratedSpace
 import CWcomplexes.Auxiliary
 
 open Set Set.Notation Topology
@@ -73,8 +74,29 @@ instance kspace_of_WeaklyLocallyCompactSpace {X : Type*} [TopologicalSpace X]
 
 /-- Every sequential space is a k-space.-/
 instance kspace_of_SequentialSpace {X : Type*} [TopologicalSpace X]
-    [SequentialSpace X]: KSpace X where
+    [SequentialSpace X] : KSpace X where
   restrictGenTopology := RestrictGenTopology.isCompact_of_seq
+
+lemma kspace_of_preimage_isOpen {X : Type*} [TopologicalSpace X]
+    (h : ∀ (s : Set X), (∀ (K : Type u) [TopologicalSpace K], [CompactSpace K] →
+      ∀ (f : K → X), Continuous f → IsOpen (f ⁻¹' s)) → IsOpen s) :
+    KSpace X where
+  restrictGenTopology := {
+    isOpen_of_forall_induced := by
+      intro s hs
+      apply h s
+      intro K _ _ f hf
+      change IsOpen ((fun x ↦ ⟨f x, mem_image_of_mem f trivial⟩) ⁻¹' ((f '' univ) ↓∩ s))
+      apply (hf.subtype_mk fun x ↦ mem_image_of_mem f trivial).isOpen_preimage
+      exact hs (f '' univ) (CompactSpace.isCompact_univ.image hf)
+  }
+
+instance kspace_of_compactlyGeneratedSpace {X : Type*} [TopologicalSpace X]
+    [CompactlyGeneratedSpace X] : KSpace X where
+  restrictGenTopology := sorry
+
+instance compactlyGeneratedSpace_of_kspace_of_t2 {X : Type*} [TopologicalSpace X] [T2Space X]
+    [KSpace X] : CompactlyGeneratedSpace X := sorry
 
 /-- A type synonym used for the k-ification of a topological space.-/
 def kification (X : Type*) := X
