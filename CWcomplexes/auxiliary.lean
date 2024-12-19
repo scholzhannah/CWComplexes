@@ -93,6 +93,14 @@ open Set.Notation
 
 lemma test {X : Type*} {s t : Set X} : (s ↓∩ t)ᶜ = s ↓∩ tᶜ := rfl
 
+lemma isOpen_in_of_isOpen {X : Type*} [TopologicalSpace X] {s t : Set X}
+    (ht : IsOpen t) : IsOpen (s ↓∩ t) := isOpen_induced ht
+
+lemma isClosed_in_of_isClosed {X : Type*} [TopologicalSpace X] {s t : Set X}
+    (ht : IsClosed t) : IsClosed (s ↓∩ t) := by
+  rw [← isOpen_compl_iff] at ht ⊢
+  exact isOpen_in_of_isOpen ht
+
 lemma isOpen_inter_of_isOpen_in_isOpen {X : Type*} [TopologicalSpace X] {s t : Set X}
     (hs : IsOpen s) (hst : IsOpen (s ↓∩ t)) : IsOpen (s ∩ t) := by
   rw [isOpen_induced_iff] at hst
@@ -123,3 +131,10 @@ theorem ENat.nat_strong_induction {P : ℕ∞ → Prop} (a : ℕ∞) (h0 : P 0)
   cases a
   · exact htop A
   · exact A _
+
+theorem iUnion_psigma {γ : α → Type*} (s : PSigma γ → Set β) : ⋃ ia, s ia = ⋃ i, ⋃ a, s ⟨i, a⟩ :=
+  iSup_psigma _
+
+theorem iUnion_psigma' {γ : α → Type*} (s : ∀ i, γ i → Set β) :
+    ⋃ i, ⋃ a, s i a = ⋃ ia : PSigma γ, s ia.1 ia.2 :=
+  iSup_psigma' _
