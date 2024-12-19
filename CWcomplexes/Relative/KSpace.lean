@@ -77,7 +77,16 @@ instance kspace_of_SequentialSpace {X : Type*} [TopologicalSpace X]
     [SequentialSpace X] : KSpace X where
   restrictGenTopology := RestrictGenTopology.isCompact_of_seq
 
-lemma kspace_of_preimage_isOpen {X : Type*} [TopologicalSpace X]
+lemma preimage_isOpen {X K : Type u} [TopologicalSpace X] [KSpace X] [TopologicalSpace K]
+    [CompactSpace X] (s : Set X) (hs : (∀ (K : Type u) [TopologicalSpace K], [CompactSpace K] →
+      ∀ (f : K → X), Continuous f → IsOpen (f ⁻¹' s))) :
+    IsOpen s := by
+  rw [isOpen_iff]
+  intro K hK
+  let _ : CompactSpace (Elem K) := isCompact_iff_compactSpace.mp hK
+  exact hs (Elem K) Subtype.val continuous_subtype_val
+
+lemma kspace_of_preimage_isOpen.{u} {X : Type u} [TopologicalSpace X]
     (h : ∀ (s : Set X), (∀ (K : Type u) [TopologicalSpace K], [CompactSpace K] →
       ∀ (f : K → X), Continuous f → IsOpen (f ⁻¹' s)) → IsOpen s) :
     KSpace X where
@@ -88,15 +97,25 @@ lemma kspace_of_preimage_isOpen {X : Type*} [TopologicalSpace X]
       intro K _ _ f hf
       change IsOpen ((fun x ↦ ⟨f x, mem_image_of_mem f trivial⟩) ⁻¹' ((f '' univ) ↓∩ s))
       apply (hf.subtype_mk fun x ↦ mem_image_of_mem f trivial).isOpen_preimage
-      exact hs (f '' univ) (CompactSpace.isCompact_univ.image hf)
-  }
+      exact hs (f '' univ) (CompactSpace.isCompact_univ.image hf)}
 
 instance kspace_of_compactlyGeneratedSpace {X : Type*} [TopologicalSpace X]
-    [CompactlyGeneratedSpace X] : KSpace X where
-  restrictGenTopology := sorry
+    [CompactlyGeneratedSpace X] : KSpace X := by
+  apply kspace_of_preimage_isOpen
+  intro s h
+  apply CompactlyGeneratedSpace.isOpen'
+  intro K _ _ _ f hf
+  exact h K f hf
 
 instance compactlyGeneratedSpace_of_kspace_of_t2 {X : Type*} [TopologicalSpace X] [T2Space X]
-    [KSpace X] : CompactlyGeneratedSpace X := sorry
+    [KSpace X] : CompactlyGeneratedSpace X := by
+  apply compactlyGeneratedSpace_of_isClosed_of_t2
+  intro s hs
+  rw [isClosed_iff]
+  intro K hK
+  specialize hs K hK
+  rw [← Subtype.preimage_coe_inter_self]
+  exact isClosed_in_of_isClosed hs
 
 /-- A type synonym used for the k-ification of a topological space.-/
 def kification (X : Type*) := X
