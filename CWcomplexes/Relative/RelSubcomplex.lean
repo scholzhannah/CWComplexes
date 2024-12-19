@@ -61,6 +61,7 @@ lemma Subcomplex.union {C E : Set X} [CWComplex C] [Subcomplex C E] :
 
 /-- An alternative version of `Subcomplex`: Instead of requiring that `E` is closed it requires
   that for every cell of the subcomplex the corresponding closed cell is a subset of `E`.-/
+-- adding `@[simps]` here breaks the file
 def RelSubcomplex' [T2Space X] (C : Set X) {D : Set X} [RelCWComplex C D] (E : Set X)
     (I : Π n, Set (cell C n))
     (closedCell_subset : ∀ (n : ℕ) (i : I n), closedCell (C := C) n i ⊆ E)
@@ -100,6 +101,7 @@ def RelSubcomplex' [T2Space X] (C : Set X) {D : Set X} [RelCWComplex C D] (E : S
 
 /-- An alternative version of `Subcomplex`: Instead of requiring that `E` is closed it requires
   that for every cell of the subcomplex the corresponding closed cell is a subset of `E`.-/
+@[simps!]
 def Subcomplex' [T2Space X] (C : Set X) [CWComplex C] (E : Set X) (I : Π n, Set (cell C n))
     (closedCell_subset : ∀ (n : ℕ) (i : I n), closedCell (C := C) (D := ∅) n i ⊆ E)
     (union : ⋃ (n : ℕ) (j : I n), openCell (C := C) (D := ∅) n j = E) : Subcomplex C E :=
@@ -107,6 +109,7 @@ def Subcomplex' [T2Space X] (C : Set X) [CWComplex C] (E : Set X) (I : Π n, Set
 
 /-- An alternative version of `Subcomplex`: Instead of requiring that `E` is closed it requires that
   `E` is a CW-complex. -/
+@[simps]
 def RelSubcomplex'' [T2Space X] (C : Set X) {D : Set X} [RelCWComplex C D] (E : Set X)
     (I : Π n, Set (cell C n)) [RelCWComplex E D]
     (union : D ∪ ⋃ (n : ℕ) (j : I n), openCell (C := C) (D := D) n j = E) : RelSubcomplex C E where
@@ -116,6 +119,7 @@ def RelSubcomplex'' [T2Space X] (C : Set X) {D : Set X} [RelCWComplex C D] (E : 
 
 /-- An alternative version of `Subcomplex`: Instead of requiring that `E` is closed it requires that
   `E` is a CW-complex. -/
+@[simps]
 def Subcomplex'' [T2Space X] (C : Set X) [CWComplex C] (E : Set X) (I : Π n, Set (cell C n))
     [CWComplex E] (union : ⋃ (n : ℕ) (j : I n), openCell (C := C) (D := ∅) n j = E) :
     Subcomplex C E where
@@ -171,6 +175,7 @@ abbrev RelSub (E C : Set X) : Set X := E
 scoped infixr:35 " ⇂ "  => RelSub
 
 /-- A subcomplex is again a CW-complex. -/
+@[simps]
 instance RelCWComplex_RelSubcomplex [T2Space X] [RelCWComplex C D] (E : Set X)
     [subcomplex : RelSubcomplex C E] : RelCWComplex (E ⇂ C) D where
   cell n := subcomplex.I n
@@ -264,6 +269,7 @@ instance finite_subcomplex_of_finite [T2Space X] [RelCWComplex C D] [Finite C] (
   [RelSubcomplex C E] : Finite E := inferInstance
 
 /-- A union of subcomplexes is again a subcomplex.-/
+@[simps!]
 instance relSubcomplex_iUnion_RelSubcomplex [T2Space X] [RelCWComplex C D] (J : Type*) [Nonempty J]
     (sub : J → Set X) [cw : ∀ (j : J), RelSubcomplex C (sub j)] :
     RelSubcomplex C (⋃ (j : J), sub j) := RelSubcomplex' C _
@@ -286,6 +292,7 @@ instance relSubcomplex_iUnion_RelSubcomplex [T2Space X] [RelCWComplex C D] (J : 
       iUnion_comm (fun x ↦ fun i ↦ ⋃ (_ : x ∈ RelSubcomplex.I (sub i) n), openCell n x)])
 
 /-- A union of subcomplexes is again a subcomplex.-/
+@[simps!]
 instance subcomplex_iUnion_subcomplex [T2Space X] [CWComplex C] (J : Type*)
     (sub : J → Set X) [cw : ∀ (j : J), Subcomplex C (sub j)] :
     Subcomplex C (⋃ (j : J), sub j) := Subcomplex' C _
@@ -360,6 +367,7 @@ instance finite_subcomplex_finite_iUnion_finite_subcomplex [T2Space X] [CWComple
     [_root_.Finite J] {sub : J → Set X} [cw : ∀ (j : J), Subcomplex C (sub j)]
     [finite : ∀ (j : J), Finite (sub j ⇂ C)] : Finite (⋃ j, sub j) := inferInstance
 
+@[simps]
 instance RelSubcomplex_base [RelCWComplex C D] : RelSubcomplex C D where
   I n := ∅
   closed := isClosedBase C
@@ -376,6 +384,7 @@ instance finite_base [T2Space X] [RelCWComplex C D] : Finite D where
     simp [RelCWComplex_RelSubcomplex, RelSubcomplex_base]
     exact Finite.of_subsingleton
 
+@[simps]
 def attach_base [T2Space X] [RelCWComplex C D] (n : ℕ) (i : cell C n) (hD: cellFrontier n i ⊆ D) :
     RelSubcomplex C (D ∪ closedCell n i) where
   I m := {x | HEq (⟨m, x⟩ : Σ m, cell C m) (⟨n, i⟩ : Σ n, cell C n)}
@@ -422,9 +431,11 @@ lemma finite_attach_base [T2Space X] [RelCWComplex C D] (n : ℕ) (i : cell C n)
         intro c eq
         contradiction}
 
+@[simps!]
 instance cellzero [T2Space X] [RelCWComplex C D] (i : cell C 0) :
   RelSubcomplex C (D ∪ closedCell 0 i) := attach_base 0 i (by simp [cellFrontier_zero_eq_empty])
 
+@[simps]
 instance cellzeroAB [T2Space X] [CWComplex C] (i : cell C 0) : Subcomplex C (closedCell 0 i) where
   I n := {x | HEq (⟨n, x⟩ : Σ n, cell C n) (⟨0, i⟩ : Σ n, cell C n)}
   closed := by
@@ -480,6 +491,7 @@ instance finite_cellzeroAB [T2Space X] [CWComplex C] (i : cell C 0) :
 
 /-- The subcomplex that results from attaching a cell to a subcomplex when the edge of the cell is
   contained in the original subcomplex.-/
+@[simps]
 def attach_cell [T2Space X] [RelCWComplex C D] (n : ℕ) (i : cell C n) (E : Set X)
     [sub : RelSubcomplex C E]
     (subset : ∃ (I : Π m, Set (cell C m)), (∀ m < n, I m ⊆ sub.I m) ∧  cellFrontier n i ⊆
@@ -521,6 +533,7 @@ def attach_cell [T2Space X] [RelCWComplex C D] (n : ℕ) (i : cell C n) (E : Set
 
 /-- The subcomplex that results from attaching a cell to a subcomplex when the edge of the cell is
   contained in the original subcomplex.-/
+@[simps]
 def attach_cellAB [T2Space X] [CWComplex C] (n : ℕ) (i : cell C n) (E : Set X)
     [sub : Subcomplex C E]
     (subset : ∃ (I : Π m, Set (cell C m)), (∀ m < n, I m ⊆ sub.I m) ∧  cellFrontier n i ⊆
@@ -636,9 +649,10 @@ lemma cell_mem_finite_RelSubcomplex [T2Space X] [RelCWComplex C D] (n : ℕ) (i 
   · use (D ∪ closedCell 0 i), (Subcomplex.cellzero i)
     exact ⟨finite_cellzero i, by rfl⟩
   by_cases h : cellFrontier (n + 1) i ⊆ D
-  · use D ∪ closedCell (n + 1) i, (attach_base (n + 1) i h)
+  · let _ := attach_base (n + 1) i h
+    use D ∪ closedCell (n + 1) i, inferInstance
     refine ⟨finite_attach_base (n + 1) i h, ?_⟩
-    simp [attach_base]
+    simp
   obtain ⟨I, hI⟩ := cellFrontier_subset_base_union_finite_closedCell n.succ i
   choose sub cw hsub using hn
   let sub' := ⋃ (x : Σ (m : {m : ℕ // m ≤ n}), I m), sub x.1.1 x.1.2 ↑x.2.1
@@ -722,6 +736,7 @@ lemma compact_subset_finite_RelSubcomplex [T2Space X] [RelCWComplex C D] {B : Se
   exact subset
 
 /-- The levels of a CW-complex constitute subcomplexes. -/
+@[simps!]
 instance RelSubcomplex_levelaux [T2Space X] [RelCWComplex C D] (n : ℕ∞) :
     RelSubcomplex C (levelaux C n) :=
   RelSubcomplex'' _ (levelaux C n)
@@ -734,6 +749,7 @@ instance RelSubcomplex_levelaux [T2Space X] [RelCWComplex C D] (n : ℕ∞) :
     rw [iUnion_comm])
 
 /-- The levels of a CW-complex constitute subcomplexes. -/
+@[simps!]
 instance RelSubcomplex_level [T2Space X] [RelCWComplex C D] (n : ℕ∞) :
   RelSubcomplex C (level C n) := RelSubcomplex_levelaux _
 
