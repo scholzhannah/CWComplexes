@@ -87,10 +87,10 @@ lemma iUnion_prodcell [RelCWComplex C D] [RelCWComplex E F] :
   simp only [prodcell, prodmap_image_closedBall, iUnion_psigma, iUnion_sigma, prod_iUnion,
     iUnion_prod_const, iUnion_prod, mem_iUnion]
   constructor
-  · intro ⟨n, m, l, _, i, j, h⟩
-    use l, i, m, j
+  · intro ⟨n, m, l, ⟨_, i, j⟩, h⟩
+    use l, j, m, i
   · intro ⟨m, i, l, j, h⟩
-    use m + l, l, m, add_comm l m, i, j
+    use m + l, l, m, ⟨l.add_comm m, j, i⟩
 
 variable [T2Space X] [T2Space Y]
 
@@ -256,9 +256,10 @@ instance RelCWComplex_product [RelCWComplex C D] [RelCWComplex E F] [KSpace (X �
       rw [← inter_eq_right.2 this, ← inter_assoc]
       apply hbase.inter
       apply IsClosed.union
-      apply IsClosed.union
-      · exact (isClosedBase C).prod (isClosedBase E)
-      · exact isClosed_iUnion_of_finite fun ⟨n, j, hnj⟩ ↦ isClosed_closedCell.prod (isClosedBase E)
+      · apply IsClosed.union
+        · exact (isClosedBase C).prod (isClosedBase E)
+        · exact isClosed_iUnion_of_finite
+            fun ⟨n, j, hnj⟩ ↦ isClosed_closedCell.prod (isClosedBase E)
       · exact isClosed_iUnion_of_finite fun ⟨n, j, hnj⟩ ↦ (isClosedBase C).prod isClosed_closedCell
     simp_rw [inter_iUnion]
     refine isClosed_iUnion_of_finite fun ⟨n, j, hnj⟩ ↦
@@ -472,10 +473,10 @@ instance RelCWComplex_product_kification [RelCWComplex C D] [RelCWComplex E F] :
       rw [← inter_eq_right.2 this, ← inter_assoc]
       apply hbase.inter
       apply IsClosed.union
-      apply IsClosed.union
-      · exact ((isClosedBase C).prod (isClosedBase E)).mono kification_le
-      · exact isClosed_iUnion_of_finite fun ⟨n, j, hnj⟩ ↦
-          (isClosed_closedCell.prod (isClosedBase E)).mono kification_le
+      · apply IsClosed.union
+        · exact ((isClosedBase C).prod (isClosedBase E)).mono kification_le
+        · exact isClosed_iUnion_of_finite fun ⟨n, j, hnj⟩ ↦
+            (isClosed_closedCell.prod (isClosedBase E)).mono kification_le
       · exact isClosed_iUnion_of_finite fun ⟨n, j, hnj⟩ ↦
           ((isClosedBase C).prod isClosed_closedCell).mono kification_le
     simp_rw [inter_iUnion]
@@ -518,3 +519,5 @@ instance CWComplex_product_kification [CWComplex C] [CWComplex E] :
     RelCWComplex_product_kification
 
 end
+
+end CWComplex

@@ -41,6 +41,8 @@ variable {X : Type*} [t : TopologicalSpace X] {C D : Set X}
 
 section
 
+-- rename Subcomplex as it does the same thing.
+
 /-- A subcomplex is a closed subspace of a CW-complex that is the union of open cells of the
   CW-complex.-/
 class RelSubcomplex (C : Set X) {D : Set X} [RelCWComplex C D] (E : Set X) where
@@ -59,9 +61,11 @@ lemma Subcomplex.union {C E : Set X} [CWComplex C] [Subcomplex C E] :
   rw [empty_union] at this
   exact this
 
+-- lower case, relsubcomplex.mk'
+
 /-- An alternative version of `Subcomplex`: Instead of requiring that `E` is closed it requires
   that for every cell of the subcomplex the corresponding closed cell is a subset of `E`.-/
--- adding `@[simps]` here breaks the file
+@[simps -isSimp]
 def RelSubcomplex' [T2Space X] (C : Set X) {D : Set X} [RelCWComplex C D] (E : Set X)
     (I : Π n, Set (cell C n))
     (closedCell_subset : ∀ (n : ℕ) (i : I n), closedCell (C := C) n i ⊆ E)
@@ -189,7 +193,10 @@ instance RelCWComplex_RelSubcomplex [T2Space X] [RelCWComplex C D] (E : Set X)
       not_and]
     intro n j _ m i _ eq
     apply disjoint_openCell_of_ne
-    aesop
+    simp_all only [Sigma.mk.inj_iff, not_and, ne_eq]
+    intro a
+    subst a
+    simp_all only [heq_eq_eq, Subtype.mk.injEq, forall_const, not_false_eq_true]
   disjointBase' := fun n i ↦ RelCWComplex.disjointBase' (C := C) (D := D) n i
   mapsto := by
     intro n i
@@ -236,7 +243,8 @@ instance RelCWComplex_RelSubcomplex [T2Space X] [RelCWComplex C D] (E : Set X)
       exact isClosed_empty
     rw [← subset_empty_iff]
     apply subset_trans (inter_subset_inter_left _ Asub)
-    simp_rw [RelSub, ← subcomplex.union, subset_empty_iff, union_inter_distrib_right, iUnion_inter, union_empty_iff]
+    simp_rw [RelSub, ← subcomplex.union, subset_empty_iff, union_inter_distrib_right, iUnion_inter,
+      union_empty_iff]
     constructor
     · rw [inter_comm]
       exact (RelCWComplex.disjointBase' n j).inter_eq
@@ -319,8 +327,9 @@ instance finiteDimensional_RelSubcomplex_finite_iUnion_finiteDimensional_RelSubc
     [finite : ∀ (j : J), FiniteDimensional (sub j ⇂ C)] : FiniteDimensional (⋃ j, sub j) where
   eventually_isEmpty_cell := by
     have h j := (finite j).eventually_isEmpty_cell
-    simp only [Filter.eventually_iff, relSubcomplex_iUnion_RelSubcomplex, RelCWComplex_RelSubcomplex,
-      RelSubcomplex', iUnion_eq_empty, isEmpty_coe_sort, setOf_forall, Filter.iInter_mem] at h ⊢
+    simp only [RelCWComplex_RelSubcomplex, isEmpty_coe_sort, Filter.eventually_iff,
+      relSubcomplex_iUnion_RelSubcomplex, RelSubcomplex', iUnion_eq_empty, setOf_forall,
+      Filter.iInter_mem] at h ⊢
     exact h
 
 /-- A finite union of finite-dimensionl subcomplexes is again a finite-dimensional subcomplex.-/
@@ -756,3 +765,5 @@ instance RelSubcomplex_level [T2Space X] [RelCWComplex C D] (n : ℕ∞) :
 end Subcomplex
 
 end
+
+end CWComplex

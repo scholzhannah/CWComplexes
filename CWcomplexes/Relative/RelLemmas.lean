@@ -41,8 +41,8 @@ lemma closed_iff_inter_levelaux_closed [RelCWComplex C D] {A : Set X} (asubc : A
 /-- The intersection with `levelaux C (Nat.succ n)` is closed iff the intersection with
   `levelaux C n ` and every cell of dimension `n` is closed.-/
 lemma inter_levelaux_succ_closed_iff_inter_levelaux_closed_and_inter_closedCell_closed
-    [RelCWComplex C D] (A : Set X) :
-    IsClosed (A ∩ levelaux C (Nat.succ n)) ↔ IsClosed (A ∩ levelaux C n) ∧
+    [RelCWComplex C D] (A : Set X) (n : ℕ):
+    IsClosed (A ∩ levelaux C n.succ) ↔ IsClosed (A ∩ levelaux C n) ∧
     ∀ (j : cell C n), IsClosed (A ∩ closedCell n j) := by
   constructor
   · intro hclosed
@@ -212,7 +212,8 @@ lemma compact_inter_finite [RelCWComplex C D] (A : Set X) (compact : IsCompact A
         rw [this]
         exact isClosed_singleton
       have hpnj := hp ⟨n, j, hnj⟩
-      have : ∀ (y : X) (ymemP : y ∈ P), ⟨y, ymemP⟩ ∈ s → ↑y ∈ openCell n j → y = p ⟨n, ⟨j, hnj⟩⟩ := by
+      have : ∀ (y : X) (ymemP : y ∈ P), ⟨y, ymemP⟩ ∈ s →
+          ↑y ∈ openCell n j → y = p ⟨n, ⟨j, hnj⟩⟩ := by
         intro y ymemP ymems ymemopen
         simp only [image_univ, mem_range, Sigma.exists, Subtype.exists, P] at ymemP
         obtain ⟨m, i, hmi, rfl⟩ := ymemP
@@ -376,3 +377,5 @@ lemma compact_iff_finite [RelCWComplex C D] (hD : IsCompact D) :
 /-- A CW-complex is compact iff it is finite. -/
 lemma compact_iff_finiteAB [CWComplex C] : IsCompact C ↔ Finite C :=
   ⟨finite_of_compact, fun _ ↦ compact_of_finite isCompact_empty⟩
+
+end CWComplex

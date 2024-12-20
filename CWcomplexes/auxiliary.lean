@@ -120,6 +120,7 @@ lemma isClosed_inter_of_isClosed_in_isClosed {X : Type*} [TopologicalSpace X] {s
 
 /-! ### Random-/
 
+-- use PLift
 instance {α β : Sort*} [Finite α] [Finite β] : Finite (α ⊕' β) := by
   sorry
 
@@ -134,10 +135,11 @@ theorem ENat.nat_strong_induction {P : ℕ∞ → Prop} (a : ℕ∞) (h0 : P 0)
   · exact A _
 
 -- **PR**
-theorem iUnion_psigma {γ : α → Type*} (s : PSigma γ → Set β) : ⋃ ia, s ia = ⋃ i, ⋃ a, s ⟨i, a⟩ :=
+theorem iUnion_psigma {α β : Type*} {γ : α → Type*} (s : PSigma γ → Set β) :
+    ⋃ ia, s ia = ⋃ i, ⋃ a, s ⟨i, a⟩ :=
   iSup_psigma _
 
 -- **PR**
-theorem iUnion_psigma' {γ : α → Type*} (s : ∀ i, γ i → Set β) :
+theorem iUnion_psigma' {α β : Type*} {γ : α → Type*} (s : ∀ i, γ i → Set β) :
     ⋃ i, ⋃ a, s i a = ⋃ ia : PSigma γ, s ia.1 ia.2 :=
   iSup_psigma' _

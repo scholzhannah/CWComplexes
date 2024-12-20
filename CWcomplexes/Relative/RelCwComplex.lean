@@ -84,7 +84,7 @@ class RelCWComplex.{u} {X : Type u} [TopologicalSpace X] (C : Set X) (D : outPar
 
 abbrev CWComplex {X : Type*} [TopologicalSpace X] (C : Set X) := RelCWComplex C ∅
 
-def CWComplex.mk {X : Type u} [TopologicalSpace X] (C : Set X)
+def CWComplex.mk.{u} {X : Type u} [TopologicalSpace X] (C : Set X)
     (cell : (n : ℕ) → Type u) (map : (n : ℕ)  → (i : cell n) → PartialEquiv (Fin n → ℝ) X)
     (source_eq : ∀ (n : ℕ) (i : cell n), (map n i).source = closedBall 0 1)
     (cont : ∀ (n : ℕ) (i : cell n), ContinuousOn (map n i) (closedBall 0 1))
@@ -633,3 +633,5 @@ lemma cellFrontier_subset_finite_openCellAB [CWComplex C] (n : ℕ) (i : cell C 
     cellFrontier n i ⊆ ⋃ (m < n) (j ∈ I m), openCell m j := by
   have := cellFrontier_subset_finite_openCell n i
   simp_all only [empty_union]
+
+end CWComplex

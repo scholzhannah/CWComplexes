@@ -77,7 +77,8 @@ instance kspace_of_SequentialSpace {X : Type*} [TopologicalSpace X]
     [SequentialSpace X] : KSpace X where
   restrictGenTopology := RestrictGenTopology.isCompact_of_seq
 
-lemma preimage_isOpen {X K : Type u} [TopologicalSpace X] [KSpace X] [TopologicalSpace K]
+-- comment universe
+lemma preimage_isOpen.{u} {X : Type u} [TopologicalSpace X] [KSpace X]
     [CompactSpace X] (s : Set X) (hs : (∀ (K : Type u) [TopologicalSpace K], [CompactSpace K] →
       ∀ (f : K → X), Continuous f → IsOpen (f ⁻¹' s))) :
     IsOpen s := by
@@ -86,6 +87,7 @@ lemma preimage_isOpen {X K : Type u} [TopologicalSpace X] [KSpace X] [Topologica
   let _ : CompactSpace (Elem K) := isCompact_iff_compactSpace.mp hK
   exact hs (Elem K) Subtype.val continuous_subtype_val
 
+--comment universe
 lemma kspace_of_preimage_isOpen.{u} {X : Type u} [TopologicalSpace X]
     (h : ∀ (s : Set X), (∀ (K : Type u) [TopologicalSpace K], [CompactSpace K] →
       ∀ (f : K → X), Continuous f → IsOpen (f ⁻¹' s)) → IsOpen s) :
@@ -302,3 +304,5 @@ lemma continuous_kification_of_continuous {X Y : Type*} [tX : TopologicalSpace X
 
 instance t2space_kification_of_t2space {X : Type*} [TopologicalSpace X] [a : T2Space X] :
   T2Space (kification X) := t2Space_antitone kification_le a
+
+end KSpace
