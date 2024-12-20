@@ -26,7 +26,7 @@ lemma isClosed_levelaux [RelCWComplex C D] (n : ℕ∞) : IsClosed (levelaux C n
 
 lemma isClosed_level [RelCWComplex C D] (n : ℕ∞) : IsClosed (level C n) := isClosed
 
-lemma closed_iff_inter_levelaux_closed [RelCWComplex C D] {A : Set X} (asubc : A ⊆ C) :
+lemma isClosed_iff_inter_levelaux_isClosed [RelCWComplex C D] {A : Set X} (asubc : A ⊆ C) :
     IsClosed A ↔ ∀ (n : ℕ), IsClosed (A ∩ levelaux C n) := by
   refine ⟨fun closedA _ ↦  IsClosed.inter closedA (isClosed_levelaux _), ?_⟩
   intro h
@@ -40,7 +40,7 @@ lemma closed_iff_inter_levelaux_closed [RelCWComplex C D] {A : Set X} (asubc : A
 
 /-- The intersection with `levelaux C (Nat.succ n)` is closed iff the intersection with
   `levelaux C n ` and every cell of dimension `n` is closed.-/
-lemma inter_levelaux_succ_closed_iff_inter_levelaux_closed_and_inter_closedCell_closed
+lemma inter_levelaux_succ_isClosed_iff_inter_levelaux_isClosed_and_inter_closedCell_isClosed
     [RelCWComplex C D] (A : Set X) (n : ℕ):
     IsClosed (A ∩ levelaux C n.succ) ↔ IsClosed (A ∩ levelaux C n) ∧
     ∀ (j : cell C n), IsClosed (A ∩ closedCell n j) := by
@@ -99,11 +99,11 @@ lemma induction_isClosed_levelaux [RelCWComplex C D] {A : Set X} (asub : A ⊆ C
     (step : ∀ (n : ℕ), (∀ m (_ : m ≤ n), IsClosed (A ∩ levelaux C m)) →
     ∀ j, IsClosed (A ∩ closedCell (C := C) (D := D) n j)) :
     IsClosed A := by
-  rw [closed_iff_inter_levelaux_closed (D := D) asub]
+  rw [isClosed_iff_inter_levelaux_isClosed (D := D) asub]
   intro n
   induction' n using Nat.case_strong_induction_on with n hn
   · simpa only [CharP.cast_eq_zero, levelaux_zero_eq_base (C := C) (D := D)]
-  rw [inter_levelaux_succ_closed_iff_inter_levelaux_closed_and_inter_closedCell_closed]
+  rw [inter_levelaux_succ_isClosed_iff_inter_levelaux_isClosed_and_inter_closedCell_isClosed]
   exact ⟨hn n n.le_refl, step n hn⟩
 
 /--  A set `A` in a CW-complex is closed if assuming that the intersection `A ∩ levelaux C m` is
@@ -112,11 +112,11 @@ lemma induction_isClosed_levelauxAB [CWComplex C] {A : Set X} (asub : A ⊆ C)
     (step : ∀ (n : ℕ), (∀ m (_ : m ≤ n), IsClosed (A ∩ levelaux C m)) →
     ∀ j, IsClosed (A ∩ closedCell (C := C) (D := ∅) n j)) :
     IsClosed A := by
-  rw [closed_iff_inter_levelaux_closed (D := ∅) asub]
+  rw [isClosed_iff_inter_levelaux_isClosed (D := ∅) asub]
   intro n
   induction' n using Nat.case_strong_induction_on with n hn
   · simp only [CharP.cast_eq_zero, levelaux_zero_eq_empty, inter_empty, isClosed_empty]
-  rw [inter_levelaux_succ_closed_iff_inter_levelaux_closed_and_inter_closedCell_closed]
+  rw [inter_levelaux_succ_isClosed_iff_inter_levelaux_isClosed_and_inter_closedCell_isClosed]
   exact ⟨hn n n.le_refl, step n hn⟩
 
 /-- `levelaux C 1` is discrete.-/
