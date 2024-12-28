@@ -16,20 +16,19 @@ noncomputable section
 
 open Metric Set
 
-namespace CWComplex
-
 variable {X : Type*} [t : TopologicalSpace X] [T2Space X] {C D : Set X}
 
 section
 
 /-- `levelaux n` is a CW-complex for every `n : ℕ∞`.-/
 @[simps]
-instance instlevelaux [RelCWComplex C D] (n : ℕ∞) : RelCWComplex (levelaux C n) D where
+instance RelCWComplex.instskeletonLT [RelCWComplex C D] (n : ℕ∞) :
+    RelCWComplex (skeletonLT C n) D where
   cell l := {x : cell C l // l < n}
   map l i := map (C := C) (D := D) l i
   source_eq l i:= source_eq (C := C) (D := D) l i
-  cont l i := cont (C := C) (D := D) l i
-  cont_symm l i := cont_symm (C := C) (D := D) l i
+  continuousOn l i := continuousOn (C := C) (D := D) l i
+  continuousOn_symm l i := continuousOn_symm (C := C) (D := D) l i
   pairwiseDisjoint' := by
     simp_rw [PairwiseDisjoint, Set.Pairwise, Function.onFun, disjoint_iff_inter_eq_empty]
     intro ⟨a, ja, _⟩ _ ⟨b, jb, map_mk⟩ _ ne
@@ -46,7 +45,7 @@ instance instlevelaux [RelCWComplex C D] (n : ℕ∞) : RelCWComplex (levelaux C
       iUnion_subset_iff]
     exact fun _ ↦ by rfl
   closed' A asublevel := by
-    have : A ⊆ C := asublevel.trans levelaux_subset_complex
+    have : A ⊆ C := asublevel.trans skeletonLT_subset_complex
     -- This follows from `isClosed_of_isClosed_inter_openCell_or_isClosed_inter_closedCell`
     -- and `levelaux_inter_openCell_eq_empty`.
     intro ⟨h1, h2⟩
@@ -57,7 +56,8 @@ instance instlevelaux [RelCWComplex C D] (n : ℕ∞) : RelCWComplex (levelaux C
     · exact Or.intro_right _ (h1 m j mlt)
     left
     push_neg at mlt
-    rw [← inter_eq_left.2 asublevel, inter_assoc, levelaux_inter_openCell_eq_empty mlt, inter_empty]
+    rw [← inter_eq_left.2 asublevel, inter_assoc, skeletonLT_inter_openCell_eq_empty mlt,
+      inter_empty]
     exact isClosed_empty
   isClosedBase := isClosedBase C
   union' := by
@@ -68,54 +68,54 @@ instance instlevelaux [RelCWComplex C D] (n : ℕ∞) : RelCWComplex (levelaux C
 
 /-- `level n` is a CW-complex for every `n : ℕ∞`.-/
 @[simps!]
-instance instlevel [RelCWComplex C D] (n : ℕ∞) : RelCWComplex (level C n) D :=
-  instlevelaux _
+instance RelCWComplex.instskeleton [RelCWComplex C D] (n : ℕ∞) : RelCWComplex (skeleton C n) D :=
+  instskeletonLT _
 
-instance FiniteDimensional_instlevelaux [RelCWComplex C D] [FiniteDimensional C] (n : ℕ∞) :
-    FiniteDimensional (levelaux C n) where
+instance RelCWComplex.FiniteDimensional_instskeletonLT [RelCWComplex C D] [FiniteDimensional C]
+    (n : ℕ∞) : FiniteDimensional (skeletonLT C n) where
   eventually_isEmpty_cell := by
     have := FiniteDimensional.eventually_isEmpty_cell (C := C) (D := D)
-    simp only [Filter.eventually_atTop, ge_iff_le, instlevelaux_cell] at this ⊢
+    simp only [Filter.eventually_atTop, ge_iff_le, instskeletonLT_cell] at this ⊢
     obtain ⟨N, hN⟩ := this
     use N
     intro b hNb
     specialize hN b hNb
     infer_instance
 
-instance FiniteDimensional_instlevel [RelCWComplex C D] [FiniteDimensional C] (n : ℕ∞) :
-    FiniteDimensional (level C n) :=
-  FiniteDimensional_instlevelaux _
+instance RelCWComplex.FiniteDimensional_instskeleton [RelCWComplex C D] [FiniteDimensional C]
+    (n : ℕ∞) : FiniteDimensional (skeleton C n) :=
+  FiniteDimensional_instskeletonLT _
 
-instance FiniteDimensional_instlevelaux_of_nat [RelCWComplex C D] [FiniteDimensional C]
-    (n : ℕ) : FiniteDimensional (levelaux C n) where
+instance RelCWComplex.FiniteDimensional_instskeletonLT_of_nat [RelCWComplex C D]
+    [FiniteDimensional C](n : ℕ) : FiniteDimensional (skeletonLT C n) where
   eventually_isEmpty_cell := by
-    simp only [instlevelaux_cell, Nat.cast_lt, isEmpty_subtype, not_lt,
+    simp only [instskeletonLT_cell, Nat.cast_lt, isEmpty_subtype, not_lt,
       Filter.eventually_atTop, ge_iff_le]
     use n
     intro b hnb
     simp [hnb]
 
-instance FiniteDimensional_instlevel_of_nat [RelCWComplex C D] [FiniteDimensional C]
-    (n : ℕ) : FiniteDimensional (level C n) :=
-  FiniteDimensional_instlevelaux_of_nat _
+instance RelCWComplex.FiniteDimensional_instskeleton_of_nat [RelCWComplex C D] [FiniteDimensional C]
+    (n : ℕ) : FiniteDimensional (skeleton C n) :=
+  FiniteDimensional_instskeletonLT_of_nat _
 
-instance FiniteType_instlevelaux [RelCWComplex C D] [FiniteType C] (n : ℕ∞) :
-    FiniteType (levelaux C n) where
+instance RelCWComplex.FiniteType_instskeletonLT [RelCWComplex C D] [FiniteType C] (n : ℕ∞) :
+    FiniteType (skeletonLT C n) where
   finite_cell := by
     intro m
-    simp only [instlevelaux_cell]
+    simp only [instskeletonLT_cell]
     infer_instance
 
-instance FiniteType_relCWComplex_level [RelCWComplex C D] [FiniteType C] (n : ℕ∞) :
-    FiniteType (level C n) :=
-  FiniteType_instlevelaux _
+instance RelCWComplex.FiniteType_relCWComplex_skeleton [RelCWComplex C D] [FiniteType C] (n : ℕ∞) :
+    FiniteType (skeleton C n) :=
+  FiniteType_instskeletonLT _
 
-instance Finite_instlevelaux [RelCWComplex C D] [Finite C] (n : ℕ∞) :
-    Finite (levelaux C n) := inferInstance
+instance RelCWComplex.Finite_instskeletonLT [RelCWComplex C D] [Finite C] (n : ℕ∞) :
+    Finite (skeletonLT C n) := inferInstance
 
-instance Finite_instlevel [RelCWComplex C D] [Finite C] (n : ℕ∞) :
-    Finite (level C n) :=
-  Finite_instlevelaux _
+instance RelCWComplex.Finite_instskeleton [RelCWComplex C D] [Finite C] (n : ℕ∞) :
+    Finite (skeleton C n) :=
+  Finite_instskeletonLT _
 
 /-- The union of two disjoint CW-complexes is again a CW-complex.-/
 @[simps]
@@ -126,12 +126,12 @@ def RelCWComplex.disjointUnion [RelCWComplex C D] {E F : Set X} [RelCWComplex E 
   source_eq n i := match i with
     | Sum.inl x => source_eq n x
     | Sum.inr x => source_eq n x
-  cont n i := match i with
-    | Sum.inl x => cont n x
-    | Sum.inr x => cont n x
-  cont_symm n i := match i with
-    | Sum.inl x => cont_symm n x
-    | Sum.inr x => cont_symm n x
+  continuousOn n i := match i with
+    | Sum.inl x => continuousOn n x
+    | Sum.inr x => continuousOn n x
+  continuousOn_symm n i := match i with
+    | Sum.inl x => continuousOn_symm n x
+    | Sum.inr x => continuousOn_symm n x
   pairwiseDisjoint' := by
     simp_rw [PairwiseDisjoint, Set.Pairwise, Function.onFun, disjoint_iff_inter_eq_empty]
     intro ⟨n, cn⟩ _ ⟨m, cm⟩ _ ne
@@ -204,19 +204,19 @@ def RelCWComplex.disjointUnion [RelCWComplex C D] {E F : Set X} [RelCWComplex E 
 
 -- The union of two disjoint CW-complexes is again a CW-complex.-/
 @[simps!]
-def disjointUnion {E : Set X} [CWComplex C] [CWComplex E] (disjoint : Disjoint C E) :
-    CWComplex (C ∪ E) := CWComplex.mk (C ∪ E)
+def ClasCWComplex.disjointUnion {E : Set X} [ClasCWComplex C] [ClasCWComplex E]
+    (disjoint : Disjoint C E) : ClasCWComplex (C ∪ E) := ClasCWComplex.mk (C ∪ E)
   (cell := fun n ↦ Sum (cell C n) (cell E n))
   (map := fun n ↦ Sum.elim (map (C := C) n) (map (C := E) n))
   (source_eq := fun n i ↦ match i with
     | Sum.inl x => source_eq n x
     | Sum.inr x => source_eq n x)
-  (cont := fun n i ↦ match i with
-    | Sum.inl x => cont n x
-    | Sum.inr x => cont n x)
-  (cont_symm := fun n i ↦ match i with
-    | Sum.inl x => cont_symm n x
-    | Sum.inr x => cont_symm n x)
+  (continuousOn := fun n i ↦ match i with
+    | Sum.inl x => continuousOn n x
+    | Sum.inr x => continuousOn n x)
+  (continuousOn_symm := fun n i ↦ match i with
+    | Sum.inl x => continuousOn_symm n x
+    | Sum.inr x => continuousOn_symm n x)
   (pairwiseDisjoint' := by
     simp_rw [PairwiseDisjoint, Set.Pairwise, Function.onFun, disjoint_iff_inter_eq_empty]
     intro ⟨n, cn⟩ _ ⟨m, cm⟩ _ ne
@@ -255,16 +255,16 @@ def disjointUnion {E : Set X} [CWComplex C] [CWComplex E] (disjoint : Disjoint C
         inter_union_distrib_right, left_eq_inter, subset_inter_iff, subset_union_left, Asub,
         and_self]
     apply IsClosed.union
-    · rw [closedAB C (A ∩ C) inter_subset_right]
+    · rw [closed C (A ∩ C) inter_subset_right]
       intro n j
       rw [inter_right_comm]
       exact (h n (Sum.inl j)).inter (isClosed (C := C) (D := ∅))
-    · rw [closedAB E (A ∩ E) inter_subset_right]
+    · rw [closed E (A ∩ E) inter_subset_right]
       intro n j
       rw [inter_right_comm]
       exact (h n (Sum.inr j)).inter (isClosed (C := E) (D := ∅)))
   (union' := by
-    simp_rw [← unionAB (C := C), ← unionAB (C := E), ← iUnion_union_distrib, iUnion_sum]
+    simp_rw [← union (C := C), ← union (C := E), ← iUnion_union_distrib, iUnion_sum]
     rfl)
 
 lemma RelCWComplex.FiniteDimensional_disjointUnion [RelCWComplex C D] {E F : Set X}
@@ -284,13 +284,14 @@ lemma RelCWComplex.FiniteDimensional_disjointUnion [RelCWComplex C D] {E F : Set
     intro b hN1N2b
     exact ⟨hN1 b (le_of_max_le_left hN1N2b), hN2 b (le_of_max_le_right hN1N2b)⟩}
 
-lemma FiniteDimensional_disjointUnion [CWComplex C] {E : Set X}
-    [CWComplex E] [FiniteDimensional C] [FiniteDimensional E]
+lemma ClasCWComplex.FiniteDimensional_disjointUnion [ClasCWComplex C] {E : Set X}
+    [ClasCWComplex E] [FiniteDimensional C] [FiniteDimensional E]
     (disjoint : Disjoint C E) :
     letI _complex := disjointUnion disjoint
     FiniteDimensional (C ∪ E) :=
   let _complex := disjointUnion disjoint
   {eventually_isEmpty_cell := by
+    -- why can I not write `FiniteDimensional.eventually_isEmpty_cell (C := C) (D := ∅)`
     have h1 := FiniteDimensional.eventually_isEmpty_cell (C := C) (D := ∅)
     have h2 := FiniteDimensional.eventually_isEmpty_cell (C := E) (D := ∅)
     simp only [Filter.eventually_atTop, ge_iff_le, disjointUnion_cell, isEmpty_sum]
@@ -311,7 +312,8 @@ lemma RelCWComplex.FiniteType_disjointUnion [RelCWComplex C D] {E F : Set X}
     simp only [RelCWComplex.disjointUnion_cell]
     infer_instance}
 
-lemma FiniteType_disjointUnion [CWComplex C] {E : Set X} [CWComplex E] [FiniteType C]
+lemma ClasCWComplex.FiniteType_disjointUnion [ClasCWComplex C] {E : Set X} [ClasCWComplex E]
+    [FiniteType C]
     [FiniteType E] (disjoint : Disjoint C E) :
     letI _complex := disjointUnion disjoint
     FiniteType (C ∪ E) :=
@@ -330,8 +332,8 @@ lemma RelCWComplex.Finite_disjointUnion [RelCWComplex C D] {E F : Set X}
   let _finiteType := FiniteType_disjointUnion disjoint hDF
   inferInstance
 
-lemma Finite_disjointUnion [CWComplex C] {E : Set X}
-    [CWComplex E] [Finite C] [Finite E] (disjoint : Disjoint C E) :
+lemma ClasCWComplex.Finite_disjointUnion [ClasCWComplex C] {E : Set X}
+    [ClasCWComplex E] [Finite C] [Finite E] (disjoint : Disjoint C E) :
     letI _complex := disjointUnion disjoint
     Finite (C ∪ E) :=
   let _complex := disjointUnion disjoint
@@ -345,8 +347,8 @@ end
 def RelCWComplex.attachCell.{u} {X : Type u} [TopologicalSpace X] [T2Space X] (C : Set X)
     {D : Set X} [RelCWComplex C D]
     {n : ℕ} (map' : PartialEquiv (Fin n → ℝ) X) (source_eq' : map'.source = closedBall 0 1)
-    (cont' : ContinuousOn map' (closedBall 0 1))
-    (cont_symm' : ContinuousOn map'.symm map'.target)
+    (continuousOn' : ContinuousOn map' (closedBall 0 1))
+    (continuousOn_symm' : ContinuousOn map'.symm map'.target)
     (disjoint' : ∀ m (i : cell C m), Disjoint (map' '' ball 0 1) (openCell m i))
     (disjointBase' : Disjoint (map' '' ball 0 1) D)
     (mapsto' : ∃ I : Π m, Finset (cell C m),
@@ -359,12 +361,12 @@ def RelCWComplex.attachCell.{u} {X : Type u} [TopologicalSpace X] [T2Space X] (C
   source_eq m i := match i with
     | .inl j => source_eq m j
     | .inr hj => hj ▸ source_eq'
-  cont m i := match i with
-    | .inl j => cont m j
-    | .inr hj => hj ▸ cont'
-  cont_symm m i := match i with
-    | .inl j => cont_symm m j
-    | .inr hj => hj ▸ cont_symm'
+  continuousOn m i := match i with
+    | .inl j => continuousOn m j
+    | .inr hj => hj ▸ continuousOn'
+  continuousOn_symm m i := match i with
+    | .inl j => continuousOn_symm m j
+    | .inr hj => hj ▸ continuousOn_symm'
   pairwiseDisjoint' := by
     rw [PairwiseDisjoint, Set.Pairwise]
     exact fun ⟨n1, j1⟩ _ ⟨n2, j2⟩ _ ↦ match j1 with
@@ -437,17 +439,17 @@ def RelCWComplex.attachCell.{u} {X : Type u} [TopologicalSpace X] [T2Space X] (C
 lemma RelCWComplex.FiniteDimensional_attachCell {X : Type*} [TopologicalSpace X] [T2Space X]
     (C : Set X) {D : Set X} [RelCWComplex C D] [FiniteDimensional C]
     {n : ℕ} (map' : PartialEquiv (Fin n → ℝ) X) (source_eq' : map'.source = closedBall 0 1)
-    (cont' : ContinuousOn map' (closedBall 0 1))
-    (cont_symm' : ContinuousOn map'.symm map'.target)
+    (continuousOn' : ContinuousOn map' (closedBall 0 1))
+    (continuousOn_symm' : ContinuousOn map'.symm map'.target)
     (disjoint' : ∀ m (i : cell C m), Disjoint (map' '' ball 0 1) (openCell m i))
     (disjointBase' : Disjoint (map' '' ball 0 1) D)
     (mapsto' : ∃ I : Π m, Finset (cell C m),
       MapsTo map' (sphere 0 1) (D ∪ ⋃ (m < n) (j ∈ I m), closedCell m j)) :
-    letI _complex := RelCWComplex.attachCell C map' source_eq' cont' cont_symm' disjoint'
-      disjointBase' mapsto'
+    letI _complex := RelCWComplex.attachCell C map' source_eq' continuousOn' continuousOn_symm'
+      disjoint' disjointBase' mapsto'
     FiniteDimensional (map' '' closedBall 0 1 ∪ C) :=
-  let _complex := RelCWComplex.attachCell C map' source_eq' cont' cont_symm' disjoint'
-      disjointBase' mapsto'
+  let _complex := RelCWComplex.attachCell C map' source_eq' continuousOn' continuousOn_symm'
+    disjoint' disjointBase' mapsto'
   {eventually_isEmpty_cell := by
     have h := FiniteDimensional.eventually_isEmpty_cell (C := C) (D := D)
     simp only [Filter.eventually_atTop, ge_iff_le, RelCWComplex.attachCell, isEmpty_psum,
@@ -461,15 +463,15 @@ lemma RelCWComplex.FiniteDimensional_attachCell {X : Type*} [TopologicalSpace X]
 def RelCWComplex.attachCellFiniteType.{u} {X : Type u} [TopologicalSpace X] [T2Space X]
     (C : Set X) {D : Set X} [RelCWComplex C D] [FiniteType C]
     {n : ℕ} (map' : PartialEquiv (Fin n → ℝ) X) (source_eq' : map'.source = closedBall 0 1)
-    (cont' : ContinuousOn map' (closedBall 0 1))
-    (cont_symm' : ContinuousOn map'.symm map'.target)
+    (continuousOn' : ContinuousOn map' (closedBall 0 1))
+    (continuousOn_symm' : ContinuousOn map'.symm map'.target)
     (disjoint' : ∀ m (i : cell C m), Disjoint (map' '' ball 0 1) (openCell m i))
     (disjointBase' : Disjoint (map' '' ball 0 1) D)
     (mapsto' : MapsTo map' (sphere 0 1) (D ∪ ⋃ (m < n) (j : cell C m), closedCell m j)) :
     RelCWComplex (map' '' closedBall 0 1 ∪ C) D := RelCWComplex.attachCell C map'
   (source_eq' := source_eq')
-  (cont' := cont')
-  (cont_symm' := cont_symm')
+  (continuousOn' := continuousOn')
+  (continuousOn_symm' := continuousOn_symm')
   (disjoint' := disjoint')
   (disjointBase' := disjointBase')
   (mapsto' := by
@@ -501,15 +503,15 @@ lemma RelCWComplex.FinteDimensional_attachCellFiniteType {X : Type*} [Topologica
 lemma RelCWComplex.FiniteType_attachCellFiniteType {X : Type*} [TopologicalSpace X]
     [T2Space X] (C : Set X) {D : Set X} [RelCWComplex C D] [FiniteType C]
     {n : ℕ} (map' : PartialEquiv (Fin n → ℝ) X) (source_eq' : map'.source = closedBall 0 1)
-    (cont' : ContinuousOn map' (closedBall 0 1))
-    (cont_symm' : ContinuousOn map'.symm map'.target)
+    (continuousOn' : ContinuousOn map' (closedBall 0 1))
+    (continuousOn_symm' : ContinuousOn map'.symm map'.target)
     (disjoint' : ∀ m (i : cell C m), Disjoint (map' '' ball 0 1) (openCell m i))
     (disjointBase' : Disjoint (map' '' ball 0 1) D)
     (mapsto' : MapsTo map' (sphere 0 1) (D ∪ ⋃ (m < n) (j : cell C m), closedCell m j)) :
-    letI _complex := attachCellFiniteType C map' source_eq' cont' cont_symm'
+    letI _complex := attachCellFiniteType C map' source_eq' continuousOn' continuousOn_symm'
       disjoint' disjointBase' mapsto'
     FiniteType (map' '' closedBall 0 1 ∪ C) :=
-  let _complex := attachCellFiniteType C map' source_eq' cont' cont_symm'
+  let _complex := attachCellFiniteType C map' source_eq' continuousOn' continuousOn_symm'
       disjoint' disjointBase' mapsto'
   {finite_cell := by
     intro m
@@ -536,26 +538,26 @@ lemma RelCWComplex.Finite_attachCellFiniteType {X : Type*} [TopologicalSpace X]
   inferInstance
 
 @[simps!]
-def attachCell.{u} {X : Type u} [TopologicalSpace X] [T2Space X] (C : Set X)
-    [CWComplex C]
+def ClasCWComplex.attachCell.{u} {X : Type u} [TopologicalSpace X] [T2Space X] (C : Set X)
+    [ClasCWComplex C]
     {n : ℕ} (map' : PartialEquiv (Fin n → ℝ) X) (source_eq' : map'.source = closedBall 0 1)
-    (cont' : ContinuousOn map' (closedBall 0 1))
-    (cont_symm' : ContinuousOn map'.symm map'.target)
+    (continuousOn' : ContinuousOn map' (closedBall 0 1))
+    (continuousOn_symm' : ContinuousOn map'.symm map'.target)
     (disjoint' : ∀ m (i : cell C m), Disjoint (map' '' ball 0 1) (openCell m i))
     (mapsto' : ∃ I : Π m, Finset (cell C m),
       MapsTo map' (sphere 0 1) (⋃ (m < n) (j ∈ I m), closedCell m j)) :
-    CWComplex (map' '' closedBall 0 1 ∪ C) := RelCWComplex.attachCell C map'
+    ClasCWComplex (map' '' closedBall 0 1 ∪ C) := RelCWComplex.attachCell C map'
   (source_eq' := source_eq')
-  (cont' := cont')
-  (cont_symm' := cont_symm')
+  (continuousOn' := continuousOn')
+  (continuousOn_symm' := continuousOn_symm')
   (disjoint' := disjoint')
   (disjointBase' := disjoint_empty _)
   (mapsto' := by
     simp_rw [empty_union]
     exact mapsto')
 
-lemma FiniteDimensional_attachCell {X : Type*} [TopologicalSpace X] [T2Space X]
-    (C : Set X) [CWComplex C] [FiniteDimensional C]
+lemma ClasCWComplex.FiniteDimensional_attachCell {X : Type*} [TopologicalSpace X] [T2Space X]
+    (C : Set X) [ClasCWComplex C] [FiniteDimensional C]
     {n : ℕ} (map' : PartialEquiv (Fin n → ℝ) X) (source_eq' : map'.source = closedBall 0 1)
     (cont' : ContinuousOn map' (closedBall 0 1))
     (cont_symm' : ContinuousOn map'.symm map'.target)
@@ -575,50 +577,50 @@ lemma FiniteDimensional_attachCell {X : Type*} [TopologicalSpace X] [T2Space X]
     exact ⟨hN b (le_of_max_le_left hb) , Nat.ne_of_lt' (le_of_max_le_right hb)⟩}
 
 @[simps!]
-def attachCellFiniteType.{u} {X : Type u} [TopologicalSpace X] [T2Space X] (C : Set X)
-    [CWComplex C] [FiniteType C]
+def ClasCWComplex.attachCellFiniteType.{u} {X : Type u} [TopologicalSpace X] [T2Space X] (C : Set X)
+    [ClasCWComplex C] [FiniteType C]
     {n : ℕ} (map' : PartialEquiv (Fin n → ℝ) X) (source_eq' : map'.source = closedBall 0 1)
-    (cont' : ContinuousOn map' (closedBall 0 1))
-    (cont_symm' : ContinuousOn map'.symm map'.target)
+    (continuousOn' : ContinuousOn map' (closedBall 0 1))
+    (continuousOn_symm' : ContinuousOn map'.symm map'.target)
     (disjoint' : ∀ m (i : cell C m), Disjoint (map' '' ball 0 1) (openCell m i))
     (mapsto' : MapsTo map' (sphere 0 1) (⋃ (m < n) (j : cell C m), closedCell m j)) :
-    CWComplex (map' '' closedBall 0 1 ∪ C) := attachCell C map'
+    ClasCWComplex (map' '' closedBall 0 1 ∪ C) := attachCell C map'
   (source_eq' := source_eq')
-  (cont' := cont')
-  (cont_symm' := cont_symm')
+  (continuousOn' := continuousOn')
+  (continuousOn_symm' := continuousOn_symm')
   (disjoint' := disjoint')
   (mapsto' := by
     use fun m ↦ finite_univ.toFinset
     simpa)
 
-lemma FiniteType_attachCellFiniteType {X : Type*} [TopologicalSpace X] [T2Space X]
-    (C : Set X) [CWComplex C] [FiniteType C]
+lemma ClasCWComplex.FiniteType_attachCellFiniteType {X : Type*} [TopologicalSpace X] [T2Space X]
+    (C : Set X) [ClasCWComplex C] [FiniteType C]
     {n : ℕ} (map' : PartialEquiv (Fin n → ℝ) X) (source_eq' : map'.source = closedBall 0 1)
-    (cont' : ContinuousOn map' (closedBall 0 1))
-    (cont_symm' : ContinuousOn map'.symm map'.target)
+    (continuousOn' : ContinuousOn map' (closedBall 0 1))
+    (continuousOn_symm' : ContinuousOn map'.symm map'.target)
     (disjoint' : ∀ m (i : cell C m), Disjoint (map' '' ball 0 1) (openCell m i))
     (mapsto' : MapsTo map' (sphere 0 1) (⋃ (m < n) (j : cell C m), closedCell m j)) :
-  letI _complex := attachCellFiniteType C map' source_eq' cont' cont_symm' disjoint'
+  letI _complex := attachCellFiniteType C map' source_eq' continuousOn' continuousOn_symm' disjoint'
     mapsto'
   FiniteType (map' '' closedBall 0 1 ∪ C) :=
-  let _complex := attachCellFiniteType C map' source_eq' cont' cont_symm' disjoint'
+  let _complex := attachCellFiniteType C map' source_eq' continuousOn' continuousOn_symm' disjoint'
     mapsto'
   {finite_cell := by
     intro m
     simp only [attachCell_cell]
     infer_instance}
 
-lemma FiniteDimensional_attachCellFiniteType {X : Type*} [TopologicalSpace X]
-    [T2Space X] (C : Set X) [CWComplex C] [Finite C]
+lemma ClasCWComplex.FiniteDimensional_attachCellFiniteType {X : Type*} [TopologicalSpace X]
+    [T2Space X] (C : Set X) [ClasCWComplex C] [Finite C]
     {n : ℕ} (map' : PartialEquiv (Fin n → ℝ) X) (source_eq' : map'.source = closedBall 0 1)
-    (cont' : ContinuousOn map' (closedBall 0 1))
-    (cont_symm' : ContinuousOn map'.symm map'.target)
+    (continuousOn' : ContinuousOn map' (closedBall 0 1))
+    (continuousOn_symm' : ContinuousOn map'.symm map'.target)
     (disjoint' : ∀ m (i : cell C m), Disjoint (map' '' ball 0 1) (openCell m i))
     (mapsto' : MapsTo map' (sphere 0 1) (⋃ (m < n) (j : cell C m), closedCell m j)) :
-  letI _complex := attachCellFiniteType C map' source_eq' cont' cont_symm' disjoint'
+  letI _complex := attachCellFiniteType C map' source_eq' continuousOn' continuousOn_symm' disjoint'
     mapsto'
   FiniteDimensional (map' '' closedBall 0 1 ∪ C) :=
-  let _complex := attachCellFiniteType C map' source_eq' cont' cont_symm' disjoint'
+  let _complex := attachCellFiniteType C map' source_eq' continuousOn' continuousOn_symm' disjoint'
     mapsto'
   {eventually_isEmpty_cell := by
     have h := FiniteDimensional.eventually_isEmpty_cell (C := C) (D := ∅)
@@ -629,22 +631,22 @@ lemma FiniteDimensional_attachCellFiniteType {X : Type*} [TopologicalSpace X]
     intro b hb
     exact ⟨hN b (le_of_max_le_left hb) , Nat.ne_of_lt' (le_of_max_le_right hb)⟩}
 
-lemma Finite_attachCellFiniteType {X : Type*} [TopologicalSpace X] [T2Space X]
-    (C : Set X) [CWComplex C] [Finite C]
+lemma ClasCWComplex.Finite_attachCellFiniteType {X : Type*} [TopologicalSpace X] [T2Space X]
+    (C : Set X) [ClasCWComplex C] [Finite C]
     {n : ℕ} (map' : PartialEquiv (Fin n → ℝ) X) (source_eq' : map'.source = closedBall 0 1)
-    (cont' : ContinuousOn map' (closedBall 0 1))
-    (cont_symm' : ContinuousOn map'.symm map'.target)
+    (continuousOn' : ContinuousOn map' (closedBall 0 1))
+    (continuousOn_symm' : ContinuousOn map'.symm map'.target)
     (disjoint' : ∀ m (i : cell C m), Disjoint (map' '' ball 0 1) (openCell m i))
     (mapsto' : MapsTo map' (sphere 0 1) (⋃ (m < n) (j : cell C m), closedCell m j)) :
-  letI _complex := attachCellFiniteType C map' source_eq' cont' cont_symm' disjoint'
+  letI _complex := attachCellFiniteType C map' source_eq' continuousOn' continuousOn_symm' disjoint'
     mapsto'
   Finite (map' '' closedBall 0 1 ∪ C) :=
-  let _complex := attachCellFiniteType C map' source_eq' cont' cont_symm' disjoint'
+  let _complex := attachCellFiniteType C map' source_eq' continuousOn' continuousOn_symm' disjoint'
     mapsto'
   let _finiteDimensional := FiniteDimensional_attachCellFiniteType C map' source_eq'
-    cont' cont_symm' disjoint' mapsto'
-  let _finiteType := FiniteType_attachCellFiniteType C map' source_eq' cont' cont_symm'
-    disjoint' mapsto'
+    continuousOn' continuousOn_symm' disjoint' mapsto'
+  let _finiteType := FiniteType_attachCellFiniteType C map' source_eq' continuousOn'
+    continuousOn_symm' disjoint' mapsto'
   inferInstance
 
 -- this is getting way to ugly. Somehow one needs to avoid working with the PartialEquiv and
@@ -656,8 +658,8 @@ def RelCWComplex.restrict [RelCWComplex C D] (Y : Set X) (hCY : C ⊆ Y) :
   cell := cell C
   map n i :=  sorry --map (C := C) (D := D) n i
   source_eq := sorry
-  cont := sorry
-  cont_symm := sorry
+  continuousOn := sorry
+  continuousOn_symm := sorry
   pairwiseDisjoint' := sorry
   disjointBase' := sorry
   mapsto := sorry
@@ -665,7 +667,7 @@ def RelCWComplex.restrict [RelCWComplex C D] (Y : Set X) (hCY : C ⊆ Y) :
   isClosedBase := sorry
   union' := sorry
 
-def RelCWComplex_of_Homeomorph.{u} {X Y : Type u} [TopologicalSpace X] [T2Space X]
+def RelCWComplex.of_Homeomorph.{u} {X Y : Type u} [TopologicalSpace X] [T2Space X]
     [TopologicalSpace Y] (C : Set X) {D : Set X} (E : Set Y) {F : Set Y} [RelCWComplex C D]
     (hC : IsClosed C) (hE : IsClosed E)
     (f : PartialEquiv X Y) (hfC1 : f.source = C) (hfE1 : f.target = E) (hDF : f '' D = F)
@@ -676,15 +678,15 @@ def RelCWComplex_of_Homeomorph.{u} {X Y : Type u} [TopologicalSpace X] [T2Space 
   source_eq n i := by
     rw [PartialEquiv.trans_source, source_eq, inter_eq_left, hfC1, ← image_subset_iff]
     exact closedCell_subset_complex n i
-  cont n i := by
-    apply hfC2.comp (cont n i)
+  continuousOn n i := by
+    apply hfC2.comp (continuousOn n i)
     rw [mapsTo']
     exact closedCell_subset_complex n i
-  cont_symm n i := by
+  continuousOn_symm n i := by
     rw [PartialEquiv.coe_trans_symm, PartialEquiv.trans_target'', hfC1,
       ← PartialEquiv.image_source_eq_target, source_eq n i, inter_eq_right.2
       (by exact closedCell_subset_complex n i)]
-    refine ((cont_symm n i).comp (hfE2.mono ?_) ?_)
+    refine ((continuousOn_symm n i).comp (hfE2.mono ?_) ?_)
     · rw [← hfE1, ← f.image_source_eq_target, hfC1]
       exact image_mono (closedCell_subset_complex n i)
     · rw [mapsTo', f.symm_image_image_of_subset_source
@@ -763,4 +765,11 @@ def RelCWComplex_of_Homeomorph.{u} {X Y : Type u} [TopologicalSpace X] [T2Space 
     simp [← hDF, ← hfE1, ← f.image_source_eq_target, hfC1, ← RelCWComplex.union' (C := C) (D := D),
       image_union, image_iUnion, ← image_image]
 
-end CWComplex
+namespace ClasCWComplex
+
+export RelCWComplex (instskeletonLT instskeleton FiniteDimensional_instskeletonLT
+  FiniteDimensional_instskeleton FiniteDimensional_instskeletonLT_of_nat
+  FiniteDimensional_instskeleton_of_nat FiniteType_instskeletonLT FiniteType_relCWComplex_skeleton
+  Finite_instskeletonLT Finite_instskeleton)
+
+end ClasCWComplex
