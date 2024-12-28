@@ -4,6 +4,7 @@ import Mathlib.Topology.Sets.Compacts
 import Mathlib.Topology.MetricSpace.Isometry
 import Mathlib.Analysis.Normed.Group.Basic
 import Mathlib.Data.Fintype.Lattice
+import Mathlib.Data.Finite.Sum
 
 /-!
 # Auxiliary lemmas and definitions
@@ -24,12 +25,6 @@ noncomputable section
 --needed in this file
 lemma inter_eq_inter_iff_compl {X : Type*} {A B C : Set X} : A ∩ B = C ∩ B ↔ Aᶜ ∩ B = Cᶜ ∩ B := by
   constructor <;> (intro; simp_all [Set.ext_iff, not_iff_not])
-
--- **PR**
---needed in product file
-lemma Set.subset_product {α β : Type*} {s : Set (α × β)} :
-    s ⊆ (Prod.fst '' s) ×ˢ (Prod.snd '' s) :=
-  fun _ hp ↦ mem_prod.2 ⟨mem_image_of_mem _ hp, mem_image_of_mem _ hp⟩
 
 /-! ### Different maps -/
 
@@ -120,9 +115,18 @@ lemma isClosed_inter_of_isClosed_in_isClosed {X : Type*} [TopologicalSpace X] {s
 
 /-! ### Random-/
 
+example {α : Sort*} [Finite α] : Finite (PLift α) := by exact instFinitePLift
+
+
+-- **mathlib**
+theorem Set.subset_prod {α β : Type*} {s : Set (α × β)} : s ⊆ (Prod.fst '' s) ×ˢ (Prod.snd '' s) :=
+  fun _ hp ↦ mem_prod.2 ⟨mem_image_of_mem _ hp, mem_image_of_mem _ hp⟩
+
+-- **PR**
+-- set_option trace.Meta.synthInstance true
 -- use PLift
-instance {α β : Sort*} [Finite α] [Finite β] : Finite (α ⊕' β) := by
-  sorry
+instance Finite.instPSum {α β : Sort*} [Finite α] [Finite β] : Finite (α ⊕' β) :=
+  of_equiv _ ((Equiv.psumEquivSum _ _).symm.trans (Equiv.plift.psumCongr Equiv.plift))
 
 -- not needed anymore but probably still good to contribute?
 @[elab_as_elim]
@@ -133,13 +137,3 @@ theorem ENat.nat_strong_induction {P : ℕ∞ → Prop} (a : ℕ∞) (h0 : P 0)
   cases a
   · exact htop A
   · exact A _
-
--- **PR**
-theorem iUnion_psigma {α β : Type*} {γ : α → Type*} (s : PSigma γ → Set β) :
-    ⋃ ia, s ia = ⋃ i, ⋃ a, s ⟨i, a⟩ :=
-  iSup_psigma _
-
--- **PR**
-theorem iUnion_psigma' {α β : Type*} {γ : α → Type*} (s : ∀ i, γ i → Set β) :
-    ⋃ i, ⋃ a, s i a = ⋃ ia : PSigma γ, s ia.1 ia.2 :=
-  iSup_psigma' _

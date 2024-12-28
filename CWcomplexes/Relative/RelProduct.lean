@@ -228,9 +228,9 @@ instance RelCWComplex.Product [RelCWComplex C D] [RelCWComplex E F] [KSpace (X �
       refine subset_trans ?_ (prod_mono hH hG)
       intro ⟨x1, x2⟩ xmem
       constructor
-      · exact ⟨((subset_trans inter_subset_right subset_product) xmem).1,
+      · exact ⟨((subset_trans inter_subset_right subset_prod) xmem).1,
           ((subset_trans inter_subset_left Asub) xmem).1⟩
-      · exact ⟨((subset_trans inter_subset_right subset_product) xmem).2,
+      · exact ⟨((subset_trans inter_subset_right subset_prod) xmem).2,
           ((subset_trans inter_subset_left Asub) xmem).2⟩
     suffices IsClosed (A ∩ H ×ˢ G) by
       rw [← inter_eq_left.2 Asub', ← inter_assoc, inter_comm A K, inter_assoc K A, inter_self,
@@ -445,9 +445,9 @@ instance RelCWComplex.ProductKification [RelCWComplex C D] [RelCWComplex E F] :
       refine subset_trans ?_ (prod_mono hH hG)
       intro ⟨x1, x2⟩ xmem
       constructor
-      · exact ⟨((subset_trans inter_subset_right subset_product) xmem).1,
+      · exact ⟨((subset_trans inter_subset_right subset_prod) xmem).1,
           ((subset_trans inter_subset_left Asub) xmem).1⟩
-      · exact ⟨((subset_trans inter_subset_right subset_product) xmem).2,
+      · exact ⟨((subset_trans inter_subset_right subset_prod) xmem).2,
           ((subset_trans inter_subset_left Asub) xmem).2⟩
     suffices IsClosed (A ∩ H ×ˢ G) by
       rw [← inter_eq_left.2 Asub', ← inter_assoc, inter_comm A K, inter_assoc K A, inter_self,

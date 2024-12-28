@@ -741,8 +741,7 @@ def RelCWComplex_of_Homeomorph.{u} {X Y : Type u} [TopologicalSpace X] [T2Space 
           exact base_subset_complex
 
         sorry
-      ·
-        sorry
+      · sorry
     · sorry
   isClosedBase := by
     have : f.IsImage D F := by
@@ -763,3 +762,5 @@ def RelCWComplex_of_Homeomorph.{u} {X Y : Type u} [TopologicalSpace X] [T2Space 
   union' := by
     simp [← hDF, ← hfE1, ← f.image_source_eq_target, hfC1, ← RelCWComplex.union' (C := C) (D := D),
       image_union, image_iUnion, ← image_image]
+
+end CWComplex

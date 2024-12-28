@@ -42,6 +42,8 @@ variable {X : Type*} [t : TopologicalSpace X] {C D : Set X}
 section
 
 -- rename Subcomplex as it does the same thing.
+-- create the namespaces
+-- find a way to make this make sense with namespaces
 
 /-- A subcomplex is a closed subspace of a CW-complex that is the union of open cells of the
   CW-complex.-/
