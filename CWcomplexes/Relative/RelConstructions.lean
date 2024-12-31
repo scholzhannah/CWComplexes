@@ -551,6 +551,20 @@ lemma ClasCWComplex.Finite_attachCellFiniteType {X : Type*} [TopologicalSpace X]
     continuousOn_symm' disjoint' mapsto'
   inferInstance
 
+def RelCWComplex.of_eq {X : Type*} [TopologicalSpace X] (C D : Set X)
+    {E F : Set X} [RelCWComplex C D] (hCE : C = E) (hDF : D = F) : RelCWComplex E F where
+  cell := cell C
+  map := map
+  source_eq := source_eq
+  continuousOn := continuousOn
+  continuousOn_symm := continuousOn_symm
+  pairwiseDisjoint' := pairwiseDisjoint'
+  disjointBase' := hDF ▸ disjointBase'
+  mapsto := hDF ▸ mapsto
+  closed' := hCE ▸ hDF ▸ closed'
+  isClosedBase := hDF ▸ isClosedBase C
+  union' := hCE ▸ hDF ▸ union'
+
 -- this is getting way to ugly. Somehow one needs to avoid working with the PartialEquiv and
 -- instead restrict to a Homeomorphism
 
@@ -666,3 +680,9 @@ def RelCWComplex.of_Homeomorph.{u} {X Y : Type u} [TopologicalSpace X] [T2Space 
   union' := by
     simp [← hDF, ← hfE1, ← f.image_source_eq_target, hfC1, ← RelCWComplex.union' (C := C) (D := D),
       image_union, image_iUnion, ← image_image]
+
+namespace ClasCWComplex
+
+export RelCWComplex (of_eq)
+
+end ClasCWComplex

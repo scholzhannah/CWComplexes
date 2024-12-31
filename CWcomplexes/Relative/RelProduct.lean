@@ -300,10 +300,10 @@ instance RelCWComplex.Product [RelCWComplex C D] [RelCWComplex E F] [KSpace (X �
 
 /-- If `C` and `E` are CW-complexes in `X` and `Y`, and `X × Y` is a k-space, then `C ×ˢ D` is a
   CW-complex.-/
+@[simps!]
 instance ClasCWComplex.Product [ClasCWComplex C] [ClasCWComplex E] [KSpace (X × Y)] :
-    RelCWComplex (C ×ˢ E) ∅ :=
-  (congrArg (fun s ↦ RelCWComplex (C ×ˢ E) s) (union_empty_iff.2 ⟨empty_prod, prod_empty⟩)) ▸
-    RelCWComplex.Product
+    ClasCWComplex (C ×ˢ E) :=
+  of_eq (C ×ˢ E) (∅ ×ˢ E ∪ C ×ˢ ∅) rfl (by simp)
 
 /-- If `C` and `D` are CW-complexes in `X` and `Y` then `C ×ˢ D` is a CW-complex in the k-ification
   of `X × Y`.-/
@@ -515,10 +515,9 @@ instance RelCWComplex.ProductKification [RelCWComplex C D] [RelCWComplex E F] :
 
 /-- If `C` and `E` are CW-complexes in `X` and `Y`, and `X × Y` is a k-space, then `C ×ˢ D` is a
   CW-complex.-/
+@[simps!]
 instance ClasCWComplex.ProductKification [ClasCWComplex C] [ClasCWComplex E] :
     ClasCWComplex (X := kification (X × Y)) (C ×ˢ E) :=
-  (congrArg (fun s ↦ RelCWComplex (X := kification (X × Y)) (C ×ˢ E) s)
-    (union_empty_iff.2 ⟨empty_prod (t := E), prod_empty (s := C)⟩)).mp
-    RelCWComplex.ProductKification
+  of_eq (X := kification (X × Y)) (C ×ˢ E) (∅ ×ˢ E ∪ C ×ˢ ∅) rfl (by simp)
 
 end
