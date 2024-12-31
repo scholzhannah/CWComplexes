@@ -303,7 +303,7 @@ instance RelCWComplex.Product [RelCWComplex C D] [RelCWComplex E F] [KSpace (X �
 @[simps!]
 instance ClasCWComplex.Product [ClasCWComplex C] [ClasCWComplex E] [KSpace (X × Y)] :
     ClasCWComplex (C ×ˢ E) :=
-  of_eq (C ×ˢ E) (∅ ×ˢ E ∪ C ×ˢ ∅) rfl (by simp)
+  ofEq (C ×ˢ E) (∅ ×ˢ E ∪ C ×ˢ ∅) rfl (by simp)
 
 /-- If `C` and `D` are CW-complexes in `X` and `Y` then `C ×ˢ D` is a CW-complex in the k-ification
   of `X × Y`.-/
@@ -518,6 +518,6 @@ instance RelCWComplex.ProductKification [RelCWComplex C D] [RelCWComplex E F] :
 @[simps!]
 instance ClasCWComplex.ProductKification [ClasCWComplex C] [ClasCWComplex E] :
     ClasCWComplex (X := kification (X × Y)) (C ×ˢ E) :=
-  of_eq (X := kification (X × Y)) (C ×ˢ E) (∅ ×ˢ E ∪ C ×ˢ ∅) rfl (by simp)
+  ofEq (X := kification (X × Y)) (C ×ˢ E) (∅ ×ˢ E ∪ C ×ˢ ∅) rfl (by simp)
 
 end

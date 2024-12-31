@@ -551,7 +551,7 @@ lemma ClasCWComplex.Finite_attachCellFiniteType {X : Type*} [TopologicalSpace X]
     continuousOn_symm' disjoint' mapsto'
   inferInstance
 
-def RelCWComplex.of_eq {X : Type*} [TopologicalSpace X] (C D : Set X)
+def RelCWComplex.ofEq {X : Type*} [TopologicalSpace X] (C D : Set X)
     {E F : Set X} [RelCWComplex C D] (hCE : C = E) (hDF : D = F) : RelCWComplex E F where
   cell := cell C
   map := map
@@ -564,6 +564,29 @@ def RelCWComplex.of_eq {X : Type*} [TopologicalSpace X] (C D : Set X)
   closed' := hCE ▸ hDF ▸ closed'
   isClosedBase := hDF ▸ isClosedBase C
   union' := hCE ▸ hDF ▸ union'
+
+lemma RelCWComplex.finiteDimensional_ofEq {X : Type*} [TopologicalSpace X] (C D : Set X)
+    {E F : Set X} [RelCWComplex C D] [FiniteDimensional C] (hCE : C = E) (hDF : D = F) :
+    letI _ := ofEq C D hCE hDF
+    FiniteDimensional E :=
+  let _ := ofEq C D hCE hDF
+  {eventually_isEmpty_cell := FiniteDimensional.eventually_isEmpty_cell (C := C)}
+
+lemma RelCWComplex.finiteType_ofEq {X : Type*} [TopologicalSpace X] (C D : Set X)
+    {E F : Set X} [RelCWComplex C D] [FiniteType C] (hCE : C = E) (hDF : D = F) :
+    letI _ := ofEq C D hCE hDF
+    FiniteType E :=
+  let _ := ofEq C D hCE hDF
+  {finite_cell := FiniteType.finite_cell (C := C)}
+
+lemma RelCWComplex.finite_ofEq {X : Type*} [TopologicalSpace X] (C D : Set X)
+    {E F : Set X} [RelCWComplex C D] [Finite C] (hCE : C = E) (hDF : D = F) :
+    letI _ := ofEq C D hCE hDF
+    Finite E :=
+  let _ := ofEq C D hCE hDF
+  let _ := finiteDimensional_ofEq C D hCE hDF
+  let _ := finiteType_ofEq C D hCE hDF
+  inferInstance
 
 -- this is getting way to ugly. Somehow one needs to avoid working with the PartialEquiv and
 -- instead restrict to a Homeomorphism
@@ -683,6 +706,6 @@ def RelCWComplex.of_Homeomorph.{u} {X Y : Type u} [TopologicalSpace X] [T2Space 
 
 namespace ClasCWComplex
 
-export RelCWComplex (of_eq)
+export RelCWComplex (ofEq finiteDimensional_ofEq finiteType_ofEq finite_ofEq)
 
 end ClasCWComplex
