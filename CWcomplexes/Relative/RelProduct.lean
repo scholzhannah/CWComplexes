@@ -5,7 +5,7 @@ import Mathlib.Data.Finset.NatAntidiagonal
 /-!
 # The product of CW-complexes
 
-In this file we proof the follwoing two statements:
+In this file we proof the following two statements:
 * `CWComplex_product`: If `C` and `D` are CW-complexes in `C` and `D`, and `X × Y` is a k-space,
   then `C ×ˢ D` is a CW-complex.
 * `CWComplex_product_kification`: If `C` and `D` are CW-complexes in `X` and `Y` then `C ×ˢ D` is
@@ -285,11 +285,11 @@ instance RelCWComplex.Product [RelCWComplex C D] [RelCWComplex E F] [KSpace (X �
     · simp_rw [iUnion_prodcell]
       intro ⟨x1, x2⟩ ⟨hx1, hx2⟩
       have hx1' := hx1
-      simp_rw [← union] at hx1'
+      simp_rw [← union (C := C) (D := D)] at hx1'
       obtain hx1' | hx1' := hx1'
       · left; left
         exact mk_mem_prod hx1' hx2
-      simp_rw [← union] at hx2
+      simp_rw [← union (C := E) (D := F)] at hx2
       obtain hx2 | hx2 := hx2
       · left; right
         exact mk_mem_prod hx1 hx2
@@ -502,11 +502,11 @@ instance RelCWComplex.ProductKification [RelCWComplex C D] [RelCWComplex E F] :
     · rw [iUnion_prodcell]
       intro ⟨x1, x2⟩ ⟨hx1, hx2⟩
       have hx1' := hx1
-      simp_rw [← union] at hx1'
+      simp_rw [← union (C := C) (D := D)] at hx1'
       obtain hx1' | hx1' := hx1'
       · left; left
         exact mk_mem_prod hx1' hx2
-      simp_rw [← union] at hx2
+      simp_rw [← union (C := E) (D := F)] at hx2
       obtain hx2 | hx2 := hx2
       · left; right
         exact mk_mem_prod hx1 hx2

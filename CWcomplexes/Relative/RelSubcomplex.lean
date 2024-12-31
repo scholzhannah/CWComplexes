@@ -1,4 +1,4 @@
-import CWcomplexes.Relative.RelLemmas
+import CWcomplexes.Relative.RelFinite
 import Mathlib.Analysis.NormedSpace.Real
 
 /-!
@@ -21,8 +21,6 @@ In this file we discuss subcomplexes of CW-complexes.
 * `CWComplex_subcomplex`: A subcomplex of a CW-complex is again a CW-complex.
 * `subcomplex_iUnion_subcomplex`: A union of subcomplexes is again a subcomplex.
 * `cell_mem_finite_subcomplex`: Every cell is part of a finite subcomplex.
-* `compact_subset_finite_subcomplex`: Every compact set in a CW-complex is contained in a finite
-  subcomplex.
 
 ## Notation
 * `E ⇂ C`: `E` is a subcomplex of the CW-complex `C`.
@@ -791,34 +789,22 @@ lemma RelCWComplex.Subcomplex.finite_iUnion_subset_finite_subcomplex [T2Space X]
     refine ⟨finite_instBase, ?_⟩
     simp_all
 
-/-- Every compact set in a CW-complex is contained in a finite subcomplex.-/
-lemma RelCWComplex.Subcomplex.compact_subset_finite_subcomplex [T2Space X] [RelCWComplex C D]
-    {B : Set X} (compact : IsCompact B) :
-    ∃ (E : Set X) (_sub : Subcomplex C E), Finite E ∧ B ∩ C ⊆ E := by
-  have : _root_.Finite (Σ n, { j | ¬Disjoint B (openCell (C:= C) n j)}) :=
-    compact_inter_finite (C := C) (D := D) B compact
-  obtain ⟨E, sub, finite, subset⟩ := finite_iUnion_subset_finite_subcomplex (C := C) (D := D)
-    (fun n ↦ { j | ¬Disjoint B (openCell (C := C) n j)})
-  use E,sub
-  refine ⟨finite, ?_⟩
-  apply subset_trans (subset_not_disjoint (C := C) (D := D) B)
-  apply union_subset
-  · exact base_subset_complex
-  rw [iUnion_sigma]
-  exact subset
-
 /-- The levels of a CW-complex constitute subcomplexes. -/
 @[simps!]
 instance RelCWComplex.Subcomplex.instSkeletonLT [T2Space X] [RelCWComplex C D] (n : ℕ∞) :
     Subcomplex C (skeletonLT C n) :=
-  mk'' _ (skeletonLT C n)
-  (fun l ↦ {x : cell C l | l < n})
-  (by
-    rw [← iUnion_openCell_eq_skeletonLT]
-    congrm D ∪ ?_
-    apply iUnion_congr fun m ↦ ?_
-    simp_rw [iUnion_subtype, mem_setOf_eq]
-    rw [iUnion_comm])
+  mk' _ (skeletonLT C n)
+    (fun l ↦ {x : cell C l | l < n})
+    (by
+      intro l ⟨i, hi⟩
+      apply (closedCell_subset_skeletonLT (C := C) (D := D) l i).trans
+      exact skeletonLT_mono (Order.add_one_le_of_lt hi))
+    (by
+      rw [← iUnion_openCell_eq_skeletonLT]
+      congr
+      apply iUnion_congr fun m ↦ ?_
+      rw [iUnion_subtype, iUnion_comm]
+      rfl)
 
 /-- The levels of a CW-complex constitute subcomplexes. -/
 @[simps!]
@@ -832,7 +818,6 @@ namespace ClasCWComplex.Subcomplex
 export RelCWComplex.Subcomplex (subset_complex finiteType_subcomplex_of_finiteType
   finiteDimensional_subcomplex_of_finiteDimensional finite_subcomplex_of_finite
   cell_mem_finite_subcomplex closedCell_subset_finite_subcomplex
-  finite_iUnion_subset_finite_subcomplex compact_subset_finite_subcomplex
-  instSkeletonLT)
+  finite_iUnion_subset_finite_subcomplex instSkeletonLT instSkeleton)
 
 end ClasCWComplex.Subcomplex

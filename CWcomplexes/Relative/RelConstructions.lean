@@ -7,7 +7,6 @@ import Mathlib.Data.ENat.Basic
 # Constructions with CW-complexes
 
 In this file we show that some basic constructions preserve CW-complexes:
-* `CWComplex_level`: The levels of a CW-complex are again CW-complexes.
 * `CWComplex_disjointUnion`: The disjoint union of two CW-complexes is again a CW-complex.
 * `CWComplex_of_Homeomorph`: The image of a CW-complex under a homeomorphism is again a CW-complex.
 -/
@@ -19,103 +18,6 @@ open Metric Set
 variable {X : Type*} [t : TopologicalSpace X] [T2Space X] {C D : Set X}
 
 section
-
-/-- `levelaux n` is a CW-complex for every `n : ℕ∞`.-/
-@[simps]
-instance RelCWComplex.instskeletonLT [RelCWComplex C D] (n : ℕ∞) :
-    RelCWComplex (skeletonLT C n) D where
-  cell l := {x : cell C l // l < n}
-  map l i := map (C := C) (D := D) l i
-  source_eq l i:= source_eq (C := C) (D := D) l i
-  continuousOn l i := continuousOn (C := C) (D := D) l i
-  continuousOn_symm l i := continuousOn_symm (C := C) (D := D) l i
-  pairwiseDisjoint' := by
-    simp_rw [PairwiseDisjoint, Set.Pairwise, Function.onFun, disjoint_iff_inter_eq_empty]
-    intro ⟨a, ja, _⟩ _ ⟨b, jb, map_mk⟩ _ ne
-    exact disjoint_openCell_of_ne (by aesop)
-  disjointBase' := fun l ⟨i, _⟩ ↦ disjointBase l i
-  mapsto := by
-    intro l ⟨i, lltn⟩
-    obtain ⟨I, hI⟩ := cellFrontier_subset_base_union_finite_closedCell (C := C) l i
-    use fun (m : ℕ) ↦ (I m).subtype (fun _ ↦ m < n)
-    simp_rw [mapsTo', iUnion_subtype]
-    refine subset_trans hI (union_subset_union_right _ ?_)
-    apply (iUnion_mono fun m ↦ iUnion_mono fun mltl ↦ iUnion_mono fun j ↦ ?_ )
-    simp_all only [(Nat.cast_lt.2 mltl).trans lltn, Finset.mem_subtype, iUnion_true,
-      iUnion_subset_iff]
-    exact fun _ ↦ by rfl
-  closed' A asublevel := by
-    have : A ⊆ C := asublevel.trans skeletonLT_subset_complex
-    -- This follows from `isClosed_of_isClosed_inter_openCell_or_isClosed_inter_closedCell`
-    -- and `levelaux_inter_openCell_eq_empty`.
-    intro ⟨h1, h2⟩
-    simp_rw [Subtype.forall] at h1
-    apply isClosed_of_isClosed_inter_openCell_or_isClosed_inter_closedCell this h2
-    intro m _ j
-    by_cases mlt : m < n
-    · exact Or.intro_right _ (h1 m j mlt)
-    left
-    push_neg at mlt
-    rw [← inter_eq_left.2 asublevel, inter_assoc, skeletonLT_inter_openCell_eq_empty mlt,
-      inter_empty]
-    exact isClosed_empty
-  isClosedBase := isClosedBase C
-  union' := by
-    congr
-    apply iUnion_congr fun m ↦ ?_
-    rw [iUnion_subtype, iUnion_comm]
-    rfl
-
-/-- `level n` is a CW-complex for every `n : ℕ∞`.-/
-@[simps!]
-instance RelCWComplex.instskeleton [RelCWComplex C D] (n : ℕ∞) : RelCWComplex (skeleton C n) D :=
-  instskeletonLT _
-
-instance RelCWComplex.FiniteDimensional_instskeletonLT [RelCWComplex C D] [FiniteDimensional C]
-    (n : ℕ∞) : FiniteDimensional (skeletonLT C n) where
-  eventually_isEmpty_cell := by
-    have := FiniteDimensional.eventually_isEmpty_cell (C := C) (D := D)
-    simp only [Filter.eventually_atTop, ge_iff_le, instskeletonLT_cell] at this ⊢
-    obtain ⟨N, hN⟩ := this
-    use N
-    intro b hNb
-    specialize hN b hNb
-    infer_instance
-
-instance RelCWComplex.FiniteDimensional_instskeleton [RelCWComplex C D] [FiniteDimensional C]
-    (n : ℕ∞) : FiniteDimensional (skeleton C n) :=
-  FiniteDimensional_instskeletonLT _
-
-instance RelCWComplex.FiniteDimensional_instskeletonLT_of_nat [RelCWComplex C D]
-    [FiniteDimensional C](n : ℕ) : FiniteDimensional (skeletonLT C n) where
-  eventually_isEmpty_cell := by
-    simp only [instskeletonLT_cell, Nat.cast_lt, isEmpty_subtype, not_lt,
-      Filter.eventually_atTop, ge_iff_le]
-    use n
-    intro b hnb
-    simp [hnb]
-
-instance RelCWComplex.FiniteDimensional_instskeleton_of_nat [RelCWComplex C D] [FiniteDimensional C]
-    (n : ℕ) : FiniteDimensional (skeleton C n) :=
-  FiniteDimensional_instskeletonLT_of_nat _
-
-instance RelCWComplex.FiniteType_instskeletonLT [RelCWComplex C D] [FiniteType C] (n : ℕ∞) :
-    FiniteType (skeletonLT C n) where
-  finite_cell := by
-    intro m
-    simp only [instskeletonLT_cell]
-    infer_instance
-
-instance RelCWComplex.FiniteType_relCWComplex_skeleton [RelCWComplex C D] [FiniteType C] (n : ℕ∞) :
-    FiniteType (skeleton C n) :=
-  FiniteType_instskeletonLT _
-
-instance RelCWComplex.Finite_instskeletonLT [RelCWComplex C D] [Finite C] (n : ℕ∞) :
-    Finite (skeletonLT C n) := inferInstance
-
-instance RelCWComplex.Finite_instskeleton [RelCWComplex C D] [Finite C] (n : ℕ∞) :
-    Finite (skeleton C n) :=
-  Finite_instskeletonLT _
 
 /-- The union of two disjoint CW-complexes is again a CW-complex.-/
 @[simps]
@@ -764,12 +666,3 @@ def RelCWComplex.of_Homeomorph.{u} {X Y : Type u} [TopologicalSpace X] [T2Space 
   union' := by
     simp [← hDF, ← hfE1, ← f.image_source_eq_target, hfC1, ← RelCWComplex.union' (C := C) (D := D),
       image_union, image_iUnion, ← image_image]
-
-namespace ClasCWComplex
-
-export RelCWComplex (instskeletonLT instskeleton FiniteDimensional_instskeletonLT
-  FiniteDimensional_instskeleton FiniteDimensional_instskeletonLT_of_nat
-  FiniteDimensional_instskeleton_of_nat FiniteType_instskeletonLT FiniteType_relCWComplex_skeleton
-  Finite_instskeletonLT Finite_instskeleton)
-
-end ClasCWComplex

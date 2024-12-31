@@ -1,4 +1,5 @@
 import CWcomplexes.Relative.RelConstructions
+import CWcomplexes.Relative.RelSubcomplex
 
 /-!
 # Lemmas about CW-complexes
@@ -10,6 +11,8 @@ In this file we proof some lemmas about CW-complexes such as:
 * `isDiscrete_level_zero`: the zeroth level of a CW-complex is discrete.
 * `compact_inter_finite`: A compact set can only meet finitely many open cells.
 * `compact_iff_finite`: A CW-complex is compact iff it is finte.
+* `compact_subset_finite_subcomplex`: Every compact set in a CW-complex is contained in a finite
+  subcomplex.
 
 ## References
 * [A. Hatcher, *Algebraic Topology*]
@@ -384,10 +387,43 @@ lemma RelCWComplex.compact_iff_finite [RelCWComplex C D] (hD : IsCompact D) :
 lemma ClasCWComplex.compact_iff_finite [ClasCWComplex C] : IsCompact C ↔ Finite C :=
   ⟨RelCWComplex.finite_of_compact, fun _ ↦ RelCWComplex.compact_of_finite isCompact_empty⟩
 
+/-- Every compact set in a CW-complex is contained in a finite subcomplex.-/
+lemma RelCWComplex.Subcomplex.compact_subset_finite_subcomplex [RelCWComplex C D]
+    {B : Set X} (compact : IsCompact B) :
+    ∃ (E : Set X) (_sub : Subcomplex C E), Finite E ∧ B ∩ C ⊆ E := by
+  have : _root_.Finite (Σ n, { j | ¬Disjoint B (openCell (C:= C) n j)}) :=
+    compact_inter_finite (C := C) (D := D) B compact
+  obtain ⟨E, sub, finite, subset⟩ := finite_iUnion_subset_finite_subcomplex (C := C) (D := D)
+    (fun n ↦ { j | ¬Disjoint B (openCell (C := C) n j)})
+  use E,sub
+  refine ⟨finite, ?_⟩
+  apply subset_trans (subset_not_disjoint (C := C) (D := D) B)
+  apply union_subset
+  · exact base_subset_complex
+  rw [iUnion_sigma]
+  exact subset
+
+instance RelCWComplex.FiniteDimensional_instskeletonLT_of_nat [RelCWComplex C D]
+    [FiniteDimensional C](n : ℕ) : FiniteDimensional (skeletonLT C n) where
+  eventually_isEmpty_cell := by
+    simp only [Subcomplex.instSubcomplex_cell, Subcomplex.mk''_I, Nat.cast_lt, coe_setOf,
+      isEmpty_subtype, not_lt, Filter.eventually_atTop, ge_iff_le]
+    use n
+    intro b hnb
+    simp [hnb]
+
+instance RelCWComplex.FiniteDimensional_instskeleton_of_nat [RelCWComplex C D] [FiniteDimensional C]
+    (n : ℕ) : FiniteDimensional (skeleton C n) :=
+  FiniteDimensional_instskeletonLT_of_nat _
+
+
 namespace ClasCWComplex
 
 export RelCWComplex (isClosed_skeletonLT isClosed_skeleton isClosed_iff_inter_skeletonLT_isClosed
   inter_skeletonLT_succ_isClosed_iff compact_inter_finite compact_inter_finite_subset
-  compact_inter_finite' compact_inter_finite_subset' finite_of_compact)
+  compact_inter_finite' compact_inter_finite_subset' finite_of_compact
+  Subcomplex.compact_subset_finite_subcomplex Subcomplex.instSkeletonLT
+  Subcomplex.instSkeleton FiniteDimensional_instskeletonLT_of_nat
+  FiniteDimensional_instskeleton_of_nat)
 
 end ClasCWComplex
