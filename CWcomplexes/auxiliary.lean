@@ -137,3 +137,17 @@ theorem ENat.nat_strong_induction {P : ℕ∞ → Prop} (a : ℕ∞) (h0 : P 0)
   cases a
   · exact htop A
   · exact A _
+
+-- this isnt really what I want. Need to find a different version ...
+-- something with Inhabited probably
+
+def PartialEquiv.restrict {X Y : Type*} (e : PartialEquiv X Y) (A : Set X) (B : Set Y)
+    (hA : e.symm '' B ⊆ A) (hB : e '' A ⊆ B) : PartialEquiv A B where
+  toFun := fun x ↦ ⟨e x, hB (Set.mem_image_of_mem e x.2)⟩
+  invFun := fun x ↦ ⟨e.symm x, hA (Set.mem_image_of_mem e.symm x.2)⟩
+  source := A ↓∩ e.source
+  target := B ↓∩ e.target
+  map_source' := by simp_all
+  map_target' := by simp_all
+  left_inv' := by simp_all
+  right_inv' := by simp_all
