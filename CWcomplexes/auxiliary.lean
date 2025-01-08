@@ -31,6 +31,7 @@ lemma inter_eq_inter_iff_compl {X : Type*} {A B C : Set X} : A ∩ B = C ∩ B �
 -- needed in this file and in examples file
 /-- `Function.const` as a `PartialEquiv`.
   It consists of two constant maps in opposite directions. -/
+@[simps]
 def PartialEquiv.single {X Y : Type*} (x : X) (y : Y) : PartialEquiv X Y where
   toFun := Function.const X y
   invFun := Function.const Y x
