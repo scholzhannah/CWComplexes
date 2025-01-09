@@ -19,7 +19,7 @@ variable {X : Type*} [t : TopologicalSpace X] [T2Space X]
 
 -- should this be a separate instance to the one below?
 /-- The empty set is a CW-complex.-/
-@[simp]
+@[simps!]
 instance instEmpty : ClasCWComplex (∅ : Set X) := mkFinite ∅
   (cell := fun _ ↦ PEmpty)
   (map := fun _ i ↦ i.elim)
@@ -50,6 +50,7 @@ instance Finite_instEmpty : Finite (∅ : Set X) := Finite_mkFinite ∅
   (mapsto := fun _ i ↦ i.elim)
   (union' := by simp [iUnion_of_empty, iUnion_empty])
 
+@[simps!]
 instance instFiniteSet (C : Set X) [_root_.Finite C] : ClasCWComplex C := mkFinite C
   (cell := fun n ↦ match n with
     | 0 => C
@@ -152,22 +153,220 @@ instance Finite_instFiniteSet (C : Set X) [_root_.Finite C] : Finite C := Finite
 
 example (x : X) : ClasCWComplex {x} := inferInstance
 
-def instIccLT {a b : ℝ} (lt : a < b) : ClasCWComplex (Icc a b : Set ℝ) :=
-  let map' := (((IsometryEquiv.funUnique (Fin 1) ℝ).toEquiv.trans
-    (affineHomeomorph ((b - a) / 2) ((a + b) / 2) (by linarith))).toPartialEquivOfImageEq
-    (closedBall 0 1) (Icc a b) (by
-      rw [Equiv.coe_trans, image_comp, IsometryEquiv.coe_toEquiv, IsometryEquiv.image_closedBall,
-        IsometryEquiv.funUnique_apply, Pi.zero_apply, Real.closedBall_eq_Icc, zero_sub, zero_add,
-        EquivLike.coe_coe, affineHomeomorph_image_Icc _ _ _ _ (by linarith)]
-      ring_nf))
-  let _ := attachCellFiniteType {a, b} (n := 1)
-    map'
-    (source_eq' := sorry)
-    (continuousOn' := sorry)
-    (continuousOn_symm' := sorry)
-    (disjoint' := sorry)
-    (mapsto' := sorry)
-  ofEq (map' '' closedBall 0 1 ∪ {a, b}) ∅ sorry sorry
+@[simps!]
+def mapLT {a b : ℝ} (hab : a < b) := (IsometryEquiv.funUnique (Fin 1) ℝ).toHomeomorph.trans
+    (affineHomeomorph ((b - a) / 2) ((a + b) / 2) (by linarith))
+
+lemma mapLT_image_closedBall {a b : ℝ} (hab : a < b) : mapLT hab '' closedBall 0 1 = Icc a b := by
+  change (((affineHomeomorph ((b - a) / 2) ((a + b) / 2) (by linarith))) ∘
+    (IsometryEquiv.funUnique (Fin 1) ℝ)) '' closedBall 0 1 = Icc a b
+  rw [image_comp, IsometryEquiv.image_closedBall,
+    IsometryEquiv.funUnique_apply, Pi.zero_apply, Real.closedBall_eq_Icc, zero_sub, zero_add,
+    affineHomeomorph_image_Icc _ _ _ _ (by linarith)]
+  ring_nf
+
+lemma mapLT_image_ball {a b : ℝ} (hab : a < b) : mapLT hab '' ball 0 1 = Ioo a b := by
+  change (((affineHomeomorph ((b - a) / 2) ((a + b) / 2) (by linarith))) ∘
+    (IsometryEquiv.funUnique (Fin 1) ℝ)) '' ball 0 1 = Ioo a b
+  rw [image_comp, IsometryEquiv.image_ball,
+    IsometryEquiv.funUnique_apply, Pi.zero_apply, Real.ball_eq_Ioo, zero_sub, zero_add,
+    affineHomeomorph_image_Ioo _ _ _ _ (by linarith)]
+  ring_nf
+
+lemma mapLT_image_sphere {a b : ℝ} (hab : a < b) : mapLT hab '' sphere 0 1 = {a, b} := by
+  rw [← closedBall_diff_ball, image_diff (mapLT hab).injective, mapLT_image_closedBall,
+    mapLT_image_ball]
+  exact Icc_diff_Ioo_same (le_of_lt hab)
+
+@[simps!]
+def mapLTPartial {a b : ℝ} (hab : a < b) :=
+  (mapLT hab).toPartialEquivOfImageEq (closedBall 0 1) (Icc a b) (mapLT_image_closedBall hab)
+
+-- this simp never actually gets used because of the automatically generated simps above
+@[simp]
+lemma mapLTPartial_image {a b : ℝ} (hab : a < b) {s : Set (Fin 1 → ℝ)} :
+    mapLTPartial hab '' s = mapLT hab '' s :=
+  rfl
+
+/-- A helper definition for `instIccLT` where the set is presented differently. -/
+@[simps!]
+protected def instIccLT' {a b : ℝ} (hab : a < b) :
+    ClasCWComplex (mapLTPartial hab '' closedBall 0 1 ∪ {a, b}) :=
+  attachCellFiniteType {a, b}
+    (mapLTPartial hab)
+    (source_eq' := rfl)
+    (continuousOn' := (mapLT hab).continuous.continuousOn)
+    (continuousOn_symm' := (mapLT hab).symm.continuous.continuousOn)
+    (disjoint' := by
+      intro m i
+      simp only [Equiv.toPartialEquivOfImageEq_apply, Homeomorph.coe_toEquiv,
+        mapLTPartial_image, mapLT_image_ball]
+      exact match m, i with
+        | 0, ⟨i, hi⟩ => by
+          simp only [openCell_zero_eq_singleton, instFiniteSet_map, PartialEquiv.single_apply,
+            Function.const_apply, disjoint_singleton_right, mem_Ioo, not_and_or, not_lt]
+          have : i = a ∨ i = b := by simp_all
+          rcases this with hi | hi
+          · exact .inl (le_of_eq hi)
+          · exact .inr (le_of_eq hi.symm)
+        | (_ + 1), i => i.elim)
+    (mapsto' := by
+      simp only [Nat.lt_one_iff, instFiniteSet_cell, iUnion_iUnion_eq_left,
+        closedCell_zero_eq_singleton, instFiniteSet_map, PartialEquiv.single_apply,
+        Function.const_apply, iUnion_coe_set, pair_comm, mem_insert_iff, mem_singleton_iff,
+        iUnion_iUnion_eq_or_left, union_singleton, mapsTo', mapLTPartial_image, mapLT_image_sphere,
+        Subset.rfl])
+
+/-- A helper lemma for `Finite_IccLT.`-/
+protected lemma Finite_instIccLT' {a b : ℝ} (hab : a < b) :
+    letI := ClasCWComplex.instIccLT' hab
+    Finite (mapLTPartial hab '' closedBall 0 1 ∪ {a, b}) :=
+  Finite_attachCellFiniteType {a, b} (mapLTPartial hab)
+    (source_eq' := rfl)
+    (continuousOn' := (mapLT hab).continuous.continuousOn)
+    (continuousOn_symm' := (mapLT hab).symm.continuous.continuousOn)
+    (disjoint' := by
+      intro m i
+      simp only [Equiv.toPartialEquivOfImageEq_apply, Homeomorph.coe_toEquiv,
+        mapLTPartial_image, mapLT_image_ball]
+      exact match m, i with
+        | 0, ⟨i, hi⟩ => by
+          simp only [openCell_zero_eq_singleton, instFiniteSet_map, PartialEquiv.single_apply,
+            Function.const_apply, disjoint_singleton_right, mem_Ioo, not_and_or, not_lt]
+          have : i = a ∨ i = b := by simp_all
+          rcases this with hi | hi
+          · exact .inl (le_of_eq hi)
+          · exact .inr (le_of_eq hi.symm)
+        | (_ + 1), i => i.elim)
+    (mapsto' := by
+      simp only [Nat.lt_one_iff, instFiniteSet_cell, iUnion_iUnion_eq_left,
+        closedCell_zero_eq_singleton, instFiniteSet_map, PartialEquiv.single_apply,
+        Function.const_apply, iUnion_coe_set, pair_comm, mem_insert_iff, mem_singleton_iff,
+        iUnion_iUnion_eq_or_left, union_singleton, mapsTo', mapLTPartial_image, mapLT_image_sphere,
+        Subset.rfl])
+
+@[simps!]
+def instIccLT {a b : ℝ} (hab : a < b) : ClasCWComplex (Icc a b : Set ℝ) :=
+  let _ := ClasCWComplex.instIccLT' hab
+  ofEq (mapLTPartial hab '' closedBall 0 1 ∪ {a, b}) ∅
+    (by
+      rw [mapLTPartial_image, mapLT_image_closedBall, union_eq_left, pair_subset_iff, left_mem_Icc,
+        right_mem_Icc, and_self]
+      exact hab.le)
+    rfl
+
+lemma Finite_instIccLT {a b : ℝ} (hab : a < b) :
+    letI := instIccLT hab
+    Finite (Icc a b) :=
+  let _ := instIccLT hab
+  let _ := ClasCWComplex.instIccLT' hab
+  let _ := ClasCWComplex.Finite_instIccLT' hab
+  finite_ofEq (mapLTPartial hab '' closedBall 0 1 ∪ {a, b}) ∅
+    (by
+      rw [mapLTPartial_image, mapLT_image_closedBall, union_eq_left, pair_subset_iff, left_mem_Icc,
+        right_mem_Icc, and_self]
+      exact hab.le)
+    rfl
+
+
+/-- The interval `Icc a b` in `ℝ` is a CW-complex.-/
+instance instIcc {a b : ℝ} : ClasCWComplex (Icc a b : Set ℝ) :=
+  if lt1 : a < b then instIccLT lt1
+    else if lt2 : b < a then Icc_eq_empty_of_lt lt2 ▸ instEmpty
+      else Linarith.eq_of_not_lt_of_not_gt _ _ lt1 lt2 ▸ Icc_self a ▸ instFiniteSet {a}
+
+
+instance : ClasCWComplex (univ : Set ℝ) := mk (univ : Set ℝ)
+  (cell := fun n ↦ match n with
+    | 0 => ℤ
+    | 1 => ℤ
+    | (_ + 2) => PEmpty)
+  (map := fun n i ↦ match n with
+    | 0 => PartialEquiv.single ![] i
+    | 1 => mapLTPartial (lt_add_one (i : ℝ))
+    | (_ + 2) => i.elim)
+  (source_eq := fun n i ↦ match n with
+    | 0 => by simp [closedBall, Matrix.empty_eq, eq_univ_iff_forall]
+    | 1 => rfl
+    | (_ + 2) => i.elim)
+  (continuousOn := fun n i ↦ match n with
+    | 0 => continuousOn_const
+    | 1 => (mapLT (lt_add_one (i : ℝ))).continuous.continuousOn
+    | (_ + 2) => i.elim)
+  (continuousOn_symm := fun n i ↦ match n with
+    | 0 => continuousOn_const
+    | 1 => (mapLT (lt_add_one (i : ℝ))).symm.continuous.continuousOn
+    | (_ + 2) => i.elim)
+  (pairwiseDisjoint' := by
+    simp_rw [PairwiseDisjoint, Set.Pairwise, Function.onFun]
+    exact fun ⟨n, j⟩ _ ⟨m, i⟩ _ ne ↦  match n with
+      | 0 => match m with
+        | 0 => by simp_all
+        | 1 => by
+          simp only [PartialEquiv.single_apply, Function.const_apply, nonempty_ball, zero_lt_one,
+            Nonempty.image_const, mapLTPartial_image, mapLT_image_ball, disjoint_iff_inter_eq_empty,
+            singleton_inter_eq_empty, mem_Ioo, Int.cast_lt, not_and, not_lt]
+          norm_cast
+          exact fun h ↦ h
+        | (_ + 2) => i.elim
+      | 1 => match m with
+        | 0 => by
+          simp only [mapLTPartial_image, mapLT_image_ball, PartialEquiv.single_apply,
+            Function.const_apply, nonempty_ball, zero_lt_one, Nonempty.image_const,
+            disjoint_iff_inter_eq_empty, inter_singleton_eq_empty, mem_Ioo, Int.cast_lt, not_and,
+            not_lt]
+          norm_cast
+          exact fun h ↦ h
+        | 1 => by
+          simp only [mapLTPartial_image, mapLT_image_ball, disjoint_iff_inter_eq_empty ,
+            Ioo_inter_Ioo, Ioo_eq_empty_iff, not_lt]
+          norm_cast
+          simp_all only [le_sup_iff, inf_le_iff, add_le_iff_nonpos_right, Int.reduceLE, false_or,
+            or_false, ne_eq, Sigma.mk.inj_iff, heq_eq_eq, true_and, or_comm]
+          exact Int.lt_or_gt_of_ne ne
+        | (_ +  2) => i.elim
+      | (_ + 2) => j.elim)
+  (mapsto := fun n i ↦ match n with
+    | 0 => by simp [Matrix.zero_empty, sphere_eq_empty_of_subsingleton]
+    | 1 => by
+      use fun n ↦  match n with
+        | 0 => {i, i + 1}
+        | (_ + 1) => ∅
+      simp only [Nat.lt_one_iff, iUnion_iUnion_eq_left, Finset.mem_insert, Finset.mem_singleton,
+        PartialEquiv.single_apply, Function.const_apply, Matrix.zero_empty, nonempty_closedBall,
+        zero_le_one, Nonempty.image_const, iUnion_iUnion_eq_or_left, Int.cast_add, Int.cast_one,
+        union_singleton, mapsTo', mapLTPartial_image, mapLT_image_sphere, pair_comm]
+      exact Subset.rfl
+    | (_ + 2) => i.elim)
+  (closed' := by
+    intro A _ hA
+    apply SequentialSpace.isClosed_of_seq
+    intro s a hs hsa
+    have : a ∈ Ioo (⌊a⌋ - 1 : ℝ) (⌈a⌉ + 1) := by sorry
+    obtain ⟨N, hN⟩ := tendsto_atTop_nhds.1 hsa (Ioo (⌊a⌋ - 1 : ℝ) (⌈a⌉ + 1)) this isOpen_Ioo
+    let t n := s (n + N)
+    have hta : Filter.Tendsto t Filter.atTop (nhds a) :=
+      (Filter.tendsto_add_atTop_iff_nat N).mpr hsa
+    have ht : ∀ (n : ℕ), t n ∈ A := by
+      intro n
+      exact hs (n + N)
+    have htA : ∀ n, t n ∈ A ∩ Icc (⌊a⌋ - 1 : ℝ) (⌈a⌉ + 1) := by
+      intro n
+      refine ⟨ht n, ?_⟩
+      apply Ioo_subset_Icc_self
+      apply hN
+      exact N.le_add_left n
+    have hA : IsClosed (A ∩ Icc (⌊a⌋ - 1 : ℝ) (⌈a⌉ + 1)) := by
+
+      sorry
+    sorry)
+  (union' := by
+    apply subset_antisymm (subset_univ _)
+    intro x _
+    simp only [mem_iUnion]
+    use 1, ⌊x⌋
+    simp only [mapLTPartial_image, mapLT_image_closedBall, mem_Icc]
+    exact ⟨Int.floor_le x, (Int.le_ceil x).trans (by norm_cast; exact Int.ceil_le_floor_add_one x)⟩)
 
 
 end ClasCWComplex
