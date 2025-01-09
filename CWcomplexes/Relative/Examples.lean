@@ -1,4 +1,4 @@
-import CWcomplexes.Relative.RelConstructions
+import CWcomplexes.Relative.RelProduct
 
 /-!
 # Examples of CW-complexes
@@ -342,7 +342,13 @@ instance : ClasCWComplex (univ : Set ℝ) := mk (univ : Set ℝ)
     intro A _ hA
     apply SequentialSpace.isClosed_of_seq
     intro s a hs hsa
-    have : a ∈ Ioo (⌊a⌋ - 1 : ℝ) (⌈a⌉ + 1) := by sorry
+    have : a ∈ Ioo (⌊a⌋ - 1 : ℝ) (⌈a⌉ + 1) := by
+      simp
+      constructor
+      · refine lt_of_lt_of_le ?_ (Int.floor_le a)
+        norm_num
+      · apply lt_of_le_of_lt (Int.le_ceil a)
+        exact lt_add_one _
     obtain ⟨N, hN⟩ := tendsto_atTop_nhds.1 hsa (Ioo (⌊a⌋ - 1 : ℝ) (⌈a⌉ + 1)) this isOpen_Ioo
     let t n := s (n + N)
     have hta : Filter.Tendsto t Filter.atTop (nhds a) :=
@@ -357,9 +363,29 @@ instance : ClasCWComplex (univ : Set ℝ) := mk (univ : Set ℝ)
       apply hN
       exact N.le_add_left n
     have hA : IsClosed (A ∩ Icc (⌊a⌋ - 1 : ℝ) (⌈a⌉ + 1)) := by
-
-      sorry
-    sorry)
+      rw [← Icc_union_Icc_eq_Icc (b := (⌊a⌋ : ℝ)) (by linarith)
+        (by norm_cast; exact (Int.floor_le_ceil a).trans (by norm_num)),
+        ← Icc_union_Icc_eq_Icc (a := (⌊a⌋ : ℝ)) (b := (⌈a⌉ : ℝ))
+        (by norm_cast; exact Int.floor_le_ceil a) (by norm_num),
+        inter_union_distrib_left, inter_union_distrib_left]
+      refine IsClosed.union ?_ (IsClosed.union ?_ ?_)
+      · convert hA 1 (⌊a⌋ - 1)
+        simp only [Int.cast_sub, Int.cast_one, sub_add_cancel, mapLTPartial_image,
+          mapLT_image_closedBall]
+      · by_cases h : ∃ (z : ℤ), z = a
+        · obtain ⟨z, hz⟩ := h
+          subst a
+          rw [Int.ceil_intCast, Int.floor_intCast, Icc_self]
+          exact isClosed_inter_singleton
+        convert hA 1 ⌊a⌋
+        simp only [(Int.ceil_eq_floor_add_one_iff a).2 h, mapLTPartial_image,
+          mapLT_image_closedBall]
+        norm_cast
+      · convert hA 1 ⌈a⌉
+        simp only [mapLTPartial_image, mapLT_image_closedBall, add_sub_cancel_left, one_div,
+          Fin.isValue]
+    rw [← isSeqClosed_iff_isClosed] at hA
+    exact (hA htA hta).1)
   (union' := by
     apply subset_antisymm (subset_univ _)
     intro x _
@@ -368,5 +394,7 @@ instance : ClasCWComplex (univ : Set ℝ) := mk (univ : Set ℝ)
     simp only [mapLTPartial_image, mapLT_image_closedBall, mem_Icc]
     exact ⟨Int.floor_le x, (Int.le_ceil x).trans (by norm_cast; exact Int.ceil_le_floor_add_one x)⟩)
 
+
+example : ClasCWComplex (univ ×ˢ univ : Set (ℝ × ℝ)) := inferInstance
 
 end ClasCWComplex

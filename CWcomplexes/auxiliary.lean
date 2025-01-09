@@ -152,3 +152,18 @@ def PartialEquiv.restrict {X Y : Type*} (e : PartialEquiv X Y) (A : Set X) (B : 
   map_target' := by simp_all
   left_inv' := by simp_all
   right_inv' := by simp_all
+
+lemma Int.ceil_eq_floor_add_one_iff {α : Type*} [LinearOrderedRing α] [FloorRing α] (a : α) :
+    ⌈a⌉ = ⌊a⌋ + 1 ↔ (¬ ∃ (z : ℤ), z = a) := by
+  constructor
+  · intro h ⟨z, hz⟩
+    subst a
+    simp_all
+  · intro h
+    apply le_antisymm (Int.ceil_le_floor_add_one a)
+    rw [Int.add_one_le_ceil_iff]
+    by_contra h'
+    rw [not_lt_iff_eq_or_lt, ← not_le] at h'
+    rcases h' with h' | h'
+    · exact h ⟨⌊a⌋, h'⟩
+    · exact h' (Int.floor_le a)
