@@ -35,20 +35,12 @@ instance instEmpty : ClasCWComplex (∅ : Set X) := mkFinite ∅
   (mapsto := fun _ i ↦ i.elim)
   (union' := by simp [iUnion_of_empty, iUnion_empty])
 
-instance Finite_instEmpty : Finite (∅ : Set X) := Finite_mkFinite ∅
-  (cell := fun _ ↦ PEmpty)
-  (map := fun _ i ↦ i.elim)
-  (eventually_isEmpty_cell := by
+instance Finite_instEmpty : Finite (∅ : Set X) where
+  eventually_isEmpty_cell := by
     rw [Filter.eventually_atTop]
     use 0
-    exact fun b a ↦ PEmpty.instIsEmpty)
-  (finite_cell := fun n ↦ Finite.of_fintype ((fun _ ↦ PEmpty) n))
-  (source_eq := fun _ i ↦ i.elim)
-  (continuousOn := fun _ i ↦ i.elim)
-  (continuousOn_symm := fun _ i ↦ i.elim)
-  (pairwiseDisjoint' := by rw [PairwiseDisjoint, Set.Pairwise]; intro ⟨_, i⟩; exact i.elim)
-  (mapsto := fun _ i ↦ i.elim)
-  (union' := by simp [iUnion_of_empty, iUnion_empty])
+    exact fun b a ↦ PEmpty.instIsEmpty
+  finite_cell := fun n ↦ Finite.of_fintype ((fun _ ↦ PEmpty) n)
 
 @[simps!]
 instance instFiniteSet (C : Set X) [_root_.Finite C] : ClasCWComplex C := mkFinite C
@@ -101,55 +93,20 @@ instance instFiniteSet (C : Set X) [_root_.Finite C] : ClasCWComplex C := mkFini
       use 0, ⟨x, hx⟩
       simp)
 
-instance Finite_instFiniteSet (C : Set X) [_root_.Finite C] : Finite C := Finite_mkFinite C
-  (cell := fun n ↦ match n with
-    | 0 => C
-    | (_ + 1) => PEmpty)
-  (map := fun n i ↦ match n with
-    | 0 => PartialEquiv.single ![] i
-    | (_ + 1) => i.elim)
-  (eventually_isEmpty_cell := by
+instance Finite_instFiniteSet (C : Set X) [_root_.Finite C] : Finite C where
+  eventually_isEmpty_cell := by
     rw [Filter.eventually_atTop]
     use 1
     intro b beq1
-    simp only
+    simp only [instFiniteSet_cell]
     split
     · contradiction
-    · infer_instance)
-  (finite_cell := fun n ↦ match n with
-    | 0 => inferInstance
-    | (_ + 1) => inferInstance)
-  (source_eq := fun n i ↦ match n with
-    | 0 => by
-      simp [PartialEquiv.single, closedBall, Matrix.empty_eq, eq_univ_iff_forall]
-    | (_ + 1) => i.elim)
-  (continuousOn := fun n i ↦ match n with
-    | 0 => continuousOn_const
-    | (m + 1) => i.elim)
-  (continuousOn_symm := fun n i ↦ match n with
-    | 0 => continuousOn_const
-    | (_ + 1) => i.elim)
-  (pairwiseDisjoint' := by
-    simp_rw [PairwiseDisjoint, Set.Pairwise, Function.onFun]
-    exact fun ⟨n, j⟩ _ ⟨m, i⟩ _ ne ↦  match n with
-      | 0 => match m with
-        | 0 => by simp_all [Subtype.coe_ne_coe]
-        | (_ + 1) => i.elim
-      | (_ + 1) => j.elim)
-  (mapsto := fun n i ↦ match n with
-    | 0 => by simp [Matrix.zero_empty, sphere_eq_empty_of_subsingleton]
-    | (_ + 1) => i.elim)
-  (union' := by
-    ext x
-    simp only [mem_iUnion]
-    constructor
-    · intro ⟨n, i, hi⟩
-      exact match n with
-        | 0 => by simp_all
-        | (_ + 1) => i.elim
-    · intro hx
-      use 0, ⟨x, hx⟩
-      simp)
+    · infer_instance
+  finite_cell n := by
+    simp only [instFiniteSet_cell]
+    exact match n with
+      | 0 => inferInstance
+      | (_ + 1) => inferInstance
 
 example (x : X) : ClasCWComplex {x} := inferInstance
 
@@ -268,15 +225,14 @@ lemma Finite_instIccLT {a b : ℝ} (hab : a < b) :
       exact hab.le)
     rfl
 
-
 /-- The interval `Icc a b` in `ℝ` is a CW-complex.-/
 instance instIcc {a b : ℝ} : ClasCWComplex (Icc a b : Set ℝ) :=
   if lt1 : a < b then instIccLT lt1
     else if lt2 : b < a then Icc_eq_empty_of_lt lt2 ▸ instEmpty
       else Linarith.eq_of_not_lt_of_not_gt _ _ lt1 lt2 ▸ Icc_self a ▸ instFiniteSet {a}
 
-
-instance : ClasCWComplex (univ : Set ℝ) := mk (univ : Set ℝ)
+@[simps!]
+instance instReal : ClasCWComplex (univ : Set ℝ) := mk (univ : Set ℝ)
   (cell := fun n ↦ match n with
     | 0 => ℤ
     | 1 => ℤ
@@ -394,7 +350,18 @@ instance : ClasCWComplex (univ : Set ℝ) := mk (univ : Set ℝ)
     simp only [mapLTPartial_image, mapLT_image_closedBall, mem_Icc]
     exact ⟨Int.floor_le x, (Int.le_ceil x).trans (by norm_cast; exact Int.ceil_le_floor_add_one x)⟩)
 
+-- I need some way to automatically recognize the normal `univ`
+example : ClasCWComplex (univ : Set (ℝ × ℝ)) := inferInstance
 
-example : ClasCWComplex (univ ×ˢ univ : Set (ℝ × ℝ)) := inferInstance
+instance FiniteDimensional_instReal : FiniteDimensional (univ : Set ℝ) where
+  eventually_isEmpty_cell := by
+    rw [Filter.eventually_atTop]
+    use 2
+    intro n hn
+    simp only [instReal_cell]
+    split
+    · contradiction
+    · contradiction
+    · infer_instance
 
 end ClasCWComplex

@@ -305,6 +305,41 @@ instance ClasCWComplex.Product [ClasCWComplex C] [ClasCWComplex E] [KSpace (X ×
     ClasCWComplex (C ×ˢ E) :=
   ofEq (C ×ˢ E) (∅ ×ˢ E ∪ C ×ˢ ∅) rfl (by simp)
 
+instance RelCWComplex.FiniteDimensional_Product [KSpace (X × Y)] [RelCWComplex C D]
+    [RelCWComplex E F] [FiniteDimensional C] [FiniteDimensional E] :
+    FiniteDimensional (C ×ˢ E) where
+  eventually_isEmpty_cell := by
+    have hC := FiniteDimensional.eventually_isEmpty_cell (C := C) (D := D)
+    have hE := FiniteDimensional.eventually_isEmpty_cell (C := E) (D := F)
+    rw [Filter.eventually_atTop] at hC hE ⊢
+    obtain ⟨c, hc⟩ := hC
+    obtain ⟨e, he⟩ := hE
+    use c + e
+    intro n hn
+    simp [prodcell]
+    intro m l hml
+    rw [← hml] at hn
+    suffices m ≥ c ∨ l ≥ e by
+      rcases this with h | h
+      · exact .inl (hc m h)
+      · exact .inr (he l h)
+    by_contra h
+    push_neg at h
+    linarith
+
+instance RelCWComplex.FiniteType_Product [KSpace (X × Y)] [RelCWComplex C D] [RelCWComplex E F]
+    [FiniteType C] [FiniteType E] : FiniteType (C ×ˢ E) where
+  finite_cell := by
+    have hC := FiniteType.finite_cell (C := C) (D := D)
+    have hD := FiniteType.finite_cell (C := E) (D := F)
+    intro n
+    simp [prodcell]
+    suffices _root_.Finite ((m : ℕ) ×' (l : ℕ) ×' (m + l = n)) by
+      sorry
+
+    sorry
+
+
 /-- If `C` and `D` are CW-complexes in `X` and `Y` then `C ×ˢ D` is a CW-complex in the k-ification
   of `X × Y`.-/
 @[simps]
@@ -519,5 +554,16 @@ instance RelCWComplex.ProductKification [RelCWComplex C D] [RelCWComplex E F] :
 instance ClasCWComplex.ProductKification [ClasCWComplex C] [ClasCWComplex E] :
     ClasCWComplex (X := kification (X × Y)) (C ×ˢ E) :=
   ofEq (X := kification (X × Y)) (C ×ˢ E) (∅ ×ˢ E ∪ C ×ˢ ∅) rfl (by simp)
+
+@[simps!]
+instance ClasCWComplex.ProductKificationUniv [ClasCWComplex (univ : Set X)]
+    [ClasCWComplex (univ : Set Y)] :
+    ClasCWComplex (X := kification (X × Y)) (univ : Set (X × Y)) :=
+  ofEq (X := kification (X × Y)) (univ ×ˢ univ : Set (X × Y)) ∅ univ_prod_univ rfl
+
+@[simps!]
+instance ClasCWComplex.ProductUniv [KSpace (X × Y)] [ClasCWComplex (univ : Set X)]
+    [ClasCWComplex (univ : Set Y)] : ClasCWComplex (univ : Set (X × Y)) :=
+  ofEq (univ ×ˢ univ : Set (X × Y)) ∅ univ_prod_univ rfl
 
 end

@@ -155,6 +155,8 @@ def ClasCWComplex.mkFiniteType.{u} {X : Type u} [TopologicalSpace X] (C : Set X)
   isClosedBase := isClosed_empty
   union' := by simpa only [empty_union]
 
+-- this is really completely useless currently
+-- how do I automatically get finiteness when something is constructed in this way?
 lemma ClasCWComplex.FiniteType_mkFiniteType.{u} {X : Type u} [TopologicalSpace X] (C : Set X)
     (cell : (n : ℕ) → Type u) (map : (n : ℕ)  → (i : cell n) → PartialEquiv (Fin n → ℝ) X)
     (finite_cell : ∀ (n : ℕ), _root_.Finite (cell n))
