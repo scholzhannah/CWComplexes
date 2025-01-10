@@ -93,20 +93,7 @@ instance instFiniteSet (C : Set X) [_root_.Finite C] : ClasCWComplex C := mkFini
       use 0, ⟨x, hx⟩
       simp)
 
-instance Finite_instFiniteSet (C : Set X) [_root_.Finite C] : Finite C where
-  eventually_isEmpty_cell := by
-    rw [Filter.eventually_atTop]
-    use 1
-    intro b beq1
-    simp only [instFiniteSet_cell]
-    split
-    · contradiction
-    · infer_instance
-  finite_cell n := by
-    simp only [instFiniteSet_cell]
-    exact match n with
-      | 0 => inferInstance
-      | (_ + 1) => inferInstance
+instance Finite_instFiniteSet (C : Set X) [_root_.Finite C] : Finite C := Finite_mkFinite ..
 
 example (x : X) : ClasCWComplex {x} := inferInstance
 
@@ -230,6 +217,8 @@ instance instIcc {a b : ℝ} : ClasCWComplex (Icc a b : Set ℝ) :=
   if lt1 : a < b then instIccLT lt1
     else if lt2 : b < a then Icc_eq_empty_of_lt lt2 ▸ instEmpty
       else Linarith.eq_of_not_lt_of_not_gt _ _ lt1 lt2 ▸ Icc_self a ▸ instFiniteSet {a}
+
+--write simp lemmas
 
 @[simps!]
 instance instReal : ClasCWComplex (univ : Set ℝ) := mk (univ : Set ℝ)

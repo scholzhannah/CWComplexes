@@ -88,17 +88,19 @@ lemma isClosed_union_iff_isClosed {X : Type*} [TopologicalSpace X] {A B : Set X}
 
 open Set.Notation
 
+--use subtype_val in names
+
 lemma test {X : Type*} {s t : Set X} : (s ↓∩ t)ᶜ = s ↓∩ tᶜ := rfl
 
-lemma isOpen_in_of_isOpen {X : Type*} [TopologicalSpace X] {s t : Set X}
+lemma IsOpen.subtype_val {X : Type*} [TopologicalSpace X] {s t : Set X}
     (ht : IsOpen t) : IsOpen (s ↓∩ t) := isOpen_induced ht
 
-lemma isClosed_in_of_isClosed {X : Type*} [TopologicalSpace X] {s t : Set X}
+lemma IsClosed.subtype_val {X : Type*} [TopologicalSpace X] {s t : Set X}
     (ht : IsClosed t) : IsClosed (s ↓∩ t) := by
   rw [← isOpen_compl_iff] at ht ⊢
-  exact isOpen_in_of_isOpen ht
+  exact IsOpen.subtype_val ht
 
-lemma isOpen_inter_of_isOpen_in_isOpen {X : Type*} [TopologicalSpace X] {s t : Set X}
+lemma isOpen_inter_of_isOpen_subtype_val {X : Type*} [TopologicalSpace X] {s t : Set X}
     (hs : IsOpen s) (hst : IsOpen (s ↓∩ t)) : IsOpen (s ∩ t) := by
   rw [isOpen_induced_iff] at hst
   obtain ⟨u, hu, hust⟩ := hst
@@ -153,6 +155,7 @@ def PartialEquiv.restrict {X Y : Type*} (e : PartialEquiv X Y) (A : Set X) (B : 
   left_inv' := by simp_all
   right_inv' := by simp_all
 
+-- image of coercion
 lemma Int.ceil_eq_floor_add_one_iff {α : Type*} [LinearOrderedRing α] [FloorRing α] (a : α) :
     ⌈a⌉ = ⌊a⌋ + 1 ↔ (¬ ∃ (z : ℤ), z = a) := by
   constructor

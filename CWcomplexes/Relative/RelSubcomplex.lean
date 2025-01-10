@@ -282,6 +282,7 @@ lemma ClasCWComplex.Subcomplex.instSubcomplex_cell [T2Space X] [ClasCWComplex C]
     cell (E ⇂ C) n = subcomplex.I (C := C) n :=
   rfl
 
+-- change
 open ClasCWComplex.Subcomplex in
 @[simp]
 lemma ClasCWComplex.Subcomplex.instSubcomplex_map [T2Space X] [ClasCWComplex C] (E : Set X)
@@ -367,6 +368,8 @@ instance RelCWComplex.Subcomplex.finiteDimensional_finite_iUnionSubcomplex_of_fi
       ge_iff_le, mem_setOf_eq, mk''_I, iUnion_eq_empty, setOf_forall, Filter.iInter_mem] at h ⊢
     exact h
 
+-- set_option trace.Meta.Tactic.simp.rewrite true
+
 -- when I remove the `only` in ``simp only` this prove times out. Why?
 open ClasCWComplex.Subcomplex in
 /-- A finite union of finite-dimensionl subcomplexes is again a finite-dimensional subcomplex.-/
@@ -379,6 +382,8 @@ instance ClasCWComplex.Subcomplex.finiteDimensional_finite_iUnionSubcomplex_of_f
     simp only [instSubcomplex_cell, isEmpty_coe_sort, Filter.eventually_iff, iUnionSubcomplex_I,
       iUnion_eq_empty, setOf_forall, Filter.iInter_mem] at h ⊢
     exact h
+
+-- #exit
 
 open RelCWComplex.Subcomplex in
 /-- A finite union of subcomplexes of finite type is again a subcomplex of finite type.-/
@@ -821,3 +826,5 @@ export RelCWComplex.Subcomplex (subset_complex finiteType_subcomplex_of_finiteTy
   finite_iUnion_subset_finite_subcomplex instSkeletonLT instSkeleton)
 
 end ClasCWComplex.Subcomplex
+
+#lint
