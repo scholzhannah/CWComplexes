@@ -176,6 +176,8 @@ lemma ClasCWComplex.Subcomplex.union_closedCell [T2Space X] [ClasCWComplex C] (E
 
 namespace RelCWComplex.Subcomplex
 
+/-- Abbreviation for a subcomplex containing the CW complex. This is used to make type class
+  inference work.-/
 abbrev Sub (E C : Set X) : Set X := E
 
 /-- `E ⇂ C` should be used to say that `E` is a subcomplex of `C`. -/
@@ -196,7 +198,7 @@ end ClasCWComplex.Subcomplex
 -- *Question 2*: Why do the generated simp-lemmas use `ClasCWComplex` sometimes?
 open RelCWComplex.Subcomplex in
 /-- A subcomplex is again a CW-complex. -/
-@[simps]
+@[simps?]
 instance RelCWComplex.Subcomplex.instSubcomplex [T2Space X] [RelCWComplex C D] (E : Set X)
     [subcomplex : Subcomplex C E] : RelCWComplex (E ⇂ C) D where
   cell n := subcomplex.I n
@@ -282,12 +284,12 @@ lemma ClasCWComplex.Subcomplex.instSubcomplex_cell [T2Space X] [ClasCWComplex C]
     cell (E ⇂ C) n = subcomplex.I (C := C) n :=
   rfl
 
--- change
 open ClasCWComplex.Subcomplex in
 @[simp]
 lemma ClasCWComplex.Subcomplex.instSubcomplex_map [T2Space X] [ClasCWComplex C] (E : Set X)
     [subcomplex : Subcomplex C E] (n : ℕ) (i : subcomplex.I n) :
-    map (C := C) n i = ClasCWComplex.map (C := C) n i :=
+    @map X t (E ⇂ C) ∅ (RelCWComplex.Subcomplex.instSubcomplex E) n i =
+    map (C := C) n i :=
   rfl
 
 instance RelCWComplex.Subcomplex.finiteType_subcomplex_of_finiteType [T2Space X]
@@ -442,7 +444,7 @@ instance RelCWComplex.Subcomplex.finite_instBase [T2Space X] [RelCWComplex C D] 
     simp only [instSubcomplex_cell, mk''_I]
     exact Finite.of_subsingleton
 
-@[simps]
+/-- A cell whose boundary is in th base forms a subcomplex together with the base.-/
 def RelCWComplex.Subcomplex.attachBase [T2Space X] [RelCWComplex C D] (n : ℕ) (i : cell C n)
     (hD: cellFrontier n i ⊆ D) :
     Subcomplex C (D ∪ closedCell n i) where
@@ -460,6 +462,13 @@ def RelCWComplex.Subcomplex.attachBase [T2Space X] [RelCWComplex C D] (n : ℕ) 
       simp_all
     · intro h
       use n, i
+
+lemma RelCWComplex.Subcomplex.attachBase_I [T2Space X] [RelCWComplex C D] (n : ℕ)
+    (i : cell C n) (hD : cellFrontier n i ⊆ D) (m : ℕ) :
+    letI := attachBase n i hD
+    Subcomplex.I (D ∪ closedCell n i) m =
+    {x | HEq (⟨m, x⟩ : Σ m, cell C m) (⟨n, i⟩ : Σ n, cell C n)} :=
+  rfl
 
 lemma RelCWComplex.Subcomplex.finite_attachBase [T2Space X] [RelCWComplex C D] (n : ℕ)
     (i : cell C n) (hD: cellFrontier n i ⊆ D) :
@@ -490,7 +499,6 @@ lemma RelCWComplex.Subcomplex.finite_attachBase [T2Space X] [RelCWComplex C D] (
         intro c eq
         contradiction}
 
-@[simps!]
 instance RelCWComplex.Subcomplex.cellZero [T2Space X] [RelCWComplex C D] (i : cell C 0) :
   Subcomplex C (D ∪ closedCell 0 i) := attachBase 0 i (by simp [cellFrontier_zero_eq_empty])
 
@@ -552,7 +560,6 @@ instance ClasCWComplex.Subcomplex.finite_cellZero [T2Space X] [ClasCWComplex C] 
 open RelCWComplex.Subcomplex in
 /-- The subcomplex that results from attaching a cell to a subcomplex when the edge of the cell is
   contained in the original subcomplex.-/
-@[simps]
 def RelCWComplex.Subcomplex.attachCell [T2Space X] [RelCWComplex C D] (n : ℕ) (i : cell C n)
     (E : Set X) [sub : Subcomplex C E]
     (subset : ∃ (I : Π m, Set (cell C m)), (∀ m < n, I m ⊆ sub.I m) ∧  cellFrontier n i ⊆
@@ -592,9 +599,18 @@ def RelCWComplex.Subcomplex.attachCell [T2Space X] [RelCWComplex C D] (n : ℕ) 
       · use m, ⟨j.1, Or.intro_left _ j.2⟩
       · use n, ⟨i, Or.intro_right _ rfl⟩
 
+lemma RelCWComplex.Subcomplex.attachCell_I [T2Space X] [RelCWComplex C D] (n : ℕ)
+    (i : cell C n) (E : Set X) [sub : Subcomplex C E]
+    (subset : ∃ (I : Π m, Set (cell C m)), (∀ m < n, I m ⊆ Subcomplex.I E m) ∧
+    cellFrontier n i ⊆ D ∪ ⋃ m, ⋃ (_ : m < n), ⋃ j ∈ I m, closedCell m j) (l : ℕ) :
+    letI := attachCell n i E subset
+    Subcomplex.I (E ∪ openCell n i) l =
+    {j | j ∈ ClasCWComplex.Subcomplex.I E l ∨ (⟨l, j⟩ : Σ n, cell C n) = ⟨n, i⟩} := by
+  rfl
+
 /-- The subcomplex that results from attaching a cell to a subcomplex when the edge of the cell is
   contained in the original subcomplex.-/
-@[simps]
+-- @[simps?]
 def ClasCWComplex.Subcomplex.attachCell [T2Space X] [ClasCWComplex C] (n : ℕ) (i : cell C n)
     (E : Set X)
     [sub : Subcomplex C E]
@@ -630,6 +646,16 @@ def ClasCWComplex.Subcomplex.attachCell [T2Space X] [ClasCWComplex C] (n : ℕ) 
       rcases h with ⟨m, j, xmem⟩ | xmem
       · use m, ⟨j.1, Or.intro_left _ j.2⟩
       · use n, ⟨i, Or.intro_right _ rfl⟩
+
+lemma ClasCWComplex.Subcomplex.attachCell_I [T2Space X] [ClasCWComplex C] (n : ℕ)
+    (i : cell C n) (E : Set X) [sub : ClasCWComplex.Subcomplex C E]
+    (subset : ∃ (I : Π m, Set (cell C m)), (∀ m < n, I m ⊆ Subcomplex.I E m) ∧
+    cellFrontier n i ⊆ ⋃ m, ⋃ (_ : m < n), ⋃ j ∈ I m, closedCell m j)
+    (l : ℕ) :
+    letI := attachCell n i E subset
+    Subcomplex.I (E ∪ ClasCWComplex.openCell n i) l =
+    {j | j ∈ ClasCWComplex.Subcomplex.I E l ∨ (⟨l, j⟩ : Σ n, cell C n) = ⟨n, i⟩} :=
+  rfl
 
 open RelCWComplex.Subcomplex in
 lemma RelCWComplex.Subcomplex.finiteDimensional_attachCell [T2Space X] [RelCWComplex C D] (n : ℕ)
@@ -826,5 +852,3 @@ export RelCWComplex.Subcomplex (subset_complex finiteType_subcomplex_of_finiteTy
   finite_iUnion_subset_finite_subcomplex instSkeletonLT instSkeleton)
 
 end ClasCWComplex.Subcomplex
-
-#lint
