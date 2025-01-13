@@ -5,6 +5,7 @@ import Mathlib.Topology.MetricSpace.Isometry
 import Mathlib.Analysis.Normed.Group.Basic
 import Mathlib.Data.Fintype.Lattice
 import Mathlib.Data.Finite.Sum
+import Mathlib.Analysis.InnerProductSpace.PiL2
 
 /-!
 # Auxiliary lemmas and definitions
@@ -170,3 +171,99 @@ lemma Int.ceil_eq_floor_add_one_iff {α : Type*} [LinearOrderedRing α] [FloorRi
     rcases h' with h' | h'
     · exact h ⟨⌊a⌋, h'⟩
     · exact h' (Int.floor_le a)
+
+example (x : ℝ) (h : ¬ |x| ≥ 1) : 1 - x ^ 2 ≥ 0 := by
+  rw [ge_iff_le, sub_nonneg, sq_le_one_iff_abs_le_one]
+  exact le_of_not_ge h
+
+example (n : ℕ) (i : Fin (n + 1)) (h : ¬ i = n) : (i : ℕ) < n := by
+  simp_all only [Fin.natCast_eq_last]
+  exact Fin.lt_last_iff_ne_last.mpr h
+
+def scalecoord (x : ℝ) (h : ¬ |x| ≥ 1) : ℝ :=
+  (x + 1) / (2 * NNReal.sqrt ⟨(1 - x ^ 2),
+  by rw [sub_nonneg, sq_le_one_iff_abs_le_one]; exact le_of_not_ge h⟩)
+
+def lastcoord {n : ℕ} (y : EuclideanSpace ℝ (Fin n)) : ℝ :=
+  2 * NNReal.sqrt (∑ (j : Fin n), ⟨(y j) ^ 2, sq_nonneg _⟩) - 1
+
+lemma sum_eq_lastcoord {n : ℕ} (y : EuclideanSpace ℝ (Fin n)) :
+    ∑ (i : Fin n), (y i) ^ 2 = ((lastcoord y + 1) ^ 2) / 4 := by
+  simp only [lastcoord, sub_add_cancel, mul_pow]
+  norm_cast
+  simp [NNReal.sq_sqrt]
+
+lemma lastcoord_lt_one_of_ball {n : ℕ} (y : EuclideanSpace ℝ (Fin n))
+    (h : y ∈ Metric.ball 0 1) : lastcoord y < 1 := by
+  simp only [lastcoord, Real.coe_sqrt, NNReal.coe_sum, NNReal.coe_mk, sub_lt_iff_lt_add,
+    (by norm_num : (1 : ℝ) + 1 = 2)]
+  apply mul_lt_of_lt_one_right zero_lt_two
+  simp_all [EuclideanSpace.norm_eq]
+
+lemma abs_lastcoord_le_one_of_ball {n : ℕ} (y : EuclideanSpace ℝ (Fin n))
+    (h : y ∈ Metric.ball 0 1) : |lastcoord y| ≤ 1 := by
+  rw [abs_le]
+  refine ⟨?_, (lastcoord_lt_one_of_ball y h).le⟩
+  simp [lastcoord]
+
+open Metric in
+def sphereToDisc (n : ℕ) :
+    PartialEquiv (EuclideanSpace ℝ (Fin (n + 1))) (EuclideanSpace ℝ (Fin n)) where
+  toFun x i := if h : |x (Fin.last n)| ≥ 1 then 0
+    else (scalecoord (x (Fin.last n)) h) * x i.castSucc
+  invFun y i := if h : i = Fin.last n then lastcoord y
+    else if lastcoord y = - 1 then 0
+    else (2 * Real.sqrt (1 - (lastcoord y) ^ 2) / (lastcoord y + 1))
+    * y ⟨i, Fin.lt_last_iff_ne_last.mpr h⟩
+  source := sphere 0 1 \ {(fun i ↦ if i = Fin.last n then 1
+    else 0 : EuclideanSpace ℝ (Fin (n + 1)))}
+  target := ball 0 1
+  map_source' := by
+    intro x ⟨hx1, _⟩
+    by_cases h : |x (Fin.last n)| ≥ 1
+    · simp [h, EuclideanSpace.norm_eq]
+    · simp only [mem_sphere_iff_norm, sub_zero, EuclideanSpace.norm_eq, Real.norm_eq_abs, sq_abs,
+        Real.sqrt_eq_one, ge_iff_le, h, ↓reduceDIte, mem_ball, dist_zero_right, norm_mul,
+        gt_iff_lt] at hx1 ⊢
+      nth_rw 6 [← Real.sqrt_one]
+      rw [Real.sqrt_lt_sqrt_iff (by positivity)]
+      simp_rw [mul_pow, ← Finset.mul_sum, sq_abs, scalecoord, div_pow, mul_pow]
+      norm_cast
+      simp only [Nat.reducePow, Nat.cast_ofNat, NNReal.sq_sqrt, NNReal.coe_mul, NNReal.coe_ofNat,
+        NNReal.coe_mk]
+      have : ∑ x_1 : Fin n, x x_1.castSucc ^ 2 = 1 - (x (Fin.last n)) ^ 2 := by
+        simp_rw [← hx1, Fin.sum_univ_castSucc, add_sub_assoc, sub_self, add_zero]
+      rw [← this]
+      have : ∑ x_1 : Fin n, x x_1.castSucc ^ 2 > 0 := by
+        rw [this, gt_iff_lt, sub_pos]
+        nth_rw 5 [← one_pow (n := 2)]
+        rw [sq_lt_sq, abs_one]
+        exact lt_of_not_ge h
+      rw [div_mul_eq_mul_div₀, mul_div_mul_right _ _ this.ne.symm,
+        div_lt_iff₀ (by norm_num), one_mul, (by norm_num : (4 : ℝ) = 2 ^ 2), sq_lt_sq]
+      apply lt_of_le_of_lt (abs_add_le _ _)
+      simp [← lt_tsub_iff_right, (by norm_num : (2 : ℝ) - 1 = 1), lt_of_not_ge h]
+  map_target' := by
+    intro y hy
+    constructor
+    · have h1 : 0 ≤ 1 - lastcoord y ^ 2 := by
+        rw [sub_nonneg, (by norm_num : (1 : ℝ) = 1 ^ 2), sq_le_sq, abs_one]
+        exact abs_lastcoord_le_one_of_ball y hy
+      simp [EuclideanSpace.norm_eq, Fin.sum_univ_castSucc, (Fin.castSucc_lt_last _).ne, mul_pow,
+        ← Finset.mul_sum, sum_eq_lastcoord, div_pow]
+      rw [Real.sq_sqrt h1, ← mul_div, mul_assoc]
+      by_cases h : lastcoord y = - 1
+      · simp [h]
+      · have h2 : (lastcoord y + 1) ^ 2 ≠ 0 := by
+          intro h'
+          apply h
+          rw [sq_eq_zero_iff] at h'
+          exact eq_neg_of_add_eq_zero_left h'
+        simp [h]
+        rw [div_mul_div_cancel₀ h2, (by norm_num : (2 : ℝ) ^ 2 = 4),
+          mul_div_cancel₀ _ (by norm_num), sub_add_cancel]
+    · simp only [ne_eq, Set.mem_singleton_iff]
+      intro h
+      sorry
+  left_inv' := sorry
+  right_inv' := sorry

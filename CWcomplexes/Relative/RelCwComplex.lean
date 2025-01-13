@@ -52,7 +52,7 @@ class RelCWComplex.{u} {X : Type u} [TopologicalSpace X] (C : Set X) (D : outPar
   /-- The indexing type of the cells of dimension `n`. -/
   cell (n : ℕ) : Type u
   /-- The characteristic map of the `n`-cell given by the index `i`.
-    This map is a bijection when restricting to `closedBall 0 1`, where we consider (Fin n → ℝ)
+    This map is a bijection when restricting to `ball 0 1`, where we consider `(Fin n → ℝ)`
     endowed with the maximum metric. -/
   map (n : ℕ) (i : cell n) : PartialEquiv (Fin n → ℝ) X
   /-- The source of every charactersitic map of dimension `n` is
