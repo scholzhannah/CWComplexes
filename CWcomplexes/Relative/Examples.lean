@@ -63,7 +63,7 @@ instance instFiniteSet (C : Set X) [_root_.Finite C] : ClasCWComplex C := mkFini
     | (_ + 1) => inferInstance)
   (source_eq := fun n i ↦ match n with
     | 0 => by
-      simp [PartialEquiv.single, closedBall, Matrix.empty_eq, eq_univ_iff_forall]
+      simp [PartialEquiv.single, ball, Matrix.empty_eq, eq_univ_iff_forall]
     | (_ + 1) => i.elim)
   (continuousOn := fun n i ↦ match n with
     | 0 => continuousOn_const
@@ -124,7 +124,7 @@ lemma mapLT_image_sphere {a b : ℝ} (hab : a < b) : mapLT hab '' sphere 0 1 = {
 
 @[simps!]
 def mapLTPartial {a b : ℝ} (hab : a < b) :=
-  (mapLT hab).toPartialEquivOfImageEq (closedBall 0 1) (Icc a b) (mapLT_image_closedBall hab)
+  (mapLT hab).toPartialEquivOfImageEq (ball 0 1) (Ioo a b) (mapLT_image_ball hab)
 
 -- this simp never actually gets used because of the automatically generated simps above
 @[simp]
@@ -231,7 +231,7 @@ instance instReal : ClasCWComplex (univ : Set ℝ) := mk (univ : Set ℝ)
     | 1 => mapLTPartial (lt_add_one (i : ℝ))
     | (_ + 2) => i.elim)
   (source_eq := fun n i ↦ match n with
-    | 0 => by simp [closedBall, Matrix.empty_eq, eq_univ_iff_forall]
+    | 0 => by simp [ball, Matrix.empty_eq, eq_univ_iff_forall]
     | 1 => rfl
     | (_ + 2) => i.elim)
   (continuousOn := fun n i ↦ match n with

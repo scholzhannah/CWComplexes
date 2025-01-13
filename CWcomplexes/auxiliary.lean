@@ -108,7 +108,7 @@ lemma isOpen_inter_of_isOpen_subtype_val {X : Type*} [TopologicalSpace X] {s t :
   rw [← hust]
   exact hs.inter hu
 
-lemma isClosed_inter_of_isClosed_in_isClosed {X : Type*} [TopologicalSpace X] {s t : Set X}
+lemma isClosed_inter_of_isClosed_subtype_val {X : Type*} [TopologicalSpace X] {s t : Set X}
     (hs : IsClosed s) (hst : IsClosed (s ↓∩ t)) : IsClosed (s ∩ t) := by
   rw [isClosed_induced_iff] at hst
   obtain ⟨u, hu, hust⟩ := hst

@@ -73,7 +73,7 @@ def RelCWComplex.mkFiniteType.{u} {X : Type u} [TopologicalSpace X] (C : Set X)
     (D : outParam (Set X))
     (cell : (n : ℕ) → Type u) (map : (n : ℕ)  → (i : cell n) → PartialEquiv (Fin n → ℝ) X)
     (finite_cell : ∀ (n : ℕ), _root_.Finite (cell n))
-    (source_eq : ∀ (n : ℕ) (i : cell n), (map n i).source = closedBall 0 1)
+    (source_eq : ∀ (n : ℕ) (i : cell n), (map n i).source = ball 0 1)
     (continuousOn : ∀ (n : ℕ) (i : cell n), ContinuousOn (map n i) (closedBall 0 1))
     (continuousOn_symm : ∀ (n : ℕ) (i : cell n), ContinuousOn (map n i).symm (map n i).target)
     (pairwiseDisjoint' :
@@ -105,7 +105,7 @@ lemma RelCWComplex.FiniteType_mkFiniteType.{u} {X : Type u} [TopologicalSpace X]
     (D : outParam (Set X))
     (cell : (n : ℕ) → Type u) (map : (n : ℕ)  → (i : cell n) → PartialEquiv (Fin n → ℝ) X)
     (finite_cell : ∀ (n : ℕ), _root_.Finite (cell n))
-    (source_eq : ∀ (n : ℕ) (i : cell n), (map n i).source = closedBall 0 1)
+    (source_eq : ∀ (n : ℕ) (i : cell n), (map n i).source = ball 0 1)
     (continuousOn : ∀ (n : ℕ) (i : cell n), ContinuousOn (map n i) (closedBall 0 1))
     (continuousOn_symm : ∀ (n : ℕ) (i : cell n), ContinuousOn (map n i).symm (map n i).target)
     (pairwiseDisjoint' :
@@ -129,7 +129,7 @@ lemma RelCWComplex.FiniteType_mkFiniteType.{u} {X : Type u} [TopologicalSpace X]
 def ClasCWComplex.mkFiniteType.{u} {X : Type u} [TopologicalSpace X] (C : Set X)
     (cell : (n : ℕ) → Type u) (map : (n : ℕ)  → (i : cell n) → PartialEquiv (Fin n → ℝ) X)
     (finite_cell : ∀ (n : ℕ), _root_.Finite (cell n))
-    (source_eq : ∀ (n : ℕ) (i : cell n), (map n i).source = closedBall 0 1)
+    (source_eq : ∀ (n : ℕ) (i : cell n), (map n i).source = ball 0 1)
     (continuousOn : ∀ (n : ℕ) (i : cell n), ContinuousOn (map n i) (closedBall 0 1))
     (continuousOn_symm : ∀ (n : ℕ) (i : cell n), ContinuousOn (map n i).symm (map n i).target)
     (pairwiseDisjoint' :
@@ -160,7 +160,7 @@ def ClasCWComplex.mkFiniteType.{u} {X : Type u} [TopologicalSpace X] (C : Set X)
 lemma ClasCWComplex.FiniteType_mkFiniteType.{u} {X : Type u} [TopologicalSpace X] (C : Set X)
     (cell : (n : ℕ) → Type u) (map : (n : ℕ)  → (i : cell n) → PartialEquiv (Fin n → ℝ) X)
     (finite_cell : ∀ (n : ℕ), _root_.Finite (cell n))
-    (source_eq : ∀ (n : ℕ) (i : cell n), (map n i).source = closedBall 0 1)
+    (source_eq : ∀ (n : ℕ) (i : cell n), (map n i).source = ball 0 1)
     (continuousOn : ∀ (n : ℕ) (i : cell n), ContinuousOn (map n i) (closedBall 0 1))
     (continuousOn_symm : ∀ (n : ℕ) (i : cell n), ContinuousOn (map n i).symm (map n i).target)
     (pairwiseDisjoint' :
@@ -185,7 +185,7 @@ def RelCWComplex.mkFinite.{u} {X : Type u} [TopologicalSpace X] [T2Space X] (C :
     (map : (n : ℕ)  → (i : cell n) → PartialEquiv (Fin n → ℝ) X)
     (eventually_isEmpty_cell : ∀ᶠ n in Filter.atTop, IsEmpty (cell n))
     (finite_cell : ∀ (n : ℕ), _root_.Finite (cell n))
-    (source_eq : ∀ (n : ℕ) (i : cell n), (map n i).source = closedBall 0 1)
+    (source_eq : ∀ (n : ℕ) (i : cell n), (map n i).source = ball 0 1)
     (continuousOn : ∀ (n : ℕ) (i : cell n), ContinuousOn (map n i) (closedBall 0 1))
     (continuousOn_symm : ∀ (n : ℕ) (i : cell n), ContinuousOn (map n i).symm (map n i).target)
     (pairwiseDisjoint' :
@@ -236,7 +236,7 @@ lemma RelCWComplex.Finite_mkFinite.{u} {X : Type u} [TopologicalSpace X] [T2Spac
     (map : (n : ℕ)  → (i : cell n) → PartialEquiv (Fin n → ℝ) X)
     (eventually_isEmpty_cell : ∀ᶠ n in Filter.atTop, IsEmpty (cell n))
     (finite_cell : ∀ (n : ℕ), _root_.Finite (cell n))
-    (source_eq : ∀ (n : ℕ) (i : cell n), (map n i).source = closedBall 0 1)
+    (source_eq : ∀ (n : ℕ) (i : cell n), (map n i).source = ball 0 1)
     (continuousOn : ∀ (n : ℕ) (i : cell n), ContinuousOn (map n i) (closedBall 0 1))
     (continuousOn_symm : ∀ (n : ℕ) (i : cell n), ContinuousOn (map n i).symm (map n i).target)
     (pairwiseDisjoint' :
@@ -262,7 +262,7 @@ def ClasCWComplex.mkFinite.{u} {X : Type u} [TopologicalSpace X] [T2Space X] (C 
     (map : (n : ℕ)  → (i : cell n) → PartialEquiv (Fin n → ℝ) X)
     (eventually_isEmpty_cell : ∀ᶠ n in Filter.atTop, IsEmpty (cell n))
     (finite_cell : ∀ (n : ℕ), _root_.Finite (cell n))
-    (source_eq : ∀ (n : ℕ) (i : cell n), (map n i).source = closedBall 0 1)
+    (source_eq : ∀ (n : ℕ) (i : cell n), (map n i).source = ball 0 1)
     (continuousOn : ∀ (n : ℕ) (i : cell n), ContinuousOn (map n i) (closedBall 0 1))
     (continuousOn_symm : ∀ (n : ℕ) (i : cell n), ContinuousOn (map n i).symm (map n i).target)
     (pairwiseDisjoint' :
@@ -289,7 +289,7 @@ lemma ClasCWComplex.Finite_mkFinite.{u} {X : Type u} [TopologicalSpace X] [T2Spa
     (map : (n : ℕ)  → (i : cell n) → PartialEquiv (Fin n → ℝ) X)
     (eventually_isEmpty_cell : ∀ᶠ n in Filter.atTop, IsEmpty (cell n))
     (finite_cell : ∀ (n : ℕ), _root_.Finite (cell n))
-    (source_eq : ∀ (n : ℕ) (i : cell n), (map n i).source = closedBall 0 1)
+    (source_eq : ∀ (n : ℕ) (i : cell n), (map n i).source = ball 0 1)
     (continuousOn : ∀ (n : ℕ) (i : cell n), ContinuousOn (map n i) (closedBall 0 1))
     (continuousOn_symm : ∀ (n : ℕ) (i : cell n), ContinuousOn (map n i).symm (map n i).target)
     (pairwiseDisjoint' :

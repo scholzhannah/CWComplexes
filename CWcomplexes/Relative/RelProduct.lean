@@ -110,8 +110,8 @@ instance RelCWComplex.Product [RelCWComplex C D] [RelCWComplex E F] [KSpace (X �
     rcases i with  ⟨m, l, hmln, j, k⟩
     ext x
     simp only [prodmap, Equiv.transPartialEquiv_source, IsometryEquiv.coe_toEquiv,
-      PartialEquiv.prod_source, source_eq m j, source_eq, closedBall_prod_same, ← Prod.zero_eq_mk,
-      mem_preimage, mem_closedBall, dist_zero_right]
+      PartialEquiv.prod_source, source_eq m j, source_eq, ball_prod_same, ← Prod.zero_eq_mk,
+      mem_preimage, mem_ball, dist_zero_right]
     rw [Isometry.norm_map_of_map_zero (by exact (prodisometryequiv hmln).isometry_toFun)]
     rfl
   continuousOn n i := by
@@ -213,7 +213,7 @@ instance RelCWComplex.Product [RelCWComplex C D] [RelCWComplex E F] [KSpace (X �
     intro K hK
     suffices IsClosed (A ∩ K) by
       rw [← Subtype.preimage_coe_inter_self]
-      exact isClosed_in_of_isClosed this
+      exact this.subtype_val
     -- We have `A ∩ K ⊆ (Prod.fst '' K ∩ C) × (Prod.snd '' K ∩ E)`.
     -- Since `Prod.fst '' K` and `Prod.snd '' K` are compact by `IsCompact.image` they are
     -- subsets of a finite union of cells. We call these union `H` and `G`.
@@ -351,8 +351,8 @@ instance RelCWComplex.ProductKification [RelCWComplex C D] [RelCWComplex E F] :
     rcases i with  ⟨m, l, hmln, j, k⟩
     ext x
     simp only [prodmap, Equiv.transPartialEquiv_source, IsometryEquiv.coe_toEquiv,
-      PartialEquiv.prod_source, source_eq m j, source_eq, closedBall_prod_same, ← Prod.zero_eq_mk,
-      mem_preimage, mem_closedBall, dist_zero_right]
+      PartialEquiv.prod_source, source_eq m j, source_eq, ball_prod_same, ← Prod.zero_eq_mk,
+      mem_preimage, mem_ball, dist_zero_right]
     rw [Isometry.norm_map_of_map_zero (by exact (prodisometryequiv hmln).isometry_toFun)]
     rfl
   continuousOn n i := by
@@ -461,7 +461,7 @@ instance RelCWComplex.ProductKification [RelCWComplex C D] [RelCWComplex E F] :
     intro K hK
     suffices IsClosed (A ∩ K) by
       rw [← Subtype.preimage_coe_inter_self]
-      exact isClosed_in_of_isClosed this
+      exact this.subtype_val
     -- We have `A ∩ K ⊆ (Prod.fst '' K ∩ C) × (Prod.snd '' K ∩ E)`.
     -- Since `Prod.fst '' K` and `Prod.snd '' K` are compact by `IsCompact.image` they are
     -- subsets of a finite union of cells. We call these union `H` and `G`.
