@@ -194,11 +194,9 @@ scoped infixr:35 " ⇂ "  => Sub
 
 end ClasCWComplex.Subcomplex
 
--- *Question 1*: Why do I need the `open`?
--- *Question 2*: Why do the generated simp-lemmas use `ClasCWComplex` sometimes?
 open RelCWComplex.Subcomplex in
 /-- A subcomplex is again a CW-complex. -/
-@[simps?]
+@[simps]
 instance RelCWComplex.Subcomplex.instSubcomplex [T2Space X] [RelCWComplex C D] (E : Set X)
     [subcomplex : Subcomplex C E] : RelCWComplex (E ⇂ C) D where
   cell n := subcomplex.I n
@@ -372,7 +370,7 @@ instance RelCWComplex.Subcomplex.finiteDimensional_finite_iUnionSubcomplex_of_fi
 
 -- set_option trace.Meta.Tactic.simp.rewrite true
 
--- when I remove the `only` in ``simp only` this prove times out. Why?
+-- when I remove the `only` in `simp only` this prove times out. Why?
 open ClasCWComplex.Subcomplex in
 /-- A finite union of finite-dimensionl subcomplexes is again a finite-dimensional subcomplex.-/
 instance ClasCWComplex.Subcomplex.finiteDimensional_finite_iUnionSubcomplex_of_finiteDimensional

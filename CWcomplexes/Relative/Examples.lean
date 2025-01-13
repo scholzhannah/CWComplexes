@@ -354,3 +354,13 @@ instance FiniteDimensional_instReal : FiniteDimensional (univ : Set ℝ) where
     · infer_instance
 
 end ClasCWComplex
+
+instance instSphereZero (x ε : ℝ) (hε : ε ≥ 0) : ClasCWComplex (sphere x ε : Set ℝ) :=
+  RelCWComplex.ofEq {x - ε, x + ε} ∅ (by
+    ext y
+    simp [abs_eq hε]
+    congrm (?_ ∨ ?_)
+    ring_nf
+    sorry
+    sorry)
+    rfl
