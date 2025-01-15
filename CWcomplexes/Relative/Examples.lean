@@ -1,4 +1,7 @@
 import CWcomplexes.Relative.RelProduct
+import Mathlib.Analysis.NormedSpace.HomeomorphBall
+import Mathlib.Geometry.Manifold.Instances.Sphere
+
 
 /-!
 # Examples of CW-complexes
@@ -353,14 +356,178 @@ instance FiniteDimensional_instReal : FiniteDimensional (univ : Set ℝ) where
     · contradiction
     · infer_instance
 
-end ClasCWComplex
-
 instance instSphereZero (x ε : ℝ) (hε : ε ≥ 0) : ClasCWComplex (sphere x ε : Set ℝ) :=
   RelCWComplex.ofEq {x - ε, x + ε} ∅ (by
     ext y
     simp [abs_eq hε]
+    rw[or_comm]
     congrm (?_ ∨ ?_)
-    ring_nf
-    sorry
-    sorry)
+    · rw [sub_eq_iff_eq_add, add_comm]
+    · rw [eq_sub_iff_add_eq, eq_neg_iff_add_eq_zero, sub_add_eq_add_sub, sub_eq_iff_eq_add,
+        zero_add])
     rfl
+
+open Classical in
+@[simps]
+def PartialEquiv.ofSet {X : Type*} (s : Set X) (hs : s.Nonempty) : PartialEquiv s X :=
+  letI := hs.coe_sort
+  letI := Classical.inhabited_of_nonempty' (α := s)
+  { toFun x := x
+    invFun x := if hx : x ∈ s then ⟨x, hx⟩ else default
+    source := univ
+    target := s
+    map_source' x _ := x.prop
+    map_target' _ _ := mem_univ _
+    left_inv' x _ := by simp
+    right_inv' x hx := by simp [hx]}
+
+open Classical in
+@[simps]
+def PartialHomeomorph.ofSet {X : Type*} [TopologicalSpace X] (s : Set X) (hs : s.Nonempty)
+    (hs' : IsOpen s) : PartialHomeomorph s X :=
+  letI := hs.coe_sort
+  letI := Classical.inhabited_of_nonempty' (α := s)
+  { toFun x := x
+    invFun x := if hx : x ∈ s then ⟨x, hx⟩ else default
+    source := univ
+    target := s
+    map_source' x _ := x.prop
+    map_target' _ _ := mem_univ _
+    left_inv' x _ := by simp
+    right_inv' x hx := by simp [hx]
+    open_source := isOpen_univ
+    open_target := hs'
+    continuousOn_toFun := continuous_subtype_val.continuousOn
+    continuousOn_invFun := by
+      simp [continuousOn_iff_continuous_restrict, continuous_inclusion Subset.rfl]}
+
+open Metric in
+@[simps!]
+def sphereToDisc1 (n : ℕ) :=
+  letI : Fact (Module.finrank ℝ (EuclideanSpace ℝ (Fin (n + 1))) = n + 1) := {
+    out := finrank_euclideanSpace_fin (𝕜 := ℝ) (n := n + 1)}
+  PartialHomeomorph.transHomeomorph
+    (stereographic'
+      (E := EuclideanSpace ℝ (Fin (n + 1))) n ⟨EuclideanSpace.single (Fin.last n) 1, by simp⟩)
+    Homeomorph.unitBall
+
+-- I don't think this is actually what I want
+@[simps!]
+def sphereToDisc2 (n : ℕ) :=
+  PartialHomeomorph.trans' (sphereToDisc1 n)
+  (PartialHomeomorph.ofSet (ball 0 1) (Metric.nonempty_ball.2 (Real.zero_lt_one)) isOpen_ball)
+  (by simp)
+
+-- need to restrict first PartialEquiv
+
+open Classical in
+@[simps]
+def sphereToDisc (n : ℕ) :
+    PartialEquiv (EuclideanSpace ℝ (Fin (n + 1))) (EuclideanSpace ℝ (Fin n)) where
+  toFun x := if h : x ∈ sphere 0 1 then sphereToDisc1 n ⟨x, h⟩ else 0
+  invFun y := if h : y ∈ ball 0 1 then (sphereToDisc1 n).symm ⟨y, h⟩
+    else EuclideanSpace.single (Fin.last n) 1
+  source := sphere 0 1 \ {EuclideanSpace.single (Fin.last n) 1}
+  target := ball 0 1
+  map_source' x := by
+    intro ⟨hx1, hx2⟩
+    simp only [mem_singleton_iff] at hx2
+    simp only [hx1, ↓reduceDIte]
+    exact Subtype.coe_prop ((sphereToDisc1 n) ⟨x, hx1⟩)
+  map_target' y hy := by
+    simp only [hy, ↓reduceDIte]
+    have hy2 := (sphereToDisc1 n).map_target'
+    simp only [sphereToDisc1_source, sphereToDisc1_target, PartialEquiv.invFun_as_coe] at hy2
+    specialize hy2 (x := ⟨y, hy⟩) (mem_univ _)
+    simp only [PartialHomeomorph.coe_coe_symm, mem_compl_iff, mem_singleton_iff] at hy2
+    simp only [mem_diff, mem_singleton_iff]
+    constructor
+    · exact Subtype.coe_prop ((sphereToDisc1 n).symm ⟨y, of_eq_true (eq_true hy)⟩)
+    · exact fun h ↦ hy2 (SetCoe.ext h)
+  left_inv' x := by
+    intro ⟨hx1, hx2⟩
+    have h : ↑((sphereToDisc1 n) ⟨x, hx1⟩) ∈ ball (0 : EuclideanSpace ℝ (Fin n)) 1 := by
+      exact Subtype.coe_prop ((sphereToDisc1 n) ⟨x, hx1⟩)
+    simp only [hx1, h, ↓reduceDIte, Subtype.eta]
+    have : x = (⟨x, hx1⟩ : sphere (0 : EuclideanSpace ℝ (Fin (n + 1))) 1) := rfl
+    nth_rw 4 [this]
+    rw [SetCoe.ext_iff]
+    apply PartialEquiv.left_inv
+    rw [mem_singleton_iff] at hx2
+    simp [hx2]
+  right_inv' y hy := by
+    have h :
+        ↑((sphereToDisc1 n).symm ⟨y, hy⟩) ∈ sphere (0 : EuclideanSpace ℝ (Fin (n + 1))) 1 := by
+      exact Subtype.coe_prop ((sphereToDisc1 n).symm ⟨y, hy⟩)
+    simp only [hy, h, ↓reduceDIte]
+    have : y = (⟨y, hy⟩ : ball (0 : EuclideanSpace ℝ (Fin n)) 1) := rfl
+    conv => rhs; rw [this]
+    rw [SetCoe.ext_iff]
+    apply PartialEquiv.right_inv
+    simp
+
+lemma sphereToDisc_symm_continuousOn (n : ℕ) :
+    ContinuousOn (sphereToDisc n).symm (closedBall 0 1) := by
+  simp only [← PartialEquiv.invFun_as_coe, sphereToDisc, ← ball_union_sphere, ContinuousOn]
+  intro x hx
+  rw [continuousWithinAt_union]
+  constructor
+  · rcases hx with hx | hx
+    · refine ContinuousOn.continuousWithinAt ?_ hx
+      rw [continuousOn_iff_continuous_restrict]
+      apply Continuous.congr (f := Subtype.val ∘ (sphereToDisc1 n).symm)
+      · apply continuous_subtype_val.comp
+        have := (sphereToDisc1 n).continuousOn_invFun
+        simp only [PartialEquiv.invFun_as_coe, PartialHomeomorph.coe_coe_symm,
+          sphereToDisc1_target] at this
+        exact continuous_iff_continuousOn_univ.mpr this
+      · intro ⟨y, hy⟩
+        simp only [Function.comp_apply, restrict_apply, hy, ↓reduceDIte]
+    · have h : x ∉ ball 0 1 := by
+        simp_all only [mem_sphere_iff_norm, sub_zero, mem_ball, dist_zero_right, lt_self_iff_false,
+          not_false_eq_true]
+      simp only [ContinuousWithinAt, hx, h, ↓reduceDIte]
+      -- apply tendsto_nhdsWithin_congr (f := (sphereToDisc1 n).symm)
+      sorry
+  · rcases hx with hx | hx
+    · sorry
+    · refine ContinuousOn.continuousWithinAt ?_ hx
+      rw [continuousOn_iff_continuous_restrict]
+      sorry
+
+-- this is wrong -_-
+lemma sphereToDisc_continuousOn (n : ℕ) : ContinuousOn (sphereToDisc n) (closedBall 0 1) := by
+  simp only [sphereToDisc, ← ball_union_sphere, ContinuousOn]
+  intro x hx
+  rw [continuousWithinAt_union]
+  constructor
+  · rcases hx with hx | hx
+    · have h : x ∉ sphere 0 1 := by
+        simp_all only [mem_ball, dist_zero_right, mem_sphere_iff_norm, sub_zero]
+        exact ne_of_lt hx
+      apply ContinuousWithinAt.congr (f := 0) (continuous_zero.continuousWithinAt)
+      · intro y hy
+        have h : y ∉ sphere 0 1 := by
+          simp_all only [mem_ball, dist_zero_right, mem_sphere_iff_norm, sub_zero]
+          exact ne_of_lt hy
+        simp only [h, ↓reduceDIte, Pi.zero_apply]
+      · simp only [h, ↓reduceDIte, Pi.zero_apply]
+    · simp only [ContinuousWithinAt, hx, ↓reduceDIte]
+      apply tendsto_nhdsWithin_congr (f := 0)
+      · intro y hy
+        have h : y ∉ sphere 0 1 := by
+          simp_all only [mem_ball, dist_zero_right, mem_sphere_iff_norm, sub_zero]
+          exact ne_of_lt hy
+        simp only [h, ↓reduceDIte, Pi.zero_apply]
+      ·
+        sorry
+  · rcases hx with hx | hx
+    · apply ContinuousWithinAt.congr (f := sphereToDisc n)
+      · sorry
+      · sorry
+      · sorry
+    · sorry
+
+#check ContinuousOn.union_continuousAt
+
+end ClasCWComplex

@@ -172,6 +172,9 @@ lemma Int.ceil_eq_floor_add_one_iff {α : Type*} [LinearOrderedRing α] [FloorRi
     · exact h ⟨⌊a⌋, h'⟩
     · exact h' (Int.floor_le a)
 
+-- turns out I should not be using any of this
+
+
 example (x : ℝ) (h : ¬ |x| ≥ 1) : 1 - x ^ 2 ≥ 0 := by
   rw [ge_iff_le, sub_nonneg, sq_le_one_iff_abs_le_one]
   exact le_of_not_ge h
@@ -264,6 +267,115 @@ def sphereToDisc (n : ℕ) :
           mul_div_cancel₀ _ (by norm_num), sub_add_cancel]
     · simp only [ne_eq, Set.mem_singleton_iff]
       intro h
-      sorry
-  left_inv' := sorry
+      replace h := congrFun h (Fin.last n)
+      have := lastcoord_lt_one_of_ball _ hy
+      simp only [↓reduceDIte, ↓reduceIte] at h
+      linarith
+  left_inv' x hx := sorry
+  right_inv' := sorry
+
+lemma abs_le_of_norm_le {n : ℕ} (x : EuclideanSpace ℝ (Fin n)) {r : NNReal} (h : ‖x‖ ≤ r)
+    (i : Fin n) : |x i| ≤ r := by
+  rw [← abs_norm] at h
+  rw [← NNReal.abs_eq, ← sq_le_sq] at h ⊢
+  simp only [EuclideanSpace.norm_eq, Real.norm_eq_abs, sq_abs,
+    Real.sq_sqrt (x := ∑ x_1 : Fin n, x x_1 ^ 2)
+      (by apply Finset.sum_nonneg'; exact fun i ↦ sq_nonneg (x i))] at h
+  calc
+    x i ^ 2 ≤ ∑ x_1 : Fin n, x x_1 ^ 2 := by
+      refine Finset.single_le_sum (f := fun j ↦ x j ^ 2) ?_ (Finset.mem_univ i)
+      intro i _
+      exact sq_nonneg (x i)
+    _ ≤ r ^ 2 := h
+
+#check Finset.sum_eq_zero_iff_of_nonneg
+
+lemma eq_single_of_norm_eq_abs {n : ℕ} (x : EuclideanSpace ℝ (Fin n)) (i : Fin n)
+    (hx : ‖x‖ = |x i|) (hxi : x i ≥ 0) : x = EuclideanSpace.single i |x i| := by
+  rw [← abs_norm, ← sq_eq_sq_iff_abs_eq_abs, EuclideanSpace.norm_eq] at hx
+  simp only [Real.norm_eq_abs, sq_abs,
+    Real.sq_sqrt (x := ∑ x_1 : Fin n, x x_1 ^ 2)
+      (by apply Finset.sum_nonneg'; exact fun i ↦ sq_nonneg (x i))] at hx
+  have h' : ∑ x_1 ∈ (Finset.univ : Finset (Fin n)) \ {i}, x x_1 ^ 2 = 0 := by simp [hx]
+  ext j
+  by_cases hj : j = i
+  · rw [hj]
+    simp [abs_of_nonneg hxi]
+  · simp only [EuclideanSpace.single_apply, hj, ↓reduceIte]
+    rw [← sq_eq_zero_iff]
+    refine (Finset.sum_eq_zero_iff_of_nonneg ?_).1 h' j (by simp [hj])
+    intro i _
+    exact sq_nonneg (x i)
+
+lemma eq_single_of_norm_eq_abs' {n : ℕ} (x : EuclideanSpace ℝ (Fin n)) (i : Fin n)
+    (hx : ‖x‖ = |x i|) (hxi : x i < 0) : x = EuclideanSpace.single i (-|x i|) := by
+  rw [← abs_norm, ← sq_eq_sq_iff_abs_eq_abs, EuclideanSpace.norm_eq] at hx
+  simp only [Real.norm_eq_abs, sq_abs,
+    Real.sq_sqrt (x := ∑ x_1 : Fin n, x x_1 ^ 2)
+      (by apply Finset.sum_nonneg'; exact fun i ↦ sq_nonneg (x i))] at hx
+  have h' : ∑ x_1 ∈ (Finset.univ : Finset (Fin n)) \ {i}, x x_1 ^ 2 = 0 := by simp [hx]
+  ext j
+  by_cases hj : j = i
+  · rw [hj]
+    simp [abs_of_neg hxi]
+  · simp only [EuclideanSpace.single_apply, hj, ↓reduceIte]
+    rw [← sq_eq_zero_iff]
+    refine (Finset.sum_eq_zero_iff_of_nonneg ?_).1 h' j (by simp [hj])
+    intro i _
+    exact sq_nonneg (x i)
+
+lemma norm_eq_abs_iff_eq_single {n : ℕ} (x : EuclideanSpace ℝ (Fin n)) (i : Fin n) :
+    ‖x‖ = |x i| ↔ x = EuclideanSpace.single i |x i| ∨ x = EuclideanSpace.single i (-|x i|) := by
+  constructor
+  · intro h
+    by_cases hxi : x i ≥ 0
+    · left
+      exact eq_single_of_norm_eq_abs x i h hxi
+    · right
+      exact eq_single_of_norm_eq_abs' x i h (lt_of_not_ge hxi)
+  · intro h
+    rcases h with h | h
+    · rw [h]
+      simp
+    · rw [h]
+      simp
+
+open Metric in
+def sphereToDisc' (n : ℕ) :
+    PartialEquiv (EuclideanSpace ℝ (Fin (n + 1))) (EuclideanSpace ℝ (Fin n)) where
+  toFun x i := if h : |x (Fin.last n)| ≥ 1 then 0
+    else (scalecoord (x (Fin.last n)) h) * x i.castSucc
+  invFun y i := if h : i = Fin.last n then lastcoord y
+    else if lastcoord y = - 1 then 0
+    else (2 * Real.sqrt (1 - (lastcoord y) ^ 2) / (lastcoord y + 1))
+    * y ⟨i, Fin.lt_last_iff_ne_last.mpr h⟩
+  source := sphere 0 1 \ {EuclideanSpace.single (Fin.last n) 1}
+  target := ball 0 1
+  map_source' := sorry
+  map_target' := sorry
+  left_inv' x  := by
+    intro ⟨hx1, hx2⟩
+    ext i
+    by_cases h : |x (Fin.last n)| ≥ 1
+    · simp [h]
+      by_cases h' : i = Fin.last n
+      · subst i
+        simp only [↓reduceIte, lastcoord, ne_eq, OfNat.ofNat_ne_zero, not_false_eq_true,
+        zero_pow, NNReal.mk_zero, Finset.sum_const_zero, NNReal.sqrt_zero, NNReal.coe_zero,
+        mul_zero, zero_sub]
+        rw [ge_iff_le, le_abs] at h
+        rcases h with h | h
+        · simp [EuclideanSpace.norm_eq] at hx1
+          exfalso
+          apply hx2
+          simp only [Set.mem_singleton_iff]
+          have : 1 = |x (Fin.last n)| := by sorry
+          rw [this]
+          apply eq_single_of_norm_eq_abs
+          · sorry
+          · sorry
+        · sorry
+      · simp [h']
+        sorry
+    · sorry
   right_inv' := sorry
