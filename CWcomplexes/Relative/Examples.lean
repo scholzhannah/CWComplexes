@@ -38,12 +38,7 @@ instance instEmpty : ClasCWComplex (∅ : Set X) := mkFinite ∅
   (mapsto := fun _ i ↦ i.elim)
   (union' := by simp [iUnion_of_empty, iUnion_empty])
 
-instance Finite_instEmpty : Finite (∅ : Set X) where
-  eventually_isEmpty_cell := by
-    rw [Filter.eventually_atTop]
-    use 0
-    exact fun b a ↦ PEmpty.instIsEmpty
-  finite_cell := fun n ↦ Finite.of_fintype ((fun _ ↦ PEmpty) n)
+instance Finite_instEmpty : Finite (∅ : Set X) := Finite_mkFinite ..
 
 @[simps!]
 instance instFiniteSet (C : Set X) [_root_.Finite C] : ClasCWComplex C := mkFinite C

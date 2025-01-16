@@ -367,4 +367,17 @@ lemma sphereToDisc_continuousOn (n : ℕ) : ContinuousOn (sphereToDisc n)
     ext
     simp
 
+def instSphere (n : ℕ) : ClasCWComplex (sphere (0 : EuclideanSpace ℝ (Fin (n + 1))) 1) :=
+  mkFinite (sphere (0 : EuclideanSpace ℝ (Fin (n + 1))) 1)
+  (cell := sorry)
+  (map := sorry)
+  (eventually_isEmpty_cell := sorry)
+  (finite_cell := sorry)
+  (source_eq := sorry)
+  (continuousOn := sorry)
+  (continuousOn_symm := sorry)
+  (pairwiseDisjoint' := sorry)
+  (mapsto := sorry)
+  (union' := sorry)
+
 end ClasCWComplex
