@@ -1,4 +1,5 @@
 import CWcomplexes.Relative.Examples
+import Mathlib.Analysis.InnerProductSpace.EuclideanDist
 
 noncomputable section
 
@@ -275,7 +276,7 @@ lemma sphereToDisc_comp_val {n : ℕ} :
   ext
   simp
 
-lemma blablafinal {n : ℕ} (hn : n > 0) (x : EuclideanSpace ℝ (Fin n))
+lemma tendsto_sphereToDisc_symm {n : ℕ} (hn : n > 0) (x : EuclideanSpace ℝ (Fin n))
     (hx : x ∈ sphere (0 : EuclideanSpace ℝ (Fin n)) 1) :
     Filter.Tendsto (sphereToDisc n).symm (nhdsWithin x (ball 0 1))
     (nhds (EuclideanSpace.single (Fin.last n) 1)) := by
@@ -336,7 +337,7 @@ lemma sphereToDisc_symm_continuousOn {n : ℕ} (hn : n > 0) :
       have : (sphereToDisc n).invFun x = (EuclideanSpace.single (Fin.last n) 1) := by
         simp only [sphereToDisc, h, ↓reduceDIte]
       rw [this, PartialEquiv.invFun_as_coe]
-      exact blablafinal hn x hx
+      exact tendsto_sphereToDisc_symm hn x hx
   · rcases hx with hx | hx
     · apply continuousWithinAt_of_not_mem_closure
       rw [closure_sphere]
@@ -367,17 +368,127 @@ lemma sphereToDisc_continuousOn (n : ℕ) : ContinuousOn (sphereToDisc n)
     ext
     simp
 
-def instSphere (n : ℕ) : ClasCWComplex (sphere (0 : EuclideanSpace ℝ (Fin (n + 1))) 1) :=
-  mkFinite (sphere (0 : EuclideanSpace ℝ (Fin (n + 1))) 1)
-  (cell := sorry)
-  (map := sorry)
-  (eventually_isEmpty_cell := sorry)
-  (finite_cell := sorry)
-  (source_eq := sorry)
-  (continuousOn := sorry)
-  (continuousOn_symm := sorry)
-  (pairwiseDisjoint' := sorry)
-  (mapsto := sorry)
-  (union' := sorry)
 
+-- I think it should be possible to generalize this replacing `toEuclidean` by a more general map?
+-- That would safe me half the work
+
+def toEuclideanClosedBall' (n : ℕ) :
+    (Fin n → ℝ) ≃ EuclideanSpace ℝ (Fin (Module.finrank ℝ (Fin n → ℝ))) where
+  toFun x := (‖x‖ * ‖toEuclidean x‖⁻¹) • (toEuclidean x)
+  invFun y := (‖y‖ * ‖toEuclidean.symm y‖⁻¹) • (toEuclidean.symm y)
+  left_inv x := by
+    by_cases h : x = 0
+    · simp only [h, norm_zero, map_zero, inv_zero, mul_zero, smul_zero]
+    · simp only [norm_smul, norm_mul, norm_norm, norm_inv, map_smul,
+      ContinuousLinearEquiv.symm_apply_apply, mul_inv_rev, inv_inv, smul_smul]
+      suffices (‖x‖ * ‖toEuclidean x‖⁻¹ * ‖toEuclidean x‖ *
+          (‖x‖⁻¹ * (‖toEuclidean x‖ * ‖x‖⁻¹)) * (‖x‖ * ‖toEuclidean x‖⁻¹)) = 1 by
+        rw [this, one_smul]
+      have h1 : ‖x‖ ≠ 0 := by
+        intro hx
+        apply h
+        exact norm_eq_zero.mp hx
+      have h2 : ‖toEuclidean x‖ ≠ 0 := by
+        intro hx
+        apply h
+        simp_all only [ne_eq, norm_eq_zero, not_false_eq_true, EmbeddingLike.map_eq_zero_iff]
+      field_simp [h1, h2]
+      ring
+  right_inv y := by
+    by_cases h : y = 0
+    · simp only [h, norm_zero, map_zero, inv_zero, mul_zero, smul_zero]
+    · simp [norm_smul, smul_smul]
+      suffices (‖y‖ * ‖toEuclidean.symm y‖⁻¹ * ‖toEuclidean.symm y‖ *
+          (‖y‖⁻¹ * (‖toEuclidean.symm y‖ * ‖y‖⁻¹)) * (‖y‖ * ‖toEuclidean.symm y‖⁻¹)) = 1 by
+        rw [this, one_smul]
+      have h1 : ‖y‖ ≠ 0 := by
+        intro hy
+        apply h
+        exact norm_eq_zero.mp hy
+      have h2 : ‖toEuclidean.symm y‖ ≠ 0 := by
+        intro hy
+        apply h
+        simp_all only [ne_eq, norm_eq_zero, not_false_eq_true, EmbeddingLike.map_eq_zero_iff]
+      field_simp [h1, h2]
+      ring
+
+def toEuclideanClosedBall (n : ℕ) :=
+  (toEuclideanClosedBall' n).trans
+  (LinearIsometryEquiv.piLpCongrLeft 2 ℝ ℝ (finCongr (Module.finrank_fin_fun ℝ))).toEquiv
+
+
+lemma continuous_toEuclideanClosedBall' (n : ℕ) : Continuous (toEuclideanClosedBall' n) := by
+  simp [toEuclideanClosedBall']
+  rw [continuous_iff_continuousOn_univ, ← diff_union_of_subset (subset_univ {0})]
+  rw [(compl_eq_univ_diff {0}).symm]
+  apply ContinuousOn.union_continuousAt
+  · rw [isOpen_compl_iff]
+    exact isClosed_singleton
+  · apply ContinuousOn.smul
+    · apply continuous_norm.continuousOn.mul
+      apply ContinuousOn.inv₀
+      · exact (continuous_norm.comp (ContinuousLinearEquiv.continuous toEuclidean)).continuousOn
+      · intros
+        simp_all
+    · exact toEuclidean.continuous.continuousOn
+  · intro x hx
+    rw [mem_singleton_iff] at hx
+    subst x
+    -- equivalence of norms
+    sorry
+
+lemma continuous_toEuclideanClosedBall (n : ℕ) : Continuous (toEuclideanClosedBall n) := by
+  unfold toEuclideanClosedBall
+  rw [Equiv.coe_trans]
+  apply Continuous.comp
+  · simp only [LinearEquiv.coe_toEquiv, LinearIsometryEquiv.coe_toLinearEquiv]
+    exact (LinearIsometryEquiv.piLpCongrLeft 2 ℝ ℝ
+      (finCongr (toEuclideanClosedBall.proof_2 n))).continuous
+  · exact continuous_toEuclideanClosedBall' n
+
+-- I think all of this is useless.
+
+/-
+-- this can surely be generalized
+@[simps!]
+def toEuclideanFun (n : ℕ) : (Fin n → ℝ) ≃L[ℝ] EuclideanSpace ℝ (Fin n) :=
+  toEuclidean.trans
+  (LinearIsometryEquiv.piLpCongrLeft 2 ℝ ℝ
+    (finCongr (Module.finrank_fin_fun ℝ))).toContinuousLinearEquiv
+
+lemma toEuclidean_image_closedBall {E : Type*} [AddCommGroup E] [TopologicalSpace E]
+    [TopologicalAddGroup E] [T2Space E] [PseudoMetricSpace E] [Module ℝ E]
+    [ContinuousSMul ℝ E] [_root_.FiniteDimensional ℝ E] (x : E) (r : ℝ) :
+    toEuclidean '' closedBall x r = closedBall (toEuclidean x) r := by
+  ext y
+  simp
+  sorry
+
+lemma toEuclideanFun_image_closedBall (n : ℕ) (x : Fin n → ℝ) (r : ℝ) :
+    toEuclideanFun n '' closedBall x r = closedBall (toEuclideanFun n x) r := by
+  unfold toEuclideanFun
+  simp [← image_image]
+  sorry
+
+@[simps!]
+def spheremap (n : ℕ) : PartialEquiv (Fin n → ℝ) (EuclideanSpace ℝ (Fin (n + 1)))  :=
+  (toEuclideanFun n).transPartialEquiv (sphereToDisc n).symm
+
+
+def instSphere' (n : ℕ) :
+    ClasCWComplex ((spheremap n) '' closedBall 0 1 ∪ {EuclideanSpace.single (Fin.last n) 1}) :=
+  attachCellFiniteType {EuclideanSpace.single (Fin.last n) 1}
+  (spheremap n)
+  (source_eq' := by
+    ext x
+    simp
+
+    sorry)
+  (continuousOn' := sorry)
+  (continuousOn_symm' := sorry)
+  (disjoint' := sorry)
+  (mapsto' := sorry)
+
+#check Euclidean.closedBall_eq_image
+-/
 end ClasCWComplex
