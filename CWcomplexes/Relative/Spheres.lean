@@ -368,57 +368,11 @@ lemma sphereToDisc_continuousOn (n : ℕ) : ContinuousOn (sphereToDisc n)
     ext
     simp
 
-
--- I think it should be possible to generalize this replacing `toEuclidean` by a more general map?
--- That would safe me half the work
-
-def toEuclideanClosedBall' (n : ℕ) :
-    (Fin n → ℝ) ≃ EuclideanSpace ℝ (Fin (Module.finrank ℝ (Fin n → ℝ))) where
-  toFun x := (‖x‖ * ‖toEuclidean x‖⁻¹) • (toEuclidean x)
-  invFun y := (‖y‖ * ‖toEuclidean.symm y‖⁻¹) • (toEuclidean.symm y)
-  left_inv x := by
-    by_cases h : x = 0
-    · simp only [h, norm_zero, map_zero, inv_zero, mul_zero, smul_zero]
-    · simp only [norm_smul, norm_mul, norm_norm, norm_inv, map_smul,
-      ContinuousLinearEquiv.symm_apply_apply, mul_inv_rev, inv_inv, smul_smul]
-      suffices (‖x‖ * ‖toEuclidean x‖⁻¹ * ‖toEuclidean x‖ *
-          (‖x‖⁻¹ * (‖toEuclidean x‖ * ‖x‖⁻¹)) * (‖x‖ * ‖toEuclidean x‖⁻¹)) = 1 by
-        rw [this, one_smul]
-      have h1 : ‖x‖ ≠ 0 := by
-        intro hx
-        apply h
-        exact norm_eq_zero.mp hx
-      have h2 : ‖toEuclidean x‖ ≠ 0 := by
-        intro hx
-        apply h
-        simp_all only [ne_eq, norm_eq_zero, not_false_eq_true, EmbeddingLike.map_eq_zero_iff]
-      field_simp [h1, h2]
-      ring
-  right_inv y := by
-    by_cases h : y = 0
-    · simp only [h, norm_zero, map_zero, inv_zero, mul_zero, smul_zero]
-    · simp [norm_smul, smul_smul]
-      suffices (‖y‖ * ‖toEuclidean.symm y‖⁻¹ * ‖toEuclidean.symm y‖ *
-          (‖y‖⁻¹ * (‖toEuclidean.symm y‖ * ‖y‖⁻¹)) * (‖y‖ * ‖toEuclidean.symm y‖⁻¹)) = 1 by
-        rw [this, one_smul]
-      have h1 : ‖y‖ ≠ 0 := by
-        intro hy
-        apply h
-        exact norm_eq_zero.mp hy
-      have h2 : ‖toEuclidean.symm y‖ ≠ 0 := by
-        intro hy
-        apply h
-        simp_all only [ne_eq, norm_eq_zero, not_false_eq_true, EmbeddingLike.map_eq_zero_iff]
-      field_simp [h1, h2]
-      ring
-
-def toEuclideanClosedBall (n : ℕ) :=
-  (toEuclideanClosedBall' n).trans
-  (LinearIsometryEquiv.piLpCongrLeft 2 ℝ ℝ (finCongr (Module.finrank_fin_fun ℝ))).toEquiv
-
-
-lemma continuous_toEuclideanClosedBall' (n : ℕ) : Continuous (toEuclideanClosedBall' n) := by
-  simp [toEuclideanClosedBall']
+lemma continuous_normScale {E F : Type*}  [SeminormedAddCommGroup E] [T1Space E]
+    [NormedAddCommGroup F] [MulActionWithZero ℝ F]
+    {f : E → F} (hf : Continuous f) [ContinuousSMul ℝ F] [BoundedSMul ℝ F]
+    (hf0 : ∀ x, f x = 0 ↔ x = 0) :
+    Continuous fun x ↦ (‖x‖ * ‖f x‖⁻¹) • (f x) := by
   rw [continuous_iff_continuousOn_univ, ← diff_union_of_subset (subset_univ {0})]
   rw [(compl_eq_univ_diff {0}).symm]
   apply ContinuousOn.union_continuousAt
@@ -427,24 +381,179 @@ lemma continuous_toEuclideanClosedBall' (n : ℕ) : Continuous (toEuclideanClose
   · apply ContinuousOn.smul
     · apply continuous_norm.continuousOn.mul
       apply ContinuousOn.inv₀
-      · exact (continuous_norm.comp (ContinuousLinearEquiv.continuous toEuclidean)).continuousOn
+      · exact (continuous_norm.comp hf).continuousOn
       · intros
         simp_all
-    · exact toEuclidean.continuous.continuousOn
+    · exact hf.continuousOn
   · intro x hx
     rw [mem_singleton_iff] at hx
     subst x
-    -- equivalence of norms
-    sorry
+    simp only [ContinuousAt, norm_zero, zero_mul, zero_smul]
+    rw [tendsto_zero_iff_norm_tendsto_zero]
+    simp_rw [norm_smul, norm_mul, norm_inv, norm_norm, mul_assoc]
+    have : (fun x ↦ ‖x‖ * (‖f x‖⁻¹ * ‖f x‖)) = fun x ↦ ‖x‖ := by
+      ext x
+      by_cases h : x = 0
+      · simp [h]
+      · have hfx : ‖f x‖ ≠ 0 := by
+          intro s
+          simp_all
+        rw [inv_mul_cancel₀ hfx, mul_one]
+    rw [this, ← norm_zero (E := E)]
+    exact continuous_norm.continuousAt
 
-lemma continuous_toEuclideanClosedBall (n : ℕ) : Continuous (toEuclideanClosedBall n) := by
-  unfold toEuclideanClosedBall
-  rw [Equiv.coe_trans]
-  apply Continuous.comp
-  · simp only [LinearEquiv.coe_toEquiv, LinearIsometryEquiv.coe_toLinearEquiv]
-    exact (LinearIsometryEquiv.piLpCongrLeft 2 ℝ ℝ
-      (finCongr (toEuclideanClosedBall.proof_2 n))).continuous
-  · exact continuous_toEuclideanClosedBall' n
+def normScale {E F : Type*}  [NormedAddCommGroup E] [T1Space E] [Module ℝ E]
+    [ContinuousSMul ℝ E] [BoundedSMul ℝ E] [NormedAddCommGroup F] [Module ℝ F] [T1Space F]
+    [ContinuousSMul ℝ F] [BoundedSMul ℝ F] (f : E ≃L[ℝ] F) : E ≃ₜ F where
+  toFun x := (‖x‖ * ‖f x‖⁻¹) • (f x)
+  invFun y := (‖y‖ * ‖f.symm y‖⁻¹) • (f.symm y)
+  left_inv x := by
+    by_cases h : x = 0
+    · simp only [h, norm_zero, zero_mul, zero_smul]
+    · simp only [norm_smul, norm_mul, norm_norm, norm_inv, map_smul,
+        ContinuousLinearEquiv.symm_apply_apply, mul_inv_rev, inv_inv, smul_smul]
+      suffices ‖x‖ * ‖f x‖⁻¹ * ‖f x‖ * (‖x‖⁻¹ * (‖f x‖ * ‖x‖⁻¹)) * (‖x‖ * ‖f x‖⁻¹) = 1 by
+        rw [this, one_smul]
+      have h1 : ‖x‖ ≠ 0 := by
+        intro hx
+        apply h
+        exact norm_eq_zero.mp hx
+      have h2 : ‖f x‖ ≠ 0 := by
+        intro hx
+        apply h
+        simp_all only [ne_eq, norm_eq_zero, not_false_eq_true, EmbeddingLike.map_eq_zero_iff]
+      field_simp [h1, h2]
+      ring
+  right_inv y := by
+    by_cases h : y = 0
+    · simp only [h, norm_zero, map_zero, inv_zero, mul_zero, smul_zero]
+    · simp only [norm_smul, norm_mul, norm_norm, norm_inv, map_smul,
+        ContinuousLinearEquiv.apply_symm_apply, mul_inv_rev, inv_inv, smul_smul]
+      suffices ‖y‖ * ‖f.symm y‖⁻¹ * ‖f.symm y‖ *
+          (‖y‖⁻¹ * (‖f.symm y‖ * ‖y‖⁻¹)) * (‖y‖ * ‖f.symm y‖⁻¹) = 1 by
+        rw [this, one_smul]
+      have h1 : ‖y‖ ≠ 0 := by
+        intro hy
+        apply h
+        exact norm_eq_zero.mp hy
+      have h2 : ‖f.symm y‖ ≠ 0 := by
+        intro hy
+        apply h
+        simp_all only [ne_eq, norm_eq_zero, not_false_eq_true, EmbeddingLike.map_eq_zero_iff]
+      field_simp [h1, h2]
+      ring
+  continuous_toFun := continuous_normScale f.continuous (fun _ ↦ f.map_eq_zero_iff)
+  continuous_invFun := continuous_normScale f.symm.continuous (fun _ ↦ f.symm.map_eq_zero_iff)
+
+@[simp]
+lemma normScale_zero {E F : Type*}  [NormedAddCommGroup E] [T1Space E] [Module ℝ E]
+    [ContinuousSMul ℝ E] [BoundedSMul ℝ E] [NormedAddCommGroup F] [Module ℝ F] [T1Space F]
+    [ContinuousSMul ℝ F] [BoundedSMul ℝ F] (f : E ≃L[ℝ] F) :
+    normScale f 0 = 0 := by
+  simp [normScale]
+
+@[simp]
+lemma norm_normScale {E F : Type*}  [NormedAddCommGroup E] [T1Space E] [Module ℝ E]
+    [ContinuousSMul ℝ E] [BoundedSMul ℝ E] [NormedAddCommGroup F] [Module ℝ F] [T1Space F]
+    [ContinuousSMul ℝ F] [BoundedSMul ℝ F] (f : E ≃L[ℝ] F) {x : E} : ‖normScale f x‖ = ‖x‖ := by
+  simp only [normScale, Homeomorph.homeomorph_mk_coe, Equiv.coe_fn_mk, norm_smul, norm_mul,
+    Real.norm_eq_abs, abs_norm, norm_inv, mul_assoc]
+  by_cases h : x = 0
+  · simp [h]
+  · have hfx : ‖f x‖ ≠ 0 := by
+      intro s
+      simp_all
+    rw [inv_mul_cancel₀ hfx, mul_one]
+
+lemma normScale_symm_eq {E F : Type*}  [NormedAddCommGroup E] [T1Space E] [Module ℝ E]
+    [ContinuousSMul ℝ E] [BoundedSMul ℝ E] [NormedAddCommGroup F] [Module ℝ F] [T1Space F]
+    [ContinuousSMul ℝ F] [BoundedSMul ℝ F] (f : E ≃L[ℝ] F) :
+    (normScale f).symm = normScale f.symm := by
+  ext
+  simp [normScale]
+
+@[simp]
+lemma normScale_image_closedBall {E F : Type*}  [NormedAddCommGroup E] [T1Space E] [Module ℝ E]
+    [ContinuousSMul ℝ E] [BoundedSMul ℝ E] [NormedAddCommGroup F] [Module ℝ F] [T1Space F]
+    [ContinuousSMul ℝ F] [BoundedSMul ℝ F] (f : E ≃L[ℝ] F) (r : ℝ) :
+    normScale f '' closedBall 0 r = closedBall 0 r := by
+  ext x
+  simp only [mem_image, mem_closedBall, dist_zero_right]
+  constructor
+  · intro ⟨y, hy1, hy2⟩
+    rw [← hy2]
+    rw [norm_normScale]
+    exact hy1
+  · intro hx
+    use (normScale f).symm x
+    rw [Homeomorph.apply_symm_apply, normScale_symm_eq, norm_normScale]
+    exact ⟨hx, rfl⟩
+
+@[simp]
+lemma normScale_image_ball {E F : Type*}  [NormedAddCommGroup E] [T1Space E] [Module ℝ E]
+    [ContinuousSMul ℝ E] [BoundedSMul ℝ E] [NormedAddCommGroup F] [Module ℝ F] [T1Space F]
+    [ContinuousSMul ℝ F] [BoundedSMul ℝ F] (f : E ≃L[ℝ] F) (r : ℝ) :
+    normScale f '' ball 0 r = ball 0 r := by
+  ext x
+  simp only [mem_image, mem_ball, dist_zero_right]
+  constructor
+  · intro ⟨y, hy1, hy2⟩
+    rw [← hy2]
+    rw [norm_normScale]
+    exact hy1
+  · intro hx
+    use (normScale f).symm x
+    rw [Homeomorph.apply_symm_apply, normScale_symm_eq, norm_normScale]
+    exact ⟨hx, rfl⟩
+
+@[simp]
+lemma normScale_image_sphere {E F : Type*}  [NormedAddCommGroup E] [T1Space E] [Module ℝ E]
+    [ContinuousSMul ℝ E] [BoundedSMul ℝ E] [NormedAddCommGroup F] [Module ℝ F] [T1Space F]
+    [ContinuousSMul ℝ F] [BoundedSMul ℝ F] (f : E ≃L[ℝ] F) (r : ℝ) :
+    normScale f '' sphere 0 r = sphere 0 r := by
+  ext x
+  simp only [mem_image, mem_sphere, dist_zero_right]
+  constructor
+  · intro ⟨y, hy1, hy2⟩
+    rw [← hy2]
+    rw [norm_normScale]
+    exact hy1
+  · intro hx
+    use (normScale f).symm x
+    rw [Homeomorph.apply_symm_apply, normScale_symm_eq, norm_normScale]
+    exact ⟨hx, rfl⟩
+
+
+def toEuclideanNormScale (n : ℕ) : (Fin n → ℝ) ≃ₜ EuclideanSpace ℝ (Fin n) :=
+  (normScale (toEuclidean (E := Fin n → ℝ))).trans
+  (LinearIsometryEquiv.piLpCongrLeft 2 ℝ ℝ (finCongr (Module.finrank_fin_fun ℝ))).toHomeomorph
+
+@[simp]
+lemma toEuclideanNormScale_zero (n : ℕ) : toEuclideanNormScale n 0 = 0 := by
+  simp [toEuclideanNormScale, map_zero]
+
+@[simp]
+lemma norm_toEuclideanNormScale (n : ℕ) (x : Fin n → ℝ) : ‖toEuclideanNormScale n x‖ = ‖x‖ := by
+  simp only [toEuclideanNormScale, Homeomorph.trans_apply, LinearIsometryEquiv.coe_toHomeomorph,
+    LinearIsometryEquiv.norm_map, norm_normScale]
+
+@[simp]
+lemma toEuclideanNormScale_image_closedBall (n : ℕ) (r : ℝ) :
+    toEuclideanNormScale n '' closedBall 0 r = closedBall 0 r := by
+  simp only [toEuclideanNormScale, Homeomorph.trans_apply, LinearIsometryEquiv.coe_toHomeomorph, ←
+    image_image, normScale_image_closedBall, LinearIsometryEquiv.image_closedBall, map_zero]
+
+@[simp]
+lemma toEuclideanNormScale_image_ball (n : ℕ) (r : ℝ) :
+    toEuclideanNormScale n '' ball 0 r = ball 0 r := by
+  simp only [toEuclideanNormScale, Homeomorph.trans_apply, LinearIsometryEquiv.coe_toHomeomorph, ←
+    image_image, normScale_image_ball, LinearIsometryEquiv.image_ball, map_zero]
+
+@[simp]
+lemma toEuclideanNormScale_image_sphere (n : ℕ) (r : ℝ) :
+    toEuclideanNormScale n '' sphere 0 r = sphere 0 r := by
+  simp only [toEuclideanNormScale, Homeomorph.trans_apply, LinearIsometryEquiv.coe_toHomeomorph, ←
+    image_image, normScale_image_sphere, LinearIsometryEquiv.image_sphere, map_zero]
 
 -- I think all of this is useless.
 
