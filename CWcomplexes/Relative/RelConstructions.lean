@@ -922,6 +922,120 @@ lemma RelCWComplex.finite_ofEq {X : Type*} [TopologicalSpace X] (C D : Set X)
   let _ := finiteType_ofEq C D hCE hDF
   inferInstance
 
+/-- The image of a CW-complex under a homeomorphisms is again a CW-complex.-/
+def RelCWComplex.ofHomeomorph.{u} {X Y : Type u} [TopologicalSpace X] [TopologicalSpace Y]
+    [T2Space X]
+    (C : Set X) {D : Set X} (E : Set Y) {F : Set Y} [RelCWComplex C D] (f : X ≃ₜ Y)
+    (hCE : f '' C = E) (hDF : f '' D = F) :
+    RelCWComplex E F where
+  cell := cell C
+  map n i := (map (C := C) n i).transEquiv f
+  source_eq n i := by simp [PartialEquiv.transEquiv, source_eq (C := C) n i]
+  continuousOn n i := by simp [PartialEquiv.transEquiv_eq_trans, continuousOn (C := C) n i]
+  continuousOn_symm n i := by
+    simp only [PartialEquiv.transEquiv_eq_trans, PartialEquiv.trans_target,
+      Equiv.toPartialEquiv_symm_apply, ← image_equiv_eq_preimage_symm]
+    refine ContinuousOn.image_comp_continuous (f := f.invFun) ?_ f.continuous_invFun
+    simp [Equiv.invFun_as_coe, Homeomorph.coe_symm_toEquiv, Set.image_image,
+      continuousOn_symm (C := C)]
+  pairwiseDisjoint' := by
+    have := pairwiseDisjoint' (C := C)
+    simp only [PairwiseDisjoint, Set.Pairwise, mem_univ, ne_eq, Function.onFun,
+      PartialEquiv.transEquiv_apply, EquivLike.coe_coe, ← image_image] at this ⊢
+    intro ⟨n, j⟩ _ ⟨m, i⟩ _ ne
+    exact disjoint_image_of_injective f.injective
+      (this (x := ⟨n, j⟩) trivial (y := ⟨m, i⟩) trivial ne)
+  disjointBase' n i := by
+    simp only [PartialEquiv.transEquiv_apply, EquivLike.coe_coe, ← image_image, ← hDF,
+      disjoint_image_iff f.injective]
+    exact disjointBase' n i
+  mapsto n i := by
+    obtain ⟨I, hI⟩ := mapsto (C := C) n i
+    use I
+    rw [mapsTo'] at hI ⊢
+    simp only [PartialEquiv.transEquiv_apply, EquivLike.coe_coe, ← image_image, ← hDF, ←
+      image_iUnion (f := f), ← image_union]
+    exact image_mono hI
+  closed' A hAD := by
+    intro ⟨hA1, hA2⟩
+    have hAC : f ⁻¹' A ⊆ C := by
+      simp only [← Homeomorph.image_symm, image_subset_iff, Homeomorph.symm_symm, hCE, hAD]
+    rw [← f.isClosed_preimage]
+    rw [closed (C := C) (D := D) _ hAC]
+    constructor
+    · simp only [PartialEquiv.transEquiv_apply, EquivLike.coe_coe, ← image_image] at hA1
+      intro n j
+      rw [← f.isClosed_image, image_inter f.injective, image_preimage_eq _ f.surjective]
+      exact hA1 n j
+    · rw [← f.isClosed_image, image_inter f.injective, image_preimage_eq _ f.surjective, hDF]
+      exact hA2
+  isClosedBase := by
+    rw [← hDF, f.isClosed_image]
+    exact isClosedBase C
+  union' := by
+    simp [← hDF, ← image_image, ← image_iUnion (f := f), ← image_union, union' (C := C), hCE]
+
+lemma RelCWComplex.FiniteDimensional_ofHomeomorph.{u} {X Y : Type u} [TopologicalSpace X]
+    [TopologicalSpace Y] [T2Space X] (C : Set X) {D : Set X} (E : Set Y) {F : Set Y}
+    [RelCWComplex C D] (f : X ≃ₜ Y) (hCE : f '' C = E) (hDF : f '' D = F)
+    [FiniteDimensional C] :
+    letI := ofHomeomorph C E f hCE hDF
+    FiniteDimensional E :=
+  let _ := ofHomeomorph C E f hCE hDF
+  {eventually_isEmpty_cell := FiniteDimensional.eventually_isEmpty_cell (C := C)}
+
+lemma RelCWComplex.FiniteType_ofHomeomorph.{u} {X Y : Type u} [TopologicalSpace X]
+    [TopologicalSpace Y] [T2Space X] (C : Set X) {D : Set X} (E : Set Y) {F : Set Y}
+    [RelCWComplex C D] (f : X ≃ₜ Y) (hCE : f '' C = E) (hDF : f '' D = F)
+    [FiniteType C] :
+    letI := ofHomeomorph C E f hCE hDF
+    FiniteType E :=
+  let _ := ofHomeomorph C E f hCE hDF
+  {finite_cell := FiniteType.finite_cell (C := C)}
+
+lemma RelCWComplex.Finite_ofHomeomorph.{u} {X Y : Type u} [TopologicalSpace X]
+    [TopologicalSpace Y] [T2Space X] (C : Set X) {D : Set X} (E : Set Y) {F : Set Y}
+    [RelCWComplex C D] (f : X ≃ₜ Y) (hCE : f '' C = E) (hDF : f '' D = F)
+    [Finite C] :
+    letI := ofHomeomorph C E f hCE hDF
+    Finite E :=
+  let _ := ofHomeomorph C E f hCE hDF
+  let _ := FiniteDimensional_ofHomeomorph C E f hCE hDF
+  let _ := FiniteType_ofHomeomorph C E f hCE hDF
+  inferInstance
+
+/-- The image of a CW-complex under a homeomorphisms is again a CW-complex.-/
+def ClasCWComplex.ofHomeomorph.{u} {X Y : Type u} [TopologicalSpace X] [TopologicalSpace Y]
+    [T2Space X] (C : Set X) (E : Set Y) [ClasCWComplex C] (f : X ≃ₜ Y)
+    (hCE : f '' C = E) : ClasCWComplex E :=
+  RelCWComplex.ofHomeomorph C E f hCE (image_empty ⇑f)
+
+lemma ClasCWComplex.FiniteDimensional_ofHomeomorph.{u} {X Y : Type u} [TopologicalSpace X]
+    [TopologicalSpace Y] [T2Space X] (C : Set X) (E : Set Y) [ClasCWComplex C] (f : X ≃ₜ Y)
+    (hCE : f '' C = E) [FiniteDimensional C] :
+    letI := ofHomeomorph C E f hCE
+    FiniteDimensional E :=
+  let _ := ofHomeomorph C E f hCE
+  {eventually_isEmpty_cell := FiniteDimensional.eventually_isEmpty_cell (C := C)}
+
+lemma ClasCWComplex.FiniteType_ofHomeomorph.{u} {X Y : Type u} [TopologicalSpace X]
+    [TopologicalSpace Y] [T2Space X] (C : Set X) (E : Set Y) [ClasCWComplex C] (f : X ≃ₜ Y)
+    (hCE : f '' C = E) [FiniteType C] :
+    letI := ofHomeomorph C E f hCE
+    FiniteType E :=
+  let _ := ofHomeomorph C E f hCE
+  {finite_cell := FiniteType.finite_cell (C := C)}
+
+lemma ClasCWComplex.Finite_ofHomeomorph.{u} {X Y : Type u} [TopologicalSpace X]
+    [TopologicalSpace Y] [T2Space X] (C : Set X) (E : Set Y) [ClasCWComplex C] (f : X ≃ₜ Y)
+    (hCE : f '' C = E) [Finite C] :
+    letI := ofHomeomorph C E f hCE
+    Finite E :=
+  let _ := ofHomeomorph C E f hCE
+  let _ := FiniteDimensional_ofHomeomorph C E f hCE
+  let _ := FiniteType_ofHomeomorph C E f hCE
+  inferInstance
+
 -- this is getting way to ugly. Somehow one needs to avoid working with the PartialEquiv and
 -- instead restrict to a Homeomorphism
 

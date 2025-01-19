@@ -9,7 +9,15 @@ namespace ClasCWComplex
 
 variable {X : Type*} [t : TopologicalSpace X] [T2Space X]
 
-instance instSphereOne (x ε : ℝ) (hε : ε ≥ 0) : ClasCWComplex (sphere x ε : Set ℝ) :=
+def SphereZero (x : EuclideanSpace ℝ (Fin 0)) (ε : ℝ) (h : ε ≠ 0) : ClasCWComplex (sphere x ε) :=
+  ofEq ∅ ∅ (E := (sphere x ε)) (sphere_eq_empty_of_subsingleton h).symm rfl
+
+lemma Finite_SphereZero (x : EuclideanSpace ℝ (Fin 0)) (ε : ℝ) (h : ε ≠ 0) :
+    letI := SphereZero x ε h
+    Finite (sphere x ε) :=
+  finite_ofEq ..
+
+def SphereOne (x ε : ℝ) (hε : ε ≥ 0) : ClasCWComplex (sphere x ε) :=
   RelCWComplex.ofEq {x - ε, x + ε} ∅ (by
     ext y
     simp [abs_eq hε]
@@ -19,6 +27,37 @@ instance instSphereOne (x ε : ℝ) (hε : ε ≥ 0) : ClasCWComplex (sphere x �
     · rw [eq_sub_iff_add_eq, eq_neg_iff_add_eq_zero, sub_add_eq_add_sub, sub_eq_iff_eq_add,
         zero_add])
     rfl
+
+lemma Finite_SphereOne (x ε : ℝ) (hε : ε ≥ 0) :
+    letI := SphereOne x ε hε
+    Finite (sphere x ε) :=
+  finite_ofEq ..
+
+def EuclideanFunUnique (n 𝕜 : Type*) [RCLike 𝕜] [Unique n] [Fintype n] :
+    EuclideanSpace 𝕜 n ≃ᵢ (n → 𝕜) where
+  toFun := id
+  invFun := id
+  left_inv := by intro; rfl
+  right_inv := by intro; rfl
+  isometry_toFun := by
+    intro x y
+    simp [edist_pi_def, EuclideanSpace.edist_eq, ← ENNReal.rpow_natCast_mul]
+
+def EuclideanUnique (𝕜 n : Type*) [RCLike 𝕜] [Unique n] [Fintype n] : EuclideanSpace 𝕜 n ≃ᵢ 𝕜 :=
+  (EuclideanFunUnique n 𝕜).trans (IsometryEquiv.funUnique n 𝕜)
+
+def SphereOneEuclidean (ε : ℝ) (x : EuclideanSpace ℝ (Fin 1)) (hε : ε ≥ 0) :
+    ClasCWComplex (sphere x ε) :=
+  letI := SphereOne (EuclideanUnique ℝ (Fin 1) x) ε hε
+  ofHomeomorph (sphere (EuclideanUnique ℝ (Fin 1) x) ε : Set ℝ) (sphere x ε)
+  (EuclideanUnique ℝ (Fin 1)).symm.toHomeomorph (by simp)
+
+lemma Finite_SphereOneEuclidean (ε : ℝ) (x : EuclideanSpace ℝ (Fin 1)) (hε : ε ≥ 0) :
+    letI := SphereOneEuclidean ε x hε
+    Finite (sphere x ε) :=
+  let _ := SphereOne (EuclideanUnique ℝ (Fin 1) x) ε hε
+  let _ := Finite_SphereOne (EuclideanUnique ℝ (Fin 1) x) ε hε
+  Finite_ofHomeomorph ..
 
 open Classical in
 @[simps]
@@ -571,7 +610,6 @@ lemma toEuclideanNormScale_image_sphere (n : ℕ) (r : ℝ) :
   simp only [toEuclideanNormScale, Homeomorph.trans_apply, LinearIsometryEquiv.coe_toHomeomorph, ←
     image_image, normScale_image_sphere, LinearIsometryEquiv.image_sphere, map_zero]
 
-
 @[simps!]
 def spheremap (n : ℕ) : PartialEquiv (Fin n → ℝ) (EuclideanSpace ℝ (Fin (n + 1))) :=
   (toEuclideanNormScale n).transPartialEquiv (sphereToDisc n).symm
@@ -618,6 +656,10 @@ def instSphereGT' (n : ℕ) (h : n > 0) :
     obtain ⟨x, hx, hxy⟩ := hy
     simp_all)
 
+def Finite_instSphereGT' (n : ℕ) (h : n > 0) :
+    letI := instSphereGT' n h
+    Finite ((spheremap n) '' closedBall 0 1 ∪ {EuclideanSpace.single (Fin.last n) 1}) :=
+  Finite_attachCellFiniteType ..
 
 @[simps!]
 def instSphereGT (n : ℕ) (h : n > 0) :
@@ -631,56 +673,32 @@ def instSphereGT (n : ℕ) (h : n > 0) :
       singleton_subset_iff, mem_sphere_iff_norm, sub_zero, EuclideanSpace.norm_single, norm_one])
   rfl
 
+lemma Finite_instSphereGT (n : ℕ) (h : n > 0) :
+    letI := instSphereGT n h
+    Finite (sphere 0 1 : Set (EuclideanSpace ℝ (Fin (n + 1)))) :=
+  let _ := instSphereGT' n h
+  let _ := Finite_instSphereGT' n h
+  finite_ofEq ((spheremap n) '' closedBall 0 1 ∪ {EuclideanSpace.single (Fin.last n) 1}) ∅
+  (by
+    simp only [spheremap, Equiv.transPartialEquiv_apply, Homeomorph.coe_toEquiv, ← image_image,
+      toEuclideanNormScale_image_closedBall, sphereToDisc_symm_image_closedBall n h, union_eq_left,
+      singleton_subset_iff, mem_sphere_iff_norm, sub_zero, EuclideanSpace.norm_single, norm_one])
+  rfl
+
 instance instSphere {n : ℕ} : ClasCWComplex (sphere 0 1 : Set (EuclideanSpace ℝ (Fin n))) :=
   match n with
-  | 0 => sorry
-  | 1 => sorry
+  | 0 => SphereZero 0 1 one_ne_zero
+  | 1 => SphereOneEuclidean 1 0 zero_le_one
   | (n + 2) => instSphereGT (n + 1) n.zero_lt_succ
 
+instance Finite_instSphere {n : ℕ} : Finite (sphere 0 1 : Set (EuclideanSpace ℝ (Fin n))) :=
+  match n with
+  | 0 => Finite_SphereZero 0 1 one_ne_zero
+  | 1 => Finite_SphereOneEuclidean 1 0 zero_le_one
+  | (n + 2) => Finite_instSphereGT (n + 1) n.zero_lt_succ
 
--- I think all of this is useless.
+example : ClasCWComplex
+    (sphere (0 : EuclideanSpace ℝ (Fin 1)) 1 ×ˢ sphere (0 : EuclideanSpace ℝ (Fin 1)) 1) :=
+  inferInstance
 
-/-
--- this can surely be generalized
-@[simps!]
-def toEuclideanFun (n : ℕ) : (Fin n → ℝ) ≃L[ℝ] EuclideanSpace ℝ (Fin n) :=
-  toEuclidean.trans
-  (LinearIsometryEquiv.piLpCongrLeft 2 ℝ ℝ
-    (finCongr (Module.finrank_fin_fun ℝ))).toContinuousLinearEquiv
-
-lemma toEuclidean_image_closedBall {E : Type*} [AddCommGroup E] [TopologicalSpace E]
-    [TopologicalAddGroup E] [T2Space E] [PseudoMetricSpace E] [Module ℝ E]
-    [ContinuousSMul ℝ E] [_root_.FiniteDimensional ℝ E] (x : E) (r : ℝ) :
-    toEuclidean '' closedBall x r = closedBall (toEuclidean x) r := by
-  ext y
-  simp
-  sorry
-
-lemma toEuclideanFun_image_closedBall (n : ℕ) (x : Fin n → ℝ) (r : ℝ) :
-    toEuclideanFun n '' closedBall x r = closedBall (toEuclideanFun n x) r := by
-  unfold toEuclideanFun
-  simp [← image_image]
-  sorry
-
-@[simps!]
-def spheremap (n : ℕ) : PartialEquiv (Fin n → ℝ) (EuclideanSpace ℝ (Fin (n + 1)))  :=
-  (toEuclideanFun n).transPartialEquiv (sphereToDisc n).symm
-
-
-def instSphere' (n : ℕ) :
-    ClasCWComplex ((spheremap n) '' closedBall 0 1 ∪ {EuclideanSpace.single (Fin.last n) 1}) :=
-  attachCellFiniteType {EuclideanSpace.single (Fin.last n) 1}
-  (spheremap n)
-  (source_eq' := by
-    ext x
-    simp
-
-    sorry)
-  (continuousOn' := sorry)
-  (continuousOn_symm' := sorry)
-  (disjoint' := sorry)
-  (mapsto' := sorry)
-
-#check Euclidean.closedBall_eq_image
--/
 end ClasCWComplex
