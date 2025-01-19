@@ -9,7 +9,7 @@ namespace ClasCWComplex
 
 variable {X : Type*} [t : TopologicalSpace X] [T2Space X]
 
-instance instSphereZero (x ε : ℝ) (hε : ε ≥ 0) : ClasCWComplex (sphere x ε : Set ℝ) :=
+instance instSphereOne (x ε : ℝ) (hε : ε ≥ 0) : ClasCWComplex (sphere x ε : Set ℝ) :=
   RelCWComplex.ofEq {x - ε, x + ε} ∅ (by
     ext y
     simp [abs_eq hε]
@@ -110,6 +110,23 @@ def sphereToDisc (n : ℕ) :
     apply PartialEquiv.right_inv
     simp
 
+lemma sphereToDisc_symm_image_ball (n : ℕ) :
+    (sphereToDisc n).symm '' ball 0 1 = sphere 0 1 \ {EuclideanSpace.single (Fin.last n) 1} := by
+  simp only [← sphereToDisc_target, PartialEquiv.symm_image_target_eq_source, sphereToDisc_source]
+
+lemma sphereToDisc_symm_image_closedBall (n : ℕ) (h : n > 0) :
+    (sphereToDisc n).symm '' closedBall 0 1 = sphere 0 1 := by
+  rw [← ball_union_sphere, image_union, sphereToDisc_symm_image_ball]
+  suffices ↑(sphereToDisc n).symm '' sphere 0 1 = {EuclideanSpace.single (Fin.last n) 1} by
+    rw [this, diff_union_self, union_eq_left]
+    simp
+  apply subset_antisymm
+  · simp_rw [subset_singleton_iff, mem_image]
+    intro y ⟨x, hx, hxy⟩
+    simp_all
+  · simp only [singleton_subset_iff, mem_image]
+    use EuclideanSpace.single ⟨0, h⟩ 1
+    simp
 
 lemma Homeomorph.tendsto_norm_comp_unitBall_symm {E : Type u_1} [NormedAddCommGroup E]
     [NormedSpace ℝ E] [Nontrivial E] (x : E) (hx : x ∈ sphere (0 : E) 1) :
@@ -523,7 +540,6 @@ lemma normScale_image_sphere {E F : Type*}  [NormedAddCommGroup E] [T1Space E] [
     rw [Homeomorph.apply_symm_apply, normScale_symm_eq, norm_normScale]
     exact ⟨hx, rfl⟩
 
-
 def toEuclideanNormScale (n : ℕ) : (Fin n → ℝ) ≃ₜ EuclideanSpace ℝ (Fin n) :=
   (normScale (toEuclidean (E := Fin n → ℝ))).trans
   (LinearIsometryEquiv.piLpCongrLeft 2 ℝ ℝ (finCongr (Module.finrank_fin_fun ℝ))).toHomeomorph
@@ -554,6 +570,73 @@ lemma toEuclideanNormScale_image_sphere (n : ℕ) (r : ℝ) :
     toEuclideanNormScale n '' sphere 0 r = sphere 0 r := by
   simp only [toEuclideanNormScale, Homeomorph.trans_apply, LinearIsometryEquiv.coe_toHomeomorph, ←
     image_image, normScale_image_sphere, LinearIsometryEquiv.image_sphere, map_zero]
+
+
+@[simps!]
+def spheremap (n : ℕ) : PartialEquiv (Fin n → ℝ) (EuclideanSpace ℝ (Fin (n + 1))) :=
+  (toEuclideanNormScale n).transPartialEquiv (sphereToDisc n).symm
+
+@[simps!]
+def instSphereGT' (n : ℕ) (h : n > 0) :
+    ClasCWComplex ((spheremap n) '' closedBall 0 1 ∪ {EuclideanSpace.single (Fin.last n) 1}) :=
+  attachCellFiniteType {EuclideanSpace.single (Fin.last n) 1}
+  (spheremap n)
+  (source_eq' := by
+    ext x
+    simp)
+  (continuousOn' := by
+    simp only [spheremap, Equiv.transPartialEquiv, PartialEquiv.coe_trans,
+      Equiv.toPartialEquiv_apply, Homeomorph.coe_toEquiv, PartialEquiv.coe_trans_symm,
+      Equiv.toPartialEquiv_symm_apply, Homeomorph.coe_symm_toEquiv, PartialEquiv.symm_symm,
+      PartialEquiv.symm_source, sphereToDisc_target, PartialEquiv.symm_target, sphereToDisc_source,
+      PartialEquiv.copy_apply]
+    apply (sphereToDisc_symm_continuousOn h).comp (toEuclideanNormScale n).continuous.continuousOn
+    rw [mapsTo', toEuclideanNormScale_image_closedBall])
+  (continuousOn_symm' := by
+    simp [spheremap, Equiv.transPartialEquiv, sphereToDisc_continuousOn])
+  (disjoint' := by
+    intro m i
+    exact match m, i with
+      | 0, ⟨i, hi⟩ => by
+        simp only [spheremap, Equiv.transPartialEquiv_apply, Homeomorph.coe_toEquiv, ← image_image,
+          toEuclideanNormScale_image_ball, sphereToDisc_symm_image_ball, openCell_zero_eq_singleton,
+          instFiniteSet_map, PartialEquiv.single_apply, Function.const_apply,
+          disjoint_singleton_right]
+        exact not_mem_diff_of_mem hi
+      | (_ + 1), i => i.elim)
+  (mapsto' := by
+    rw [mapsTo']
+    apply subset_iUnion_of_subset 0
+    apply subset_iUnion_of_subset h
+    simp only [instFiniteSet_cell, closedCell_zero_eq_singleton]
+    apply subset_iUnion_of_subset ⟨EuclideanSpace.single (Fin.last n) 1, rfl⟩
+    simp only [spheremap, Equiv.transPartialEquiv_apply, ← image_image, Homeomorph.coe_toEquiv,
+      toEuclideanNormScale_image_sphere, subset_singleton_iff]
+    intro y hy
+    simp only [instFiniteSet_map, PartialEquiv.single_apply, Function.const_apply]
+    simp only [mem_image, sphereToDisc_symm_apply] at hy
+    obtain ⟨x, hx, hxy⟩ := hy
+    simp_all)
+
+
+@[simps!]
+def instSphereGT (n : ℕ) (h : n > 0) :
+    ClasCWComplex (sphere 0 1 : Set (EuclideanSpace ℝ (Fin (n + 1)))) :=
+  let _ := instSphereGT' n h
+  ofEq (E := sphere 0 1)
+  ((spheremap n) '' closedBall 0 1 ∪ {EuclideanSpace.single (Fin.last n) 1}) ∅
+  (by
+    simp only [spheremap, Equiv.transPartialEquiv_apply, Homeomorph.coe_toEquiv, ← image_image,
+      toEuclideanNormScale_image_closedBall, sphereToDisc_symm_image_closedBall n h, union_eq_left,
+      singleton_subset_iff, mem_sphere_iff_norm, sub_zero, EuclideanSpace.norm_single, norm_one])
+  rfl
+
+instance instSphere {n : ℕ} : ClasCWComplex (sphere 0 1 : Set (EuclideanSpace ℝ (Fin n))) :=
+  match n with
+  | 0 => sorry
+  | 1 => sorry
+  | (n + 2) => instSphereGT (n + 1) n.zero_lt_succ
+
 
 -- I think all of this is useless.
 

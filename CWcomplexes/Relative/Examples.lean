@@ -163,29 +163,7 @@ protected def instIccLT' {a b : ℝ} (hab : a < b) :
 protected lemma Finite_instIccLT' {a b : ℝ} (hab : a < b) :
     letI := ClasCWComplex.instIccLT' hab
     Finite (mapLTPartial hab '' closedBall 0 1 ∪ {a, b}) :=
-  Finite_attachCellFiniteType {a, b} (mapLTPartial hab)
-    (source_eq' := rfl)
-    (continuousOn' := (mapLT hab).continuous.continuousOn)
-    (continuousOn_symm' := (mapLT hab).symm.continuous.continuousOn)
-    (disjoint' := by
-      intro m i
-      simp only [Equiv.toPartialEquivOfImageEq_apply, Homeomorph.coe_toEquiv,
-        mapLTPartial_image, mapLT_image_ball]
-      exact match m, i with
-        | 0, ⟨i, hi⟩ => by
-          simp only [openCell_zero_eq_singleton, instFiniteSet_map, PartialEquiv.single_apply,
-            Function.const_apply, disjoint_singleton_right, mem_Ioo, not_and_or, not_lt]
-          have : i = a ∨ i = b := by simp_all
-          rcases this with hi | hi
-          · exact .inl (le_of_eq hi)
-          · exact .inr (le_of_eq hi.symm)
-        | (_ + 1), i => i.elim)
-    (mapsto' := by
-      simp only [Nat.lt_one_iff, instFiniteSet_cell, iUnion_iUnion_eq_left,
-        closedCell_zero_eq_singleton, instFiniteSet_map, PartialEquiv.single_apply,
-        Function.const_apply, iUnion_coe_set, pair_comm, mem_insert_iff, mem_singleton_iff,
-        iUnion_iUnion_eq_or_left, union_singleton, mapsTo', mapLTPartial_image, mapLT_image_sphere,
-        Subset.rfl])
+  Finite_attachCellFiniteType ..
 
 @[simps!]
 def instIccLT {a b : ℝ} (hab : a < b) : ClasCWComplex (Icc a b : Set ℝ) :=
