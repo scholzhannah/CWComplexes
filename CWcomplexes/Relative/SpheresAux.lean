@@ -363,3 +363,43 @@ lemma toEuclideanNormScale_image_sphere (n : ℕ) (r : ℝ) :
     toEuclideanNormScale n '' sphere 0 r = sphere 0 r := by
   simp only [toEuclideanNormScale, Homeomorph.trans_apply, LinearIsometryEquiv.coe_toHomeomorph, ←
     image_image, normScale_image_sphere, LinearIsometryEquiv.image_sphere, map_zero]
+
+-- this needs to be generalized
+lemma Continuous.finInit {n : ℕ} {α : Type*} [PseudoMetricSpace α] :
+    Continuous (Fin.init : (Fin (n + 1) → α) → (Fin n → α)) := by
+  rw [Metric.continuous_iff]
+  intro b ε hε
+  use ε, hε
+  intro a hab
+  suffices dist (Fin.init a) (Fin.init b) ≤ dist a b from lt_of_le_of_lt this hab
+  simp only [dist_pi_def, Fin.init, NNReal.coe_le_coe, Finset.sup_le_iff, Finset.mem_univ,
+    forall_const]
+  intro c
+  exact Finset.le_sup (Finset.mem_univ c.castSucc) (f := fun x ↦ nndist (a x) (b x))
+
+lemma EuclideanSpace.norm_finInit_le {𝕜 : Type*} [RCLike 𝕜] {n : ℕ}
+    (q : EuclideanSpace 𝕜 (Fin (n + 1))) :
+    norm (Fin.init q : EuclideanSpace 𝕜 (Fin n)) (self := (PiLp.instNorm 2 fun x ↦ 𝕜)) ≤ ‖q‖ := by
+  simp_rw [← sq_le_sq₀ (norm_nonneg _) (norm_nonneg _), EuclideanSpace.norm_eq,
+    Real.sq_sqrt (Finset.sum_nonneg (fun _ _ ↦ sq_nonneg _)), Fin.sum_univ_castSucc, Fin.init,
+    le_add_iff_nonneg_right]
+  exact sq_nonneg ‖q (Fin.last n)‖
+
+lemma Fin.norm_init_le {n : ℕ} {α : Type*} [SeminormedAddGroup α] (q : (Fin (n + 1)) → α) :
+    ‖Fin.init q‖ ≤ ‖q‖ := by
+  simp only [Pi.norm_def, NNReal.coe_le_coe, Finset.sup_le_iff, Finset.mem_univ, forall_const]
+  intro b
+  exact Finset.le_sup (Finset.mem_univ b.castSucc) (f := fun x ↦ ‖q x‖₊)
+
+def Homeomorph.negLast (n : ℕ) :
+    EuclideanSpace ℝ (Fin (n + 1)) ≃ₜ EuclideanSpace ℝ (Fin (n + 1)) where
+  toFun x  := Function.update x (Fin.last n) (-(x (Fin.last n)))
+  invFun y := Function.update y (Fin.last n) (-(y (Fin.last n)))
+  left_inv x := by simp
+  right_inv y := by simp
+  continuous_toFun := by
+    apply continuous_id'.update
+    exact (continuous_neg.comp (continuous_apply (Fin.last n)))
+  continuous_invFun := by
+    apply continuous_id'.update
+    exact (continuous_neg.comp (continuous_apply (Fin.last n)))

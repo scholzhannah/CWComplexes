@@ -122,10 +122,6 @@ lemma isClosed_inter_of_isClosed_subtype_val {X : Type*} [TopologicalSpace X] {s
 example {α : Sort*} [Finite α] : Finite (PLift α) := by exact instFinitePLift
 
 
--- **mathlib**
-theorem Set.subset_prod {α β : Type*} {s : Set (α × β)} : s ⊆ (Prod.fst '' s) ×ˢ (Prod.snd '' s) :=
-  fun _ hp ↦ mem_prod.2 ⟨mem_image_of_mem _ hp, mem_image_of_mem _ hp⟩
-
 -- **PR**
 -- set_option trace.Meta.synthInstance true
 -- use PLift

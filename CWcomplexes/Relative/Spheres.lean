@@ -1,4 +1,5 @@
 import CWcomplexes.Relative.SpheresAux
+import Mathlib.Topology.Constructions
 
 noncomputable section
 
@@ -44,6 +45,8 @@ lemma Finite_SphereOneEuclidean (ε : ℝ) (x : EuclideanSpace ℝ (Fin 1)) (hε
   let _ := SphereOne (EuclideanUnique ℝ (Fin 1) x) ε hε
   let _ := Finite_SphereOne (EuclideanUnique ℝ (Fin 1) x) ε hε
   Finite_ofHomeomorph ..
+
+/-! # Construction with two cells overall. -/
 
 open Metric in
 @[simps!]
@@ -292,12 +295,75 @@ lemma Finite_instSphereGT (n : ℕ) (h : n > 0) :
       singleton_subset_iff, mem_sphere_iff_norm, sub_zero, EuclideanSpace.norm_single, norm_one])
   rfl
 
+/-! # Construction with two cells in every dimension. -/
+
+@[simps]
+def discToSphereUp (n : ℕ) :
+    PartialEquiv (EuclideanSpace ℝ (Fin n)) (EuclideanSpace ℝ (Fin (n + 1))) where
+  toFun := fun x ↦ Fin.snoc x (√(1 - ‖x‖ ^ 2))
+  invFun := Fin.init
+  source := closedBall 0 1
+  target := sphere 0 1 ∩ {x | x (Fin.last n) ≥ 0}
+  map_source' x hx := by
+    constructor
+    · rw [mem_sphere_iff_norm, sub_zero, ← sq_eq_sq₀ (norm_nonneg _) zero_le_one, one_pow,
+        EuclideanSpace.norm_eq, Real.sq_sqrt (Finset.sum_nonneg (fun _ _ ↦ sq_nonneg _)),
+        Fin.sum_univ_castSucc]
+      simp only [Fin.snoc, Fin.coe_castSucc, Fin.is_lt, ↓reduceDIte, Fin.castLT_castSucc, cast_eq,
+        Real.norm_eq_abs, sq_abs, Fin.val_last, lt_self_iff_false]
+      rw [Real.sq_sqrt (by simp_all), ← Real.sq_sqrt (Finset.sum_nonneg (fun _ _ ↦ sq_nonneg _))]
+      simp_rw [← sq_abs (x _), ← Real.norm_eq_abs, ← EuclideanSpace.norm_eq, add_sub_cancel]
+    · simp
+  map_target' y:= by
+    intro ⟨hy, _⟩
+    simp_all only [mem_sphere_iff_norm, sub_zero, ge_iff_le, mem_setOf_eq, mem_closedBall,
+      dist_zero_right]
+    rw [← hy]
+    exact EuclideanSpace.norm_finInit_le _
+  left_inv' x hx := by simp
+  right_inv' y := by
+    intro ⟨hy1, hy2⟩
+    simp_all
+    suffices √(1 - norm (Fin.init y) (self := (PiLp.instNorm 2 fun x ↦ ℝ)) ^ 2) = y (Fin.last n) by
+      rw [this, Fin.snoc_init_self]
+    have : norm (Fin.init y) (self := (PiLp.instNorm 2 fun x ↦ ℝ)) ≤ 1 := by
+      rw [← hy1]
+      exact EuclideanSpace.norm_finInit_le y
+    rw [← sq_eq_sq₀ (Real.sqrt_nonneg _) hy2, Real.sq_sqrt (by simp_all), EuclideanSpace.norm_eq,
+      ← one_pow (n := 2), ← hy1, EuclideanSpace.norm_eq,
+      Real.sq_sqrt (Finset.sum_nonneg (fun _ _ ↦ sq_nonneg _)),
+      Real.sq_sqrt (Finset.sum_nonneg (fun _ _ ↦ sq_nonneg _)), sub_eq_iff_eq_add,
+      Fin.sum_univ_castSucc, add_comm, Real.norm_eq_abs, sq_abs]
+    rfl
+
+lemma continuous_discToSphereUp (n : ℕ) : Continuous (discToSphereUp n) := by
+  simp only [discToSphereUp]
+  apply Continuous.finSnoc
+  · exact continuous_id'
+  · continuity
+
+lemma continuous_discToSphereUp_symm (n : ℕ) : Continuous (discToSphereUp n).symm :=
+  Continuous.finInit
+
+@[simps!]
+def discToSphereDown (n : ℕ) := (discToSphereUp n).transEquiv (Homeomorph.negLast n).toEquiv
+
+lemma continuous_discToSphereDown (n : ℕ) : Continuous (discToSphereDown n) := by
+  simp [discToSphereDown, PartialEquiv.transEquiv, continuous_discToSphereUp]
+
+lemma continuous_discToSphereDown_symm (n : ℕ) : Continuous (discToSphereDown n).symm := by
+  simp [discToSphereDown, PartialEquiv.transEquiv, continuous_discToSphereUp_symm]
+
+
+/-! # Compiled Instances-/
+
 instance instSphere {n : ℕ} : ClasCWComplex (sphere 0 1 : Set (EuclideanSpace ℝ (Fin n))) :=
   match n with
   | 0 => SphereZero 0 1 one_ne_zero
   | 1 => SphereOneEuclidean 1 0 zero_le_one
   | (n + 2) => instSphereGT (n + 1) n.zero_lt_succ
 
+-- see above
 instance Finite_instSphere {n : ℕ} : Finite (sphere 0 1 : Set (EuclideanSpace ℝ (Fin n))) :=
   match n with
   | 0 => Finite_SphereZero 0 1 one_ne_zero

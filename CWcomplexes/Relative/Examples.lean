@@ -242,8 +242,8 @@ instance instReal : ClasCWComplex (univ : Set ℝ) := mk (univ : Set ℝ)
           simp only [mapLTPartial_image, mapLT_image_ball, disjoint_iff_inter_eq_empty ,
             Ioo_inter_Ioo, Ioo_eq_empty_iff, not_lt]
           norm_cast
-          simp_all only [le_sup_iff, inf_le_iff, add_le_iff_nonpos_right, Int.reduceLE, false_or,
-            or_false, ne_eq, Sigma.mk.inj_iff, heq_eq_eq, true_and, or_comm]
+          simp_all only [mem_univ, ne_eq, Sigma.mk.inj_iff, heq_eq_eq, true_and, Nat.cast_one,
+            le_sup_iff, inf_le_iff, add_le_iff_nonpos_right, or_comm, Int.reduceLE, false_or]
           exact Int.lt_or_gt_of_ne ne
         | (_ +  2) => i.elim
       | (_ + 2) => j.elim)
