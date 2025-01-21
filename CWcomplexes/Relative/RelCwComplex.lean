@@ -325,6 +325,10 @@ lemma RelCWComplex.cellFrontier_subset_skeleton [RelCWComplex C D] (n : ℕ) (j 
     cellFrontier (n + 1) j ⊆ skeleton C n :=
   cellFrontier_subset_skeletonLT _ _
 
+lemma RelCWComplex.cellFrontier_subset_complex [RelCWComplex C D] (n : ℕ) (j : cell C n) :
+    cellFrontier n j ⊆ C := by
+  apply subset_trans (cellFrontier_subset_closedCell n j) (closedCell_subset_complex n j)
+
 lemma RelCWComplex.iUnion_cellFrontier_subset_skeletonLT [RelCWComplex C D] (l : ℕ) :
     ⋃ (j : cell C l), cellFrontier l j ⊆ skeletonLT C l :=
   iUnion_subset  (fun _ ↦ cellFrontier_subset_skeletonLT _ _)

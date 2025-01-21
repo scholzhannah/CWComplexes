@@ -1036,28 +1036,468 @@ lemma ClasCWComplex.Finite_ofHomeomorph.{u} {X Y : Type u} [TopologicalSpace X]
   let _ := FiniteType_ofHomeomorph C E f hCE
   inferInstance
 
+
+-- # TODO
+/-
+/-- The image of a CW-complex under a homeomorphisms is again a CW-complex.-/
+def RelCWComplex.ofEmbedding.{u} {X Y : Type u} [TopologicalSpace X] [TopologicalSpace Y]
+    [T2Space X]
+    (C : Set X) {D : Set X} (E : Set Y) {F : Set Y} [RelCWComplex C D]
+    (f : PartialEquiv X Y) (hf1 : f.source = C) (hf2 : f.target = E) (hf3 : ContinuousOn f C)
+    (hf4 : ContinuousOn f.symm E) (hDF : f '' D = F) :
+    RelCWComplex E F where
+  cell := cell C
+  map n i := (map (C := C) n i).trans f
+  source_eq n i := by simp [PartialEquiv.transEquiv, source_eq (C := C) n i]
+  continuousOn n i := by simp [PartialEquiv.transEquiv_eq_trans, continuousOn (C := C) n i]
+  continuousOn_symm n i := by
+    simp only [PartialEquiv.transEquiv_eq_trans, PartialEquiv.trans_target,
+      Equiv.toPartialEquiv_symm_apply, ← image_equiv_eq_preimage_symm]
+    refine ContinuousOn.image_comp_continuous (f := f.invFun) ?_ f.continuous_invFun
+    simp [Equiv.invFun_as_coe, Homeomorph.coe_symm_toEquiv, Set.image_image,
+      continuousOn_symm (C := C)]
+  pairwiseDisjoint' := by
+    have := pairwiseDisjoint' (C := C)
+    simp only [PairwiseDisjoint, Set.Pairwise, mem_univ, ne_eq, Function.onFun,
+      PartialEquiv.transEquiv_apply, EquivLike.coe_coe, ← image_image] at this ⊢
+    intro ⟨n, j⟩ _ ⟨m, i⟩ _ ne
+    exact disjoint_image_of_injective f.injective
+      (this (x := ⟨n, j⟩) trivial (y := ⟨m, i⟩) trivial ne)
+  disjointBase' n i := by
+    simp only [PartialEquiv.transEquiv_apply, EquivLike.coe_coe, ← image_image, ← hDF,
+      disjoint_image_iff f.injective]
+    exact disjointBase' n i
+  mapsto n i := by
+    obtain ⟨I, hI⟩ := mapsto (C := C) n i
+    use I
+    rw [mapsTo'] at hI ⊢
+    simp only [PartialEquiv.transEquiv_apply, EquivLike.coe_coe, ← image_image, ← hDF, ←
+      image_iUnion (f := f), ← image_union]
+    exact image_mono hI
+  closed' A hAD := by
+    intro ⟨hA1, hA2⟩
+    have hAC : f ⁻¹' A ⊆ C := by
+      simp only [← Homeomorph.image_symm, image_subset_iff, Homeomorph.symm_symm, hCE, hAD]
+    rw [← f.isClosed_preimage]
+    rw [closed (C := C) (D := D) _ hAC]
+    constructor
+    · simp only [PartialEquiv.transEquiv_apply, EquivLike.coe_coe, ← image_image] at hA1
+      intro n j
+      rw [← f.isClosed_image, image_inter f.injective, image_preimage_eq _ f.surjective]
+      exact hA1 n j
+    · rw [← f.isClosed_image, image_inter f.injective, image_preimage_eq _ f.surjective, hDF]
+      exact hA2
+  isClosedBase := by
+    rw [← hDF, f.isClosed_image]
+    exact isClosedBase C
+  union' := by
+    simp [← hDF, ← image_image, ← image_iUnion (f := f), ← image_union, union' (C := C), hCE]
+-/
 -- this is getting way to ugly. Somehow one needs to avoid working with the PartialEquiv and
 -- instead restrict to a Homeomorphism
 
+
 open Set.Notation in
-def RelCWComplex.restrict [RelCWComplex C D] (Y : Set X) (hCY : C ⊆ Y) :
+open Classical in
+@[simps]
+def PartialEquiv.fromSet {X : Type*} (C D : Set X) (hC : C.Nonempty) (hD : D ⊆ C) :
+    PartialEquiv C X :=
+  letI : Nonempty C := Nonempty.to_subtype hC
+  letI : Inhabited C := inhabited_of_nonempty this
+  { toFun := Subtype.val
+    invFun x := if h : x ∈ C then ⟨x, h⟩ else default
+    source := C ↓∩ D
+    target := D
+    map_source' x := by simp
+    map_target' y hy := by simp [hy, hD hy]
+    left_inv' x := by simp
+    right_inv' y hy := by simp [hy, hD hy]}
+
+lemma PartialEquiv.continuous_fromSet {X : Type*} [TopologicalSpace X] (C D : Set X)
+    (hC : C.Nonempty) (hD : D ⊆ C) : Continuous (fromSet C D hC hD) := by
+  exact continuous_iff_le_induced.mpr fun U a ↦ a
+
+lemma PartialEquiv.continuousOn_fromSet {X : Type*} [TopologicalSpace X] (C D : Set X)
+    (hC : C.Nonempty) (hD : D ⊆ C) : ContinuousOn (fromSet C D hC hD).symm C := by
+  simp [fromSet, continuousOn_iff_continuous_restrict, continuous_inclusion]
+
+@[simps]
+def PartialEquiv.toHomeomorph {α β : Type*} [TopologicalSpace α]
+    [TopologicalSpace β] (e : PartialEquiv α β) (he1 : ContinuousOn e e.source)
+    (he2 : ContinuousOn e.symm e.target) : e.source ≃ₜ e.target where
+  toFun := e.toEquiv
+  invFun := e.toEquiv.symm
+  left_inv x := by simp
+  right_inv y := by simp
+  continuous_toFun := by
+    simp only [PartialEquiv.toEquiv, Equiv.coe_fn_mk]
+    apply Continuous.subtype_mk
+    have : (fun (x : e.source) ↦ e ↑x) = e.source.restrict e := by
+      ext
+      simp
+    rw [this, ← continuousOn_iff_continuous_restrict]
+    exact he1
+  continuous_invFun := by
+    simp only [PartialEquiv.toEquiv, Equiv.coe_fn_mk]
+    apply Continuous.subtype_mk
+    have : (fun (x : e.target) ↦ e.symm ↑x) = e.target.restrict e.symm := by
+      ext
+      simp
+    rw [this, ← continuousOn_iff_continuous_restrict]
+    exact he2
+
+lemma PartialEquiv.isClosed_of_isClosed_preimage {X Y : Type*} [TopologicalSpace X]
+    [TopologicalSpace Y] (e : PartialEquiv X Y) (h1 : ContinuousOn e e.source)
+    (h2 : ContinuousOn e.symm e.target)
+    (he1 : IsClosed e.target) (he2 : IsClosed e.source)
+    (A : Set Y) (hAe : A ⊆ e.target) (hA : IsClosed (e.source ∩ e ⁻¹' A)) : IsClosed A := by
+  rw [← inter_eq_right.2 hAe]
+  apply isClosed_inter_of_isClosed_subtype_val he1
+  let g : e.source ≃ₜ e.target := e.toHomeomorph h1 h2
+  rw [← g.isClosed_preimage]
+  have : ⇑g ⁻¹' (Subtype.val ⁻¹' A) = e.source ∩ ↑e ⁻¹' A := by
+    ext x
+    simp [mem_image, mem_preimage, PartialEquiv.toHomeomorph_apply, Subtype.exists,
+      exists_and_right, exists_eq_right, mem_inter_iff, g, PartialEquiv.toEquiv, and_comm]
+  rw [Topology.IsClosedEmbedding.isClosed_iff_image_isClosed he2.isClosedEmbedding_subtypeVal, this]
+  exact hA
+
+def RelCWComplex.of_Homeomorph.{u} {X Y : Type u} [TopologicalSpace X] [T2Space X]
+    [TopologicalSpace Y] (C : Set X) {D : Set X} (E : Set Y) {F : Set Y} [RelCWComplex C D]
+    (hC : IsClosed C) (hE : IsClosed E)
+    (f : PartialEquiv X Y) (hfC1 : f.source = C) (hfE1 : f.target = E) (hDF : f '' D = F)
+    (hfC2 : ContinuousOn f C) (hfE2 : ContinuousOn f.symm E)  :
+    RelCWComplex E F where
+  cell := cell C
+  map n i := (map n i).trans' (f.restr (map n i).target) (by
+    simp only [← PartialEquiv.image_source_eq_target, PartialEquiv.restr_source, right_eq_inter,
+    source_eq n i, hfC1]
+    exact openCell_subset_complex n i)
+  source_eq n i := by simp [source_eq n i]
+  continuousOn n i := by
+    simp only [PartialEquiv.trans', PartialEquiv.restr_coe, PartialEquiv.restr_coe_symm,
+      PartialEquiv.restr_target]
+    apply hfC2.comp (continuousOn n i)
+    rw [mapsTo']
+    exact closedCell_subset_complex n i
+  continuousOn_symm n i := by
+    simp only [PartialEquiv.trans', PartialEquiv.restr_coe, PartialEquiv.restr_coe_symm,
+      PartialEquiv.restr_target, PartialEquiv.coe_symm_mk]
+    apply (continuousOn_symm n i).comp
+    · apply hfE2.mono
+      simp [hfE1]
+    · simp [mapsTo']
+  pairwiseDisjoint' := by
+    have := pairwiseDisjoint' (C := C)
+    simp only [PairwiseDisjoint, Set.Pairwise, mem_univ, ne_eq, Function.onFun, forall_const,
+      PartialEquiv.trans'_apply, PartialEquiv.restr_coe, Function.comp_apply] at this ⊢
+    intro x y hxy
+    simp_rw [← image_image]
+    apply (this hxy).image (u := C)
+    · rw [← hfC1]
+      exact f.injOn
+    · exact openCell_subset_complex _ _
+    · exact openCell_subset_complex _ _
+  disjointBase' n i := by
+    simp only [PartialEquiv.trans'_apply, PartialEquiv.restr_coe, Function.comp_apply]
+    simp_rw [← image_image, ← hDF]
+    apply (disjointBase' n i).image (u := C)
+    · rw [← hfC1]
+      exact f.injOn
+    · exact openCell_subset_complex _ _
+    · exact base_subset_complex
+  mapsto n i := by
+    obtain ⟨I, hI⟩ := mapsto n i
+    use I
+    rw [mapsTo'] at hI ⊢
+    simp only [PartialEquiv.trans'_apply, PartialEquiv.restr_coe, Function.comp_apply,
+      ← image_image, ← image_iUnion (f := f), ← hDF, ← image_union]
+    apply image_mono
+    exact hI
+  closed' A hA := by
+    intro ⟨hA1, hA2⟩
+    apply f.isClosed_of_isClosed_preimage (hfC1 ▸ hfC2) (hfE1 ▸ hfE2) (hfE1 ▸ hE) (hfC1 ▸ hC)
+    · exact hfE1 ▸ hA
+    rw [closed (C := C) _ (hfC1 ▸ inter_subset_left)]
+    constructor
+    · intro n i
+      specialize hA1 n i
+      simp only [PartialEquiv.trans'_apply, PartialEquiv.restr_coe, Function.comp_apply,
+        ← image_image] at hA1
+      rw [hfC1, inter_assoc, inter_comm, inter_assoc]
+      have : closedCell n i ∩ C = f ⁻¹' (f '' closedCell n i) ∩ C := by
+        simp_rw [← hfC1]
+        rw [inter_comm, inter_comm _ f.source]
+        symm
+        apply PartialEquiv.IsImage.preimage_eq
+        apply PartialEquiv.IsImage.of_image_eq
+        rw [hfC1, inter_eq_right.2 (closedCell_subset_complex n i), hfE1, ← hfE1,
+          ← f.image_source_eq_target, hfC1, ← f.injOn.image_inter (by rw [hfC1])
+          (by rw [hfC1]; exact closedCell_subset_complex n i),
+          inter_eq_right.2 (closedCell_subset_complex n i)]
+      rw [this, ← inter_assoc, ← preimage_inter, inter_comm]
+      exact hfC2.preimage_isClosed_of_isClosed hC hA1
+    · rw [hfC1, inter_assoc, inter_comm, inter_assoc]
+      have : D ∩ C = f ⁻¹' F ∩ C := by
+        rw [← hfC1, inter_comm, inter_comm (↑f ⁻¹' F)]
+        symm
+        apply PartialEquiv.IsImage.preimage_eq
+        apply PartialEquiv.IsImage.of_image_eq
+        rw [hfC1, inter_eq_right.2 base_subset_complex, hfE1, ← hDF, ← hfE1,
+          ← f.image_source_eq_target, hfC1, ← f.injOn.image_inter (by rw [hfC1])
+          (by rw [hfC1]; exact base_subset_complex), inter_eq_right.2 base_subset_complex]
+      rw [this, ← inter_assoc, ← preimage_inter, inter_comm]
+      exact hfC2.preimage_isClosed_of_isClosed hC hA2
+  isClosedBase := by
+    rw [← hDF]
+    apply f.isClosed_of_isClosed_preimage (hfC1 ▸ hfC2) (hfE1 ▸ hfE2) (hfE1 ▸ hE) (hfC1 ▸ hC)
+    · rw [← PartialEquiv.image_source_eq_target]
+      apply image_mono
+      rw [hfC1]
+      exact base_subset_complex
+    rw [hfC1]
+    have : C ∩ ↑f ⁻¹' (↑f '' D) = C ∩ D := by
+      rw [← hfC1, hDF]
+      apply PartialEquiv.IsImage.preimage_eq
+      apply PartialEquiv.IsImage.of_image_eq
+      rw [hfC1, inter_eq_right.2 base_subset_complex, hfE1, ← hDF, ← hfE1,
+        ← f.image_source_eq_target, hfC1, ← f.injOn.image_inter (by rw [hfC1])
+        (by rw [hfC1]; exact base_subset_complex), inter_eq_right.2 base_subset_complex]
+    rw [this, inter_eq_right.2 base_subset_complex]
+    exact isClosedBase C
+  union' := by
+    simp only [PartialEquiv.trans'_apply, PartialEquiv.restr_coe, Function.comp_apply,
+      ← image_image, ← image_iUnion (f := f), ← hDF, ← image_union, ← hfE1,
+      ← f.image_source_eq_target, hfC1, union']
+
+-- this should be generalized to the case where C can be empty
+open Set.Notation in
+def RelCWComplex.enlarge [RelCWComplex (X := C) univ (C ↓∩ D)] (hC : IsClosed C) (hC2 : C.Nonempty)
+    (hDC : D ⊆ C) :
+    RelCWComplex C D where
+  cell := cell (X := C) univ
+  map n i := (map n i).trans' (PartialEquiv.fromSet C (map n i).target hC2
+    (Subtype.coe_image_subset C (map n i).target))
+    (by simp only [PartialEquiv.fromSet_source, Subtype.val_injective, preimage_image_eq])
+  source_eq n i := by simp [source_eq n i]
+  continuousOn n i := by
+    simp only [PartialEquiv.trans', PartialEquiv.fromSet_target]
+    apply Continuous.comp_continuousOn
+    · exact PartialEquiv.continuous_fromSet ..
+    · exact continuousOn n i
+  continuousOn_symm n i := by
+    simp only [PartialEquiv.trans', PartialEquiv.fromSet_target, PartialEquiv.coe_symm_mk]
+    apply ContinuousOn.comp (t := (map n i).target)
+    · exact continuousOn_symm n i
+    · apply ContinuousOn.mono (s := C)
+      · exact PartialEquiv.continuousOn_fromSet C (Subtype.val '' (map n i).target) hC2
+          (Subtype.coe_image_subset C (map n i).target)
+      · simp
+    · simp only [mapsTo', PartialEquiv.fromSet_symm_apply]
+      intro x
+      simp only [mem_image, Subtype.exists, exists_and_right, exists_eq_right, forall_exists_index,
+        and_imp]
+      intro y hy hy2 hyx
+      simp_all
+  pairwiseDisjoint' := by
+    have := pairwiseDisjoint' (X := C) (C := univ)
+    simp_all only [PairwiseDisjoint, Set.Pairwise, mem_univ, ne_eq, Function.onFun,
+      forall_const, PartialEquiv.coe_trans, Function.comp_apply,
+      PartialEquiv.fromSet_apply]
+    intro x y ne
+    suffices  Disjoint (Subtype.val '' (↑(map x.fst x.snd) '' ball 0 1))
+        (Subtype.val '' (↑(map y.fst y.snd) '' ball 0 1)) by
+      rw [image_image, image_image] at this
+      exact this
+    apply disjoint_image_of_injective Subtype.val_injective
+    exact this ne
+  disjointBase' n i := by
+    have h := disjointBase' (X := C) (C := univ) n i
+    have : D = Subtype.val '' C ↓∩ D := by
+      simp only [Subtype.image_preimage_coe, right_eq_inter, hDC]
+    simp only [PartialEquiv.trans', Function.comp_apply, PartialEquiv.fromSet_apply]
+    nth_rw 2 [this]
+    rw [← image_image]
+    apply disjoint_image_of_injective Subtype.val_injective
+    exact h
+  mapsto n i := by
+    obtain ⟨I, hI⟩ := mapsto (X := C) (C := univ) n i
+    use I
+    simp only [PartialEquiv.trans', mapsTo', image_comp] at hI ⊢
+    apply subset_trans (image_mono hI)
+    simp_rw [image_union, image_iUnion]
+    apply union_subset_union_left
+    apply subset_of_eq
+    ext
+    simp only [PartialEquiv.fromSet_apply, Subtype.image_preimage_coe, mem_inter_iff,
+      and_iff_right_iff_imp]
+    exact fun h ↦ hDC h
+  closed' A hAC := by
+    intro ⟨hA1, hA2⟩
+    rw [← inter_eq_right.2 hAC]
+    apply isClosed_inter_of_isClosed_subtype_val hC
+    rw [closed (X := C) (C := univ) _ (subset_univ _)]
+    constructor
+    · intro n i
+      rw [Topology.IsClosedEmbedding.isClosed_iff_image_isClosed
+        hC.isClosedEmbedding_subtypeVal]
+      simp only [image_val_inter, Subtype.image_preimage_coe, inter_eq_right.2 hAC]
+      convert hA1 n i
+      ext x
+      simp [closedCell, PartialEquiv.trans']
+    · rw [Topology.IsClosedEmbedding.isClosed_iff_image_isClosed
+        hC.isClosedEmbedding_subtypeVal]
+      simp [inter_eq_right.2 hAC, inter_eq_right.2 hDC, hA2]
+  isClosedBase := by
+    rw [← inter_eq_right.2 hDC]
+    exact isClosed_inter_of_isClosed_subtype_val hC (isClosedBase univ)
+  union' := by
+    have := union' (X := C) (C := univ)
+    rw [← image_eq_image Subtype.val_injective] at this
+    simp only [image_val_union, Subtype.image_preimage_coe, inter_eq_right.2 hDC, image_val_iUnion,
+      image_univ, Subtype.range_coe_subtype, setOf_mem_eq] at this
+    nth_rw 127 [← this]
+    congrm D ∪ ⋃ n, ⋃ i, ?_
+    ext
+    simp
+
+open Set.Notation in
+open Classical in
+@[simps]
+def PartialEquiv.restrictImage {X Y : Type*} (e : PartialEquiv X Y) (A : Set Y)
+    (heA : e.target ⊆ A) (hA : A.Nonempty) : PartialEquiv X A :=
+  letI : Nonempty A := Nonempty.to_subtype hA
+  letI : Inhabited A := inhabited_of_nonempty this
+  { toFun x := if h : e x ∈ A then ⟨e x, h⟩ else default
+    invFun := e.symm ∘ Subtype.val
+    source := e.source
+    target := A ↓∩ e.target
+    map_source' x hx := by simp_all [heA (e.map_source' hx)]
+    map_target' y hy := by simp_all [e.map_target' hy]
+    left_inv' x hx := by simp_all [heA (e.map_source' hx)]
+    right_inv' y hy := by simp_all}
+
+-- this proof can probably be done nicer
+lemma PartialEquiv.restrictImage_image_eq {X Y : Type*} (e : PartialEquiv X Y) (B : Set X)
+    (A : Set Y) (hB : e '' B ⊆ A) (heA : e.target ⊆ A) (hA : A.Nonempty) :
+    (e.restrictImage A heA hA) '' B = e '' B := by
+  ext x
+  simp only [restrictImage_apply, mem_image, exists_exists_and_eq_and]
+  constructor
+  · intro ⟨b, hb, hbx⟩
+    use b
+    simp_all [hB (mem_image_of_mem _ hb)]
+  · intro ⟨b, hb, hbx⟩
+    use b
+    have := hB (mem_image_of_mem _ hb)
+    simp_all
+
+open Set.Notation in
+def RelCWComplex.restrict [RelCWComplex C D] (Y : Set X) (hCY : C ⊆ Y) (hC : C.Nonempty) :
     RelCWComplex (X := Y) (Y ↓∩ C) (Y ↓∩ D) where
   cell := cell C
-  map n i := (Equiv.Set.univ _).symm.transPartialEquiv
-    ((map (C := C) (D := D) n i).restrict univ Y (subset_univ _)
-      (by
-        apply subset_trans
-        · sorry
-        · exact hCY))
-  source_eq := sorry
-  continuousOn := sorry
-  continuousOn_symm := sorry
-  pairwiseDisjoint' := sorry
-  disjointBase' := sorry
-  mapsto := sorry
-  closed' := sorry
-  isClosedBase := sorry
-  union' := sorry
+  map n i := (map n i).restrictImage Y (by
+    refine subset_trans ?_ hCY
+    rw [← PartialEquiv.image_source_eq_target, source_eq]
+    exact openCell_subset_complex (C := C) n i)
+    (hC.mono hCY)
+  source_eq n i := by simp [source_eq]
+  continuousOn n i := by
+    simp only [PartialEquiv.restrictImage, continuousOn_iff_continuous_restrict]
+    have : ∀ x (_ : x ∈ closedBall 0 1), map n i x ∈ Y := by
+      intro x hx
+      apply hCY
+      exact closedCell_subset_complex _ _ (mem_image_of_mem _ hx)
+    apply Continuous.congr
+      (f := fun (x : closedBall 0 1) ↦ (⟨map n i x, this x.1 x.2⟩ : Y))
+    · apply Continuous.subtype_mk
+      apply Continuous.congr (f := (closedBall 0 1).restrict (map n i))
+      · rw [← continuousOn_iff_continuous_restrict]
+        exact continuousOn n i
+      · intro
+        simp
+    · intro ⟨x, hx⟩
+      simp [this x hx]
+  continuousOn_symm n i := by
+    simp only [PartialEquiv.restrictImage, PartialEquiv.coe_symm_mk]
+    apply ContinuousOn.image_comp_continuous
+    · have : (map n i).target ⊆ Y := by
+        refine subset_trans ?_ hCY
+        rw [← PartialEquiv.image_source_eq_target, source_eq]
+        exact openCell_subset_complex (C := C) n i
+      simp only [Subtype.image_preimage_coe, inter_eq_right.2 this]
+      exact continuousOn_symm n i
+    · exact continuous_subtype_val
+  pairwiseDisjoint' := by
+    have h := pairwiseDisjoint' (C := C)
+    simp only [PairwiseDisjoint, Set.Pairwise, mem_univ, ne_eq, Function.onFun, forall_const] at h ⊢
+    intro x y hxy
+    apply Disjoint.of_image (f := Subtype.val)
+    have hx : map x.1 x.2 '' ball 0 1 ⊆ Y := (openCell_subset_complex x.1 x.2).trans hCY
+    have hy : map y.1 y.2 '' ball 0 1 ⊆ Y := (openCell_subset_complex y.1 y.2).trans hCY
+    rw [(map x.1 x.2).restrictImage_image_eq _ _ hx, (map y.1 y.2).restrictImage_image_eq _ _ hy]
+    exact h hxy
+  disjointBase' n i := by
+    apply Disjoint.of_image (f := Subtype.val)
+    have h1 : D ⊆ Y := subset_trans base_subset_complex hCY
+    have h2 : (map n i) '' ball 0 1 ⊆ Y := (openCell_subset_complex n i).trans hCY
+    simp only [Subtype.image_preimage_coe, inter_eq_right.2 h1,
+      (map n i).restrictImage_image_eq _ _ h2]
+    exact disjointBase' n i
+  mapsto n i := by
+    obtain ⟨I, hI⟩ := mapsto n i
+    use I
+    rw [mapsTo'] at hI ⊢
+    rw [← image_subset_image_iff Subtype.val_injective]
+    simp_rw [image_union, image_iUnion]
+    have h1 : map n i '' sphere 0 1 ⊆ Y := (cellFrontier_subset_complex n i).trans hCY
+    have h2 : ∀ m (j : cell C m), map m j '' closedBall 0 1 ⊆ Y :=
+      fun m j ↦ (closedCell_subset_complex m j).trans hCY
+    simp_rw [PartialEquiv.restrictImage_image_eq _ _ _ h1,
+      fun m j ↦ PartialEquiv.restrictImage_image_eq _ _ _ (h2 m j),
+      Subtype.image_preimage_coe, inter_eq_right.2 (base_subset_complex.trans hCY)]
+    exact hI
+  closed' A hA := by
+    intro ⟨hA1, hA2⟩
+    suffices IsClosed (Subtype.val '' A) by
+      sorry
+    -- somehpw need to apply Subtype.val
+    sorry
+  isClosedBase := (isClosedBase C).preimage continuous_subtype_val
+  union' := by
+    rw [← image_eq_image Subtype.val_injective]
+    simp_rw [image_union, image_iUnion]
+    have h : ∀ m (j : cell C m), map m j '' closedBall 0 1 ⊆ Y :=
+      fun m j ↦ (closedCell_subset_complex m j).trans hCY
+    simp_rw [fun m j ↦ PartialEquiv.restrictImage_image_eq _ _ _ (h m j),
+      Subtype.image_preimage_coe, inter_eq_right.2 (base_subset_complex.trans hCY),
+      inter_eq_right.2 hCY]
+    exact union'
+
+open Set.Notation in
+def RelCWComplex.univSelf [RelCWComplex C D] (hC : C.Nonempty) :
+    RelCWComplex (univ : Set C) (C ↓∩ D) :=
+  letI := RelCWComplex.restrict C Subset.rfl hC
+  ofEq (C ↓∩ C) (C ↓∩ D) (E := (Set.univ : Set C)) (by simp) rfl
+
+#exit
+
+def PartialEquiv.toHomeomorph {X Y : Type*} [TopologicalSpace X] [TopologicalSpace Y]
+    (e : PartialEquiv X Y) (he1 : ContinuousOn e e.source) (he2 : ContinuousOn e.symm e.target) :
+  sorry := sorry
+
+open Set.Notation in
+def RelCWComplex.of_Homeomorph.{u} {X Y : Type u} [TopologicalSpace X] [T2Space X]
+    [TopologicalSpace Y] (C : Set X) {D : Set X} (E : Set Y) {F : Set Y} [RelCWComplex C D]
+    (hC : IsClosed C) (hE : IsClosed E)
+    (f : PartialEquiv X Y) (hfC1 : f.source = C) (hfE1 : f.target = E) (hDF : f '' D = F)
+    (hfC2 : ContinuousOn f C) (hfE2 : ContinuousOn f.symm E)  :
+    RelCWComplex E F :=
+  letI := RelCWComplex.univSelf (C := C) sorry
+  --letI f' : (univ : Set C) ≃ₜ (univ : Set E) := Homeomorph.mk f.toEquiv
+  letI := RelCWComplex.ofHomeomorph (X := C) (univ : Set C) (univ : Set E)
+  sorry
+
 
 def RelCWComplex.of_Homeomorph.{u} {X Y : Type u} [TopologicalSpace X] [T2Space X]
     [TopologicalSpace Y] (C : Set X) {D : Set X} (E : Set Y) {F : Set Y} [RelCWComplex C D]

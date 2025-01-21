@@ -354,6 +354,17 @@ lemma continuous_discToSphereDown (n : ℕ) : Continuous (discToSphereDown n) :=
 lemma continuous_discToSphereDown_symm (n : ℕ) : Continuous (discToSphereDown n).symm := by
   simp [discToSphereDown, PartialEquiv.transEquiv, continuous_discToSphereUp_symm]
 
+def spheremapup (n : ℕ) := (toEuclideanNormScale n).transPartialEquiv (discToSphereUp n)
+
+def spheremapdown (n : ℕ) := (toEuclideanNormScale n).transPartialEquiv (discToSphereDown n)
+
+
+-- we first need to make sense of embedding a CW-complex
+def sphereInductStep' (n : ℕ) [ClasCWComplex (sphere (0 : EuclideanSpace ℝ (Fin n)) 1)]
+    [Finite (sphere (0 : EuclideanSpace ℝ (Fin n)) 1)] :
+    ClasCWComplex (sphere (0 : EuclideanSpace ℝ (Fin (n + 1))) 1) :=
+  sorry
+
 
 /-! # Compiled Instances-/
 
