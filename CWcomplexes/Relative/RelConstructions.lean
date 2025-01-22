@@ -361,6 +361,9 @@ lemma RelCWComplex.FiniteDimensional_attachCell {X : Type*} [TopologicalSpace X]
     intro b hb
     exact ⟨hN b (le_of_max_le_left hb) , Nat.ne_of_lt' (le_of_max_le_right hb)⟩}
 
+-- make disjoint' more general: disjointness with the whole original complex
+-- write a version where mapsto' is better as well
+
 /-- A version of `RelCWComplex.attachCell`. Assuming that the CW complex is of finite type lets us
   relax the condition `mapsto'`. -/
 @[simps!]

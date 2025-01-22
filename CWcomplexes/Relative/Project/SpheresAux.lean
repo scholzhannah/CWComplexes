@@ -411,3 +411,9 @@ def Homeomorph.negLast (n : ℕ) :
   continuous_invFun := by
     apply continuous_id'.update
     exact (continuous_neg.comp (continuous_apply (Fin.last n)))
+
+@[simp]
+lemma Homeomorph.norm_negLast (n : ℕ) (x : EuclideanSpace ℝ (Fin (n + 1))) :
+    ‖negLast n x‖ = ‖x‖ := by
+  simp [EuclideanSpace.norm_eq, Fin.sum_univ_castSucc, negLast, Function.update,
+    fun i ↦ (Fin.castSucc_lt_last i).ne]
