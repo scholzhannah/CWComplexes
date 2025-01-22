@@ -385,6 +385,14 @@ lemma EuclideanSpace.norm_finInit_le {𝕜 : Type*} [RCLike 𝕜] {n : ℕ}
     le_add_iff_nonneg_right]
   exact sq_nonneg ‖q (Fin.last n)‖
 
+lemma EuclideanSpace.norm_finInit_lt {𝕜 : Type*} [RCLike 𝕜] {n : ℕ}
+    (q : EuclideanSpace 𝕜 (Fin (n + 1))) (hq : ‖q (Fin.last n)‖ > 0):
+    norm (Fin.init q : EuclideanSpace 𝕜 (Fin n)) (self := (PiLp.instNorm 2 fun x ↦ 𝕜)) < ‖q‖ := by
+  simp_rw [← sq_lt_sq₀ (norm_nonneg _) (norm_nonneg _), EuclideanSpace.norm_eq,
+    Real.sq_sqrt (Finset.sum_nonneg (fun _ _ ↦ sq_nonneg _)), Fin.sum_univ_castSucc, Fin.init,
+    lt_add_iff_pos_right]
+  exact sq_pos_of_pos hq
+
 lemma Fin.norm_init_le {n : ℕ} {α : Type*} [SeminormedAddGroup α] (q : (Fin (n + 1)) → α) :
     ‖Fin.init q‖ ≤ ‖q‖ := by
   simp only [Pi.norm_def, NNReal.coe_le_coe, Finset.sup_le_iff, Finset.mem_univ, forall_const]

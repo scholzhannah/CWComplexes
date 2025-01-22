@@ -1,4 +1,5 @@
 import CWcomplexes.Relative.Project.SpheresAux
+import CWcomplexes.Relative.Project.Homeomorph
 import Mathlib.Topology.Constructions
 
 noncomputable section
@@ -302,24 +303,28 @@ def discToSphereUp (n : ℕ) :
     PartialEquiv (EuclideanSpace ℝ (Fin n)) (EuclideanSpace ℝ (Fin (n + 1))) where
   toFun := fun x ↦ Fin.snoc x (√(1 - ‖x‖ ^ 2))
   invFun := Fin.init
-  source := closedBall 0 1
-  target := sphere 0 1 ∩ {x | x (Fin.last n) ≥ 0}
+  source := ball 0 1
+  target := sphere 0 1 ∩ {x | x (Fin.last n) > 0}
   map_source' x hx := by
     constructor
-    · rw [mem_sphere_iff_norm, sub_zero, ← sq_eq_sq₀ (norm_nonneg _) zero_le_one, one_pow,
+    · simp only [mem_ball, dist_zero_right] at hx
+      rw [mem_sphere_iff_norm, sub_zero, ← sq_eq_sq₀ (norm_nonneg _) zero_le_one, one_pow,
         EuclideanSpace.norm_eq, Real.sq_sqrt (Finset.sum_nonneg (fun _ _ ↦ sq_nonneg _)),
         Fin.sum_univ_castSucc]
       simp only [Fin.snoc, Fin.coe_castSucc, Fin.is_lt, ↓reduceDIte, Fin.castLT_castSucc, cast_eq,
         Real.norm_eq_abs, sq_abs, Fin.val_last, lt_self_iff_false]
-      rw [Real.sq_sqrt (by simp_all), ← Real.sq_sqrt (Finset.sum_nonneg (fun _ _ ↦ sq_nonneg _))]
+      rw [Real.sq_sqrt (by simp_all [hx.le]),
+        ← Real.sq_sqrt (Finset.sum_nonneg (fun _ _ ↦ sq_nonneg _))]
       simp_rw [← sq_abs (x _), ← Real.norm_eq_abs, ← EuclideanSpace.norm_eq, add_sub_cancel]
-    · simp
+    · simp_all
   map_target' y:= by
-    intro ⟨hy, _⟩
-    simp_all only [mem_sphere_iff_norm, sub_zero, ge_iff_le, mem_setOf_eq, mem_closedBall,
+    intro ⟨hy1, hy2⟩
+    simp_all only [mem_sphere_iff_norm, sub_zero, gt_iff_lt, mem_setOf_eq, mem_ball,
       dist_zero_right]
-    rw [← hy]
-    exact EuclideanSpace.norm_finInit_le _
+    rw [← hy1]
+    apply EuclideanSpace.norm_finInit_lt
+    simp_all only [Real.norm_eq_abs, gt_iff_lt, abs_pos]
+    exact hy2.ne.symm
   left_inv' x hx := by simp
   right_inv' y := by
     intro ⟨hy1, hy2⟩
@@ -329,7 +334,7 @@ def discToSphereUp (n : ℕ) :
     have : norm (Fin.init y) (self := (PiLp.instNorm 2 fun x ↦ ℝ)) ≤ 1 := by
       rw [← hy1]
       exact EuclideanSpace.norm_finInit_le y
-    rw [← sq_eq_sq₀ (Real.sqrt_nonneg _) hy2, Real.sq_sqrt (by simp_all), EuclideanSpace.norm_eq,
+    rw [← sq_eq_sq₀ (Real.sqrt_nonneg _) hy2.le, Real.sq_sqrt (by simp_all), EuclideanSpace.norm_eq,
       ← one_pow (n := 2), ← hy1, EuclideanSpace.norm_eq,
       Real.sq_sqrt (Finset.sum_nonneg (fun _ _ ↦ sq_nonneg _)),
       Real.sq_sqrt (Finset.sum_nonneg (fun _ _ ↦ sq_nonneg _)), sub_eq_iff_eq_add,
@@ -354,16 +359,166 @@ lemma continuous_discToSphereDown (n : ℕ) : Continuous (discToSphereDown n) :=
 lemma continuous_discToSphereDown_symm (n : ℕ) : Continuous (discToSphereDown n).symm := by
   simp [discToSphereDown, PartialEquiv.transEquiv, continuous_discToSphereUp_symm]
 
+@[simps!]
 def spheremapup (n : ℕ) := (toEuclideanNormScale n).transPartialEquiv (discToSphereUp n)
 
+@[simps!]
 def spheremapdown (n : ℕ) := (toEuclideanNormScale n).transPartialEquiv (discToSphereDown n)
 
+def spheremaps (n : ℕ) (i : Fin 2) : PartialEquiv (Fin n → ℝ) (EuclideanSpace ℝ (Fin (n + 1))) :=
+  match i with
+  | 0 => spheremapup n
+  | 1 => spheremapdown n
+
+lemma spheremaps_source (n : ℕ) (i : Fin 2) : (spheremaps n i).source = ball 0 1 :=
+  match i with
+  | 0 => by
+    simp only [spheremaps, spheremapup_source, ← Homeomorph.coe_toEquiv,
+      Equiv.preimage_eq_iff_eq_image]
+    simp only [Homeomorph.coe_toEquiv, toEuclideanNormScale_image_ball]
+  | 1 => by
+    simp only [spheremaps, spheremapdown_source, ← Homeomorph.coe_toEquiv,
+      Equiv.preimage_eq_iff_eq_image]
+    simp only [Homeomorph.coe_toEquiv, toEuclideanNormScale_image_ball]
+
+lemma continuous_spheremaps (n : ℕ) (i : Fin 2) : Continuous (spheremaps n i) :=
+  match i with
+  | 0 => by simp [spheremaps, spheremapup, Equiv.transPartialEquiv, continuous_discToSphereUp]
+  | 1 => by simp [spheremaps, spheremapdown, Equiv.transPartialEquiv, continuous_discToSphereDown]
+
+lemma continuous_spheremaps_symm (n : ℕ) (i : Fin 2) : Continuous (spheremaps n i).symm :=
+  match i with
+  | 0 => by
+    simp [spheremaps, spheremapup, Equiv.transPartialEquiv, continuous_discToSphereUp_symm]
+  | 1 => by
+    simp [spheremaps, spheremapdown, Equiv.transPartialEquiv, continuous_discToSphereDown_symm]
+
+@[simps!]
+def PartialEquiv.EuclideanSpaceSucc (n : ℕ) :
+    PartialEquiv (EuclideanSpace ℝ (Fin n)) (EuclideanSpace ℝ (Fin (n + 1))) where
+  toFun x := Fin.snoc x 0
+  invFun := Fin.init
+  source := univ
+  target := {y | y (Fin.last n) = 0}
+  map_source' := by simp
+  map_target' := by simp
+  left_inv' x _ := by simp
+  right_inv' y hy := by
+    simp_all only [mem_setOf_eq]
+    rw [← hy]
+    exact Fin.snoc_init_self _
+
+lemma PartialEquiv.continuous_EuclideanSpaceSucc (n : ℕ) :
+    Continuous (EuclideanSpaceSucc n) := by
+  simp only [EuclideanSpaceSucc]
+  apply Continuous.finSnoc
+  · exact continuous_id'
+  · exact continuous_const
+
+lemma PartialEquiv.continuous_EuclideanSpaceSucc_symm (n : ℕ) :
+    Continuous (EuclideanSpaceSucc n).symm := by
+  simp only [EuclideanSpaceSucc, PartialEquiv.coe_symm_mk]
+  exact Continuous.finInit
+
+lemma PartialEquiv.EuclideanSpaceSucc_image_sphere (n : ℕ) :
+    EuclideanSpaceSucc n '' sphere 0 1 = sphere 0 1 ∩ {x | x (Fin.last n) = 0} := by
+  ext x
+  constructor
+  · simp only [mem_image, mem_sphere_iff_norm, sub_zero, mem_inter_iff, mem_setOf_eq,
+    forall_exists_index, and_imp]
+    intro y hy hyx
+    constructor
+    · rw [EuclideanSpace.norm_eq, Fin.sum_univ_castSucc, ← hyx]
+      simp only [EuclideanSpaceSucc_apply, Fin.snoc_castSucc, Fin.snoc_last,
+        Real.norm_eq_abs (r := 0), sq_abs, ne_eq, OfNat.ofNat_ne_zero, not_false_eq_true, zero_pow,
+        add_zero]
+      rw [← EuclideanSpace.norm_eq, hy]
+    · rw [← hyx]
+      simp
+  · simp only [mem_inter_iff, mem_sphere_iff_norm, sub_zero, mem_setOf_eq, mem_image, and_imp]
+    intro hx hx0
+    use Fin.init x
+    constructor
+    · rw [EuclideanSpace.norm_eq, Fin.sum_univ_castSucc, hx0] at hx
+      simp only [Real.norm_eq_abs (r := 0), sq_abs, ne_eq, OfNat.ofNat_ne_zero, not_false_eq_true,
+        zero_pow, add_zero] at hx
+      rw [EuclideanSpace.norm_eq]
+      simp only [Fin.init]
+      exact hx
+    · simp only [EuclideanSpaceSucc]
+      rw [← hx0]
+      exact Fin.snoc_init_self _
+
+lemma isOpen_UpperHalfPlane (n : ℕ) :
+    IsOpen {(x : EuclideanSpace ℝ (Fin (n + 1)) )| x (Fin.last n) > 0} := by
+  rw [isOpen_iff_forall_mem_open]
+  intro x hx
+  simp_all only [gt_iff_lt, mem_setOf_eq]
+  use ball x (x (Fin.last n))
+  refine ⟨?_, isOpen_ball, mem_ball_self hx⟩
+  intro y hy
+  simp_all only [mem_ball, mem_setOf_eq]
+  rw [EuclideanSpace.dist_eq, Fin.sum_univ_castSucc, ← sq_lt_sq₀ (Real.sqrt_nonneg _) hx.le,
+    Real.sq_sqrt (add_nonneg (Finset.sum_nonneg (fun i a ↦ sq_nonneg _)) (sq_nonneg _))] at hy
+  have := lt_of_add_lt_of_nonneg_right hy (Finset.sum_nonneg (fun i a ↦ sq_nonneg _))
+  rw [Real.dist_eq, sq_lt_sq₀ (abs_nonneg _) hx.le] at this
+  replace this := sub_lt_of_abs_sub_lt_left this
+  simp_all only [sub_self]
+
+lemma isOpen_LowerHalfPlane (n : ℕ) :
+    IsOpen {(x : EuclideanSpace ℝ (Fin (n + 1)) )| x (Fin.last n) < 0} := by
+  rw [isOpen_iff_forall_mem_open]
+  intro x hx
+  simp_all only [gt_iff_lt, mem_setOf_eq]
+  use ball x |(x (Fin.last n))|
+  refine ⟨?_, isOpen_ball, mem_ball_self (abs_pos_of_neg hx)⟩
+  intro y hy
+  simp_all only [mem_ball, mem_setOf_eq]
+  rw [EuclideanSpace.dist_eq, Fin.sum_univ_castSucc,
+    ← sq_lt_sq₀ (Real.sqrt_nonneg _) (abs_nonneg _),
+    Real.sq_sqrt (add_nonneg (Finset.sum_nonneg (fun i a ↦ sq_nonneg _)) (sq_nonneg _))] at hy
+  have := lt_of_add_lt_of_nonneg_right hy (Finset.sum_nonneg (fun i a ↦ sq_nonneg _))
+  rw [Real.dist_eq, sq_lt_sq₀ (abs_nonneg _) (abs_nonneg _), abs_sub_lt_iff] at this
+  replace this := this.1
+  simp_all [abs_of_neg hx, lt_neg_iff_add_neg]
+
+lemma isClosed_plane (n : ℕ) :
+    IsClosed {(x : EuclideanSpace ℝ (Fin (n + 1)) )| x (Fin.last n) = 0} := by
+  rw [← isOpen_compl_iff, compl_setOf]
+  simp_rw [ne_iff_lt_or_gt, setOf_or]
+  exact (isOpen_LowerHalfPlane n).union (isOpen_UpperHalfPlane n)
 
 -- we first need to make sense of embedding a CW-complex
 def sphereInductStep' (n : ℕ) [ClasCWComplex (sphere (0 : EuclideanSpace ℝ (Fin n)) 1)]
     [Finite (sphere (0 : EuclideanSpace ℝ (Fin n)) 1)] :
-    ClasCWComplex (sphere (0 : EuclideanSpace ℝ (Fin (n + 1))) 1) :=
-  sorry
+    ClasCWComplex ((⋃ (i : Fin 2), spheremaps n i '' (closedBall 0 1)) ∪
+      (sphere 0 1 ∩ {x | x (Fin.last n) = 0})) :=
+  letI := ofPartialEquiv (X := EuclideanSpace ℝ (Fin n)) (Y := EuclideanSpace ℝ (Fin (n + 1)))
+    (sphere 0 1) (sphere 0 1 ∩ {x | x (Fin.last n) = 0}) isClosed_sphere
+    (isClosed_sphere.inter (isClosed_plane n))
+    ((PartialEquiv.EuclideanSpaceSucc n).restr (sphere 0 1))
+    (by simp)
+    (by rw [← PartialEquiv.image_source_eq_target];
+        simp [PartialEquiv.EuclideanSpaceSucc_image_sphere])
+    (PartialEquiv.continuous_EuclideanSpaceSucc n).continuousOn
+    (PartialEquiv.continuous_EuclideanSpaceSucc_symm n).continuousOn
+  letI : Finite (X := EuclideanSpace ℝ (Fin (n + 1)))
+    (sphere 0 1 ∩ {(x : EuclideanSpace ℝ (Fin (n + 1))) | x (Fin.last n) = 0})
+    := Finite_ofPartialEquiv ..
+  attachCellsFiniteType (sphere 0 1 ∩ {x | x (Fin.last n) = 0}) (ι := Fin 2)
+    (spheremaps n)
+    (fun i ↦ match i with
+      | 0 => spheremaps_source n 0
+      | 1 => spheremaps_source n 1)
+    (fun i ↦ match i with
+      | 0 => (continuous_spheremaps n 0).continuousOn
+      | 1 => (continuous_spheremaps n 1).continuousOn)
+    (fun i ↦ match i with
+      | 0 => (continuous_spheremaps_symm n 0).continuousOn
+      | 1 => (continuous_spheremaps_symm n 1).continuousOn)
+    (sorry)
+    (sorry)
+    (sorry)
 
 
 /-! # Compiled Instances-/
