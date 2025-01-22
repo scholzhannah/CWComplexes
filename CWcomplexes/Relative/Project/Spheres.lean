@@ -1,4 +1,4 @@
-import CWcomplexes.Relative.SpheresAux
+import CWcomplexes.Relative.Project.SpheresAux
 import Mathlib.Topology.Constructions
 
 noncomputable section

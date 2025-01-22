@@ -1,4 +1,4 @@
-import CWcomplexes.Relative.Examples
+import CWcomplexes.Relative.Project.Examples
 import Mathlib.Analysis.InnerProductSpace.EuclideanDist
 
 noncomputable section
