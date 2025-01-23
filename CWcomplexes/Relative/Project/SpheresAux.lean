@@ -1,24 +1,27 @@
 import CWcomplexes.Relative.Project.Examples
 import Mathlib.Analysis.InnerProductSpace.EuclideanDist
 
+/-!
+# Auxiliary Lemmas and Constructions for the CW-complex structures on spheres
+-/
+
 noncomputable section
 
 open Metric Set
 
+/-! # Lemmas needed for the continuity of `sphereToDisc` on the sphere. -/
 
-def EuclideanFunUnique (n 𝕜 : Type*) [RCLike 𝕜] [Unique n] [Fintype n] :
-    EuclideanSpace 𝕜 n ≃ᵢ (n → 𝕜) where
-  toFun := id
-  invFun := id
-  left_inv := by intro; rfl
-  right_inv := by intro; rfl
-  isometry_toFun := by
-    intro x y
-    simp [edist_pi_def, EuclideanSpace.edist_eq, ← ENNReal.rpow_natCast_mul]
+/- The map `sphereToDisc` is made up of (the inverses of) two maps:
+  `Homeomorph.unitBall` and `stereographic'`. On the sphere these maps are not defined.
+  We define `sphereToDisc` to map the sphere to the relevant unit vector.
+  In order to show that ``sphereToDisc` is continuous on the sphere we need to study how
+  (the inverses of) `Homeomorph.unitBall` and `stereographic'` behave as we approach the edge of
+  their domain.-/
 
-def EuclideanUnique (𝕜 n : Type*) [RCLike 𝕜] [Unique n] [Fintype n] : EuclideanSpace 𝕜 n ≃ᵢ 𝕜 :=
-  (EuclideanFunUnique n 𝕜).trans (IsometryEquiv.funUnique n 𝕜)
-
+/-- As we approach the sphere from inside the ball the inverse of `Homeomorph.unitBall` tends to
+  infinity in its norm.-/
+/- The proof of this statement just unnfolds the definition of `Homeomorph.unitBall` and then
+  applies basic facts about convergence.-/
 lemma Homeomorph.tendsto_norm_comp_unitBall_symm {E : Type*} [NormedAddCommGroup E]
     [NormedSpace ℝ E] [Nontrivial E] (x : E) (hx : x ∈ sphere (0 : E) 1) :
     Filter.Tendsto (norm ∘ Homeomorph.unitBall.symm)
@@ -100,6 +103,9 @@ lemma Homeomorph.tendsto_norm_comp_unitBall_symm {E : Type*} [NormedAddCommGroup
     apply ContinuousWithinAt.tendsto_nhdsWithin_image
     exact continuous_norm.continuousWithinAt
 
+/-- As we approach infinite norm the inverse of hte stereographic projection `stereographic`
+  approaches the center of the projection. -/
+/- Again, this proof is a basic convergence proof. -/
 lemma stereographic_symm_tendsto {E : Type*} [NormedAddCommGroup E] [InnerProductSpace ℝ E] {v : E}
     (hv : ‖v‖ = 1) (α : Filter (↥(Submodule.span ℝ {v})ᗮ))
     (h : Filter.Tendsto norm α Filter.atTop) :
@@ -163,6 +169,8 @@ lemma stereographic_symm_tendsto {E : Type*} [NormedAddCommGroup E] [InnerProduc
     apply Filter.tendsto_atTop_add_const_right
     exact Filter.tendsto_pow_atTop two_ne_zero
 
+/-- As we approach infinite norm the inverse of the stereographic projection `stereographic'`
+  approaches the centre of the projection. -/
 lemma stereographic'_symm_tendsto {n : ℕ} (α : Filter (EuclideanSpace ℝ (Fin n)))
     (h : Filter.Tendsto norm α Filter.atTop) :
     letI : Fact (Module.finrank ℝ (EuclideanSpace ℝ (Fin (n + 1))) = n + 1) := {
@@ -170,7 +178,9 @@ lemma stereographic'_symm_tendsto {n : ℕ} (α : Filter (EuclideanSpace ℝ (Fi
     Filter.Tendsto (stereographic' (E := EuclideanSpace ℝ (Fin (n + 1))) n
     ⟨EuclideanSpace.single (Fin.last n) 1, by simp⟩).symm α
     (nhds ⟨EuclideanSpace.single (Fin.last n) 1, by simp⟩) := by
-  simp [stereographic']
+  simp only [stereographic', Real.norm_eq_abs, PartialHomeomorph.coe_trans_symm,
+    Homeomorph.toPartialHomeomorph_symm_apply, LinearIsometryEquiv.toHomeomorph_symm,
+    LinearIsometryEquiv.coe_toHomeomorph]
   rw [← Filter.tendsto_map'_iff]
   apply stereographic_symm_tendsto
   rw [Filter.tendsto_map'_iff]
@@ -178,6 +188,17 @@ lemma stereographic'_symm_tendsto {n : ℕ} (α : Filter (EuclideanSpace ℝ (Fi
   ext
   simp
 
+/-! # Scaling to a different norm-/
+
+/- The domain of the characterstic maps of a CW-complex (in our definition) are cubes in
+  `Fin n → ℝ` (with the `∞`-metric).
+  But the most convenient characteristic maps for spheres have closed balls in
+  `EuclideanSpace ℝ (Fin n)` as their domain.
+  We therefore need a map from cubes to closed balls.
+  We define this map in a little more generality. -/
+
+
+-- This is just a preliminary lemma showing the continuity of the map we are about to define.
 lemma continuous_normScale {E F : Type*}  [SeminormedAddCommGroup E] [T1Space E]
     [NormedAddCommGroup F] [MulActionWithZero ℝ F]
     {f : E → F} (hf : Continuous f) [ContinuousSMul ℝ F] [BoundedSMul ℝ F]
@@ -212,6 +233,9 @@ lemma continuous_normScale {E F : Type*}  [SeminormedAddCommGroup E] [T1Space E]
     rw [this, ← norm_zero (E := E)]
     exact continuous_norm.continuousAt
 
+/-- A homeomorphism from one normed group to another that preserves norms and the zero.-/
+/- Unfortunatly this does not preserve distances so this is not an isometry
+  (in fact such an isometry generally does not exist). -/
 def normScale {E F : Type*}  [NormedAddCommGroup E] [T1Space E] [Module ℝ E]
     [ContinuousSMul ℝ E] [BoundedSMul ℝ E] [NormedAddCommGroup F] [Module ℝ F] [T1Space F]
     [ContinuousSMul ℝ F] [BoundedSMul ℝ F] (f : E ≃L[ℝ] F) : E ≃ₜ F where
@@ -255,6 +279,7 @@ def normScale {E F : Type*}  [NormedAddCommGroup E] [T1Space E] [Module ℝ E]
   continuous_toFun := continuous_normScale f.continuous (fun _ ↦ f.map_eq_zero_iff)
   continuous_invFun := continuous_normScale f.symm.continuous (fun _ ↦ f.symm.map_eq_zero_iff)
 
+/-- `normScale` preserves the zero. -/
 @[simp]
 lemma normScale_zero {E F : Type*}  [NormedAddCommGroup E] [T1Space E] [Module ℝ E]
     [ContinuousSMul ℝ E] [BoundedSMul ℝ E] [NormedAddCommGroup F] [Module ℝ F] [T1Space F]
@@ -262,6 +287,7 @@ lemma normScale_zero {E F : Type*}  [NormedAddCommGroup E] [T1Space E] [Module �
     normScale f 0 = 0 := by
   simp [normScale]
 
+/-- `normScale` is norm-preserving. -/
 @[simp]
 lemma norm_normScale {E F : Type*}  [NormedAddCommGroup E] [T1Space E] [Module ℝ E]
     [ContinuousSMul ℝ E] [BoundedSMul ℝ E] [NormedAddCommGroup F] [Module ℝ F] [T1Space F]
@@ -275,6 +301,8 @@ lemma norm_normScale {E F : Type*}  [NormedAddCommGroup E] [T1Space E] [Module �
       simp_all
     rw [inv_mul_cancel₀ hfx, mul_one]
 
+/-- The inverse of `normScale` of the continuous linear bijection `f` is just
+  `normScale` of the inverse of `f`. -/
 lemma normScale_symm_eq {E F : Type*}  [NormedAddCommGroup E] [T1Space E] [Module ℝ E]
     [ContinuousSMul ℝ E] [BoundedSMul ℝ E] [NormedAddCommGroup F] [Module ℝ F] [T1Space F]
     [ContinuousSMul ℝ F] [BoundedSMul ℝ F] (f : E ≃L[ℝ] F) :
@@ -282,6 +310,7 @@ lemma normScale_symm_eq {E F : Type*}  [NormedAddCommGroup E] [T1Space E] [Modul
   ext
   simp [normScale]
 
+/-- `normScale` preserves closed balls.-/
 @[simp]
 lemma normScale_image_closedBall {E F : Type*}  [NormedAddCommGroup E] [T1Space E] [Module ℝ E]
     [ContinuousSMul ℝ E] [BoundedSMul ℝ E] [NormedAddCommGroup F] [Module ℝ F] [T1Space F]
@@ -299,6 +328,7 @@ lemma normScale_image_closedBall {E F : Type*}  [NormedAddCommGroup E] [T1Space 
     rw [Homeomorph.apply_symm_apply, normScale_symm_eq, norm_normScale]
     exact ⟨hx, rfl⟩
 
+/-- `normScale` preserves balls. -/
 @[simp]
 lemma normScale_image_ball {E F : Type*}  [NormedAddCommGroup E] [T1Space E] [Module ℝ E]
     [ContinuousSMul ℝ E] [BoundedSMul ℝ E] [NormedAddCommGroup F] [Module ℝ F] [T1Space F]
@@ -316,6 +346,7 @@ lemma normScale_image_ball {E F : Type*}  [NormedAddCommGroup E] [T1Space E] [Mo
     rw [Homeomorph.apply_symm_apply, normScale_symm_eq, norm_normScale]
     exact ⟨hx, rfl⟩
 
+/-- `normScale` preserves spheres. -/
 @[simp]
 lemma normScale_image_sphere {E F : Type*}  [NormedAddCommGroup E] [T1Space E] [Module ℝ E]
     [ContinuousSMul ℝ E] [BoundedSMul ℝ E] [NormedAddCommGroup F] [Module ℝ F] [T1Space F]
@@ -333,38 +364,106 @@ lemma normScale_image_sphere {E F : Type*}  [NormedAddCommGroup E] [T1Space E] [
     rw [Homeomorph.apply_symm_apply, normScale_symm_eq, norm_normScale]
     exact ⟨hx, rfl⟩
 
+/-- An specification of `normScale` that scales between the `∞`- and the euclidean metric. -/
 def toEuclideanNormScale (n : ℕ) : (Fin n → ℝ) ≃ₜ EuclideanSpace ℝ (Fin n) :=
   (normScale (toEuclidean (E := Fin n → ℝ))).trans
   (LinearIsometryEquiv.piLpCongrLeft 2 ℝ ℝ (finCongr (Module.finrank_fin_fun ℝ))).toHomeomorph
 
+/-- `toEuclideanNormScale` preserves the zero. -/
 @[simp]
 lemma toEuclideanNormScale_zero (n : ℕ) : toEuclideanNormScale n 0 = 0 := by
   simp [toEuclideanNormScale, map_zero]
 
+/-- `toEuclideanNormScale` is norm-preserving. -/
 @[simp]
 lemma norm_toEuclideanNormScale (n : ℕ) (x : Fin n → ℝ) : ‖toEuclideanNormScale n x‖ = ‖x‖ := by
   simp only [toEuclideanNormScale, Homeomorph.trans_apply, LinearIsometryEquiv.coe_toHomeomorph,
     LinearIsometryEquiv.norm_map, norm_normScale]
 
+/-- `toEuclideanNormScale` preserves closed balls. -/
 @[simp]
 lemma toEuclideanNormScale_image_closedBall (n : ℕ) (r : ℝ) :
     toEuclideanNormScale n '' closedBall 0 r = closedBall 0 r := by
   simp only [toEuclideanNormScale, Homeomorph.trans_apply, LinearIsometryEquiv.coe_toHomeomorph, ←
     image_image, normScale_image_closedBall, LinearIsometryEquiv.image_closedBall, map_zero]
 
+/-- `toEuclideanNormScale` preserves balls. -/
 @[simp]
 lemma toEuclideanNormScale_image_ball (n : ℕ) (r : ℝ) :
     toEuclideanNormScale n '' ball 0 r = ball 0 r := by
   simp only [toEuclideanNormScale, Homeomorph.trans_apply, LinearIsometryEquiv.coe_toHomeomorph, ←
     image_image, normScale_image_ball, LinearIsometryEquiv.image_ball, map_zero]
 
+/-- `toEuclideanNormScale` preserves spheres. -/
 @[simp]
 lemma toEuclideanNormScale_image_sphere (n : ℕ) (r : ℝ) :
     toEuclideanNormScale n '' sphere 0 r = sphere 0 r := by
   simp only [toEuclideanNormScale, Homeomorph.trans_apply, LinearIsometryEquiv.coe_toHomeomorph, ←
     image_image, normScale_image_sphere, LinearIsometryEquiv.image_sphere, map_zero]
 
--- this needs to be generalized
+/-! # A Homeomorphism that flips the last coordinate-/
+
+/- For the inductive construction of the sphere we pricipally need two maps:
+  One that maps from the closed ball in dimension `n` to the upper hemisphere of the sphere in
+  dimension `n + 1`, and one that does the same for the lower hemisphere.
+  In order to not define essentially the same map twice, we define a linear bijective isometry
+  that reflects the space on the hyperplane where the last coordinate is zero. -/
+
+/-- A specialized version of `LinearIsometryEquiv.reflection` reflecting
+  `EuclideanSpace ℝ (Fin (n + 1))` on the hyperplane where the last coordinate is zero. -/
+def LinearIsometryEquiv.negLast (n : ℕ) :
+    EuclideanSpace ℝ (Fin (n + 1)) ≃ₗᵢ[ℝ] EuclideanSpace ℝ (Fin (n + 1)) where
+  toFun x := Function.update x (Fin.last n) (-(x (Fin.last n)))
+  map_add' x y := by
+    ext i
+    by_cases h : i = Fin.last n
+    · subst i
+      simp [add_comm]
+    · unfold Function.update
+      simp [h]
+  map_smul' m x := by
+    ext i
+    by_cases h : i = Fin.last n
+    · subst i
+      simp [add_comm]
+    · unfold Function.update
+      simp [h]
+  invFun y := Function.update y (Fin.last n) (-(y (Fin.last n)))
+  left_inv x := by simp
+  right_inv y := by simp
+  norm_map' x := by
+    simp [EuclideanSpace.norm_eq, Fin.sum_univ_castSucc, fun i ↦ (Fin.castSucc_lt_last i).ne]
+
+/-- `LinearIsometryEquiv.negLast` is idempotent. -/
+@[simp]
+lemma LinearIsometryEquiv.negLast_idempotent (n : ℕ) (x : EuclideanSpace ℝ (Fin (n + 1))) :
+    negLast n (negLast n x) = x := by
+  ext i
+  unfold negLast Function.update
+  by_cases h : i = Fin.last n
+  · simp only [eq_rec_constant, dite_eq_ite, coe_mk, LinearEquiv.coe_mk, h, ↓reduceIte, neg_neg]
+    rw [← h]
+  · simp [h]
+
+/-! # Miscellaneous-/
+
+/-- The isometry between the euclidean and the `∞`-metric on `ℝ`.-/
+def EuclideanFunUnique (n 𝕜 : Type*) [RCLike 𝕜] [Unique n] [Fintype n] :
+    EuclideanSpace 𝕜 n ≃ᵢ (n → 𝕜) where
+  toFun := id
+  invFun := id
+  left_inv := by intro; rfl
+  right_inv := by intro; rfl
+  isometry_toFun := by
+    intro x y
+    simp [edist_pi_def, EuclideanSpace.edist_eq, ← ENNReal.rpow_natCast_mul]
+
+/-- The isometry between the euclidean and the usual metric on `ℝ`.-/
+def EuclideanUnique (𝕜 n : Type*) [RCLike 𝕜] [Unique n] [Fintype n] : EuclideanSpace 𝕜 n ≃ᵢ 𝕜 :=
+  (EuclideanFunUnique n 𝕜).trans (IsometryEquiv.funUnique n 𝕜)
+
+/-- `Fin.init` is continuous. -/
+/- This still needs to be generalized. -/
 lemma Continuous.finInit {n : ℕ} {α : Type*} [PseudoMetricSpace α] :
     Continuous (Fin.init : (Fin (n + 1) → α) → (Fin n → α)) := by
   rw [Metric.continuous_iff]
@@ -377,6 +476,7 @@ lemma Continuous.finInit {n : ℕ} {α : Type*} [PseudoMetricSpace α] :
   intro c
   exact Finset.le_sup (Finset.mem_univ c.castSucc) (f := fun x ↦ nndist (a x) (b x))
 
+/-- The euclidean norm of `Fin.init` is less then or equal to the euclidean norm of the element. -/
 lemma EuclideanSpace.norm_finInit_le {𝕜 : Type*} [RCLike 𝕜] {n : ℕ}
     (q : EuclideanSpace 𝕜 (Fin (n + 1))) :
     norm (Fin.init q : EuclideanSpace 𝕜 (Fin n)) (self := (PiLp.instNorm 2 fun x ↦ 𝕜)) ≤ ‖q‖ := by
@@ -385,6 +485,9 @@ lemma EuclideanSpace.norm_finInit_le {𝕜 : Type*} [RCLike 𝕜] {n : ℕ}
     le_add_iff_nonneg_right]
   exact sq_nonneg ‖q (Fin.last n)‖
 
+/-- If the last coordinate of an element `q` is greater than zero in norm then the euclidean norm
+  of `Fin.init q` is strictly less than the euclidean norm of `q`. -/
+/- The hypthesis `hq` should be generalised. -/
 lemma EuclideanSpace.norm_finInit_lt {𝕜 : Type*} [RCLike 𝕜] {n : ℕ}
     (q : EuclideanSpace 𝕜 (Fin (n + 1))) (hq : ‖q (Fin.last n)‖ > 0):
     norm (Fin.init q : EuclideanSpace 𝕜 (Fin n)) (self := (PiLp.instNorm 2 fun x ↦ 𝕜)) < ‖q‖ := by
@@ -393,50 +496,9 @@ lemma EuclideanSpace.norm_finInit_lt {𝕜 : Type*} [RCLike 𝕜] {n : ℕ}
     lt_add_iff_pos_right]
   exact sq_pos_of_pos hq
 
+/-- The norm of `Fin.init` is less than or equal to the norm of the original element. -/
 lemma Fin.norm_init_le {n : ℕ} {α : Type*} [SeminormedAddGroup α] (q : (Fin (n + 1)) → α) :
     ‖Fin.init q‖ ≤ ‖q‖ := by
   simp only [Pi.norm_def, NNReal.coe_le_coe, Finset.sup_le_iff, Finset.mem_univ, forall_const]
   intro b
   exact Finset.le_sup (Finset.mem_univ b.castSucc) (f := fun x ↦ ‖q x‖₊)
-
-def Homeomorph.negLast (n : ℕ) :
-    EuclideanSpace ℝ (Fin (n + 1)) ≃ₜ EuclideanSpace ℝ (Fin (n + 1)) where
-  toFun x  := Function.update x (Fin.last n) (-(x (Fin.last n)))
-  invFun y := Function.update y (Fin.last n) (-(y (Fin.last n)))
-  left_inv x := by simp
-  right_inv y := by simp
-  continuous_toFun := by
-    apply continuous_id'.update
-    exact (continuous_neg.comp (continuous_apply (Fin.last n)))
-  continuous_invFun := by
-    apply continuous_id'.update
-    exact (continuous_neg.comp (continuous_apply (Fin.last n)))
-
-@[simp]
-lemma Homeomorph.norm_negLast (n : ℕ) (x : EuclideanSpace ℝ (Fin (n + 1))) :
-    ‖negLast n x‖ = ‖x‖ := by
-  simp [EuclideanSpace.norm_eq, Fin.sum_univ_castSucc, negLast, Function.update,
-    fun i ↦ (Fin.castSucc_lt_last i).ne]
-
-@[simp]
-lemma Homeomorph.negLast_idempotent (n : ℕ) (x : EuclideanSpace ℝ (Fin (n + 1))) :
-    negLast n (negLast n x) = x := by
-  ext i
-  unfold negLast Function.update
-  by_cases h : i = Fin.last n
-  · simp only [eq_rec_constant, dite_eq_ite, homeomorph_mk_coe, Equiv.coe_fn_mk, h, ↓reduceIte,
-    neg_neg]
-    rw [← h]
-  · simp [h]
-
-@[simp]
-lemma Homeomorph.negLast_image_sphere (n : ℕ) : negLast n '' sphere 0 1 = sphere 0 1 := by
-  ext x
-  simp
-  constructor
-  · intro ⟨y, hy1, hy2⟩
-    rw [← hy2]
-    simp [hy1]
-  · intro hx
-    use negLast n x
-    simp [hx]
