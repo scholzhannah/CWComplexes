@@ -1,0 +1,129 @@
+\documentclass{beamer}
+\usepackage[T1]{fontenc}
+\usepackage[utf8]{inputenc}
+\usepackage{listings}
+\usepackage{amssymb}
+\usepackage{upgreek}
+\usepackage{mathtools}
+
+\usepackage{color}
+%colors for lean syntax
+\definecolor{keywordcolor}{rgb}{0.7, 0.1, 0.1}   % red
+\definecolor{tacticcolor}{rgb}{0.0, 0.1, 0.6}    % blue
+\definecolor{commentcolor}{rgb}{0.4, 0.4, 0.4}   % grey
+\definecolor{symbolcolor}{rgb}{0.0, 0.1, 0.6}    % blue
+\definecolor{sortcolor}{rgb}{0.1, 0.5, 0.1}      % green
+\definecolor{attributecolor}{rgb}{0.7, 0.1, 0.1} % red
+
+\def\lstlanguagefiles{lstlean.tex}
+% set default language
+\lstset{language=lean}
+
+\usetheme{Madrid}
+\usecolortheme{default}
+
+\input{thesis_macros}
+
+%Information to be included in the title page:
+\title{Examples of CW-complexes}
+\author{Hannah Scholz}
+\institute[MI]{Mathematical Institute of the University of Bonn}
+\date{23.01.2024}
+
+
+
+\begin{document}
+
+\frame{\titlepage}
+
+\begin{frame}
+\frametitle{Definition of CW-complexes}
+  Let $X$ be a Hausdorff space.
+    A \emph{CW-complex} on $X$ consists of a family of indexing sets $(I_n)_{n \in \bN}$ and a family of maps $(Q_i^n\colon D_i^n\rightarrow X)_{n \ge 0, i \in I_n}$ s.t.
+    \setbeamertemplate{enumerate items}[default]
+    \begin{enumerate}[(i)]
+        \item $\restrict{Q_i^n}{\interior{D_i^n}}\colon \interior{D_i^n} \rightarrow Q_i^n(\interior{D_i^n})$ is a homeomorphism. We call $\openCell{n}{i} \coloneq Q_i^n(\interior{D_i^n})$ an \emph{(open) $n$-cell} (or a cell of dimension $n$)
+        and $\closedCell{n}{i} \coloneq Q_i^n(D_i^n)$ a \emph{closed $n$-cell}.
+        \item For all $n, m \in \bN$, $i \in I_n$ and $j \in I_m$ where $(n, i) \ne (m, j)$ the cells $\openCell{n}{i}$ and $\openCell{m}{j}$ are disjoint.
+        \item For each $n \in \bN$, $i \in I_n$, $Q_i^n(\boundary D_i^n)$ is contained in the union of a finite number of closed cells of dimension less than $n$.
+        \item $A \subseteq X$ is closed iff $Q_i^n(D_i^n) \cap A$ is closed for all $n \in \bN$ and $i \in I_n$.
+        \item $\bigcup_{n \ge 0}\bigcup_{i \in I_n} Q_i^n(D_i^n) = X$.
+    \end{enumerate}
+    We call $Q_i^n$ a \emph{characteristic map} and $\cellFrontier{n}{i} \coloneq Q_i^n(\boundary D_i^n)$ the \emph{frontier of the $n$-cell} for any $i$ and $n$.
+    Additionally we define $X_n \coloneq \bigcup_{m < n + 1} \bigcup_{i \in I_m} \closedCell{m}{i}$ and call it the \emph{$n$-skeleton} of $X$ for $-1 \le n \le \infty$.
+\end{frame}
+
+\begin{frame}
+  \frametitle{Examples of CW-complexes}
+  We will look at the CW-complex structures on the following spaces: 
+  \begin{itemize}
+    \item $\varnothing$: The empty set. 
+    \item Any finite set. 
+    \item $[a, b]$: Any closed interval.
+    \item $\mathbb{R}$: The real line. 
+    \item $S^n$: The $n$-dimensional sphere.
+  \end{itemize}
+\end{frame}
+
+\begin{frame}
+  \frametitle{CW-complexes in Lean}
+  \begin{itemize}
+    \item I have defined and proven statements about CW-complexes as my bachelors thesis and as my work as a student research assistant.
+    \item CW-complexes are not (yet) in mathlib. 
+    \item Proven statements include constructions like subcomplexes and products.
+  \end{itemize}
+\end{frame}
+
+\begin{frame}
+\frametitle{Equivalence of the definitions}
+\begin{block}{Lemma}
+  Let $C$ be a CW-complex in a Hausdorff space $X$ as in the definition in the formalisation.
+  Then $C$ is a CW-complex as in the paper definition.
+\end{block}
+\begin{block}{Lemma}
+  Let $X$ be a Hausdorff space and and $C$ a CW-complex in $X$ as in the formalised definition.
+  Then $C$ is closed.
+\end{block}
+\end{frame}
+
+\begin{frame}[fragile]{Closedness of CW-complexes}
+  \begin{exampleblock}{Proof}
+    \small
+    \begin{tabular}{ll}
+      1& By the weak topology it is enough to show that the intersection with every \\
+      & closed cell is closed.\\
+      2& Take any closed cell of $C$.\\
+      3& Since the closed cell is a subset of $C$, the intersection is just the closed cell.\\
+      4& Every closed cell is closed.\\
+    \end{tabular}
+  \end{exampleblock}
+  \begin{exampleblock}{Proof (Lean)}
+\begin{lstlisting}[basicstyle=\ttfamily\small, numbers=left, xleftmargin=21pt]
+rw [closed _ (by rfl)]
+intros
+rw [inter_eq_right.2 (closedCell_subset_complex _ _)]
+exact isClosed_closedCell
+\end{lstlisting}
+  \end{exampleblock}
+
+\end{frame}
+
+\begin{frame}{The topology of the product}
+\begin{block}{Definition k-space}
+  Let $X$ be a topological space. 
+  We call $X$ a \emph{k-space} if 
+  \begin{align*}
+    A \subseteq X \text{ is closed} \iff &\text{for all compact sets } C \subseteq X \text{ the intersection } A \cap C \\
+    &\text{is closed in } C.
+  \end{align*}
+\end{block}
+\begin{block}{Lemma}
+  Let $X$ be a CW-complex and $C \subseteq X$ a compact set. 
+  Then $C$ is disjoint with all but finitely many cells of $X$.
+\end{block}
+\begin{block}{Lemma}
+  If $X \times Y$ is a k-space then it has weak topology with respect to the characteristic maps $(Q_i^n \times P_j^m \colon D_i^n \times D_j^m \to (X \times Y)_c)_{n,m \in \bN,i \in I_n,j \in J_m}$, i.e. $A \subseteq X \times Y$ is closed iff $A \cap (\closedCell{n}{i} \times \closedCellf{m}{j})$ is closed for every $n, m \in \bN$, $i \in I_n$ and $j \in J_m$.
+\end{block}
+\end{frame}
+
+\end{document}
