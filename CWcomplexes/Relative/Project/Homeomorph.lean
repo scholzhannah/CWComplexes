@@ -3,12 +3,24 @@ import Mathlib.Analysis.NormedSpace.Real
 import CWcomplexes.Auxiliary
 import Mathlib.Data.ENat.Basic
 
+/-!
+# CW-complexes are preserved under some partial bijection
+In this file we provide a more precise version of `RelCWComplex.ofHomeomorph`.
+## Main definitions
+* `PartialEquiv.toHomeomorph` : A partial bijection that is continuous on the source and the target
+  restricts to a homeomorphism.
+* `RelCWComplex.ofPartialEquiv` : A partial bijection with closed source and target that is
+  continuous on both source and target preserves CW-structures.
+-/
+
 noncomputable section
 
 open Metric Set
 
 variable {X : Type*} [t : TopologicalSpace X] [T2Space X] {C D : Set X}
 
+/-- A partial bijection that is continuous on the source and the target restricts to a
+  homeomorphism.-/
 @[simps]
 def PartialEquiv.toHomeomorph {α β : Type*} [TopologicalSpace α]
     [TopologicalSpace β] (e : PartialEquiv α β) (he1 : ContinuousOn e e.source)
@@ -34,6 +46,8 @@ def PartialEquiv.toHomeomorph {α β : Type*} [TopologicalSpace α]
     rw [this, ← continuousOn_iff_continuous_restrict]
     exact he2
 
+/-- A partial bijection that is continuous on both source and target and where the source and
+  the target are closed is a closed map when restricting to the source. -/
 lemma PartialEquiv.isClosed_of_isClosed_preimage {X Y : Type*} [TopologicalSpace X]
     [TopologicalSpace Y] (e : PartialEquiv X Y) (h1 : ContinuousOn e e.source)
     (h2 : ContinuousOn e.symm e.target)
@@ -50,6 +64,8 @@ lemma PartialEquiv.isClosed_of_isClosed_preimage {X Y : Type*} [TopologicalSpace
   rw [Topology.IsClosedEmbedding.isClosed_iff_image_isClosed he2.isClosedEmbedding_subtypeVal, this]
   exact hA
 
+/-- A partial bijection with closed source and target that is continuous on both source and target
+  preserves CW-structures. -/
 def RelCWComplex.ofPartialEquiv.{u} {X Y : Type u} [TopologicalSpace X] [T2Space X]
     [TopologicalSpace Y] (C : Set X) {D : Set X} (E : Set Y) {F : Set Y} [RelCWComplex C D]
     (hC : IsClosed C) (hE : IsClosed E)
@@ -158,6 +174,7 @@ def RelCWComplex.ofPartialEquiv.{u} {X Y : Type u} [TopologicalSpace X] [T2Space
       ← image_image, ← image_iUnion (f := f), ← hDF, ← image_union, ← hfE1,
       ← f.image_source_eq_target, hfC1, union']
 
+/-- `RelCWComplex.ofPartialEquiv` preserves finite dimensionality. -/
 lemma RelCWComplex.FiniteDimensional_ofPartialEquiv.{u} {X Y : Type u} [TopologicalSpace X]
     [T2Space X] [TopologicalSpace Y] (C : Set X) {D : Set X} (E : Set Y) {F : Set Y}
     [RelCWComplex C D] [FiniteDimensional C] (hC : IsClosed C) (hE : IsClosed E)
@@ -168,6 +185,7 @@ lemma RelCWComplex.FiniteDimensional_ofPartialEquiv.{u} {X Y : Type u} [Topologi
   let _ := ofPartialEquiv C E hC hE f hfC1 hfE1 hDF hfC2 hfE2
   {eventually_isEmpty_cell := FiniteDimensional.eventually_isEmpty_cell (C := C)}
 
+/-- `RelCWComplex.ofPartialEquiv` preserves finite type. -/
 lemma RelCWComplex.FiniteType_ofPartialEquiv.{u} {X Y : Type u} [TopologicalSpace X]
     [T2Space X] [TopologicalSpace Y] (C : Set X) {D : Set X} (E : Set Y) {F : Set Y}
     [RelCWComplex C D] [FiniteType C] (hC : IsClosed C) (hE : IsClosed E)
@@ -178,6 +196,7 @@ lemma RelCWComplex.FiniteType_ofPartialEquiv.{u} {X Y : Type u} [TopologicalSpac
   let _ := ofPartialEquiv C E hC hE f hfC1 hfE1 hDF hfC2 hfE2
   {finite_cell := FiniteType.finite_cell (C := C)}
 
+/-- `RelCWComplex.ofPartialEquiv` preserves finiteness. -/
 lemma RelCWComplex.Finite_ofPartialEquiv.{u} {X Y : Type u} [TopologicalSpace X]
     [T2Space X] [TopologicalSpace Y] (C : Set X) {D : Set X} (E : Set Y) {F : Set Y}
     [RelCWComplex C D] [Finite C] (hC : IsClosed C) (hE : IsClosed E)
@@ -190,6 +209,7 @@ lemma RelCWComplex.Finite_ofPartialEquiv.{u} {X Y : Type u} [TopologicalSpace X]
   let _ := FiniteType_ofPartialEquiv C E hC hE f hfC1 hfE1 hDF hfC2 hfE2
   inferInstance
 
+/-- A version of `RelCWComplex.ofPartialEquiv` for absolute CW-complexes. -/
 def ClasCWComplex.ofPartialEquiv.{u} {X Y : Type u} [TopologicalSpace X] [T2Space X]
     [TopologicalSpace Y] (C : Set X) (E : Set Y) [ClasCWComplex C] (hC : IsClosed C)
     (hE : IsClosed E) (f : PartialEquiv X Y) (hfC1 : f.source = C) (hfE1 : f.target = E)
@@ -197,6 +217,7 @@ def ClasCWComplex.ofPartialEquiv.{u} {X Y : Type u} [TopologicalSpace X] [T2Spac
     ClasCWComplex E :=
   RelCWComplex.ofPartialEquiv C E hC hE f hfC1 hfE1 (image_empty f)  hfC2 hfE2
 
+/-- `ClasCWComplex.ofPartialEquiv` preserves finite dimensionality. -/
 lemma ClasCWComplex.FiniteDimensional_ofPartialEquiv .{u} {X Y : Type u} [TopologicalSpace X]
     [T2Space X] [TopologicalSpace Y] (C : Set X) (E : Set Y) [ClasCWComplex C] [FiniteDimensional C]
     (hC : IsClosed C) (hE : IsClosed E) (f : PartialEquiv X Y) (hfC1 : f.source = C)
@@ -206,6 +227,7 @@ lemma ClasCWComplex.FiniteDimensional_ofPartialEquiv .{u} {X Y : Type u} [Topolo
   let _ := ofPartialEquiv C E hC hE f hfC1 hfE1 hfC2 hfE2
   { eventually_isEmpty_cell := FiniteDimensional.eventually_isEmpty_cell (C := C) }
 
+/-- `ClasCWComplex.ofPartialEquiv` preserves finite type. -/
 lemma ClasCWComplex.FiniteType_ofPartialEquiv .{u} {X Y : Type u} [TopologicalSpace X]
     [T2Space X] [TopologicalSpace Y] (C : Set X) (E : Set Y) [ClasCWComplex C] [FiniteType C]
     (hC : IsClosed C) (hE : IsClosed E) (f : PartialEquiv X Y) (hfC1 : f.source = C)
@@ -215,6 +237,7 @@ lemma ClasCWComplex.FiniteType_ofPartialEquiv .{u} {X Y : Type u} [TopologicalSp
   let _ := ofPartialEquiv C E hC hE f hfC1 hfE1 hfC2 hfE2
   { finite_cell := FiniteType.finite_cell (C := C) }
 
+/-- `ClasCWComplex.ofPartialEquiv` preserves finiteness. -/
 lemma ClasCWComplex.Finite_ofPartialEquiv .{u} {X Y : Type u} [TopologicalSpace X]
     [T2Space X] [TopologicalSpace Y] (C : Set X) (E : Set Y) [ClasCWComplex C] [Finite C]
     (hC : IsClosed C) (hE : IsClosed E) (f : PartialEquiv X Y) (hfC1 : f.source = C)
