@@ -445,22 +445,51 @@ lemma LinearIsometryEquiv.negLast_idempotent (n : ℕ) (x : EuclideanSpace ℝ (
     rw [← h]
   · simp [h]
 
-/-! # Miscellaneous-/
+/-! # Openness/Closedness of the plane and half-planes-/
 
-/-- The isometry between the euclidean and the `∞`-metric on `ℝ`.-/
-def EuclideanFunUnique (n 𝕜 : Type*) [RCLike 𝕜] [Unique n] [Fintype n] :
-    EuclideanSpace 𝕜 n ≃ᵢ (n → 𝕜) where
-  toFun := id
-  invFun := id
-  left_inv := by intro; rfl
-  right_inv := by intro; rfl
-  isometry_toFun := by
-    intro x y
-    simp [edist_pi_def, EuclideanSpace.edist_eq, ← ENNReal.rpow_natCast_mul]
+/-- The upper half-plane is open. -/
+lemma isOpen_UpperHalfPlane (n : ℕ) :
+    IsOpen {(x : EuclideanSpace ℝ (Fin (n + 1)) )| x (Fin.last n) > 0} := by
+  rw [isOpen_iff_forall_mem_open]
+  intro x hx
+  simp_all only [gt_iff_lt, mem_setOf_eq]
+  use ball x (x (Fin.last n))
+  refine ⟨?_, isOpen_ball, mem_ball_self hx⟩
+  intro y hy
+  simp_all only [mem_ball, mem_setOf_eq]
+  rw [EuclideanSpace.dist_eq, Fin.sum_univ_castSucc, ← sq_lt_sq₀ (Real.sqrt_nonneg _) hx.le,
+    Real.sq_sqrt (add_nonneg (Finset.sum_nonneg (fun i a ↦ sq_nonneg _)) (sq_nonneg _))] at hy
+  have := lt_of_add_lt_of_nonneg_right hy (Finset.sum_nonneg (fun i a ↦ sq_nonneg _))
+  rw [Real.dist_eq, sq_lt_sq₀ (abs_nonneg _) hx.le] at this
+  replace this := sub_lt_of_abs_sub_lt_left this
+  simp_all only [sub_self]
 
-/-- The isometry between the euclidean and the usual metric on `ℝ`.-/
-def EuclideanUnique (𝕜 n : Type*) [RCLike 𝕜] [Unique n] [Fintype n] : EuclideanSpace 𝕜 n ≃ᵢ 𝕜 :=
-  (EuclideanFunUnique n 𝕜).trans (IsometryEquiv.funUnique n 𝕜)
+/-- The lower half plane is open. -/
+lemma isOpen_LowerHalfPlane (n : ℕ) :
+    IsOpen {(x : EuclideanSpace ℝ (Fin (n + 1)) )| x (Fin.last n) < 0} := by
+  rw [isOpen_iff_forall_mem_open]
+  intro x hx
+  simp_all only [gt_iff_lt, mem_setOf_eq]
+  use ball x |(x (Fin.last n))|
+  refine ⟨?_, isOpen_ball, mem_ball_self (abs_pos_of_neg hx)⟩
+  intro y hy
+  simp_all only [mem_ball, mem_setOf_eq]
+  rw [EuclideanSpace.dist_eq, Fin.sum_univ_castSucc,
+    ← sq_lt_sq₀ (Real.sqrt_nonneg _) (abs_nonneg _),
+    Real.sq_sqrt (add_nonneg (Finset.sum_nonneg (fun i a ↦ sq_nonneg _)) (sq_nonneg _))] at hy
+  have := lt_of_add_lt_of_nonneg_right hy (Finset.sum_nonneg (fun i a ↦ sq_nonneg _))
+  rw [Real.dist_eq, sq_lt_sq₀ (abs_nonneg _) (abs_nonneg _), abs_sub_lt_iff] at this
+  replace this := this.1
+  simp_all [abs_of_neg hx, lt_neg_iff_add_neg]
+
+/-- The hyperplane is closed. -/
+lemma isClosed_plane (n : ℕ) :
+    IsClosed {(x : EuclideanSpace ℝ (Fin (n + 1)) )| x (Fin.last n) = 0} := by
+  rw [← isOpen_compl_iff, compl_setOf]
+  simp_rw [ne_iff_lt_or_gt, setOf_or]
+  exact (isOpen_LowerHalfPlane n).union (isOpen_UpperHalfPlane n)
+
+/-! # Statements about `Fin.init`-/
 
 /-- `Fin.init` is continuous. -/
 /- This still needs to be generalized. -/
@@ -502,3 +531,87 @@ lemma Fin.norm_init_le {n : ℕ} {α : Type*} [SeminormedAddGroup α] (q : (Fin 
   simp only [Pi.norm_def, NNReal.coe_le_coe, Finset.sup_le_iff, Finset.mem_univ, forall_const]
   intro b
   exact Finset.le_sup (Finset.mem_univ b.castSucc) (f := fun x ↦ ‖q x‖₊)
+
+/-! # Embedding the euclidean space of dimension `n` into dimension `n + 1` -/
+
+/- We need this to embed the sphere in dimension `n` into the space of dimension `n + 1` while
+  maintaining that it is a CW-complex. -/
+
+/-- A partial bijection between `EuclideanSpace ℝ (Fin n)` and the hyperplane with last
+  coordinate zero in `EuclideanSpace ℝ (Fin (n + 1))`. -/
+@[simps!]
+def PartialEquiv.EuclideanSpaceSucc (n : ℕ) :
+    PartialEquiv (EuclideanSpace ℝ (Fin n)) (EuclideanSpace ℝ (Fin (n + 1))) where
+  toFun x := Fin.snoc x 0
+  invFun := Fin.init
+  source := univ
+  target := {y | y (Fin.last n) = 0}
+  map_source' := by simp
+  map_target' := by simp
+  left_inv' x _ := by simp
+  right_inv' y hy := by
+    simp_all only [mem_setOf_eq]
+    rw [← hy]
+    exact Fin.snoc_init_self _
+
+/-- `PartialEquiv.EuclideanSpaceSucc` is continuous. -/
+lemma PartialEquiv.continuous_EuclideanSpaceSucc (n : ℕ) :
+    Continuous (EuclideanSpaceSucc n) := by
+  simp only [EuclideanSpaceSucc]
+  apply Continuous.finSnoc
+  · exact continuous_id'
+  · exact continuous_const
+
+/-- The inverse of `PartialEquiv.EuclideanSpaceSucc` is continuous. -/
+lemma PartialEquiv.continuous_EuclideanSpaceSucc_symm (n : ℕ) :
+    Continuous (EuclideanSpaceSucc n).symm := by
+  simp only [EuclideanSpaceSucc, PartialEquiv.coe_symm_mk]
+  exact Continuous.finInit
+
+/-- The image of the sphere under `PartialEquiv.EuclideanSpaceSucc` is the sphere intersected
+  with the hyperplane with last coordinate zero. -/
+lemma PartialEquiv.EuclideanSpaceSucc_image_sphere (n : ℕ) :
+    EuclideanSpaceSucc n '' sphere 0 1 = sphere 0 1 ∩ {x | x (Fin.last n) = 0} := by
+  ext x
+  constructor
+  · simp only [mem_image, mem_sphere_iff_norm, sub_zero, mem_inter_iff, mem_setOf_eq,
+    forall_exists_index, and_imp]
+    intro y hy hyx
+    constructor
+    · rw [EuclideanSpace.norm_eq, Fin.sum_univ_castSucc, ← hyx]
+      simp only [EuclideanSpaceSucc_apply, Fin.snoc_castSucc, Fin.snoc_last,
+        Real.norm_eq_abs (r := 0), sq_abs, ne_eq, OfNat.ofNat_ne_zero, not_false_eq_true, zero_pow,
+        add_zero]
+      rw [← EuclideanSpace.norm_eq, hy]
+    · rw [← hyx]
+      simp
+  · simp only [mem_inter_iff, mem_sphere_iff_norm, sub_zero, mem_setOf_eq, mem_image, and_imp]
+    intro hx hx0
+    use Fin.init x
+    constructor
+    · rw [EuclideanSpace.norm_eq, Fin.sum_univ_castSucc, hx0] at hx
+      simp only [Real.norm_eq_abs (r := 0), sq_abs, ne_eq, OfNat.ofNat_ne_zero, not_false_eq_true,
+        zero_pow, add_zero] at hx
+      rw [EuclideanSpace.norm_eq]
+      simp only [Fin.init]
+      exact hx
+    · simp only [EuclideanSpaceSucc]
+      rw [← hx0]
+      exact Fin.snoc_init_self _
+
+/-! # Miscellaneous-/
+
+/-- The isometry between the euclidean and the `∞`-metric on `ℝ`.-/
+def EuclideanFunUnique (n 𝕜 : Type*) [RCLike 𝕜] [Unique n] [Fintype n] :
+    EuclideanSpace 𝕜 n ≃ᵢ (n → 𝕜) where
+  toFun := id
+  invFun := id
+  left_inv := by intro; rfl
+  right_inv := by intro; rfl
+  isometry_toFun := by
+    intro x y
+    simp [edist_pi_def, EuclideanSpace.edist_eq, ← ENNReal.rpow_natCast_mul]
+
+/-- The isometry between the euclidean and the usual metric on `ℝ`.-/
+def EuclideanUnique (𝕜 n : Type*) [RCLike 𝕜] [Unique n] [Fintype n] : EuclideanSpace 𝕜 n ≃ᵢ 𝕜 :=
+  (EuclideanFunUnique n 𝕜).trans (IsometryEquiv.funUnique n 𝕜)
