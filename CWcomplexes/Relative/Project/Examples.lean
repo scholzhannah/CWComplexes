@@ -7,10 +7,11 @@ import Mathlib.Geometry.Manifold.Instances.Sphere
 # Examples of CW-complexes
 
 In this file we present some examples of CW-complexes:
-
-* `instCWComplexEmpty`: The empty set is a CW-complex.
-* `instCWComplexsingleton`: A singleton is a CW-complex.
-* `instCWComplexIcc`: The interval `Icc a b` in `ℝ` is a CW-complex.
+## Main definitions
+* `instEmpty`: The empty set is a CW-complex.
+* `instFiniteSet`: Every finite set is a CW-complex.
+* `instIcc`: The interval `Icc a b` in `ℝ` is a CW-complex.
+* `instReal`: The real numbers are a CW-complex.
 -/
 noncomputable section
 
@@ -20,8 +21,10 @@ namespace ClasCWComplex
 
 variable {X : Type*} [t : TopologicalSpace X] [T2Space X]
 
--- should this be a separate instance to the one below?
+/-! # CW-complex structures on finite sets -/
+
 /-- The empty set is a CW-complex.-/
+/- This should just follow from `instFiniteSet`. Delete? -/
 @[simps!]
 instance instEmpty : ClasCWComplex (∅ : Set X) := mkFinite ∅
   (cell := fun _ ↦ PEmpty)
@@ -38,8 +41,10 @@ instance instEmpty : ClasCWComplex (∅ : Set X) := mkFinite ∅
   (mapsto := fun _ i ↦ i.elim)
   (union' := by simp [iUnion_of_empty, iUnion_empty])
 
+/-- The CW-complex on the empty set is finite. -/
 instance Finite_instEmpty : Finite (∅ : Set X) := Finite_mkFinite ..
 
+/-- Every finite set is a CW-complex. -/
 @[simps!]
 instance instFiniteSet (C : Set X) [_root_.Finite C] : ClasCWComplex C := mkFinite C
   (cell := fun n ↦ match n with
@@ -91,14 +96,21 @@ instance instFiniteSet (C : Set X) [_root_.Finite C] : ClasCWComplex C := mkFini
       use 0, ⟨x, hx⟩
       simp)
 
+/-- The CW-complex on a finite set is finite. -/
 instance Finite_instFiniteSet (C : Set X) [_root_.Finite C] : Finite C := Finite_mkFinite ..
 
+/-- This works now. 🎉-/
 example (x : X) : ClasCWComplex {x} := inferInstance
 
+/-! # CW-complex structure on the interval -/
+
+/-- An auxiliary bijection sending the closed unit ball in `Fin 1 → ℝ` to a desired (non-degenerate)
+  closed interval. -/
 @[simps!]
 def mapLT {a b : ℝ} (hab : a < b) := (IsometryEquiv.funUnique (Fin 1) ℝ).toHomeomorph.trans
     (affineHomeomorph ((b - a) / 2) ((a + b) / 2) (by linarith))
 
+/-- `mapLT` sends the closed unit ball to the desired closed interval. -/
 lemma mapLT_image_closedBall {a b : ℝ} (hab : a < b) : mapLT hab '' closedBall 0 1 = Icc a b := by
   change (((affineHomeomorph ((b - a) / 2) ((a + b) / 2) (by linarith))) ∘
     (IsometryEquiv.funUnique (Fin 1) ℝ)) '' closedBall 0 1 = Icc a b
@@ -107,6 +119,7 @@ lemma mapLT_image_closedBall {a b : ℝ} (hab : a < b) : mapLT hab '' closedBall
     affineHomeomorph_image_Icc _ _ _ _ (by linarith)]
   ring_nf
 
+/-- `mapLT` sends the unit ball to the desired open interval. -/
 lemma mapLT_image_ball {a b : ℝ} (hab : a < b) : mapLT hab '' ball 0 1 = Ioo a b := by
   change (((affineHomeomorph ((b - a) / 2) ((a + b) / 2) (by linarith))) ∘
     (IsometryEquiv.funUnique (Fin 1) ℝ)) '' ball 0 1 = Ioo a b
@@ -115,11 +128,13 @@ lemma mapLT_image_ball {a b : ℝ} (hab : a < b) : mapLT hab '' ball 0 1 = Ioo a
     affineHomeomorph_image_Ioo _ _ _ _ (by linarith)]
   ring_nf
 
+/-- `mapLT` sends the unit sphere to the set of specified points. -/
 lemma mapLT_image_sphere {a b : ℝ} (hab : a < b) : mapLT hab '' sphere 0 1 = {a, b} := by
   rw [← closedBall_diff_ball, image_diff (mapLT hab).injective, mapLT_image_closedBall,
     mapLT_image_ball]
   exact Icc_diff_Ioo_same (le_of_lt hab)
 
+/-- `mapLT` as a partial bijection. -/
 @[simps!]
 def mapLTPartial {a b : ℝ} (hab : a < b) :=
   (mapLT hab).toPartialEquivOfImageEq (ball 0 1) (Ioo a b) (mapLT_image_ball hab)
@@ -165,6 +180,7 @@ protected lemma Finite_instIccLT' {a b : ℝ} (hab : a < b) :
     Finite (mapLTPartial hab '' closedBall 0 1 ∪ {a, b}) :=
   Finite_attachCellFiniteType ..
 
+/-- A (non-degenerate closed interval is a CW-complex.-/
 @[simps!]
 def instIccLT {a b : ℝ} (hab : a < b) : ClasCWComplex (Icc a b : Set ℝ) :=
   let _ := ClasCWComplex.instIccLT' hab
@@ -175,6 +191,7 @@ def instIccLT {a b : ℝ} (hab : a < b) : ClasCWComplex (Icc a b : Set ℝ) :=
       exact hab.le)
     rfl
 
+/-- The Cw-complex structure on a (non-degenerate) closed interval is finite. -/
 lemma Finite_instIccLT {a b : ℝ} (hab : a < b) :
     letI := instIccLT hab
     Finite (Icc a b) :=
@@ -188,14 +205,19 @@ lemma Finite_instIccLT {a b : ℝ} (hab : a < b) :
       exact hab.le)
     rfl
 
+/- **ToDo** : Write simp lemmas about `instIcc`. -/
+
 /-- The interval `Icc a b` in `ℝ` is a CW-complex.-/
 instance instIcc {a b : ℝ} : ClasCWComplex (Icc a b : Set ℝ) :=
   if lt1 : a < b then instIccLT lt1
     else if lt2 : b < a then Icc_eq_empty_of_lt lt2 ▸ instEmpty
       else Linarith.eq_of_not_lt_of_not_gt _ _ lt1 lt2 ▸ Icc_self a ▸ instFiniteSet {a}
 
---write simp lemmas
+/-! # The CW-complex structure on the real numbers -/
 
+/- This reuses the auxiliary definitions and lemmas of the interval. -/
+
+/-- The real numbers are a CW-complex. -/
 @[simps!]
 instance instReal : ClasCWComplex (univ : Set ℝ) := mk (univ : Set ℝ)
   (cell := fun n ↦ match n with
@@ -315,9 +337,10 @@ instance instReal : ClasCWComplex (univ : Set ℝ) := mk (univ : Set ℝ)
     simp only [mapLTPartial_image, mapLT_image_closedBall, mem_Icc]
     exact ⟨Int.floor_le x, (Int.le_ceil x).trans (by norm_cast; exact Int.ceil_le_floor_add_one x)⟩)
 
--- I need some way to automatically recognize the normal `univ`
+/-- This works now. 🎉-/
 example : ClasCWComplex (univ : Set (ℝ × ℝ)) := inferInstance
 
+/-- The CW-structure on the reals is finite dimensional. -/
 instance FiniteDimensional_instReal : FiniteDimensional (univ : Set ℝ) where
   eventually_isEmpty_cell := by
     rw [Filter.eventually_atTop]
