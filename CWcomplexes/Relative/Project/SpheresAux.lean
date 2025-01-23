@@ -3,6 +3,19 @@ import Mathlib.Analysis.InnerProductSpace.EuclideanDist
 
 /-!
 # Auxiliary Lemmas and Constructions for the CW-complex structures on spheres
+This file provides auxiliary lemmas and constructions for the construction of the CW-complex
+structure on spheres.
+## Main definitions
+* `normScale` : A homeomorphism from one normed group to another that preserves norms and the zero.
+* `LinearIsometryEquiv.negLast` : A specialized version of `LinearIsometryEquiv.reflection`
+  reflecting `EuclideanSpace ℝ (Fin (n + 1))` on the hyperplane where the last coordinate is zero.
+* `PartialEquiv.EuclideanSpaceSucc` : A partial bijection between `EuclideanSpace ℝ (Fin n)` and
+  the hyperplane with last coordinate zero in `EuclideanSpace ℝ (Fin (n + 1))`.
+## Main statements
+* `Homeomorph.tendsto_norm_comp_unitBall_symm` : As we approach the sphere from inside the ball the
+  inverse of `Homeomorph.unitBall` tends to infinity in its norm.
+* `stereographic'_symm_tendsto` : As we approach infinite norm the inverse of the stereographic
+  projection `stereographic'` approaches the centre of the projection.
 -/
 
 noncomputable section
@@ -447,6 +460,9 @@ lemma LinearIsometryEquiv.negLast_idempotent (n : ℕ) (x : EuclideanSpace ℝ (
 
 /-! # Openness/Closedness of the plane and half-planes-/
 
+/- We need the closedness of the plane to show that the sphere in dimension `n` is still closed
+  when embedded into dimension `n + 1`. -/
+
 /-- The upper half-plane is open. -/
 lemma isOpen_UpperHalfPlane (n : ℕ) :
     IsOpen {(x : EuclideanSpace ℝ (Fin (n + 1)) )| x (Fin.last n) > 0} := by
@@ -491,6 +507,9 @@ lemma isClosed_plane (n : ℕ) :
 
 /-! # Statements about `Fin.init`-/
 
+/- We use `Fin.init` to construct the map `discToSphereUp` and therefore need some more information
+  about it. -/
+
 /-- `Fin.init` is continuous. -/
 /- This still needs to be generalized. -/
 lemma Continuous.finInit {n : ℕ} {α : Type*} [PseudoMetricSpace α] :
@@ -508,7 +527,7 @@ lemma Continuous.finInit {n : ℕ} {α : Type*} [PseudoMetricSpace α] :
 /-- The euclidean norm of `Fin.init` is less then or equal to the euclidean norm of the element. -/
 lemma EuclideanSpace.norm_finInit_le {𝕜 : Type*} [RCLike 𝕜] {n : ℕ}
     (q : EuclideanSpace 𝕜 (Fin (n + 1))) :
-    norm (Fin.init q : EuclideanSpace 𝕜 (Fin n)) (self := (PiLp.instNorm 2 fun x ↦ 𝕜)) ≤ ‖q‖ := by
+    norm (Fin.init q : EuclideanSpace 𝕜 (Fin n)) (self := (PiLp.instNorm 2 fun _ ↦ 𝕜)) ≤ ‖q‖ := by
   simp_rw [← sq_le_sq₀ (norm_nonneg _) (norm_nonneg _), EuclideanSpace.norm_eq,
     Real.sq_sqrt (Finset.sum_nonneg (fun _ _ ↦ sq_nonneg _)), Fin.sum_univ_castSucc, Fin.init,
     le_add_iff_nonneg_right]
@@ -519,7 +538,7 @@ lemma EuclideanSpace.norm_finInit_le {𝕜 : Type*} [RCLike 𝕜] {n : ℕ}
 /- The hypthesis `hq` should be generalised. -/
 lemma EuclideanSpace.norm_finInit_lt {𝕜 : Type*} [RCLike 𝕜] {n : ℕ}
     (q : EuclideanSpace 𝕜 (Fin (n + 1))) (hq : ‖q (Fin.last n)‖ > 0):
-    norm (Fin.init q : EuclideanSpace 𝕜 (Fin n)) (self := (PiLp.instNorm 2 fun x ↦ 𝕜)) < ‖q‖ := by
+    norm (Fin.init q : EuclideanSpace 𝕜 (Fin n)) (self := (PiLp.instNorm 2 fun _ ↦ 𝕜)) < ‖q‖ := by
   simp_rw [← sq_lt_sq₀ (norm_nonneg _) (norm_nonneg _), EuclideanSpace.norm_eq,
     Real.sq_sqrt (Finset.sum_nonneg (fun _ _ ↦ sq_nonneg _)), Fin.sum_univ_castSucc, Fin.init,
     lt_add_iff_pos_right]
@@ -600,6 +619,8 @@ lemma PartialEquiv.EuclideanSpaceSucc_image_sphere (n : ℕ) :
       exact Fin.snoc_init_self _
 
 /-! # Miscellaneous-/
+
+/- We need this to show that the sphere in the euclidean space of dimension one is a CW-complex. -/
 
 /-- The isometry between the euclidean and the `∞`-metric on `ℝ`.-/
 def EuclideanFunUnique (n 𝕜 : Type*) [RCLike 𝕜] [Unique n] [Fintype n] :
