@@ -40,3 +40,9 @@
 *.pdfsync
 *.rubbercache
 rubber.cache
+
+# beamer
+*.nav
+*.pre
+*.snm
+*.vrb
