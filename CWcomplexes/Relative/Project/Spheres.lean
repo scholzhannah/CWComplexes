@@ -10,6 +10,7 @@ namespace ClasCWComplex
 
 variable {X : Type*} [t : TopologicalSpace X] [T2Space X]
 
+@[simps!]
 def SphereZero (x : EuclideanSpace ℝ (Fin 0)) (ε : ℝ) (h : ε ≠ 0) : ClasCWComplex (sphere x ε) :=
   ofEq ∅ ∅ (E := (sphere x ε)) (sphere_eq_empty_of_subsingleton h).symm rfl
 
@@ -17,6 +18,13 @@ lemma Finite_SphereZero (x : EuclideanSpace ℝ (Fin 0)) (ε : ℝ) (h : ε ≠ 
     letI := SphereZero x ε h
     Finite (sphere x ε) :=
   finite_ofEq ..
+
+lemma isEmpty_cell_SphereZero (x : EuclideanSpace ℝ (Fin 0)) (ε : ℝ) (h : ε ≠ 0)  :
+    letI := SphereZero x ε h
+    ∀ m ≥ 0, IsEmpty (cell (sphere x ε) m) := by
+  intro m hm
+  simp only [RelCWComplex.ofEq_cell, instEmpty_cell]
+  infer_instance
 
 def SphereOne (x ε : ℝ) (hε : ε ≥ 0) : ClasCWComplex (sphere x ε) :=
   RelCWComplex.ofEq {x - ε, x + ε} ∅ (by
@@ -372,6 +380,39 @@ lemma discToSphereUp_image_sphere (n : ℕ) :
       one_pow, sub_self, Real.sqrt_zero, true_and]
     simp only [← h2, Fin.snoc_init_self]
 
+@[simp]
+lemma discToSphereUp_image_closedBall (n : ℕ) :
+    (discToSphereUp n) '' closedBall 0 1 = (sphere 0 1) ∩ {x | x (Fin.last n) ≥ 0} := by
+  simp [← image_image]
+  ext x
+  simp only [mem_image, mem_sphere_iff_norm, sub_zero, mem_inter_iff, mem_setOf_eq]
+  constructor
+  · intro ⟨y, hy1, hy2⟩
+    simp only [mem_closedBall, dist_zero_right] at hy1
+    constructor
+    · simp only [← hy2, discToSphereUp, gt_iff_lt]
+      nth_rw 1 [EuclideanSpace.norm_eq]
+      simp only [Real.norm_eq_abs, sq_abs, Fin.sum_univ_castSucc, Fin.snoc_castSucc, Fin.snoc_last,
+        (1 - ‖y‖ ^ 2).sq_sqrt (by simp_all), Real.sqrt_eq_one]
+      simp only [EuclideanSpace.norm_eq, Real.norm_eq_abs, sq_abs,
+        (∑ x : Fin n, y x ^ 2).sq_sqrt (Finset.sum_nonneg' (fun i ↦ sq_nonneg (y i))),
+        add_sub_cancel]
+    · simp [← hy2]
+  · intro ⟨h1, h2⟩
+    use Fin.init x
+    simp only [EuclideanSpace.norm_eq, Fin.sum_univ_castSucc, h2, Real.norm_eq_abs (r := 0),
+      sq_abs, ne_eq, OfNat.ofNat_ne_zero, not_false_eq_true, zero_pow, add_zero,
+      sq_abs, Real.sqrt_eq_one] at h1
+    symm at h1
+    rw [← sub_eq_iff_eq_add', ← Real.sq_sqrt (Finset.sum_nonneg' (fun i ↦ sq_nonneg _)),
+      ← EuclideanSpace.norm_eq, Real.norm_eq_abs, sq_abs] at h1
+    change 1 - (norm (E := EuclideanSpace ℝ (Fin n)) (Fin.init x)) ^ 2 = x (Fin.last n) ^ 2 at h1
+    constructor
+    · rw [sub_eq_iff_eq_add', ← sub_eq_iff_eq_add] at h1
+      rw [mem_closedBall, dist_zero_right, ← sq_le_sq₀ (norm_nonneg _) zero_le_one, one_pow, ← h1]
+      simp [h2]
+    · simp [discToSphereUp, gt_iff_lt, h1, Real.sqrt_sq h2]
+
 @[simps!]
 def discToSphereDown (n : ℕ) := (discToSphereUp n).transEquiv (Homeomorph.negLast n).toEquiv
 
@@ -384,16 +425,29 @@ lemma continuous_discToSphereDown_symm (n : ℕ) : Continuous (discToSphereDown 
 @[simps!]
 def spheremapup (n : ℕ) := (toEuclideanNormScale n).transPartialEquiv (discToSphereUp n)
 
-lemma spheremapsup_image_closedBall (n : ℕ) :
+lemma spheremapup_image_closedBall (n : ℕ) :
     spheremapup n '' closedBall 0 1 = sphere 0 1 ∩ {x | x (Fin.last n) ≥ 0} := by
-  sorry
+  simp [← image_image]
 
 @[simps!]
 def spheremapdown (n : ℕ) := (toEuclideanNormScale n).transPartialEquiv (discToSphereDown n)
 
 lemma spheremapdown_image_closedBall (n : ℕ) :
     spheremapdown n '' closedBall 0 1 = sphere 0 1 ∩ {x | x (Fin.last n) ≤ 0} := by
-  sorry
+  simp [← image_image, image_inter (Homeomorph.negLast n).injective]
+  congr
+  · ext x
+    simp [mem_image, mem_setOf_eq]
+    constructor
+    · intro ⟨y, hy1, hy2⟩
+      rw [← hy2]
+      unfold Homeomorph.negLast Function.update
+      simp [hy1]
+    · intro hx
+      use (Homeomorph.negLast n) x
+      simp only [Homeomorph.negLast_idempotent, and_true]
+      unfold Homeomorph.negLast Function.update
+      simp [hx]
 
 def spheremaps (n : ℕ) (i : Fin 2) : PartialEquiv (Fin n → ℝ) (EuclideanSpace ℝ (Fin (n + 1))) :=
   match i with
@@ -537,6 +591,7 @@ lemma isClosed_plane (n : ℕ) :
   simp_rw [ne_iff_lt_or_gt, setOf_or]
   exact (isOpen_LowerHalfPlane n).union (isOpen_UpperHalfPlane n)
 
+@[simps!]
 def sphereEmbed (n : ℕ) [ClasCWComplex (sphere (0 : EuclideanSpace ℝ (Fin n)) 1)] :
     ClasCWComplex (sphere 0 1 ∩ {x | x (Fin.last n) = 0} : Set (EuclideanSpace ℝ (Fin (n + 1)))) :=
   ofPartialEquiv (X := EuclideanSpace ℝ (Fin n)) (Y := EuclideanSpace ℝ (Fin (n + 1)))
@@ -556,8 +611,19 @@ lemma Finite_sphereEmbed (n : ℕ) [ClasCWComplex (sphere (0 : EuclideanSpace �
   let _ := sphereEmbed n
   Finite_ofPartialEquiv ..
 
+lemma isEmpty_cell_sphereEmbed (n : ℕ) [ClasCWComplex (sphere (0 : EuclideanSpace ℝ (Fin n)) 1)]
+    [Finite (sphere (0 : EuclideanSpace ℝ (Fin n)) 1)]
+    (h : ∀ m ≥ n, IsEmpty (cell (sphere (0 : EuclideanSpace ℝ (Fin n)) 1) m)) :
+    letI := sphereEmbed n
+    ∀ m ≥ n, IsEmpty
+      (cell (sphere 0 1 ∩ {x | x (Fin.last n) = 0} : Set (EuclideanSpace ℝ (Fin (n + 1)))) m) := by
+  simp only [ge_iff_le, sphereEmbed_cell]
+  exact h
+
+@[simps!]
 def sphereInductStep' (n : ℕ) [ClasCWComplex (sphere (0 : EuclideanSpace ℝ (Fin n)) 1)]
-    [Finite (sphere (0 : EuclideanSpace ℝ (Fin n)) 1)] :
+    [Finite (sphere (0 : EuclideanSpace ℝ (Fin n)) 1)]
+    (h : ∀ m ≥ n, IsEmpty (cell (sphere (0 : EuclideanSpace ℝ (Fin n)) 1) m)) :
     ClasCWComplex ((⋃ (i : Fin 2), spheremaps n i '' (closedBall 0 1)) ∪
       (sphere 0 1 ∩ {x | x (Fin.last n) = 0})) :=
   letI := sphereEmbed n
@@ -609,7 +675,8 @@ def sphereInductStep' (n : ℕ) [ClasCWComplex (sphere (0 : EuclideanSpace ℝ (
         simp_rw [spheremaps, (spheremapdown n).image_source_eq_target,
           (spheremapup n).image_source_eq_target, spheremapdown_target, spheremapup_target]
         apply Disjoint.mono inter_subset_right inter_subset_right
-        simp [Homeomorph.negLast, disjoint_iff_inter_eq_empty, ← setOf_and]
+        simp only [Homeomorph.negLast, Homeomorph.homeomorph_mk_coe_symm, Equiv.coe_fn_symm_mk,
+          Function.update_self, Left.neg_pos_iff, disjoint_iff_inter_eq_empty, ← setOf_and]
         suffices ∀ (a : EuclideanSpace ℝ (Fin (n + 1))),
             ¬ (0 < a (Fin.last n) ∧ a (Fin.last n) < 0) by
           simp [this]
@@ -621,7 +688,8 @@ def sphereInductStep' (n : ℕ) [ClasCWComplex (sphere (0 : EuclideanSpace ℝ (
         simp_rw [spheremaps, (spheremapdown n).image_source_eq_target,
           (spheremapup n).image_source_eq_target, spheremapdown_target, spheremapup_target]
         apply Disjoint.mono inter_subset_right inter_subset_right
-        simp [Homeomorph.negLast, disjoint_iff_inter_eq_empty, ← setOf_and]
+        simp only [Homeomorph.negLast, Homeomorph.homeomorph_mk_coe_symm, Equiv.coe_fn_symm_mk,
+          Function.update_self, Left.neg_pos_iff, disjoint_iff_inter_eq_empty, ← setOf_and]
         suffices ∀ (a : EuclideanSpace ℝ (Fin (n + 1))),
             ¬ (0 > a (Fin.last n) ∧ a (Fin.last n) > 0) by
           simp [this]
@@ -629,19 +697,21 @@ def sphereInductStep' (n : ℕ) [ClasCWComplex (sphere (0 : EuclideanSpace ℝ (
         linarith
       | 1, 1 => fun h ↦ (h rfl).elim)
     (by
-      have := this.eventually_isEmpty_cell
-      simp only [Filter.eventually_iff_exists_mem, Filter.mem_atTop_sets, ge_iff_le] at this
       intro i
       simp_rw [mapsTo', spheremaps_image_sphere n i,
         ← union (C := (sphere 0 1 ∩ {x : EuclideanSpace ℝ (Fin (n + 1)) | x (Fin.last n) = 0}))]
-      apply iUnion_mono fun l ↦ ?_
-      apply Set.subset_iUnion_of_subset
-      · sorry
-      · sorry)
+      apply iUnion_subset fun l ↦ ?_
+      apply iUnion_subset fun j ↦ ?_
+      apply subset_iUnion_of_subset l
+      refine subset_iUnion_of_subset ?_ (subset_iUnion _ j)
+      by_contra hl
+      rw [not_lt] at hl
+      exact (isEmpty_cell_sphereEmbed n h l hl).false j)
 
 lemma Finite_SphereInductStep' (n : ℕ) [ClasCWComplex (sphere (0 : EuclideanSpace ℝ (Fin n)) 1)]
-    [Finite (sphere (0 : EuclideanSpace ℝ (Fin n)) 1)] :
-    letI := sphereInductStep' n
+    [Finite (sphere (0 : EuclideanSpace ℝ (Fin n)) 1)]
+    (h : ∀ m ≥ n, IsEmpty (cell (sphere (0 : EuclideanSpace ℝ (Fin n)) 1) m)) :
+    letI := sphereInductStep' n h
     Finite ((⋃ (i : Fin 2), spheremaps n i '' (closedBall 0 1)) ∪
       (sphere 0 1 ∩ {x | x (Fin.last n) = 0})) :=
   letI := sphereEmbed n
@@ -649,10 +719,25 @@ lemma Finite_SphereInductStep' (n : ℕ) [ClasCWComplex (sphere (0 : EuclideanSp
   letI := sphereInductStep' n
   Finite_attachCellsFiniteType ..
 
+lemma isEmpty_cell_SphereInductStep' (n : ℕ)
+    [ClasCWComplex (sphere (0 : EuclideanSpace ℝ (Fin n)) 1)]
+    [Finite (sphere (0 : EuclideanSpace ℝ (Fin n)) 1)]
+    (h : ∀ m ≥ n, IsEmpty (cell (sphere (0 : EuclideanSpace ℝ (Fin n)) 1) m)) :
+    letI := sphereInductStep' n h
+    ∀ m ≥ n + 1, IsEmpty
+      (cell ((⋃ (i : Fin 2), spheremaps n i '' (closedBall 0 1)) ∪
+      (sphere 0 1 ∩ {x | x (Fin.last n) = 0})) m) := by
+  let _ := sphereInductStep' n h
+  intro m hm
+  simp only [sphereInductStep'_cell, (Nat.lt_of_succ_le hm).ne.symm, isEmpty_sum, isEmpty_pprod,
+    not_isEmpty_of_nonempty, isEmpty_Prop, not_false_eq_true, or_true, and_true]
+  exact h m (Nat.le_of_succ_le hm)
+
 def SphereInductStep (n : ℕ) [ClasCWComplex (sphere (0 : EuclideanSpace ℝ (Fin n)) 1)]
-    [Finite (sphere (0 : EuclideanSpace ℝ (Fin n)) 1)] :
+    [Finite (sphere (0 : EuclideanSpace ℝ (Fin n)) 1)]
+    (h : ∀ m ≥ n, IsEmpty (cell (sphere (0 : EuclideanSpace ℝ (Fin n)) 1) m)) :
     ClasCWComplex (sphere 0 1 : Set (EuclideanSpace ℝ (Fin (n + 1)))) :=
-  let _ := sphereInductStep' n
+  letI := sphereInductStep' n h
   ofEq
     ((⋃ (i : Fin 2), spheremaps n i '' (closedBall 0 1)) ∪ (sphere 0 1 ∩ {x | x (Fin.last n) = 0}))
     ∅
@@ -663,39 +748,59 @@ def SphereInductStep (n : ℕ) [ClasCWComplex (sphere (0 : EuclideanSpace ℝ (F
         · apply iUnion_subset
           exact fun i ↦ match i with
             | 0 => by
-              simp only [Fin.isValue, spheremaps, spheremapsup_image_closedBall]
+              simp only [Fin.isValue, spheremaps, spheremapup_image_closedBall]
               exact inter_subset_left
             | 1 => by
               simp only [Fin.isValue, spheremaps, spheremapdown_image_closedBall]
               exact inter_subset_left
         · exact inter_subset_left
       · intro x hx
-        sorry)
+        left
+        rw [mem_iUnion]
+        by_cases hx' : x (Fin.last n) ≥ 0
+        · use 0
+          simp only [spheremaps, spheremapup_image_closedBall, ge_iff_le, mem_inter_iff, hx,
+            mem_setOf_eq, hx', and_self]
+        · use 1
+          simp only [ge_iff_le, not_le] at hx'
+          simp only [spheremaps, spheremapdown_image_closedBall, ge_iff_le, mem_inter_iff, hx,
+            mem_setOf_eq, hx'.le, and_self])
     rfl
 
 lemma Finite_SphereInductStep (n : ℕ)
     [ClasCWComplex (sphere (0 : EuclideanSpace ℝ (Fin n)) 1)]
-    [Finite (sphere (0 : EuclideanSpace ℝ (Fin n)) 1)] :
-    letI := SphereInductStep n
+    [Finite (sphere (0 : EuclideanSpace ℝ (Fin n)) 1)]
+    (h : ∀ m ≥ n, IsEmpty (cell (sphere (0 : EuclideanSpace ℝ (Fin n)) 1) m)) :
+    letI := SphereInductStep n h
     Finite (sphere 0 1 : Set (EuclideanSpace ℝ (Fin (n + 1)))) :=
-  let _ := sphereInductStep' n
-  letI := SphereInductStep n
+  let _ := sphereInductStep' n h
+  letI := SphereInductStep n h
   let _ := Finite_SphereInductStep'
-  finite_ofEq
-    ((⋃ (i : Fin 2), spheremaps n i '' (closedBall 0 1)) ∪ (sphere 0 1 ∩ {x | x (Fin.last n) = 0}))
-    ∅
-    sorry
-    sorry
+  finite_ofEq ..
+
+lemma isEmpty_cell_SphereInductStep (n : ℕ)
+    [ClasCWComplex (sphere (0 : EuclideanSpace ℝ (Fin n)) 1)]
+    [Finite (sphere (0 : EuclideanSpace ℝ (Fin n)) 1)]
+    (h : ∀ m ≥ n, IsEmpty (cell (sphere (0 : EuclideanSpace ℝ (Fin n)) 1) m)) :
+    letI := SphereInductStep n h
+    ∀ m ≥ n + 1, IsEmpty (cell (sphere (0 : EuclideanSpace ℝ (Fin (n + 1))) 1) m) := by
+  letI := SphereInductStep n h
+  intro m hm
+  simp only [SphereInductStep, RelCWComplex.ofEq_cell]
+  exact isEmpty_cell_SphereInductStep' n h m hm
 
 def AuxSphereInduct (n : ℕ) :
   {C : ClasCWComplex (sphere (0 : EuclideanSpace ℝ (Fin n)) 1) //
-    Finite (sphere (0 : EuclideanSpace ℝ (Fin n)) 1)} :=
+    Finite (sphere (0 : EuclideanSpace ℝ (Fin n)) 1) ∧
+    (∀ m ≥ n, IsEmpty (cell (sphere (0 : EuclideanSpace ℝ (Fin n)) 1) m))} :=
   match n with
-  | 0 => ⟨SphereZero 0 1 (one_ne_zero), Finite_SphereZero 0 1 (one_ne_zero)⟩
+  | 0 => ⟨SphereZero 0 1 (one_ne_zero), Finite_SphereZero 0 1 (one_ne_zero),
+    isEmpty_cell_SphereZero 0 1 (one_ne_zero)⟩
   | (m + 1) =>
     letI := (AuxSphereInduct m).1
-    letI := (AuxSphereInduct m).2
-    ⟨SphereInductStep m, Finite_SphereInductStep m⟩
+    letI := (AuxSphereInduct m).2.1
+    letI h := (AuxSphereInduct m).2.2
+    ⟨SphereInductStep m h, Finite_SphereInductStep m h, isEmpty_cell_SphereInductStep m h⟩
 
 def SphereInduct (n : ℕ) : ClasCWComplex (sphere (0 : EuclideanSpace ℝ (Fin n)) 1) :=
   AuxSphereInduct n
@@ -703,7 +808,7 @@ def SphereInduct (n : ℕ) : ClasCWComplex (sphere (0 : EuclideanSpace ℝ (Fin 
 lemma Finite_SphereInduct (n : ℕ) :
     letI := SphereInduct n
     Finite (sphere (0 : EuclideanSpace ℝ (Fin n)) 1) :=
-  (AuxSphereInduct n).2
+  (AuxSphereInduct n).2.1
 
 /-! # Compiled Instances-/
 
@@ -713,7 +818,6 @@ instance instSphere {n : ℕ} : ClasCWComplex (sphere 0 1 : Set (EuclideanSpace 
   | 1 => SphereOneEuclidean 1 0 zero_le_one
   | (n + 2) => instSphereGT (n + 1) n.zero_lt_succ
 
--- see above
 instance Finite_instSphere {n : ℕ} : Finite (sphere 0 1 : Set (EuclideanSpace ℝ (Fin n))) :=
   match n with
   | 0 => Finite_SphereZero 0 1 one_ne_zero

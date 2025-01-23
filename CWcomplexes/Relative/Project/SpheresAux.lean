@@ -417,3 +417,26 @@ lemma Homeomorph.norm_negLast (n : ℕ) (x : EuclideanSpace ℝ (Fin (n + 1))) :
     ‖negLast n x‖ = ‖x‖ := by
   simp [EuclideanSpace.norm_eq, Fin.sum_univ_castSucc, negLast, Function.update,
     fun i ↦ (Fin.castSucc_lt_last i).ne]
+
+@[simp]
+lemma Homeomorph.negLast_idempotent (n : ℕ) (x : EuclideanSpace ℝ (Fin (n + 1))) :
+    negLast n (negLast n x) = x := by
+  ext i
+  unfold negLast Function.update
+  by_cases h : i = Fin.last n
+  · simp only [eq_rec_constant, dite_eq_ite, homeomorph_mk_coe, Equiv.coe_fn_mk, h, ↓reduceIte,
+    neg_neg]
+    rw [← h]
+  · simp [h]
+
+@[simp]
+lemma Homeomorph.negLast_image_sphere (n : ℕ) : negLast n '' sphere 0 1 = sphere 0 1 := by
+  ext x
+  simp
+  constructor
+  · intro ⟨y, hy1, hy2⟩
+    rw [← hy2]
+    simp [hy1]
+  · intro hx
+    use negLast n x
+    simp [hx]
