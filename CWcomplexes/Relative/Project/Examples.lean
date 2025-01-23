@@ -147,7 +147,6 @@ lemma mapLTPartial_image {a b : ℝ} (hab : a < b) {s : Set (Fin 1 → ℝ)} :
   rfl
 
 /-- A helper definition for `instIccLT` where the set is presented differently. -/
-@[simps!]
 protected def instIccLT' {a b : ℝ} (hab : a < b) :
     ClasCWComplex (mapLTPartial hab '' closedBall 0 1 ∪ {a, b}) :=
   attachCellFiniteType {a, b}

@@ -36,8 +36,8 @@ lemma Finite_SphereZero (x : EuclideanSpace ℝ (Fin 0)) (ε : ℝ) (h : ε ≠ 
   for `AuxSphereInduct`. -/
 lemma isEmpty_cell_SphereZero (x : EuclideanSpace ℝ (Fin 0)) (ε : ℝ) (h : ε ≠ 0)  :
     letI := SphereZero x ε h
-    ∀ m ≥ 0, IsEmpty (cell (sphere x ε) m) := by
-  intro m hm
+    ∀ m, IsEmpty (cell (sphere x ε) m) := by
+  intro m
   simp only [RelCWComplex.ofEq_cell, instEmpty_cell]
   infer_instance
 
@@ -335,7 +335,7 @@ def instSphereGT' (n : ℕ) (h : n > 0) :
 
 /-- The CW-complex structure on the sphere is finite. An auxiliary version of `Finite_instSphereGT`
   where the set is presented in a nicer way. -/
-def Finite_instSphereGT' (n : ℕ) (h : n > 0) :
+lemma Finite_instSphereGT' (n : ℕ) (h : n > 0) :
     letI := instSphereGT' n h
     Finite ((spheremap n) '' closedBall 0 1 ∪ {EuclideanSpace.single (Fin.last n) 1}) :=
   Finite_attachCellFiniteType ..
@@ -665,7 +665,6 @@ lemma Finite_sphereEmbed (n : ℕ) [ClasCWComplex (sphere (0 : EuclideanSpace �
   `n` or higher then the CW-complex structure on the 'equator' of the sphere in dimension
   `n + 1` does not either. -/
 lemma isEmpty_cell_sphereEmbed (n : ℕ) [ClasCWComplex (sphere (0 : EuclideanSpace ℝ (Fin n)) 1)]
-    [Finite (sphere (0 : EuclideanSpace ℝ (Fin n)) 1)]
     (h : ∀ m ≥ n, IsEmpty (cell (sphere (0 : EuclideanSpace ℝ (Fin n)) 1) m)) :
     letI := sphereEmbed n
     ∀ m ≥ n, IsEmpty
@@ -676,7 +675,7 @@ lemma isEmpty_cell_sphereEmbed (n : ℕ) [ClasCWComplex (sphere (0 : EuclideanSp
 /-**Comment**: We can now show that the actual induction step works. -/
 
 /-- An auxiliary version of `SphereInductStep` where the set is presented in a nicer way. -/
-@[simps!]
+@[simps! -isSimp]
 def SphereInductStep' (n : ℕ) [ClasCWComplex (sphere (0 : EuclideanSpace ℝ (Fin n)) 1)]
     [Finite (sphere (0 : EuclideanSpace ℝ (Fin n)) 1)]
     (h : ∀ m ≥ n, IsEmpty (cell (sphere (0 : EuclideanSpace ℝ (Fin n)) 1) m)) :
@@ -870,7 +869,7 @@ def SphereInduct' (n : ℕ) :
     (∀ m ≥ n, IsEmpty (cell (sphere (0 : EuclideanSpace ℝ (Fin n)) 1) m))} :=
   match n with
   | 0 => ⟨SphereZero 0 1 (one_ne_zero), Finite_SphereZero 0 1 (one_ne_zero),
-    isEmpty_cell_SphereZero 0 1 (one_ne_zero)⟩
+    fun m _ ↦ isEmpty_cell_SphereZero 0 1 (one_ne_zero) m⟩
   | (m + 1) =>
     letI := (SphereInduct' m).1
     letI := (SphereInduct' m).2.1
