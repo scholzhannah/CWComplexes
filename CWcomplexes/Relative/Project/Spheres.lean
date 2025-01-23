@@ -2,6 +2,15 @@ import CWcomplexes.Relative.Project.SpheresAux
 import CWcomplexes.Relative.Project.Homeomorph
 import Mathlib.Topology.Constructions
 
+/-!
+# Spheres are CW-complexes
+In this file we provide two different CW-complex structures on the sphere.
+## Main definitions
+* `instSphere`: The unit sphere is a CW-complex. This construction uses two cells in total.
+* `SphereInduct`: The unit sphere is a CW-complex. This construction uses two cells in each
+  dimension.
+-/
+
 noncomputable section
 
 open Metric Set

@@ -24,7 +24,8 @@ open Metric Set
 
 /-! # Lemmas needed for the continuity of `sphereToDisc` on the sphere. -/
 
-/- The map `sphereToDisc` is made up of (the inverses of) two maps:
+/-**Comment**:
+  The map `sphereToDisc` is made up of (the inverses of) two maps:
   `Homeomorph.unitBall` and `stereographic'`. On the sphere these maps are not defined.
   We define `sphereToDisc` to map the sphere to the relevant unit vector.
   In order to show that ``sphereToDisc` is continuous on the sphere we need to study how
@@ -33,8 +34,8 @@ open Metric Set
 
 /-- As we approach the sphere from inside the ball the inverse of `Homeomorph.unitBall` tends to
   infinity in its norm.-/
-/- The proof of this statement just unnfolds the definition of `Homeomorph.unitBall` and then
-  applies basic facts about convergence.-/
+/- **Comment**: The proof of this statement just unfolds the definition of `Homeomorph.unitBall`
+  and then applies basic facts about convergence.-/
 lemma Homeomorph.tendsto_norm_comp_unitBall_symm {E : Type*} [NormedAddCommGroup E]
     [NormedSpace ℝ E] [Nontrivial E] (x : E) (hx : x ∈ sphere (0 : E) 1) :
     Filter.Tendsto (norm ∘ Homeomorph.unitBall.symm)
@@ -118,7 +119,7 @@ lemma Homeomorph.tendsto_norm_comp_unitBall_symm {E : Type*} [NormedAddCommGroup
 
 /-- As we approach infinite norm the inverse of hte stereographic projection `stereographic`
   approaches the center of the projection. -/
-/- Again, this proof is a basic convergence proof. -/
+/- **Comment**: Again, this proof is a basic convergence proof. -/
 lemma stereographic_symm_tendsto {E : Type*} [NormedAddCommGroup E] [InnerProductSpace ℝ E] {v : E}
     (hv : ‖v‖ = 1) (α : Filter (↥(Submodule.span ℝ {v})ᗮ))
     (h : Filter.Tendsto norm α Filter.atTop) :
@@ -203,7 +204,8 @@ lemma stereographic'_symm_tendsto {n : ℕ} (α : Filter (EuclideanSpace ℝ (Fi
 
 /-! # Scaling to a different norm-/
 
-/- The domain of the characterstic maps of a CW-complex (in our definition) are cubes in
+/-**Comment**:
+  The domain of the characterstic maps of a CW-complex (in our definition) are cubes in
   `Fin n → ℝ` (with the `∞`-metric).
   But the most convenient characteristic maps for spheres have closed balls in
   `EuclideanSpace ℝ (Fin n)` as their domain.
@@ -211,7 +213,7 @@ lemma stereographic'_symm_tendsto {n : ℕ} (α : Filter (EuclideanSpace ℝ (Fi
   We define this map in a little more generality. -/
 
 
--- This is just a preliminary lemma showing the continuity of the map we are about to define.
+/-- This is just a preliminary lemma showing the continuity of the map we are about to define.-/
 lemma continuous_normScale {E F : Type*}  [SeminormedAddCommGroup E] [T1Space E]
     [NormedAddCommGroup F] [MulActionWithZero ℝ F]
     {f : E → F} (hf : Continuous f) [ContinuousSMul ℝ F] [BoundedSMul ℝ F]
@@ -247,7 +249,8 @@ lemma continuous_normScale {E F : Type*}  [SeminormedAddCommGroup E] [T1Space E]
     exact continuous_norm.continuousAt
 
 /-- A homeomorphism from one normed group to another that preserves norms and the zero.-/
-/- Unfortunatly this does not preserve distances so this is not an isometry
+/- **Comment**:
+  Unfortunatly this does not preserve distances so this is not an isometry
   (in fact such an isometry generally does not exist). -/
 def normScale {E F : Type*}  [NormedAddCommGroup E] [T1Space E] [Module ℝ E]
     [ContinuousSMul ℝ E] [BoundedSMul ℝ E] [NormedAddCommGroup F] [Module ℝ F] [T1Space F]
@@ -416,7 +419,8 @@ lemma toEuclideanNormScale_image_sphere (n : ℕ) (r : ℝ) :
 
 /-! # A Homeomorphism that flips the last coordinate-/
 
-/- For the inductive construction of the sphere we pricipally need two maps:
+/-**Comment**:
+  For the inductive construction of the sphere we pricipally need two maps:
   One that maps from the closed ball in dimension `n` to the upper hemisphere of the sphere in
   dimension `n + 1`, and one that does the same for the lower hemisphere.
   In order to not define essentially the same map twice, we define a linear bijective isometry
@@ -460,7 +464,8 @@ lemma LinearIsometryEquiv.negLast_idempotent (n : ℕ) (x : EuclideanSpace ℝ (
 
 /-! # Openness/Closedness of the plane and half-planes-/
 
-/- We need the closedness of the plane to show that the sphere in dimension `n` is still closed
+/- **Comment**:
+  We need the closedness of the plane to show that the sphere in dimension `n` is still closed
   when embedded into dimension `n + 1`. -/
 
 /-- The upper half-plane is open. -/
@@ -507,11 +512,11 @@ lemma isClosed_plane (n : ℕ) :
 
 /-! # Statements about `Fin.init`-/
 
-/- We use `Fin.init` to construct the map `discToSphereUp` and therefore need some more information
+/-**Comment**:
+  We use `Fin.init` to construct the map `discToSphereUp` and therefore need some more information
   about it. -/
 
 /-- `Fin.init` is continuous. -/
-/- This still needs to be generalized. -/
 lemma Continuous.finInit {n : ℕ} {α : Type*} [PseudoMetricSpace α] :
     Continuous (Fin.init : (Fin (n + 1) → α) → (Fin n → α)) := by
   rw [Metric.continuous_iff]
@@ -524,6 +529,8 @@ lemma Continuous.finInit {n : ℕ} {α : Type*} [PseudoMetricSpace α] :
   intro c
   exact Finset.le_sup (Finset.mem_univ c.castSucc) (f := fun x ↦ nndist (a x) (b x))
 
+/-**ToDo**: Generalize `Continuous.finInit`. -/
+
 /-- The euclidean norm of `Fin.init` is less then or equal to the euclidean norm of the element. -/
 lemma EuclideanSpace.norm_finInit_le {𝕜 : Type*} [RCLike 𝕜] {n : ℕ}
     (q : EuclideanSpace 𝕜 (Fin (n + 1))) :
@@ -535,7 +542,6 @@ lemma EuclideanSpace.norm_finInit_le {𝕜 : Type*} [RCLike 𝕜] {n : ℕ}
 
 /-- If the last coordinate of an element `q` is greater than zero in norm then the euclidean norm
   of `Fin.init q` is strictly less than the euclidean norm of `q`. -/
-/- The hypthesis `hq` should be generalised. -/
 lemma EuclideanSpace.norm_finInit_lt {𝕜 : Type*} [RCLike 𝕜] {n : ℕ}
     (q : EuclideanSpace 𝕜 (Fin (n + 1))) (hq : ‖q (Fin.last n)‖ > 0):
     norm (Fin.init q : EuclideanSpace 𝕜 (Fin n)) (self := (PiLp.instNorm 2 fun _ ↦ 𝕜)) < ‖q‖ := by
@@ -543,6 +549,8 @@ lemma EuclideanSpace.norm_finInit_lt {𝕜 : Type*} [RCLike 𝕜] {n : ℕ}
     Real.sq_sqrt (Finset.sum_nonneg (fun _ _ ↦ sq_nonneg _)), Fin.sum_univ_castSucc, Fin.init,
     lt_add_iff_pos_right]
   exact sq_pos_of_pos hq
+
+/-**ToDo**: Rewrite the hypothesis `hq` in `EuclideanSpace.norm_finInit_lt`. -/
 
 /-- The norm of `Fin.init` is less than or equal to the norm of the original element. -/
 lemma Fin.norm_init_le {n : ℕ} {α : Type*} [SeminormedAddGroup α] (q : (Fin (n + 1)) → α) :
@@ -553,7 +561,8 @@ lemma Fin.norm_init_le {n : ℕ} {α : Type*} [SeminormedAddGroup α] (q : (Fin 
 
 /-! # Embedding the euclidean space of dimension `n` into dimension `n + 1` -/
 
-/- We need this to embed the sphere in dimension `n` into the space of dimension `n + 1` while
+/-**Comment**:
+  We need this to embed the sphere in dimension `n` into the space of dimension `n + 1` while
   maintaining that it is a CW-complex. -/
 
 /-- A partial bijection between `EuclideanSpace ℝ (Fin n)` and the hyperplane with last
@@ -618,9 +627,10 @@ lemma PartialEquiv.EuclideanSpaceSucc_image_sphere (n : ℕ) :
       rw [← hx0]
       exact Fin.snoc_init_self _
 
-/-! # Miscellaneous-/
+/-! # Isometry between different metrics on ℝ-/
 
-/- We need this to show that the sphere in the euclidean space of dimension one is a CW-complex. -/
+/- **Comment**:
+  We need this to show that the sphere in the euclidean space of dimension one is a CW-complex. -/
 
 /-- The isometry between the euclidean and the `∞`-metric on `ℝ`.-/
 def EuclideanFunUnique (n 𝕜 : Type*) [RCLike 𝕜] [Unique n] [Fintype n] :

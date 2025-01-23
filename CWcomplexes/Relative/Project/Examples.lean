@@ -24,7 +24,6 @@ variable {X : Type*} [t : TopologicalSpace X] [T2Space X]
 /-! # CW-complex structures on finite sets -/
 
 /-- The empty set is a CW-complex.-/
-/- This should just follow from `instFiniteSet`. Delete? -/
 @[simps!]
 instance instEmpty : ClasCWComplex (∅ : Set X) := mkFinite ∅
   (cell := fun _ ↦ PEmpty)
@@ -40,6 +39,8 @@ instance instEmpty : ClasCWComplex (∅ : Set X) := mkFinite ∅
   (pairwiseDisjoint' := by rw [PairwiseDisjoint, Set.Pairwise]; intro ⟨_, i⟩; exact i.elim)
   (mapsto := fun _ i ↦ i.elim)
   (union' := by simp [iUnion_of_empty, iUnion_empty])
+
+/- **ToDo**: This should just follow from `instFiniteSet`. Delete? -/
 
 /-- The CW-complex on the empty set is finite. -/
 instance Finite_instEmpty : Finite (∅ : Set X) := Finite_mkFinite ..
@@ -99,7 +100,7 @@ instance instFiniteSet (C : Set X) [_root_.Finite C] : ClasCWComplex C := mkFini
 /-- The CW-complex on a finite set is finite. -/
 instance Finite_instFiniteSet (C : Set X) [_root_.Finite C] : Finite C := Finite_mkFinite ..
 
-/-- This works now. 🎉-/
+/- This works now. 🎉-/
 example (x : X) : ClasCWComplex {x} := inferInstance
 
 /-! # CW-complex structure on the interval -/
@@ -215,7 +216,7 @@ instance instIcc {a b : ℝ} : ClasCWComplex (Icc a b : Set ℝ) :=
 
 /-! # The CW-complex structure on the real numbers -/
 
-/- This reuses the auxiliary definitions and lemmas of the interval. -/
+/- **Commment**: This reuses the auxiliary definitions and lemmas of the interval. -/
 
 /-- The real numbers are a CW-complex. -/
 @[simps!]
@@ -337,7 +338,7 @@ instance instReal : ClasCWComplex (univ : Set ℝ) := mk (univ : Set ℝ)
     simp only [mapLTPartial_image, mapLT_image_closedBall, mem_Icc]
     exact ⟨Int.floor_le x, (Int.le_ceil x).trans (by norm_cast; exact Int.ceil_le_floor_add_one x)⟩)
 
-/-- This works now. 🎉-/
+/- This works now. 🎉-/
 example : ClasCWComplex (univ : Set (ℝ × ℝ)) := inferInstance
 
 /-- The CW-structure on the reals is finite dimensional. -/
