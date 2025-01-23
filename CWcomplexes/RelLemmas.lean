@@ -1,5 +1,5 @@
-import CWcomplexes.Relative.RelConstructions
-import CWcomplexes.Relative.RelSubcomplex
+import CWcomplexes.RelConstructions
+import CWcomplexes.RelSubcomplex
 
 /-!
 # Lemmas about CW-complexes

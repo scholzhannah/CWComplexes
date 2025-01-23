@@ -1,4 +1,4 @@
-import CWcomplexes.Relative.RelFinite
+import CWcomplexes.RelFinite
 import Mathlib.Analysis.NormedSpace.Real
 
 /-!

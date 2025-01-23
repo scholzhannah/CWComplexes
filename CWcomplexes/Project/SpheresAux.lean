@@ -1,4 +1,4 @@
-import CWcomplexes.Relative.Project.Examples
+import CWcomplexes.Project.Examples
 import Mathlib.Analysis.InnerProductSpace.EuclideanDist
 
 /-!

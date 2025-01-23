@@ -1,4 +1,4 @@
-import CWcomplexes.Relative.RelCwComplex
+import CWcomplexes.RelCwComplex
 
 /-!
 # Finite CW-complexes

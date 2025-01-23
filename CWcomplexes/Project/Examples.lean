@@ -1,4 +1,4 @@
-import CWcomplexes.Relative.RelProduct
+import CWcomplexes.RelProduct
 import Mathlib.Analysis.NormedSpace.HomeomorphBall
 import Mathlib.Geometry.Manifold.Instances.Sphere
 
