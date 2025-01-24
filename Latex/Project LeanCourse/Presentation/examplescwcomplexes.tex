@@ -19,7 +19,7 @@
 % set default language
 \lstset{language=lean}
 
-\usetheme{Madrid}
+\usetheme[compress]{Berlin}
 \usecolortheme{default}
 
 \input{thesis_macros}
@@ -36,8 +36,11 @@
 
 \frame{\titlepage}
 
+\section{Introduction}
+
 \begin{frame}
 \frametitle{Definition of CW-complexes}
+\fontsize{10pt}{5}\selectfont
   Let $X$ be a Hausdorff space.
     A \emph{CW-complex} on $X$ consists of a family of indexing sets $(I_n)_{n \in \bN}$ and a family of maps $(Q_i^n\colon D_i^n\rightarrow X)_{n \ge 0, i \in I_n}$ s.t.
     \setbeamertemplate{enumerate items}[default]
@@ -50,7 +53,6 @@
         \item $\bigcup_{n \ge 0}\bigcup_{i \in I_n} Q_i^n(D_i^n) = X$.
     \end{enumerate}
     We call $Q_i^n$ a \emph{characteristic map} and $\cellFrontier{n}{i} \coloneq Q_i^n(\boundary D_i^n)$ the \emph{frontier of the $n$-cell} for any $i$ and $n$.
-    Additionally we define $X_n \coloneq \bigcup_{m < n + 1} \bigcup_{i \in I_m} \closedCell{m}{i}$ and call it the \emph{$n$-skeleton} of $X$ for $-1 \le n \le \infty$.
 \end{frame}
 
 \begin{frame}
@@ -69,61 +71,120 @@
   \frametitle{CW-complexes in Lean}
   \begin{itemize}
     \item I have defined and proven statements about CW-complexes as my bachelors thesis and as my work as a student research assistant.
-    \item CW-complexes are not (yet) in mathlib. 
+    \item This version of CW-complexes is not (yet) in mathlib. 
     \item Proven statements include constructions like subcomplexes and products.
   \end{itemize}
 \end{frame}
 
+\section{Sphere: Version 1}
+
 \begin{frame}
-\frametitle{Equivalence of the definitions}
-\begin{block}{Lemma}
-  Let $C$ be a CW-complex in a Hausdorff space $X$ as in the definition in the formalisation.
-  Then $C$ is a CW-complex as in the paper definition.
-\end{block}
-\begin{block}{Lemma}
-  Let $X$ be a Hausdorff space and and $C$ a CW-complex in $X$ as in the formalised definition.
-  Then $C$ is closed.
-\end{block}
+  \frametitle{Sphere Version 1: Choosing a characteristic map}
+  The main issue is how to define the characteristic map. 
+  The three options I came up with are: 
+  \setbeamertemplate{enumerate items}[default]
+  \begin{itemize}
+    \uncover<2->{\item Use spherical coordinates}
+    \begin{itemize}
+      \uncover<3->{\item[+] Easiest map}
+      \uncover<4->{\item[-] Spherical coordinates are not in mathlib}
+    \end{itemize}
+    \uncover<5->{\item Define the map explicitly}
+    \begin{itemize}
+      \uncover<6->{\item[+] Only relies on basic calculation}
+      \uncover<7->{\item[-] A lot of ugly calculations}
+    \end{itemize}
+    \uncover<8->{\item Compose the stereographic projection with a homeomorphism from $\mathbb{R}^n$ to $\interior{D^n}$}
+    \begin{itemize}
+      \uncover<9->{\item[+] All necessary properties on $\interior{D^n}$ are already in mathlib}
+      \uncover<10->{\item[-] Showing continuity on $D^n$ is hard}
+    \end{itemize}
+  \end{itemize}
+  \end{frame}
+
+\begin{frame}
+  \frametitle{Sphere Version 1: Defining the characteristic map}
+  Let $n \ge 2$, 
+  
+  $\text{\textbf{stereographic'}}: S^n \setminus \{p\} \to \mathbb{R}^n$ be the stereographic projection
+  where $p$ is the north pole of the sphere and
+
+  $\text{\textbf{unitBall}}: \mathbb{R}^n \to \interior{D^n}$ be the obvious map. 
+  
+  Then we define: 
+  \begin{equation*}
+  D^n \to S^n, x \mapsto 
+  \begin{cases}
+  (\text{stereographic'} \circ \text{unitBall})^{-1} x & x \in \interior{D^n} \\
+  p & x \in S^{n - 1}
+  \end{cases}
+  \end{equation*}
 \end{frame}
 
-\begin{frame}[fragile]{Closedness of CW-complexes}
-  \begin{exampleblock}{Proof}
-    \small
-    \begin{tabular}{ll}
-      1& By the weak topology it is enough to show that the intersection with every \\
-      & closed cell is closed.\\
-      2& Take any closed cell of $C$.\\
-      3& Since the closed cell is a subset of $C$, the intersection is just the closed cell.\\
-      4& Every closed cell is closed.\\
-    \end{tabular}
-  \end{exampleblock}
-  \begin{exampleblock}{Proof (Lean)}
-\begin{lstlisting}[basicstyle=\ttfamily\small, numbers=left, xleftmargin=21pt]
-rw [closed _ (by rfl)]
-intros
-rw [inter_eq_right.2 (closedCell_subset_complex _ _)]
-exact isClosed_closedCell
-\end{lstlisting}
-  \end{exampleblock}
-
+\begin{frame}
+  \frametitle{Sphere Version 1: Difficulties}
+  \begin{itemize}
+    \uncover<1->{\item I lost a lot of time trying the explicit version of the characteristic map.}
+    \uncover<2->{\item The maps stereographic' and unitBall are wrappers for a compositions of a bunch of different functions and are designed for a specific purpose.}
+    \uncover<3->{\item I don't really understand filters.}
+  \end{itemize}
 \end{frame}
 
-\begin{frame}{The topology of the product}
-\begin{block}{Definition k-space}
-  Let $X$ be a topological space. 
-  We call $X$ a \emph{k-space} if 
-  \begin{align*}
-    A \subseteq X \text{ is closed} \iff &\text{for all compact sets } C \subseteq X \text{ the intersection } A \cap C \\
-    &\text{is closed in } C.
-  \end{align*}
-\end{block}
-\begin{block}{Lemma}
-  Let $X$ be a CW-complex and $C \subseteq X$ a compact set. 
-  Then $C$ is disjoint with all but finitely many cells of $X$.
-\end{block}
-\begin{block}{Lemma}
-  If $X \times Y$ is a k-space then it has weak topology with respect to the characteristic maps $(Q_i^n \times P_j^m \colon D_i^n \times D_j^m \to (X \times Y)_c)_{n,m \in \bN,i \in I_n,j \in J_m}$, i.e. $A \subseteq X \times Y$ is closed iff $A \cap (\closedCell{n}{i} \times \closedCellf{m}{j})$ is closed for every $n, m \in \bN$, $i \in I_n$ and $j \in J_m$.
-\end{block}
+\section{Sphere: Version 2}
+
+\begin{frame}
+  \frametitle{Sphere Version 2: Choosing a characteristic map}
+  I came up with the following two options: 
+  \begin{itemize}
+    \uncover<2->{\item Use the function \textbf{orthogonalProjection} from mathlib}
+    \begin{itemize}
+      \uncover<3->{\item[+] Possibly existing useful statements about the map}
+      \uncover<4->{\item[-] Very general map, therefore hard to work with explicitly}
+    \end{itemize}
+    \uncover<5->{\item Define the function explicitly}
+    \begin{itemize}
+      \uncover<6->{\item[+] Only relies on basic calculations}
+      \uncover<7->{\item[-] Need to describe properties of the map myself}
+    \end{itemize}
+  \end{itemize}
+\end{frame}
+
+\begin{frame}
+  \frametitle{Sphere Version 2: Difficulties}
+  \begin{itemize}
+    \uncover<1->{\item Construction is relatively technical, it was hard to write code that looked okay and wasn't too slow.}
+    \uncover<2->{\item I didn't expect to have to do actual work for the inclusion.}
+    \uncover<3->{\item Finding partial maps is hard.}
+  \end{itemize}
+\end{frame}
+
+\section{Conclusion}
+
+\begin{frame}
+  \frametitle{Comparison the two definitions}
+  \begin{itemize}
+  \item Version 1 (Two cells overall)
+  \begin{itemize}
+    \uncover<2->{\item[+] Simpler construction}
+    \uncover<3->{\item[-] The characteristic map is considerably harder.}
+    \uncover<4->{\item Spherical coordinated would probably eliminate that issue. The construction should be redone once they exist.}
+  \end{itemize}
+  \item Version 2 (Two cells in each dimension)
+  \begin{itemize}
+    \uncover<5->{\item[+] Significantly easier characteristic maps}
+    \uncover<6->{\item[-] More technical construction}
+    \uncover<7->{\item[-] Would be a nightmare to unfold.}
+  \end{itemize}
+  \uncover<8->{\item I decided to set version 1 as the default}
+  \end{itemize}
+\end{frame}
+
+\begin{frame}
+  \frametitle{Future work}
+  \begin{itemize}
+    \item Generalize from unit spheres in euclidean space to all spheres under more metrics.
+    \item Do more examples.
+  \end{itemize}
 \end{frame}
 
 \end{document}
