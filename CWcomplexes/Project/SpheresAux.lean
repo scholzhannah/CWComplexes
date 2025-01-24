@@ -205,7 +205,7 @@ lemma stereographic'_symm_tendsto {n : ℕ} (α : Filter (EuclideanSpace ℝ (Fi
 /-! # Scaling to a different norm-/
 
 /-**Comment**:
-  The domain of the characterstic maps of a CW-complex (in our definition) are cubes in
+  The domains of the characterstic maps of a CW-complex (in our definition) are cubes in
   `Fin n → ℝ` (with the `∞`-metric).
   But the most convenient characteristic maps for spheres have closed balls in
   `EuclideanSpace ℝ (Fin n)` as their domain.

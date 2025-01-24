@@ -388,12 +388,12 @@ instance Finite_instSphere {n : ℕ} : Finite (sphere 0 1 : Set (EuclideanSpace 
   `normScale` and some generalization of `affineHomeomorph` (that possibly needs to be defined). -/
 
 /- This works now. 🎉-/
-example : ClasCWComplex (sphere (0 : EuclideanSpace ℝ (Fin 1)) 1) := inferInstance
+example : ClasCWComplex (sphere (0 : EuclideanSpace ℝ (Fin 2)) 1) := inferInstance
 
 /- **Comment** : We now even get the CW-structure on the torus for free. -/
 
 example : ClasCWComplex
-    (sphere (0 : EuclideanSpace ℝ (Fin 1)) 1 ×ˢ sphere (0 : EuclideanSpace ℝ (Fin 1)) 1) :=
+    (sphere (0 : EuclideanSpace ℝ (Fin 2)) 1 ×ˢ sphere (0 : EuclideanSpace ℝ (Fin 2)) 1) :=
   inferInstance
 
 /-! # Construction with two cells in every dimension. -/
@@ -893,7 +893,7 @@ lemma Finite_SphereInduct (n : ℕ) :
   But we can still this use this construction. -/
 
 /- This also works. 🎉-/
-example : ClasCWComplex (sphere (0 : EuclideanSpace ℝ (Fin 1)) 1) := SphereInduct 1
+example : ClasCWComplex (sphere (0 : EuclideanSpace ℝ (Fin 2)) 1) := SphereInduct 2
 
 /- **ToDo** :
   Generalize this to other centre points, radii and metrics. This should be fairly easy using
