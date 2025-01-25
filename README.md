@@ -8,4 +8,4 @@ The examples are part of my project for the course "Practical Project in Mathema
 The corresponding code can be found in the folder `CWcomplexes/Project`.
 The slides of my presentation and the summary can be found in the folder `Latex/Project LeanCourse`.
 
-(The second contributor is my dad changing my gitignores because I did them wrong or something.)
+(The second contributor is my dad helping me with git and Latex.)
