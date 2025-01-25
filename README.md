@@ -7,3 +7,5 @@ I am continuing this work as a student assistant.
 The examples are part of my project for the course "Practical Project in Mathematical Logic - Formalized Mathematics in Lean" taught by Prof. van Doorn.
 The corresponding code can be found in the folder `CWcomplexes/Project`.
 The slides of my presentation and the summary can be found in the folder `Latex/Project LeanCourse`.
+
+(The second contributor is my dad changing my gitignores because I did them wrong or something.)
