@@ -1,0 +1,176 @@
+\documentclass[11pt,a4paper]{article}
+\usepackage[utf8]{inputenc}
+%\usepackage{ngerman}
+%\usepackage{latexsym}
+\usepackage{amsmath}
+\usepackage{amssymb,graphicx}
+%\usepackage{pxfonts} 
+\parindent=0cm
+\topmargin -2.5cm
+\oddsidemargin -0cm
+\textwidth 16cm
+\textheight 26cm 
+\pagestyle{empty}
+\nofiles
+
+\def\C{\mathbb{C}}
+\def\R{\mathbb{R}}
+\def\K{\mathbb{K}}
+\def\Q{\mathbb{Q}}
+\def\Z{\mathbb{Z}}
+\def\N{\mathbb{N}}
+\def\H{\mathbb{H}}
+\def\e{\varepsilon}
+\newcommand{\dif}[1]{\,\mathrm{d} #1}
+\newcommand{\norm}[1]{\lVert #1 \rVert}
+\newcommand{\vii}[2]{\ensuremath{\begin{pmatrix}#1 \\ #2 \end{pmatrix}}}
+\newcommand{\mii}[4]{\ensuremath{\begin{pmatrix}#1&#2 \\ #3&#4 \end{pmatrix}}}
+\DeclareMathOperator{\grad}{grad}
+
+\begin{document}
+
+\begin{minipage}{0.75\linewidth}
+{
+  \Large \bfseries Summary Lean Project "Examples of CW-complexes"\\[0.5ex]
+  \mdseries
+  \normalsize for the class "Practical Project in Mathematical Logic - Formalized Mathematics in Lean" 
+    taught by Prof. van Doorn \\[0.4ex]
+  \normalsize 25.01.2025\\[0.4ex]
+  \normalsize Hannah Scholz
+}
+\end{minipage}
+\hfill
+\begin{minipage}{0.25\linewidth}
+\vspace{2mm}
+\end{minipage}
+
+
+\bigskip 
+{\bf Description}
+
+\medskip
+
+In this project I have formalized a few examples of CW-complexes in Lean. 
+The corresponding files can be found in this repository in the folder CWComplexes/Project.
+The code relies on my formalization of CW-complexes which can be found in the folder CWComplexes in the repository.
+
+In addition to all the contents that were requested of this file, I will also try to make clear
+which work was done entirely for this project and which work was done in part for my thesis or my work as 
+a student assistant. 
+I have not declared the hours spent on this project as working hours. 
+
+The examples I have formalized are: The empty set, any finite set, any closed interval in the reals, the reals, and 
+two different constructions on the unit sphere in $n$-dimensional euclidean space. 
+
+I did not use any particular reference for this project. I think these examples count as common knowledge in topology.
+However, the suggestion for the characteristic map of the construction on the sphere with two cells overall 
+came from Prof. van Doorn. 
+
+In the the following two sections I will discuss the contents of all of the files and talk about work that is left to do.
+The main part of this project is part of the files \emph{SpheresAux} and \emph{Spheres}.
+
+
+\bigskip
+
+{\bf Contents by file}
+
+\medskip
+
+\begin{itemize}
+    \item \textbf{Examples}
+
+This file covers all the examples except for the spheres.
+
+I had already written a previous version of this file for my thesis.
+That previous version contained the following constructions: 
+The empty set, any singleton, and any interval.
+So this work is not entirely new. 
+If you want to see what the previous work was exactly, 
+you can look at the code release corresponding to my thesis. 
+All work after that is a part of this project.
+
+As a part of this project I generalized the construction of the singleton to all finite sets, 
+I improved the construction of the interval by changing the definition 
+(using the construction \emph{ClasCWComplex.attachCellFiniteType} instead of the constructor for CW-complexes), 
+and I added the construction of the reals.
+
+The most important results are: 
+
+\emph{instEmpty}: The empty set is a CW-complex.
+
+\emph{instFiniteSet}: Every finite set is a CW-complex.
+
+\emph{instIcc}: The interval $[a, b]$ in $\R$ is a CW-complex.
+
+\emph{instReal}: The real numbers are a CW-complex.
+
+    \item \textbf{Homeomorph}
+
+In this file I proved that a partial bijection with some nice properties preserves CW-complexes. 
+This is a generalization of the statement \emph{RelCWComplex.ofHomeomorph} that can be found in the 
+file \emph{RelConstructions}. 
+I had tried to prove this new version before starting this project but had not succeeded. 
+Since I needed it for the second construction on spheres, 
+I improved upon my broken version for this project. 
+
+The most important result from this file is: 
+
+\emph{RelCWComplex.ofPartialEquiv}: A partial bijection with closed source and target that is
+continuous on both source and target preserves CW-structures.
+
+    \item \textbf{SpheresAux}
+
+The contents of this file were written entirely for this project. 
+This file contains the preliminary work for the construction of the spheres. 
+As such it actually contains the bulk of the work for the first construction on the sphere. 
+
+The main results from this file are: 
+
+\emph{Homeomorph.tendsto\_norm\_comp\_unitBall\_symm}: As we approach the sphere from inside the ball the
+inverse of \emph{Homeomorph.unitBall} tends to infinity in its norm.
+
+\emph{stereographic'\_symm\_tendsto}: As we approach infinite norm the inverse of the stereographic
+projection \emph{stereographic'} approaches the centre of the projection.
+
+\emph{normScale}: A homeomorphism from one normed group to another that preserves norms and the zero.
+
+    \item \textbf{Spheres}
+
+This file contains the actual constructions on the spheres. 
+The content of this file was also written entirely for this project. 
+The first construction contained in this file is the CW-structure on the sphere that uses two cells in 
+total. 
+As mentioned before this construction relies heavily on some of the contents of \emph{SpheresAux}. 
+
+Afterwards, you can find the construction on the sphere with two cells in each dimension. 
+This construction uses the contents of the file \emph{Homeomorph} and also some of the content in 
+\emph{SpheresAux}. 
+Still, the most difficult part of this construction is contained in this file. 
+
+The main result from this file are: 
+
+\emph{instSphere}: The unit sphere is a CW-complex. This construction uses two cells in total.
+
+\emph{SphereInduct}: The unit sphere is a CW-complex. This construction uses two cells in each
+dimension.
+
+\end{itemize}
+
+\bigskip
+
+{\bf Unfinished work}
+
+\medskip
+
+The project does not contain any 'sorry's and also does not make use of any part of my previous work 
+that contains 'sorry's. 
+
+The code does however contain some 'ToDo's. 
+The most important thing that is missing is a generalization of the constructions on spheres. 
+Currently, I have only shown the statements for unit spheres in euclidean space. 
+The results should be generalized to other center points, radii and metrics. 
+(I hope that this isn't actually too hard.)
+I will probably do that in the future. 
+
+
+\end{document}
