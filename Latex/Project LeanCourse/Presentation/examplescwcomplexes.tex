@@ -76,10 +76,10 @@
   \end{itemize}
 \end{frame}
 
-\section{Sphere: Version 1}
+\section{Sphere: Direct version}
 
 \begin{frame}
-  \frametitle{Sphere Version 1: Choosing a characteristic map}
+  \frametitle{Sphere (Direct version): Choosing a characteristic map}
   The main issue is how to define the characteristic map. 
   The three options I came up with are: 
   \setbeamertemplate{enumerate items}[default]
@@ -103,7 +103,7 @@
   \end{frame}
 
 \begin{frame}
-  \frametitle{Sphere Version 1: Defining the characteristic map}
+  \frametitle{Sphere (Direct version): Defining the characteristic map}
   Let $n \ge 2$, 
   
   $\text{\textbf{stereographic'}}: S^n \setminus \{p\} \to \mathbb{R}^n$ be the stereographic projection
@@ -122,7 +122,7 @@
 \end{frame}
 
 \begin{frame}
-  \frametitle{Sphere Version 1: Difficulties}
+  \frametitle{Sphere (Direct version): Difficulties}
   \begin{itemize}
     \uncover<1->{\item I lost a lot of time trying the explicit version of the characteristic map.}
     \uncover<2->{\item The maps stereographic' and unitBall are wrappers for a compositions of a bunch of different functions and are designed for a specific purpose.}
@@ -130,10 +130,10 @@
   \end{itemize}
 \end{frame}
 
-\section{Sphere: Version 2}
+\section{Sphere: Inductive version}
 
 \begin{frame}
-  \frametitle{Sphere Version 2: Choosing a characteristic map}
+  \frametitle{Sphere (Inductive version): Choosing a characteristic map}
   I came up with the following two options: 
   \begin{itemize}
     \uncover<2->{\item Use the function \textbf{orthogonalProjection} from mathlib}
@@ -150,7 +150,7 @@
 \end{frame}
 
 \begin{frame}
-  \frametitle{Sphere Version 2: Difficulties}
+  \frametitle{Sphere (Inductive Version): Difficulties}
   \begin{itemize}
     \uncover<1->{\item Construction is relatively technical, it was hard to write code that looked okay and wasn't too slow.}
     \uncover<2->{\item I didn't expect to have to do actual work for the inclusion.}
@@ -163,19 +163,19 @@
 \begin{frame}
   \frametitle{Comparison the two definitions}
   \begin{itemize}
-  \item Version 1 (Two cells overall)
+  \item Direct version
   \begin{itemize}
     \uncover<2->{\item[+] Simpler construction}
     \uncover<3->{\item[-] The characteristic map is considerably harder.}
     \uncover<4->{\item Spherical coordinated would probably eliminate that issue. The construction should be redone once they exist.}
   \end{itemize}
-  \item Version 2 (Two cells in each dimension)
+  \item Inductive version
   \begin{itemize}
     \uncover<5->{\item[+] Significantly easier characteristic maps}
     \uncover<6->{\item[-] More technical construction}
     \uncover<7->{\item[-] Would be a nightmare to unfold.}
   \end{itemize}
-  \uncover<8->{\item I decided to set version 1 as the default}
+  \uncover<8->{\item I decided to set the direct version as the default}
   \end{itemize}
 \end{frame}
 
