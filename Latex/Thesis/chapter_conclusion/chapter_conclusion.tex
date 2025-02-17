@@ -9,7 +9,7 @@ We chose the historical definition to formalise the concept of CW-complexes in L
 class CWComplex.{u} {X : Type u} [TopologicalSpace X] (C : Set X) where
   cell (n : ℕ) : Type u
   map (n : ℕ) (i : cell n) : PartialEquiv (Fin n → ℝ) X
-  source_eq (n : ℕ) (i : cell n) : (map n i).source = closedBall 0 1
+  source_eq (n : ℕ) (i : cell n) : (map n i).source = ball 0 1
   cont (n : ℕ) (i : cell n) : ContinuousOn (map n i) (closedBall 0 1)
   cont_symm (n : ℕ) (i : cell n) : ContinuousOn (map n i).symm (map n i).target
   pairwiseDisjoint' :
