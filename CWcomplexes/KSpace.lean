@@ -124,7 +124,7 @@ instance compactlyGeneratedSpace_of_kspace_of_t2 {X : Type*} [TopologicalSpace X
   rw [isClosed_iff]
   intro K hK
   rw [← Subtype.preimage_coe_inter_self]
-  exact (hs K hK).subtype_val
+  exact (hs K hK).preimage_val
 
 /-- A type synonym used for the k-ification of a topological space.-/
 def kification (X : Type*) := X

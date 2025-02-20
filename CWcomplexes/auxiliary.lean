@@ -71,35 +71,27 @@ open Set.Notation
 
 --**PR**
 -- this file
-lemma IsOpen.subtype_val {X : Type*} [TopologicalSpace X] {s t : Set X}
+lemma IsOpen.preimage_val {X : Type*} [TopologicalSpace X] {s t : Set X}
     (ht : IsOpen t) : IsOpen (s ↓∩ t) := isOpen_induced ht
 
 -- **PR**
 --kspace file
-lemma IsClosed.subtype_val {X : Type*} [TopologicalSpace X] {s t : Set X}
+lemma IsClosed.preimage_val {X : Type*} [TopologicalSpace X] {s t : Set X}
     (ht : IsClosed t) : IsClosed (s ↓∩ t) := by
   rw [← isOpen_compl_iff] at ht ⊢
-  exact IsOpen.subtype_val ht
+  exact IsOpen.preimage_val ht
 
--- **PR**
---for completeness
-lemma isOpen_inter_of_isOpen_subtype_val {X : Type*} [TopologicalSpace X] {s t : Set X}
-    (hs : IsOpen s) (hst : IsOpen (s ↓∩ t)) : IsOpen (s ∩ t) := by
-  rw [isOpen_induced_iff] at hst
-  obtain ⟨u, hu, hust⟩ := hst
-  rw [Subtype.preimage_val_eq_preimage_val_iff] at hust
-  rw [← hust]
-  exact hs.inter hu
+--**PR**
+lemma IsOpen.inter_preimage_val_iff {X : Type*} [TopologicalSpace X] {s t : Set X} (hs : IsOpen s) :
+    IsOpen (s ↓∩ t) ↔ IsOpen (s ∩ t) :=
+  ⟨fun h ↦ by simpa using hs.isOpenMap_subtype_val _ h,
+    fun h ↦ (Subtype.preimage_coe_self_inter _ _).symm ▸ h.preimage_val⟩
 
--- **PR**
---needed in constructions file and Homeomorph file
-lemma isClosed_inter_of_isClosed_subtype_val {X : Type*} [TopologicalSpace X] {s t : Set X}
-    (hs : IsClosed s) (hst : IsClosed (s ↓∩ t)) : IsClosed (s ∩ t) := by
-  rw [isClosed_induced_iff] at hst
-  obtain ⟨u, hu, hust⟩ := hst
-  rw [Subtype.preimage_val_eq_preimage_val_iff] at hust
-  rw [← hust]
-  exact hs.inter hu
+--**PR**
+lemma IsClosed.inter_preimage_val_iff {X : Type*} [TopologicalSpace X]  {s t : Set X}
+    (hs : IsClosed s) : IsClosed (s ↓∩ t) ↔ IsClosed (s ∩ t) :=
+  ⟨fun h ↦ by simpa using hs.isClosedMap_subtype_val _ h,
+    fun h ↦ (Subtype.preimage_coe_self_inter _ _).symm ▸ h.preimage_val⟩
 
 /-- A partial bijection that is continuous on the source and the target restricts to a
   homeomorphism.-/
@@ -137,7 +129,7 @@ lemma PartialEquiv.isClosed_of_isClosed_preimage {X Y : Type*} [TopologicalSpace
     (he1 : IsClosed e.target) (he2 : IsClosed e.source)
     (A : Set Y) (hAe : A ⊆ e.target) (hA : IsClosed (e.source ∩ e ⁻¹' A)) : IsClosed A := by
   rw [← inter_eq_right.2 hAe]
-  apply isClosed_inter_of_isClosed_subtype_val he1
+  rw [← he1.inter_preimage_val_iff]
   let g : e.source ≃ₜ e.target := e.toHomeomorph h1 h2
   rw [← g.isClosed_preimage]
   have : ⇑g ⁻¹' (Subtype.val ⁻¹' A) = e.source ∩ ↑e ⁻¹' A := by
