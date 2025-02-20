@@ -23,6 +23,7 @@ noncomputable section
 
 /-! ### Different maps -/
 
+--**mathlib**
 -- needed in this file and in examples file
 /-- `Function.const` as a `PartialEquiv`.
   It consists of two constant maps in opposite directions. -/
@@ -63,6 +64,7 @@ lemma isClosed_union_iff_isClosed {X : Type*} [TopologicalSpace X] {A B : Set X}
   ⟨fun h ↦ ⟨isClosed_left_of_isClosed_union hAB h, isClosed_right_of_isClosed_union hAB h⟩,
     fun ⟨h1, h2⟩ ↦ h1.union h2⟩
 
+
 /-! ### ↓∩-/
 
 open Set.Notation
@@ -98,6 +100,53 @@ lemma isClosed_inter_of_isClosed_subtype_val {X : Type*} [TopologicalSpace X] {s
   rw [Subtype.preimage_val_eq_preimage_val_iff] at hust
   rw [← hust]
   exact hs.inter hu
+
+/-- A partial bijection that is continuous on the source and the target restricts to a
+  homeomorphism.-/
+@[simps]
+def PartialEquiv.toHomeomorph {α β : Type*} [TopologicalSpace α]
+    [TopologicalSpace β] (e : PartialEquiv α β) (he1 : ContinuousOn e e.source)
+    (he2 : ContinuousOn e.symm e.target) : e.source ≃ₜ e.target where
+  toFun := e.toEquiv
+  invFun := e.toEquiv.symm
+  left_inv x := by simp
+  right_inv y := by simp
+  continuous_toFun := by
+    simp only [PartialEquiv.toEquiv, Equiv.coe_fn_mk]
+    apply Continuous.subtype_mk
+    have : (fun (x : e.source) ↦ e ↑x) = e.source.restrict e := by
+      ext
+      simp
+    rw [this, ← continuousOn_iff_continuous_restrict]
+    exact he1
+  continuous_invFun := by
+    simp only [PartialEquiv.toEquiv, Equiv.coe_fn_mk]
+    apply Continuous.subtype_mk
+    have : (fun (x : e.target) ↦ e.symm ↑x) = e.target.restrict e.symm := by
+      ext
+      simp
+    rw [this, ← continuousOn_iff_continuous_restrict]
+    exact he2
+
+open Set in
+/-- A partial bijection that is continuous on both source and target and where the source and
+  the target are closed is a closed map when restricting to the source. -/
+lemma PartialEquiv.isClosed_of_isClosed_preimage {X Y : Type*} [TopologicalSpace X]
+    [TopologicalSpace Y] (e : PartialEquiv X Y) (h1 : ContinuousOn e e.source)
+    (h2 : ContinuousOn e.symm e.target)
+    (he1 : IsClosed e.target) (he2 : IsClosed e.source)
+    (A : Set Y) (hAe : A ⊆ e.target) (hA : IsClosed (e.source ∩ e ⁻¹' A)) : IsClosed A := by
+  rw [← inter_eq_right.2 hAe]
+  apply isClosed_inter_of_isClosed_subtype_val he1
+  let g : e.source ≃ₜ e.target := e.toHomeomorph h1 h2
+  rw [← g.isClosed_preimage]
+  have : ⇑g ⁻¹' (Subtype.val ⁻¹' A) = e.source ∩ ↑e ⁻¹' A := by
+    ext x
+    simp [mem_image, mem_preimage, PartialEquiv.toHomeomorph_apply, Subtype.exists,
+      exists_and_right, exists_eq_right, mem_inter_iff, g, PartialEquiv.toEquiv, and_comm]
+  rw [Topology.IsClosedEmbedding.isClosed_iff_image_isClosed he2.isClosedEmbedding_subtypeVal, this]
+  exact hA
+
 
 /-! ### Random-/
 

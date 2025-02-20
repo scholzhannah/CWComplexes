@@ -1,5 +1,4 @@
 import CWcomplexes.Project.SpheresAux
-import CWcomplexes.Project.Homeomorph
 import Mathlib.Topology.Constructions
 
 /-!

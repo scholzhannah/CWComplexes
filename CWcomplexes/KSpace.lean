@@ -11,7 +11,7 @@ open Set Set.Notation Topology
 
 In this file we will define k-spaces and the k-ification and prove basic properties about them.
 This is a weaker version of `CompactlyGeneratedSpace`. These notions agree on Hausdorff spaces.
-They are both referred to as compactly generated space in the literature.
+They are both referred to as compactly generated spaces in the literature.
 
 ## Main definitions
 * `KSpace`: A k-space is a topological space in which a set `A` is open iff for every compact set
@@ -27,8 +27,9 @@ They are both referred to as compactly generated space in the literature.
   k-ification agree.
 * `kspace_kification`: The k-ification makes any space into a k-space.
 * `kification_kspace_eq_self`: The k-ification of a k-space `X` preserves the topology on `X`.
-* `continuous_kification_of_continuousOn_compact`: A map going to the k-ification of a topological
-  space `X` is continuous if map going to `X` is continuous when restricted to every compact set.
+* `continuous_kification_of_continuousOn_compact`: If a map `f : X → Y` is continuous on every
+  compact subset of `X` then it is continuous when viewed as a map from `kification X` to
+  `kification Y`.
 
 ## References
 * [J. Munkres, *Topology*]
@@ -82,8 +83,8 @@ instance kspace_of_SequentialSpace {X : Type*} [TopologicalSpace X]
 
 /-- In a k-space `X`, a set `s` is open when `f ⁻¹' s` is open for every continuous map from a
 compact space. -/
-lemma preimage_isOpen.{u} {X : Type u} [TopologicalSpace X] [KSpace X]
-    [CompactSpace X] (s : Set X) (hs : (∀ (K : Type u) [TopologicalSpace K], [CompactSpace K] →
+lemma preimage_isOpen.{u} {X : Type u} [TopologicalSpace X] [KSpace X] (s : Set X)
+    (hs : (∀ (K : Type u) [TopologicalSpace K], [CompactSpace K] →
       ∀ (f : K → X), Continuous f → IsOpen (f ⁻¹' s))) :
     IsOpen s := by
   rw [isOpen_iff]
@@ -160,12 +161,11 @@ lemma kification.isClosed_iff {X : Type*} [TopologicalSpace X] {A : Set (kificat
 def tokification (X : Type*) : X ≃ kification X :=
   ⟨fun x ↦ x, fun x ↦ x, fun _ ↦ rfl, fun _ ↦ rfl⟩
 
-lemma tokification_image {X : Type*} [TopologicalSpace X] (A : Set X) :
+lemma tokification_image {X : Type*} (A : Set X) :
     tokification X '' A = (A : Set (kification X)) := by
   simp [tokification]
 
-lemma tokification_symm_image {X : Type*} [TopologicalSpace X] (A : Set X) :
-    (tokification X).symm '' A = A := by
+lemma tokification_symm_image {X : Type*} (A : Set X) : (tokification X).symm '' A = A := by
   simp [tokification]
 
 lemma continuous_fromkification {X : Type*} [t : TopologicalSpace X] :
@@ -277,6 +277,8 @@ lemma continuousOn_compact_to_kification {X Y : Type*} [tX : TopologicalSpace X]
   have _ := isCompact_iff_compactSpace.1 hA
   exact continuous_compact_to_kification (A.restrict f) conton
 
+/-- If a map `f : X → Y` is continuous on every compact subset of `X` then it is continuous when
+viewed as a map from `kification X` to `kification Y`. -/
 lemma continuous_kification_of_continuousOn_compact {X Y : Type*} [tX : TopologicalSpace X]
     [tY : TopologicalSpace Y] (f : X → Y) (hf : ∀ (C : Set X), IsCompact C → ContinuousOn f C) :
     Continuous (X := kification X) (Y := kification Y) f := by
