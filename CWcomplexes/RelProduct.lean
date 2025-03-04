@@ -213,7 +213,7 @@ instance RelCWComplex.Product [RelCWComplex C D] [RelCWComplex E F] [KSpace (X �
     intro K hK
     suffices IsClosed (A ∩ K) by
       rw [← Subtype.preimage_coe_inter_self]
-      exact this.subtype_val
+      exact this.preimage_val
     -- We have `A ∩ K ⊆ (Prod.fst '' K ∩ C) × (Prod.snd '' K ∩ E)`.
     -- Since `Prod.fst '' K` and `Prod.snd '' K` are compact by `IsCompact.image` they are
     -- subsets of a finite union of cells. We call these union `H` and `G`.
@@ -461,7 +461,7 @@ instance RelCWComplex.ProductKification [RelCWComplex C D] [RelCWComplex E F] :
     intro K hK
     suffices IsClosed (A ∩ K) by
       rw [← Subtype.preimage_coe_inter_self]
-      exact this.subtype_val
+      exact this.preimage_val
     -- We have `A ∩ K ⊆ (Prod.fst '' K ∩ C) × (Prod.snd '' K ∩ E)`.
     -- Since `Prod.fst '' K` and `Prod.snd '' K` are compact by `IsCompact.image` they are
     -- subsets of a finite union of cells. We call these union `H` and `G`.

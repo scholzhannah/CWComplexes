@@ -81,7 +81,7 @@ def RelCWComplex.mkFiniteType.{u} {X : Type u} [TopologicalSpace X] (C : Set X)
     (disjointBase' : ∀ (n : ℕ) (i : cell n), Disjoint (map n i '' ball 0 1) D)
     (mapsto : ∀ (n : ℕ) (i : cell n),
       MapsTo (map n i) (sphere 0 1) (D ∪ ⋃ (m < n) (j : cell m), map m j '' closedBall 0 1))
-    (closed' : ∀ (A : Set X) (asubc : A ⊆ C),
+    (closed' : ∀ (A : Set X) (hAC : A ⊆ C),
     ((∀ n j, IsClosed (A ∩ map n j '' closedBall 0 1)) ∧ IsClosed (A ∩ D)) → IsClosed A)
     (isClosedBase : IsClosed D)
     (union' : D ∪ ⋃ (n : ℕ) (j : cell n), map n j '' closedBall 0 1 = C) :
@@ -113,7 +113,7 @@ lemma RelCWComplex.FiniteType_mkFiniteType.{u} {X : Type u} [TopologicalSpace X]
     (disjointBase' : ∀ (n : ℕ) (i : cell n), Disjoint (map n i '' ball 0 1) D)
     (mapsto : ∀ (n : ℕ) (i : cell n),
       MapsTo (map n i) (sphere 0 1) (D ∪ ⋃ (m < n) (j : cell m), map m j '' closedBall 0 1))
-    (closed' : ∀ (A : Set X) (asubc : A ⊆ C),
+    (closed' : ∀ (A : Set X) (hAC : A ⊆ C),
       ((∀ n j, IsClosed (A ∩ map n j '' closedBall 0 1)) ∧ IsClosed (A ∩ D)) → IsClosed A)
     (isClosedBase : IsClosed D)
     (union' : D ∪ ⋃ (n : ℕ) (j : cell n), map n j '' closedBall 0 1 = C) :
@@ -136,7 +136,7 @@ def ClasCWComplex.mkFiniteType.{u} {X : Type u} [TopologicalSpace X] (C : Set X)
       (univ : Set (Σ n, cell n)).PairwiseDisjoint (fun ni ↦ map ni.1 ni.2 '' ball 0 1))
     (mapsto : ∀ (n : ℕ) (i : cell n),
       MapsTo (map n i) (sphere 0 1) (⋃ (m < n) (j : cell m), map m j '' closedBall 0 1))
-    (closed' : ∀ (A : Set X) (asubc : A ⊆ C),
+    (closed' : ∀ (A : Set X) (hAC : A ⊆ C),
     (∀ n j, IsClosed (A ∩ map n j '' closedBall 0 1)) → IsClosed A)
     (union' :  ⋃ (n : ℕ) (j : cell n), map n j '' closedBall 0 1 = C) :
     ClasCWComplex C where
@@ -167,7 +167,7 @@ lemma ClasCWComplex.FiniteType_mkFiniteType.{u} {X : Type u} [TopologicalSpace X
       (univ : Set (Σ n, cell n)).PairwiseDisjoint (fun ni ↦ map ni.1 ni.2 '' ball 0 1))
     (mapsto : ∀ (n : ℕ) (i : cell n),
       MapsTo (map n i) (sphere 0 1) (⋃ (m < n) (j : cell m), map m j '' closedBall 0 1))
-    (closed' : ∀ (A : Set X) (asubc : A ⊆ C),
+    (closed' : ∀ (A : Set X) (hAC : A ⊆ C),
       (∀ n j, IsClosed (A ∩ map n j '' closedBall 0 1)) → IsClosed A)
     (union' :  ⋃ (n : ℕ) (j : cell n), map n j '' closedBall 0 1 = C) :
     letI := mkFiniteType C cell map finite_cell source_eq continuousOn continuousOn_symm

@@ -1273,8 +1273,7 @@ def RelCWComplex.enlarge_of_nonempty [RelCWComplex (X := C) univ (C ↓∩ D)] (
     exact fun h ↦ hDC h
   closed' A hAC := by
     intro ⟨hA1, hA2⟩
-    rw [← inter_eq_right.2 hAC]
-    apply isClosed_inter_of_isClosed_subtype_val hC
+    rw [← inter_eq_right.2 hAC, ← hC.inter_preimage_val_iff]
     rw [closed (X := C) (C := univ) _ (subset_univ _)]
     constructor
     · intro n i
@@ -1288,8 +1287,8 @@ def RelCWComplex.enlarge_of_nonempty [RelCWComplex (X := C) univ (C ↓∩ D)] (
         hC.isClosedEmbedding_subtypeVal]
       simp [inter_eq_right.2 hAC, inter_eq_right.2 hDC, hA2]
   isClosedBase := by
-    rw [← inter_eq_right.2 hDC]
-    exact isClosed_inter_of_isClosed_subtype_val hC (isClosedBase univ)
+    rw [← inter_eq_right.2 hDC, ← hC.inter_preimage_val_iff]
+    exact isClosedBase univ
   union' := by
     have := union' (X := C) (C := univ)
     rw [← image_eq_image Subtype.val_injective] at this
@@ -1405,9 +1404,21 @@ def RelCWComplex.restrict [RelCWComplex C D] (Y : Set X) (hCY : C ⊆ Y) (hC : C
   closed' A hA := by
     intro ⟨hA1, hA2⟩
     suffices IsClosed (Subtype.val '' A) by
+      rw [← preimage_image_eq A Subtype.val_injective]
+      exact this.preimage_val
+    have hAC: Subtype.val '' A ⊆ C := by
+      rw [← inter_eq_left.2 hCY]
+      nth_rw 3 [← Subtype.range_val (s := Y)]
+      rw [← image_preimage_eq_inter_range]
+      exact image_mono hA
+    rw [closed (C := C) _ hAC]
+    -- how do I get back to the preimage now?
+    constructor
+    · sorry
+    · rw [← inter_eq_left.2 (base_subset_complex.trans hCY)]
+      nth_rw 3 [← Subtype.range_val (s := Y)]
+      rw [← image_preimage_eq_inter_range, ← image_inter Subtype.val_injective]
       sorry
-    -- somehpw need to apply Subtype.val
-    sorry
   isClosedBase := (isClosedBase C).preimage continuous_subtype_val
   union' := by
     rw [← image_eq_image Subtype.val_injective]
