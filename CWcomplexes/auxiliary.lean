@@ -34,7 +34,7 @@ def PartialEquiv.single {X Y : Type*} (x : X) (y : Y) : PartialEquiv X Y where
 
 -- write an equivalence version
 
--- used in constructions
+--**PR**
 lemma isClosed_left_of_isClosed_union {X : Type*} [TopologicalSpace X] {A B : Set X}
     (hAB : SeparatedNhds A B) (hAB' : IsClosed (A ∪ B)) : IsClosed A := by
   obtain ⟨U, V, hU, hV, hAU, hBV, hUV⟩ := hAB
@@ -46,11 +46,13 @@ lemma isClosed_left_of_isClosed_union {X : Type*} [TopologicalSpace X] {A B : Se
   exact (hUV.mono_left hAU).subset_compl_left
 
 -- used in constructions
+--**PR**
 lemma isClosed_right_of_isClosed_union {X : Type*} [TopologicalSpace X] {A B : Set X}
     (hAB : SeparatedNhds A B) (closedAB : IsClosed (A ∪ B)) : IsClosed B :=
   isClosed_left_of_isClosed_union hAB.symm (Set.union_comm _ _ ▸ closedAB)
 
 -- completeness
+--**PR**
 lemma isClosed_union_iff_isClosed {X : Type*} [TopologicalSpace X] {A B : Set X}
     (hAB : SeparatedNhds A B) : IsClosed (A ∪ B) ↔ IsClosed A ∧ IsClosed B :=
   ⟨fun h ↦ ⟨isClosed_left_of_isClosed_union hAB h, isClosed_right_of_isClosed_union hAB h⟩,
@@ -85,8 +87,11 @@ lemma IsClosed.inter_preimage_val_iff {X : Type*} [TopologicalSpace X]  {s t : S
   ⟨fun h ↦ by simpa using hs.isClosedMap_subtype_val _ h,
     fun h ↦ (Subtype.preimage_coe_self_inter _ _).symm ▸ h.preimage_val⟩
 
+/-! ### PartialEquiv-/
+
+-- needed in this file
 /-- A partial bijection that is continuous on the source and the target restricts to a
-  homeomorphism.-/
+homeomorphism.-/
 @[simps]
 def PartialEquiv.toHomeomorph {α β : Type*} [TopologicalSpace α]
     [TopologicalSpace β] (e : PartialEquiv α β) (he1 : ContinuousOn e e.source)
@@ -112,13 +117,13 @@ def PartialEquiv.toHomeomorph {α β : Type*} [TopologicalSpace α]
     rw [this, ← continuousOn_iff_continuous_restrict]
     exact he2
 
+-- needed in constructions file
 open Set in
 /-- A partial bijection that is continuous on both source and target and where the source and
-  the target are closed is a closed map when restricting to the source. -/
+the target are closed is a closed map when restricting to the source. -/
 lemma PartialEquiv.isClosed_of_isClosed_preimage {X Y : Type*} [TopologicalSpace X]
     [TopologicalSpace Y] (e : PartialEquiv X Y) (h1 : ContinuousOn e e.source)
-    (h2 : ContinuousOn e.symm e.target)
-    (he1 : IsClosed e.target) (he2 : IsClosed e.source)
+    (h2 : ContinuousOn e.symm e.target) (he1 : IsClosed e.target) (he2 : IsClosed e.source)
     (A : Set Y) (hAe : A ⊆ e.target) (hA : IsClosed (e.source ∩ e ⁻¹' A)) : IsClosed A := by
   rw [← inter_eq_right.2 hAe]
   rw [← he1.inter_preimage_val_iff]
@@ -131,6 +136,28 @@ lemma PartialEquiv.isClosed_of_isClosed_preimage {X Y : Type*} [TopologicalSpace
   rw [Topology.IsClosedEmbedding.isClosed_iff_image_isClosed he2.isClosedEmbedding_subtypeVal, this]
   exact hA
 
+open Set.Notation Set Classical in
+@[simps]
+def PartialEquiv.fromSet {X : Type*} (C D : Set X) (hC : C.Nonempty) (hD : D ⊆ C) :
+    PartialEquiv C X :=
+  letI : Nonempty C := Nonempty.to_subtype hC
+  letI : Inhabited C := inhabited_of_nonempty this
+  { toFun := Subtype.val
+    invFun x := if h : x ∈ C then ⟨x, h⟩ else default
+    source := C ↓∩ D
+    target := D
+    map_source' x := by simp
+    map_target' y hy := by simp [hy, hD hy]
+    left_inv' x := by simp
+    right_inv' y hy := by simp [hy, hD hy]}
+
+lemma PartialEquiv.continuous_fromSet {X : Type*} [TopologicalSpace X] (C D : Set X)
+    (hC : C.Nonempty) (hD : D ⊆ C) : Continuous (fromSet C D hC hD) := by
+  exact continuous_iff_le_induced.mpr fun U a ↦ a
+
+lemma PartialEquiv.continuousOn_fromSet {X : Type*} [TopologicalSpace X] (C D : Set X)
+    (hC : C.Nonempty) (hD : D ⊆ C) : ContinuousOn (fromSet C D hC hD).symm C := by
+  simp [fromSet, continuousOn_iff_continuous_restrict, continuous_inclusion]
 
 /-! ### Random-/
 
@@ -140,6 +167,13 @@ example {α : Sort*} [Finite α] : Finite (PLift α) := by exact instFinitePLift
 -- **mathlib**
 instance Finite.instPSum {α β : Sort*} [Finite α] [Finite β] : Finite (α ⊕' β) :=
   of_equiv _ ((Equiv.psumEquivSum _ _).symm.trans (Equiv.plift.psumCongr Equiv.plift))
+
+theorem ENat.lt_add_one_iff' {m n : ℕ∞} (hm : m ≠ ⊤) : m < n + 1 ↔ m ≤ n := by
+  obtain ⟨l, hl⟩ := ENat.ne_top_iff_exists.1 hm
+  subst m
+  cases n
+  · simp
+  · rw [← Nat.cast_one, ← Nat.cast_add, Nat.cast_lt, Nat.cast_le, Order.lt_add_one_iff]
 
 -- not needed anymore but probably still good to contribute?
 @[elab_as_elim]
@@ -152,7 +186,8 @@ theorem ENat.nat_strong_induction {P : ℕ∞ → Prop} (a : ℕ∞) (h0 : P 0)
   · exact A _
 
 -- needed in examples file
--- should rewrite this as a being in the image
+--  **added to mathlib by someone else**
+-- Int.ceil_eq_floor_add_one_iff_not_mem
 lemma Int.ceil_eq_floor_add_one_iff {α : Type*} [LinearOrderedRing α] [FloorRing α] (a : α) :
     ⌈a⌉ = ⌊a⌋ + 1 ↔ (¬ ∃ (z : ℤ), z = a) := by
   constructor
@@ -666,6 +701,7 @@ lemma isClosed_plane (n : ℕ) :
   We use `Fin.init` to construct the map `discToSphereUp` and therefore need some more information
   about it. -/
 
+-- **PR** of something similar
 /-- `Fin.init` is continuous. -/
 lemma Continuous.finInit {n : ℕ} {α : Type*} [PseudoMetricSpace α] :
     Continuous (Fin.init : (Fin (n + 1) → α) → (Fin n → α)) := by
@@ -679,7 +715,7 @@ lemma Continuous.finInit {n : ℕ} {α : Type*} [PseudoMetricSpace α] :
   intro c
   exact Finset.le_sup (Finset.mem_univ c.castSucc) (f := fun x ↦ nndist (a x) (b x))
 
-/-**ToDo**: Generalize `Continuous.finInit`. -/
+-- I am not sure where the next three would go
 
 /-- The euclidean norm of `Fin.init` is less then or equal to the euclidean norm of the element. -/
 lemma EuclideanSpace.norm_finInit_le {𝕜 : Type*} [RCLike 𝕜] {n : ℕ}
@@ -699,8 +735,6 @@ lemma EuclideanSpace.norm_finInit_lt {𝕜 : Type*} [RCLike 𝕜] {n : ℕ}
     Real.sq_sqrt (Finset.sum_nonneg (fun _ _ ↦ sq_nonneg _)), Fin.sum_univ_castSucc, Fin.init,
     lt_add_iff_pos_right]
   exact sq_pos_of_pos hq
-
-/-**ToDo**: Rewrite the hypothesis `hq` in `EuclideanSpace.norm_finInit_lt`. -/
 
 /-- The norm of `Fin.init` is less than or equal to the norm of the original element. -/
 lemma Fin.norm_init_le {n : ℕ} {α : Type*} [SeminormedAddGroup α] (q : (Fin (n + 1)) → α) :

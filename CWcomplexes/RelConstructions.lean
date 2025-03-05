@@ -19,6 +19,29 @@ variable {X : Type*} [t : TopologicalSpace X] [T2Space X] {C D : Set X}
 
 section
 
+/-- The empty set is a CW-complex.-/
+@[simps!]
+def ClasCWComplex.instEmpty : ClasCWComplex (∅ : Set X) := mkFinite ∅
+  (cell := fun _ ↦ PEmpty)
+  (map := fun _ i ↦ i.elim)
+  (eventually_isEmpty_cell := by
+    rw [Filter.eventually_atTop]
+    use 0
+    exact fun b a ↦ PEmpty.instIsEmpty)
+  (finite_cell := fun n ↦ Finite.of_fintype ((fun _ ↦ PEmpty) n))
+  (source_eq := fun _ i ↦ i.elim)
+  (continuousOn := fun _ i ↦ i.elim)
+  (continuousOn_symm := fun _ i ↦ i.elim)
+  (pairwiseDisjoint' := by rw [PairwiseDisjoint, Set.Pairwise]; intro ⟨_, i⟩; exact i.elim)
+  (mapsto := fun _ i ↦ i.elim)
+  (union' := by simp [iUnion_of_empty, iUnion_empty])
+
+/-- The CW-complex on the empty set is finite. -/
+def ClasCWComplex.Finite_instEmpty :
+    letI := instEmpty (X := X)
+    Finite (∅ : Set X) :=
+  Finite_mkFinite ..
+
 /-- The union of two disjoint CW-complexes is again a CW-complex.-/
 @[simps]
 def RelCWComplex.disjointUnion [RelCWComplex C D] {E F : Set X} [RelCWComplex E F]
@@ -926,7 +949,7 @@ lemma RelCWComplex.finite_ofEq {X : Type*} [TopologicalSpace X] (C D : Set X)
   inferInstance
 
 /-- A partial bijection with closed source and target that is continuous on both source and target
-  preserves CW-structures. -/
+preserves CW-structures. -/
 def RelCWComplex.ofPartialEquiv.{u} {X Y : Type u} [TopologicalSpace X] [T2Space X]
     [TopologicalSpace Y] (C : Set X) {D : Set X} (E : Set Y) {F : Set Y} [RelCWComplex C D]
     (hC : IsClosed C) (hE : IsClosed E)
@@ -1186,258 +1209,263 @@ lemma ClasCWComplex.Finite_ofHomeomorph.{u} {X Y : Type u} [TopologicalSpace X]
   inferInstance
 
 open Set.Notation in
-open Classical in
-@[simps]
-def PartialEquiv.fromSet {X : Type*} (C D : Set X) (hC : C.Nonempty) (hD : D ⊆ C) :
-    PartialEquiv C X :=
-  letI : Nonempty C := Nonempty.to_subtype hC
-  letI : Inhabited C := inhabited_of_nonempty this
-  { toFun := Subtype.val
-    invFun x := if h : x ∈ C then ⟨x, h⟩ else default
-    source := C ↓∩ D
-    target := D
-    map_source' x := by simp
-    map_target' y hy := by simp [hy, hD hy]
-    left_inv' x := by simp
-    right_inv' y hy := by simp [hy, hD hy]}
-
-lemma PartialEquiv.continuous_fromSet {X : Type*} [TopologicalSpace X] (C D : Set X)
-    (hC : C.Nonempty) (hD : D ⊆ C) : Continuous (fromSet C D hC hD) := by
-  exact continuous_iff_le_induced.mpr fun U a ↦ a
-
-lemma PartialEquiv.continuousOn_fromSet {X : Type*} [TopologicalSpace X] (C D : Set X)
-    (hC : C.Nonempty) (hD : D ⊆ C) : ContinuousOn (fromSet C D hC hD).symm C := by
-  simp [fromSet, continuousOn_iff_continuous_restrict, continuous_inclusion]
-
--- this should be generalized to the case where C can be empty
-open Set.Notation in
-def RelCWComplex.enlarge_of_nonempty [RelCWComplex (X := C) univ (C ↓∩ D)] (hC : IsClosed C)
+def RelCWComplex.enlargeNonempty [RelCWComplex (X := C) univ (C ↓∩ D)] (hC : IsClosed C)
     (hC2 : C.Nonempty) (hDC : D ⊆ C) :
-    RelCWComplex C D where
-  cell := cell (X := C) univ
-  map n i := (map n i).trans' (PartialEquiv.fromSet C (map n i).target hC2
-    (Subtype.coe_image_subset C (map n i).target))
-    (by simp only [PartialEquiv.fromSet_source, Subtype.val_injective, preimage_image_eq])
-  source_eq n i := by simp [source_eq n i]
-  continuousOn n i := by
-    simp only [PartialEquiv.trans', PartialEquiv.fromSet_target]
-    apply Continuous.comp_continuousOn
-    · exact PartialEquiv.continuous_fromSet ..
-    · exact continuousOn n i
-  continuousOn_symm n i := by
-    simp only [PartialEquiv.trans', PartialEquiv.fromSet_target, PartialEquiv.coe_symm_mk]
-    apply ContinuousOn.comp (t := (map n i).target)
-    · exact continuousOn_symm n i
-    · apply ContinuousOn.mono (s := C)
-      · exact PartialEquiv.continuousOn_fromSet C (Subtype.val '' (map n i).target) hC2
-          (Subtype.coe_image_subset C (map n i).target)
-      · simp
-    · simp only [mapsTo', PartialEquiv.fromSet_symm_apply]
-      intro x
-      simp only [mem_image, Subtype.exists, exists_and_right, exists_eq_right, forall_exists_index,
-        and_imp]
-      intro y hy hy2 hyx
-      simp_all
-  pairwiseDisjoint' := by
-    have := pairwiseDisjoint' (X := C) (C := univ)
-    simp_all only [PairwiseDisjoint, Set.Pairwise, mem_univ, ne_eq, Function.onFun,
-      forall_const, PartialEquiv.coe_trans, Function.comp_apply,
-      PartialEquiv.fromSet_apply]
-    intro x y ne
-    suffices  Disjoint (Subtype.val '' (↑(map x.fst x.snd) '' ball 0 1))
-        (Subtype.val '' (↑(map y.fst y.snd) '' ball 0 1)) by
-      rw [image_image, image_image] at this
-      exact this
-    apply disjoint_image_of_injective Subtype.val_injective
-    exact this ne
-  disjointBase' n i := by
-    have h := disjointBase' (X := C) (C := univ) n i
-    have : D = Subtype.val '' C ↓∩ D := by
-      simp only [Subtype.image_preimage_coe, right_eq_inter, hDC]
-    simp only [PartialEquiv.trans', Function.comp_apply, PartialEquiv.fromSet_apply]
-    nth_rw 2 [this]
-    rw [← image_image]
-    apply disjoint_image_of_injective Subtype.val_injective
-    exact h
-  mapsto n i := by
-    obtain ⟨I, hI⟩ := mapsto (X := C) (C := univ) n i
-    use I
-    simp only [PartialEquiv.trans', mapsTo', image_comp] at hI ⊢
-    apply subset_trans (image_mono hI)
-    simp_rw [image_union, image_iUnion]
-    apply union_subset_union_left
-    apply subset_of_eq
-    ext
-    simp only [PartialEquiv.fromSet_apply, Subtype.image_preimage_coe, mem_inter_iff,
-      and_iff_right_iff_imp]
-    exact fun h ↦ hDC h
-  closed' A hAC := by
-    intro ⟨hA1, hA2⟩
-    rw [← inter_eq_right.2 hAC, ← hC.inter_preimage_val_iff]
-    rw [closed (X := C) (C := univ) _ (subset_univ _)]
-    constructor
-    · intro n i
-      rw [Topology.IsClosedEmbedding.isClosed_iff_image_isClosed
-        hC.isClosedEmbedding_subtypeVal]
-      simp only [image_val_inter, Subtype.image_preimage_coe, inter_eq_right.2 hAC]
-      convert hA1 n i
-      ext x
-      simp [closedCell, PartialEquiv.trans']
-    · rw [Topology.IsClosedEmbedding.isClosed_iff_image_isClosed
-        hC.isClosedEmbedding_subtypeVal]
-      simp [inter_eq_right.2 hAC, inter_eq_right.2 hDC, hA2]
-  isClosedBase := by
-    rw [← inter_eq_right.2 hDC, ← hC.inter_preimage_val_iff]
-    exact isClosedBase univ
-  union' := by
-    have := union' (X := C) (C := univ)
-    rw [← image_eq_image Subtype.val_injective] at this
-    simp only [image_val_union, Subtype.image_preimage_coe, inter_eq_right.2 hDC, image_val_iUnion,
-      image_univ, Subtype.range_coe_subtype, setOf_mem_eq] at this
-    nth_rw 127 [← this]
-    congrm D ∪ ⋃ n, ⋃ i, ?_
-    ext
-    simp
+    RelCWComplex C D :=
+  ofPartialEquiv univ C isClosed_univ hC (PartialEquiv.fromSet C C hC2 Subset.rfl)
+    (by simp) (by simp) (by simp [hDC]) (PartialEquiv.continuous_fromSet ..).continuousOn
+    (PartialEquiv.continuousOn_fromSet C C hC2 Subset.rfl)
 
 open Set.Notation in
-open Classical in
+lemma RelCWComplex.finiteDimensional_enlargeNonempty [RelCWComplex (X := C) univ (C ↓∩ D)]
+    [FiniteDimensional (X := C) univ]
+    (hC : IsClosed C) (hC2 : C.Nonempty) (hDC : D ⊆ C) :
+    letI := enlargeNonempty hC hC2 hDC
+    FiniteDimensional C :=
+  let _ := enlargeNonempty hC hC2 hDC
+  FiniteDimensional_ofPartialEquiv ..
+
+open Set.Notation in
+lemma RelCWComplex.finiteType_enlargeNonempty [RelCWComplex (X := C) univ (C ↓∩ D)]
+    [FiniteType (X := C) univ]
+    (hC : IsClosed C) (hC2 : C.Nonempty) (hDC : D ⊆ C) :
+    letI := enlargeNonempty hC hC2 hDC
+    FiniteType C :=
+  let _ := enlargeNonempty hC hC2 hDC
+  FiniteType_ofPartialEquiv ..
+
+open Set.Notation in
+lemma RelCWComplex.finite_enlargeNonempty [RelCWComplex (X := C) univ (C ↓∩ D)]
+    [Finite (X := C) univ]
+    (hC : IsClosed C) (hC2 : C.Nonempty) (hDC : D ⊆ C) :
+    letI := enlargeNonempty hC hC2 hDC
+    Finite C :=
+  let _ := enlargeNonempty hC hC2 hDC
+  Finite_ofPartialEquiv ..
+
+def ClasCWComplex.enlargeNonempty [ClasCWComplex (X := C) univ] (hC : IsClosed C)
+    (hC2 : C.Nonempty) : ClasCWComplex C :=
+  RelCWComplex.enlargeNonempty hC hC2 (empty_subset C)
+
+lemma ClasCWComplex.finiteDimensional_enlargeNonempty [ClasCWComplex (X := C) univ]
+    [FiniteDimensional (X := C) univ]
+    (hC : IsClosed C) (hC2 : C.Nonempty) :
+    letI := enlargeNonempty hC hC2
+    FiniteDimensional C :=
+  let _ := enlargeNonempty hC hC2
+  FiniteDimensional_ofPartialEquiv ..
+
+lemma ClasCWComplex.finiteType_enlargeNonempty [ClasCWComplex (X := C) univ]
+    [FiniteType (X := C) univ]
+    (hC : IsClosed C) (hC2 : C.Nonempty) :
+    letI := enlargeNonempty hC hC2
+    FiniteType C :=
+  let _ := enlargeNonempty hC hC2
+  FiniteType_ofPartialEquiv ..
+
+open Set.Notation in
+lemma ClasCWComplex.finite_enlargeNonempty [ClasCWComplex (X := C) univ]
+    [Finite (X := C) univ]
+    (hC : IsClosed C) (hC2 : C.Nonempty) :
+    letI := enlargeNonempty hC hC2
+    Finite C :=
+  let _ := enlargeNonempty hC hC2
+  Finite_ofPartialEquiv ..
+
+open Set.Notation Classical in
 def RelCWComplex.enlarge [RelCWComplex (X := C) univ (C ↓∩ D)] (hC : IsClosed C)
     (hDC : D ⊆ C) : RelCWComplex C D :=
-  if h : C.Nonempty then enlarge_of_nonempty hC h hDC else sorry
+  letI := ClasCWComplex.instEmpty (X := X)
+  if h : C.Nonempty then enlargeNonempty hC h hDC else
+    ofEq ∅ ∅ (not_nonempty_iff_eq_empty.1 h).symm
+    (subset_eq_empty hDC (not_nonempty_iff_eq_empty.1 h)).symm
+
+def ClasCWComplex.enlarge [ClasCWComplex (X := C) univ] (hC : IsClosed C) : ClasCWComplex C :=
+  RelCWComplex.enlarge hC (empty_subset C)
 
 open Set.Notation in
-open Classical in
-@[simps]
-def PartialEquiv.restrictImage {X Y : Type*} (e : PartialEquiv X Y) (A : Set Y)
-    (heA : e.target ⊆ A) (hA : A.Nonempty) : PartialEquiv X A :=
-  letI : Nonempty A := Nonempty.to_subtype hA
-  letI : Inhabited A := inhabited_of_nonempty this
-  { toFun x := if h : e x ∈ A then ⟨e x, h⟩ else default
-    invFun := e.symm ∘ Subtype.val
-    source := e.source
-    target := A ↓∩ e.target
-    map_source' x hx := by simp_all [heA (e.map_source' hx)]
-    map_target' y hy := by simp_all [e.map_target' hy]
-    left_inv' x hx := by simp_all [heA (e.map_source' hx)]
-    right_inv' y hy := by simp_all}
+lemma RelCWComplex.enlarge_eq_enlargeNonempty [RelCWComplex (X := C) univ (C ↓∩ D)]
+    (hC : IsClosed C) (hC2 : C.Nonempty) (hDC : D ⊆ C) :
+    enlarge hC hDC = enlargeNonempty hC hC2 hDC := by
+  simp [enlarge, hC2]
 
--- this proof can probably be done nicer
-lemma PartialEquiv.restrictImage_image_eq {X Y : Type*} (e : PartialEquiv X Y) (B : Set X)
-    (A : Set Y) (hB : e '' B ⊆ A) (heA : e.target ⊆ A) (hA : A.Nonempty) :
-    (e.restrictImage A heA hA) '' B = e '' B := by
-  ext x
-  simp only [restrictImage_apply, mem_image, exists_exists_and_eq_and]
-  constructor
-  · intro ⟨b, hb, hbx⟩
-    use b
-    simp_all [hB (mem_image_of_mem _ hb)]
-  · intro ⟨b, hb, hbx⟩
-    use b
-    have := hB (mem_image_of_mem _ hb)
-    simp_all
+lemma ClasCWComplex.enlarge_eq_enlargeNonempty [ClasCWComplex (X := C) univ]
+    (hC : IsClosed C) (hC2 : C.Nonempty) :
+    enlarge hC = enlargeNonempty hC hC2 :=
+  RelCWComplex.enlarge_eq_enlargeNonempty ..
 
 open Set.Notation in
-def RelCWComplex.restrict [RelCWComplex C D] (Y : Set X) (hCY : C ⊆ Y) (hC : C.Nonempty) :
-    RelCWComplex (X := Y) (Y ↓∩ C) (Y ↓∩ D) where
-  cell := cell C
-  map n i := (map n i).restrictImage Y (by
-    refine subset_trans ?_ hCY
-    rw [← PartialEquiv.image_source_eq_target, source_eq]
-    exact openCell_subset_complex (C := C) n i)
-    (hC.mono hCY)
-  source_eq n i := by simp [source_eq]
-  continuousOn n i := by
-    simp only [PartialEquiv.restrictImage, continuousOn_iff_continuous_restrict]
-    have : ∀ x (_ : x ∈ closedBall 0 1), map n i x ∈ Y := by
-      intro x hx
-      apply hCY
-      exact closedCell_subset_complex _ _ (mem_image_of_mem _ hx)
-    apply Continuous.congr
-      (f := fun (x : closedBall 0 1) ↦ (⟨map n i x, this x.1 x.2⟩ : Y))
-    · apply Continuous.subtype_mk
-      apply Continuous.congr (f := (closedBall 0 1).restrict (map n i))
-      · rw [← continuousOn_iff_continuous_restrict]
-        exact continuousOn n i
-      · intro
-        simp
-    · intro ⟨x, hx⟩
-      simp [this x hx]
-  continuousOn_symm n i := by
-    simp only [PartialEquiv.restrictImage, PartialEquiv.coe_symm_mk]
-    apply ContinuousOn.image_comp_continuous
-    · have : (map n i).target ⊆ Y := by
-        refine subset_trans ?_ hCY
-        rw [← PartialEquiv.image_source_eq_target, source_eq]
-        exact openCell_subset_complex (C := C) n i
-      simp only [Subtype.image_preimage_coe, inter_eq_right.2 this]
-      exact continuousOn_symm n i
-    · exact continuous_subtype_val
-  pairwiseDisjoint' := by
-    have h := pairwiseDisjoint' (C := C)
-    simp only [PairwiseDisjoint, Set.Pairwise, mem_univ, ne_eq, Function.onFun, forall_const] at h ⊢
-    intro x y hxy
-    apply Disjoint.of_image (f := Subtype.val)
-    have hx : map x.1 x.2 '' ball 0 1 ⊆ Y := (openCell_subset_complex x.1 x.2).trans hCY
-    have hy : map y.1 y.2 '' ball 0 1 ⊆ Y := (openCell_subset_complex y.1 y.2).trans hCY
-    rw [(map x.1 x.2).restrictImage_image_eq _ _ hx, (map y.1 y.2).restrictImage_image_eq _ _ hy]
-    exact h hxy
-  disjointBase' n i := by
-    apply Disjoint.of_image (f := Subtype.val)
-    have h1 : D ⊆ Y := subset_trans base_subset_complex hCY
-    have h2 : (map n i) '' ball 0 1 ⊆ Y := (openCell_subset_complex n i).trans hCY
-    simp only [Subtype.image_preimage_coe, inter_eq_right.2 h1,
-      (map n i).restrictImage_image_eq _ _ h2]
-    exact disjointBase' n i
-  mapsto n i := by
-    obtain ⟨I, hI⟩ := mapsto n i
-    use I
-    rw [mapsTo'] at hI ⊢
-    rw [← image_subset_image_iff Subtype.val_injective]
-    simp_rw [image_union, image_iUnion]
-    have h1 : map n i '' sphere 0 1 ⊆ Y := (cellFrontier_subset_complex n i).trans hCY
-    have h2 : ∀ m (j : cell C m), map m j '' closedBall 0 1 ⊆ Y :=
-      fun m j ↦ (closedCell_subset_complex m j).trans hCY
-    simp_rw [PartialEquiv.restrictImage_image_eq _ _ _ h1,
-      fun m j ↦ PartialEquiv.restrictImage_image_eq _ _ _ (h2 m j),
-      Subtype.image_preimage_coe, inter_eq_right.2 (base_subset_complex.trans hCY)]
-    exact hI
-  closed' A hA := by
-    intro ⟨hA1, hA2⟩
-    suffices IsClosed (Subtype.val '' A) by
-      rw [← preimage_image_eq A Subtype.val_injective]
-      exact this.preimage_val
-    have hAC: Subtype.val '' A ⊆ C := by
-      rw [← inter_eq_left.2 hCY]
-      nth_rw 3 [← Subtype.range_val (s := Y)]
-      rw [← image_preimage_eq_inter_range]
-      exact image_mono hA
-    rw [closed (C := C) _ hAC]
-    -- how do I get back to the preimage now?
-    constructor
-    · sorry
-    · rw [← inter_eq_left.2 (base_subset_complex.trans hCY)]
-      nth_rw 3 [← Subtype.range_val (s := Y)]
-      rw [← image_preimage_eq_inter_range, ← image_inter Subtype.val_injective]
-      sorry
-  isClosedBase := (isClosedBase C).preimage continuous_subtype_val
-  union' := by
-    rw [← image_eq_image Subtype.val_injective]
-    simp_rw [image_union, image_iUnion]
-    have h : ∀ m (j : cell C m), map m j '' closedBall 0 1 ⊆ Y :=
-      fun m j ↦ (closedCell_subset_complex m j).trans hCY
-    simp_rw [fun m j ↦ PartialEquiv.restrictImage_image_eq _ _ _ (h m j),
-      Subtype.image_preimage_coe, inter_eq_right.2 (base_subset_complex.trans hCY),
-      inter_eq_right.2 hCY]
-    exact union'
+lemma RelCWComplex.enlarge_eq_empty [RelCWComplex (X := C) univ (C ↓∩ D)]
+    (hC : IsClosed C)
+    (hC2 : ¬ C.Nonempty) (hDC : D ⊆ C) :
+    letI := ClasCWComplex.instEmpty (X := X)
+    enlarge hC hDC = ofEq ∅ ∅ (not_nonempty_iff_eq_empty.1 hC2).symm
+    (subset_eq_empty hDC (not_nonempty_iff_eq_empty.1 hC2)).symm := by
+  simp [enlarge, hC2]
+
+lemma ClasCWComplex.enlarge_eq_empty [ClasCWComplex (X := C) univ]
+    (hC : IsClosed C) (hC2 : ¬ C.Nonempty) :
+    letI := ClasCWComplex.instEmpty (X := X)
+    enlarge hC = RelCWComplex.ofEq ∅ ∅ (not_nonempty_iff_eq_empty.1 hC2).symm rfl :=
+  RelCWComplex.enlarge_eq_empty hC hC2 (empty_subset C)
+
+open Set.Notation Classical in
+lemma RelCWComplex.finiteDimensional_enlarge [RelCWComplex (X := C) univ (C ↓∩ D)]
+    [FiniteDimensional (X := C) univ] (hC : IsClosed C) (hDC : D ⊆ C) :
+    letI := enlarge hC hDC
+    FiniteDimensional C :=
+  let _ := enlarge hC hDC
+  let _ := ClasCWComplex.instEmpty (X := X)
+  let _ := ClasCWComplex.Finite_instEmpty (X := X)
+  if hC2 : C.Nonempty then
+    (enlarge_eq_enlargeNonempty hC hC2 hDC ▸ finiteDimensional_enlargeNonempty hC hC2 hDC)
+    else (enlarge_eq_empty hC hC2 hDC ▸ finiteDimensional_ofEq ..)
+
+open Set.Notation Classical in
+lemma RelCWComplex.finiteType_enlarge [RelCWComplex (X := C) univ (C ↓∩ D)]
+    [FiniteType (X := C) univ] (hC : IsClosed C) (hDC : D ⊆ C) :
+    letI := enlarge hC hDC
+    FiniteType C :=
+  let _ := enlarge hC
+  let _ := ClasCWComplex.instEmpty (X := X)
+  let _ := ClasCWComplex.Finite_instEmpty (X := X)
+  if hC2 : C.Nonempty then
+    (enlarge_eq_enlargeNonempty hC hC2 hDC ▸ finiteType_enlargeNonempty hC hC2 hDC)
+    else (enlarge_eq_empty hC hC2 hDC ▸ finiteType_ofEq ..)
 
 open Set.Notation in
-def RelCWComplex.univSelf [RelCWComplex C D] (hC : C.Nonempty) :
-    RelCWComplex (univ : Set C) (C ↓∩ D) :=
-  letI := RelCWComplex.restrict C Subset.rfl hC
-  ofEq (C ↓∩ C) (C ↓∩ D) (E := (Set.univ : Set C)) (by simp) rfl
+lemma RelCWComplex.finite_enlarge [RelCWComplex (X := C) univ (C ↓∩ D)]
+    [Finite (X := C) univ] (hC : IsClosed C) (hDC : D ⊆ C) :
+    letI := enlarge hC hDC
+    Finite C :=
+  let _ := enlarge hC hDC
+  let _ := finiteDimensional_enlarge hC hDC
+  let _ := finiteType_enlarge hC hDC
+  inferInstance
+
+lemma ClasCWComplex.finiteDimensional_enlarge [ClasCWComplex (X := C) univ]
+    [h : FiniteDimensional (X := C) univ] (hC : IsClosed C) :
+    letI := enlarge hC
+    FiniteDimensional C :=
+  @RelCWComplex.finiteDimensional_enlarge _ _ _ _ _ _ h hC (empty_subset C)
+
+lemma ClasCWComplex.finiteType_enlarge [ClasCWComplex (X := C) univ]
+    [h : FiniteType (X := C) univ] (hC : IsClosed C) :
+    letI := enlarge hC
+    FiniteType C :=
+  @RelCWComplex.finiteType_enlarge _ _ _ _ _ _ h hC (empty_subset C)
+
+lemma ClasCWComplex.finite_enlarge [ClasCWComplex (X := C) univ]
+    [h : Finite (X := C) univ] (hC : IsClosed C) :
+    letI := enlarge hC
+    Finite C :=
+  @RelCWComplex.finite_enlarge _ _ _ _ _ _ h hC (empty_subset C)
+
+open Set.Notation in
+def RelCWComplex.restrictNonempty [RelCWComplex C D] (Y : Set X) (hCY : C ⊆ Y)
+    (hC : C.Nonempty) : RelCWComplex (X := Y) (Y ↓∩ C) (Y ↓∩ D) :=
+  ofPartialEquiv C (Y ↓∩ C) isClosed (isClosed.preimage continuous_subtype_val)
+    (PartialEquiv.fromSet Y C (hC.mono hCY) hCY).symm
+    (by simp) (by simp)
+    (by
+      ext x
+      simp only [PartialEquiv.fromSet_symm_apply, mem_image, mem_preimage]
+      constructor
+      · intro ⟨y, hyD, hyx⟩
+        simp_rw [eq_true (base_subset_complex.trans hCY hyD), dite_true] at hyx
+        rwa [← hyx]
+      · intro hx
+        use x
+        simp [hx])
+    ((PartialEquiv.continuousOn_fromSet Y C (hC.mono hCY) hCY).mono hCY)
+    (PartialEquiv.symm_symm _ ▸ (PartialEquiv.continuous_fromSet ..).continuousOn)
+
+open Set.Notation in
+lemma RelCWComplex.finiteDimensional_restrictNonempty [RelCWComplex C D] [FiniteDimensional C]
+    (Y : Set X) (hCY : C ⊆ Y) (hC : C.Nonempty) :
+    letI := restrictNonempty Y hCY hC
+    FiniteDimensional (Y ↓∩ C) :=
+  letI := restrictNonempty Y hCY hC
+  FiniteDimensional_ofPartialEquiv ..
+
+open Set.Notation in
+lemma RelCWComplex.finiteType_restrictNonempty [RelCWComplex C D] [FiniteType C]
+    (Y : Set X) (hCY : C ⊆ Y) (hC : C.Nonempty) :
+    letI := restrictNonempty Y hCY hC
+    FiniteType (Y ↓∩ C) :=
+  letI := restrictNonempty Y hCY hC
+  FiniteType_ofPartialEquiv ..
+
+open Set.Notation in
+lemma RelCWComplex.finite_restrictNonempty [RelCWComplex C D] [Finite C]
+    (Y : Set X) (hCY : C ⊆ Y) (hC : C.Nonempty) :
+    letI := restrictNonempty Y hCY hC
+    Finite (Y ↓∩ C) :=
+  letI := restrictNonempty Y hCY hC
+  Finite_ofPartialEquiv ..
+
+open Set.Notation Classical in
+def RelCWComplex.restrict [RelCWComplex C D] (Y : Set X) (hCY : C ⊆ Y) :
+    RelCWComplex (X := Y) (Y ↓∩ C) (Y ↓∩ D) :=
+  letI := ClasCWComplex.instEmpty (X := Y)
+  if h : C.Nonempty then restrictNonempty Y hCY h else
+    ofEq ∅ ∅ (by rw [not_nonempty_iff_eq_empty.1 h, preimage_empty])
+    (by rw [subset_eq_empty base_subset_complex (not_nonempty_iff_eq_empty.1 h), preimage_empty])
+
+lemma RelCWComplex.restrict_eq_restrictNonempty [RelCWComplex C D] (Y : Set X) (hCY : C ⊆ Y)
+    (hC : C.Nonempty) :
+    restrict Y hCY = restrictNonempty Y hCY hC := by
+  simp [restrict, hC]
+
+open Set.Notation in
+lemma RelCWComplex.restrict_eq_empty [RelCWComplex C D] (Y : Set X) (hCY : C ⊆ Y)
+    (hC : ¬ C.Nonempty) :
+    letI := ClasCWComplex.instEmpty (X := Y)
+    restrict Y hCY = ofEq (E := (Y ↓∩ C)) ∅ ∅
+      (by rw [not_nonempty_iff_eq_empty.1 hC, preimage_empty])
+      (by rw [subset_eq_empty base_subset_complex (not_nonempty_iff_eq_empty.1 hC),
+        preimage_empty]) := by
+  simp [restrict, hC]
+
+open Set.Notation Classical in
+lemma RelCWComplex.finiteDimensional_restrict [RelCWComplex C D] [FiniteDimensional C]
+    (Y : Set X) (hCY : C ⊆ Y) :
+    letI := restrict Y hCY
+    FiniteDimensional (Y ↓∩ C) :=
+  let _ := restrict Y hCY
+  let _ := ClasCWComplex.instEmpty (X := Y)
+  let _ := ClasCWComplex.Finite_instEmpty (X := Y)
+  if hC : C.Nonempty then
+    (restrict_eq_restrictNonempty Y hCY hC ▸ finiteDimensional_restrictNonempty Y hCY hC)
+    else (restrict_eq_empty Y hCY hC ▸ finiteDimensional_ofEq ..)
+
+open Set.Notation Classical in
+lemma RelCWComplex.finiteType_restrict [RelCWComplex C D] [FiniteType C]
+    (Y : Set X) (hCY : C ⊆ Y) :
+    letI := restrict Y hCY
+    FiniteType (Y ↓∩ C) :=
+  let _ := restrict Y hCY
+  let _ := ClasCWComplex.instEmpty (X := Y)
+  let _ := ClasCWComplex.Finite_instEmpty (X := Y)
+  if hC : C.Nonempty then
+    (restrict_eq_restrictNonempty Y hCY hC ▸ finiteType_restrictNonempty Y hCY hC)
+    else (restrict_eq_empty Y hCY hC ▸ finiteType_ofEq ..)
+
+open Set.Notation in
+lemma RelCWComplex.finite_restrict [RelCWComplex C D] [Finite C]
+    (Y : Set X) (hCY : C ⊆ Y) :
+    letI := restrict Y hCY
+    FiniteType (Y ↓∩ C) :=
+  let _ := restrict Y hCY
+  let _ := finiteDimensional_restrict Y hCY
+  let _ := finiteType_restrict Y hCY
+  inferInstance
 
 namespace ClasCWComplex
 
-export RelCWComplex (ofEq finiteDimensional_ofEq finiteType_ofEq finite_ofEq)
+export RelCWComplex (ofEq finiteDimensional_ofEq finiteType_ofEq finite_ofEq
+  restrictNonempty finiteDimensional_restrictNonempty finiteType_restrictNonempty
+  finite_restrictNonempty restrict restrict_eq_restrictNonempty restrict_eq_empty
+  finiteDimensional_restrict finiteType_restrict finite_restrict)
 
 end ClasCWComplex

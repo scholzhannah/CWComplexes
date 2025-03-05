@@ -368,6 +368,8 @@ lemma RelCWComplex.isClosed [T2Space X] [RelCWComplex C D] : IsClosed C := by
   · rw [inter_eq_right.2 base_subset_complex]
     exact isClosedBase C
 
+-- the following two lemmas were generalized and therefore removed in PR
+
 lemma RelCWComplex.iUnion_skeletonLT_eq_skeletonLT [RelCWComplex C D] (n : ℕ∞) :
     ⋃ (m : ℕ) (_ : m < n + 1), skeletonLT C m = skeletonLT C n := by
   apply subset_antisymm
@@ -473,6 +475,8 @@ lemma RelCWComplex.eq_cell_of_not_disjoint [RelCWComplex C D] {n : ℕ} {j : cel
   have := pairwiseDisjoint (C := C) (D := D)
   simp only [PairwiseDisjoint, Set.Pairwise, Function.onFun] at this
   exact this (x := ⟨n, j⟩) (mem_univ _) (y := ⟨m, i⟩) (mem_univ _) h'
+
+-- the following three lemmas are restated as equivalences in PR
 
 lemma RelCWComplex.exists_mem_openCell_of_mem_skeletonLT [RelCWComplex C D] {n : ℕ∞} {x : X}
     (hx : x ∈ skeletonLT C n) :

@@ -1,5 +1,6 @@
 import CWcomplexes.RelConstructions
 import CWcomplexes.RelSubcomplex
+import Mathlib.Topology.Sets.Compacts
 
 /-!
 # Lemmas about CW-complexes
@@ -22,12 +23,12 @@ open Metric Set
 
 variable {X : Type*} [t : TopologicalSpace X] [T2Space X] {C D : Set X}
 
-
 lemma RelCWComplex.isClosed_skeletonLT [RelCWComplex C D] (n : ℕ∞) :
     IsClosed (skeletonLT C n) :=
   isClosed
 
 lemma RelCWComplex.isClosed_skeleton [RelCWComplex C D] (n : ℕ∞) : IsClosed (skeleton C n) :=
+  let _ := Subcomplex.instSubcomplex (C := C) (skeleton C n)
   isClosed
 
 lemma RelCWComplex.isClosed_iff_inter_skeletonLT_isClosed [RelCWComplex C D] {A : Set X}
@@ -404,7 +405,7 @@ lemma RelCWComplex.Subcomplex.compact_subset_finite_subcomplex [RelCWComplex C D
   exact subset
 
 instance RelCWComplex.FiniteDimensional_instskeletonLT_of_nat [RelCWComplex C D]
-    [FiniteDimensional C](n : ℕ) : FiniteDimensional (skeletonLT C n) where
+    [FiniteDimensional C] (n : ℕ) : FiniteDimensional (skeletonLT C n) where
   eventually_isEmpty_cell := by
     simp only [Subcomplex.instSubcomplex_cell, Subcomplex.mk''_I, Nat.cast_lt, coe_setOf,
       isEmpty_subtype, not_lt, Filter.eventually_atTop, ge_iff_le]

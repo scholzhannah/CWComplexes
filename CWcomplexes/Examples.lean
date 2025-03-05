@@ -23,28 +23,6 @@ variable {X : Type*} [t : TopologicalSpace X] [T2Space X]
 
 /-! # CW-complex structures on finite sets -/
 
-/-- The empty set is a CW-complex.-/
-@[simps!]
-instance instEmpty : ClasCWComplex (∅ : Set X) := mkFinite ∅
-  (cell := fun _ ↦ PEmpty)
-  (map := fun _ i ↦ i.elim)
-  (eventually_isEmpty_cell := by
-    rw [Filter.eventually_atTop]
-    use 0
-    exact fun b a ↦ PEmpty.instIsEmpty)
-  (finite_cell := fun n ↦ Finite.of_fintype ((fun _ ↦ PEmpty) n))
-  (source_eq := fun _ i ↦ i.elim)
-  (continuousOn := fun _ i ↦ i.elim)
-  (continuousOn_symm := fun _ i ↦ i.elim)
-  (pairwiseDisjoint' := by rw [PairwiseDisjoint, Set.Pairwise]; intro ⟨_, i⟩; exact i.elim)
-  (mapsto := fun _ i ↦ i.elim)
-  (union' := by simp [iUnion_of_empty, iUnion_empty])
-
-/- **ToDo**: This should just follow from `instFiniteSet`. Delete? -/
-
-/-- The CW-complex on the empty set is finite. -/
-instance Finite_instEmpty : Finite (∅ : Set X) := Finite_mkFinite ..
-
 /-- Every finite set is a CW-complex. -/
 @[simps!]
 instance instFiniteSet (C : Set X) [_root_.Finite C] : ClasCWComplex C := mkFinite C
@@ -372,7 +350,8 @@ lemma isEmpty_cell_SphereZero (x : EuclideanSpace ℝ (Fin 0)) (ε : ℝ) (h : �
     ∀ m, IsEmpty (cell (sphere x ε) m) := by
   intro m
   simp only [RelCWComplex.ofEq_cell, instEmpty_cell]
-  infer_instance
+  --infer_instance
+  sorry
 
 /-- The sphere in dimension 1 is a CW-complex. -/
 def SphereOne (x ε : ℝ) (hε : ε ≥ 0) : ClasCWComplex (sphere x ε) :=
