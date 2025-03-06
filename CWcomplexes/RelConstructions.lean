@@ -1159,9 +1159,18 @@ open Set.Notation in
 def RelCWComplex.enlargeNonempty [RelCWComplex (X := C) univ (C ↓∩ D)] (hC : IsClosed C)
     (hC2 : C.Nonempty) (hDC : D ⊆ C) :
     RelCWComplex C D :=
-  ofPartialEquiv univ C isClosed_univ hC (PartialEquiv.fromSet C C hC2 Subset.rfl)
-    (by simp) (by simp) (by simp [hDC]) (PartialEquiv.continuous_fromSet ..).continuousOn
-    (PartialEquiv.continuousOn_fromSet C C hC2 Subset.rfl)
+  letI : Nonempty C := Nonempty.to_subtype hC2
+  letI : Inhabited C := Classical.inhabited_of_nonempty this
+  ofPartialEquiv univ (D := (C ↓∩ D)) C (F := D) isClosed_univ hC
+    (Subtype.val_injective.injOn.toPartialEquiv _ (univ : Set C))
+    (by simp)
+    (by simp)
+    (by simp [hDC])
+    continuous_subtype_val.continuousOn
+    (by
+      simp [continuousOn_iff_continuous_restrict]
+      apply continuous_id.congr
+      exact fun x ↦ (Subtype.val_injective.injOn.leftInvOn_invFunOn (mem_univ x)).symm)
 
 open Set.Notation in
 lemma RelCWComplex.finiteDimensional_enlargeNonempty [RelCWComplex (X := C) univ (C ↓∩ D)]
@@ -1310,24 +1319,34 @@ lemma CWComplex.finite_enlarge [CWComplex (X := C) univ]
   @RelCWComplex.finite_enlarge _ _ _ _ _ _ h hC (empty_subset C)
 
 open Set.Notation in
-@[simps!?]
+@[simps!]
 def RelCWComplex.restrictNonempty [RelCWComplex C D] (Y : Set X) (hCY : C ⊆ Y)
     (hC : C.Nonempty) : RelCWComplex (X := Y) (Y ↓∩ C) (Y ↓∩ D) :=
+  letI : Nonempty Y := Nonempty.to_subtype (hC.mono hCY)
   ofPartialEquiv C (Y ↓∩ C) isClosed (isClosed.preimage continuous_subtype_val)
-    (PartialEquiv.fromSet Y C (hC.mono hCY) hCY).symm
-    (by simp) (by simp)
+    (Subtype.val_injective.injOn.toPartialEquiv _ (Y ↓∩ C)).symm
+    (by simp [hCY])
+    (by simp)
     (by
       ext x
-      simp only [PartialEquiv.fromSet_symm_apply, mem_image, mem_preimage]
+      simp only [InjOn.toPartialEquiv, Subtype.image_preimage_coe, BijOn.toPartialEquiv_symm_apply,
+        mem_image, mem_preimage]
       constructor
       · intro ⟨y, hyD, hyx⟩
-        simp_rw [eq_true (base_subset_complex.trans hCY hyD), dite_true] at hyx
-        rwa [← hyx]
+        rw [← hyx, Subtype.val.invFunOn_eq ⟨(⟨y, hCY (base_subset_complex hyD)⟩ : Y),
+          by simp only [mem_preimage, base_subset_complex hyD], rfl⟩]
+        exact hyD
       · intro hx
-        use x
-        simp [hx])
-    ((PartialEquiv.continuousOn_fromSet Y C (hC.mono hCY) hCY).mono hCY)
-    (PartialEquiv.symm_symm _ ▸ (PartialEquiv.continuous_fromSet ..).continuousOn)
+        exact ⟨x, hx, Subtype.val_injective.injOn.leftInvOn_invFunOn
+          (by simp only [mem_preimage, base_subset_complex hx])⟩)
+    (by
+      simp only [InjOn.toPartialEquiv, Subtype.image_preimage_coe, BijOn.toPartialEquiv_symm_apply,
+        continuousOn_iff_continuous_restrict]
+      apply (continuous_inclusion hCY).congr
+      intro x
+      simp only [inclusion, restrict_apply, mem_preimage, Subtype.coe_prop,
+        (Subtype.val_injective.injOn.leftInvOn_invFunOn (x := (⟨x, hCY x.2⟩ : Y)))])
+    continuous_subtype_val.continuousOn
 
 open Set.Notation in
 lemma RelCWComplex.finiteDimensional_restrictNonempty [RelCWComplex C D] [FiniteDimensional C]

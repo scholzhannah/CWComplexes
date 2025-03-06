@@ -91,30 +91,6 @@ lemma PartialEquiv.isClosed_of_isClosed_preimage {X Y : Type*} [TopologicalSpace
   rw [Topology.IsClosedEmbedding.isClosed_iff_image_isClosed he2.isClosedEmbedding_subtypeVal, this]
   exact hA
 
--- needed in constructions file
-open Set.Notation Set Classical in
-@[simps]
-def PartialEquiv.fromSet {X : Type*} (C D : Set X) (hC : C.Nonempty) (hD : D ⊆ C) :
-    PartialEquiv C X :=
-  letI : Nonempty C := Nonempty.to_subtype hC
-  letI : Inhabited C := inhabited_of_nonempty this
-  { toFun := Subtype.val
-    invFun x := if h : x ∈ C then ⟨x, h⟩ else default
-    source := C ↓∩ D
-    target := D
-    map_source' x := by simp
-    map_target' y hy := by simp [hy, hD hy]
-    left_inv' x := by simp
-    right_inv' y hy := by simp [hy, hD hy]}
-
-lemma PartialEquiv.continuous_fromSet {X : Type*} [TopologicalSpace X] (C D : Set X)
-    (hC : C.Nonempty) (hD : D ⊆ C) : Continuous (fromSet C D hC hD) := by
-  exact continuous_iff_le_induced.mpr fun U a ↦ a
-
-lemma PartialEquiv.continuousOn_fromSet {X : Type*} [TopologicalSpace X] (C D : Set X)
-    (hC : C.Nonempty) (hD : D ⊆ C) : ContinuousOn (fromSet C D hC hD).symm C := by
-  simp [fromSet, continuousOn_iff_continuous_restrict, continuous_inclusion]
-
 /-! ### Random-/
 
 -- needed in product file
