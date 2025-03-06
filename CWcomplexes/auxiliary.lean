@@ -91,6 +91,7 @@ lemma PartialEquiv.isClosed_of_isClosed_preimage {X Y : Type*} [TopologicalSpace
   rw [Topology.IsClosedEmbedding.isClosed_iff_image_isClosed he2.isClosedEmbedding_subtypeVal, this]
   exact hA
 
+-- needed in constructions file
 open Set.Notation Set Classical in
 @[simps]
 def PartialEquiv.fromSet {X : Type*} (C D : Set X) (hC : C.Nonempty) (hD : D ⊆ C) :
@@ -116,6 +117,14 @@ lemma PartialEquiv.continuousOn_fromSet {X : Type*} [TopologicalSpace X] (C D : 
 
 /-! ### Random-/
 
+-- needed in product file
+/-- Dependent product of types is associative up to an equivalence. -/
+def pSigmaAssoc {α : Sort*} {β : α → Sort*} (γ : ∀ a : α, β a → Sort*) :
+    (Σ' ab : Σ' a : α, β a, γ ab.1 ab.2) ≃ Σ' a : α, Σ' b : β a, γ a b where
+  toFun x := ⟨x.1.1, ⟨x.1.2, x.2⟩⟩
+  invFun x := ⟨⟨x.1, x.2.1⟩, x.2.2⟩
+  left_inv _ := rfl
+  right_inv _ := rfl
 
 theorem ENat.lt_add_one_iff' {m n : ℕ∞} (hm : m ≠ ⊤) : m < n + 1 ↔ m ≤ n := by
   obtain ⟨l, hl⟩ := ENat.ne_top_iff_exists.1 hm

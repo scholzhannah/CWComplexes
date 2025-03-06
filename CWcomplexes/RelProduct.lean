@@ -298,8 +298,6 @@ instance RelCWComplex.Product [RelCWComplex C D] [RelCWComplex E F] [KSpace (X �
       · right
         exact mk_mem_prod hx1' hx2
 
--- seems like `▸` cannot see through `abbrev`. How do I fix this
-
 /-- If `C` and `E` are CW-complexes in `X` and `Y`, and `X × Y` is a k-space, then `C ×ˢ D` is a
   CW-complex.-/
 @[simps!]
@@ -307,7 +305,7 @@ instance CWComplex.Product [CWComplex C] [CWComplex E] [KSpace (X × Y)] :
     CWComplex (C ×ˢ E) :=
   ofEq (C ×ˢ E) (∅ ×ˢ E ∪ C ×ˢ ∅) rfl (by simp)
 
-instance RelCWComplex.FiniteDimensional_Product [KSpace (X × Y)] [RelCWComplex C D]
+instance RelCWComplex.finiteDimensional_product [KSpace (X × Y)] [RelCWComplex C D]
     [RelCWComplex E F] [FiniteDimensional C] [FiniteDimensional E] :
     FiniteDimensional (C ×ˢ E) where
   eventually_isEmpty_cell := by
@@ -329,18 +327,40 @@ instance RelCWComplex.FiniteDimensional_Product [KSpace (X × Y)] [RelCWComplex 
     push_neg at h
     linarith
 
-instance RelCWComplex.FiniteType_Product [KSpace (X × Y)] [RelCWComplex C D] [RelCWComplex E F]
+instance RelCWComplex.finiteType_product [KSpace (X × Y)] [RelCWComplex C D] [RelCWComplex E F]
     [FiniteType C] [FiniteType E] : FiniteType (C ×ˢ E) where
   finite_cell := by
     have hC := FiniteType.finite_cell (C := C) (D := D)
     have hD := FiniteType.finite_cell (C := E) (D := F)
     intro n
     simp [prodcell]
-    suffices _root_.Finite ((m : ℕ) ×' (l : ℕ) ×' (m + l = n)) by
-      sorry
+    rw [← Equiv.finite_iff (pSigmaAssoc _), ← Equiv.finite_iff (pSigmaAssoc _)]
+    suffices _root_.Finite ((a : (_ : ℕ) ×' ℕ) ×' a.fst + a.snd = n) from inferInstance
+    rw [Equiv.finite_iff (Equiv.psigmaEquivSubtype _)]
+    let f : { a : (_ : ℕ) ×' ℕ // a.fst + a.snd = n } → {m // m ≤ n} × {m // m ≤ n} :=
+      fun ⟨m, hm⟩ ↦ ⟨⟨m.1, Nat.le.intro hm⟩, ⟨m.2, Nat.le.intro (m.1.add_comm m.2 ▸ hm)⟩⟩
+    have hf : Function.Injective f := by
+      intro ⟨m1, hm1⟩ ⟨m2, hm2⟩ hm
+      simp_all [f, PSigma.ext_iff]
+    exact Finite.of_injective f hf
 
-    sorry
+/-
+I think what is happening here is that it forgets the base again and then gets lost.
+Is this an outParam thing?
+-/
 
+--set_option trace.Meta.synthInstance true in
+instance CWComplex.finiteDimensional_product [KSpace (X × Y)] [CWComplex C] [CWComplex E]
+    [FiniteDimensional C] [FiniteDimensional E] : FiniteDimensional (C ×ˢ E) :=
+  -- why does it not find this instance itself?
+  letI := RelCWComplex.Product (C := C) (E := E)
+  finiteDimensional_ofEq ..
+
+instance CWComplex.finiteType_product [KSpace (X × Y)] [CWComplex C] [CWComplex E]
+    [FiniteType C] [FiniteType E] : FiniteType (C ×ˢ E) :=
+  -- why does it not find this instance itself?
+  letI := RelCWComplex.Product (C := C) (E := E)
+  finiteType_ofEq ..
 
 /-- If `C` and `D` are CW-complexes in `X` and `Y` then `C ×ˢ D` is a CW-complex in the k-ification
   of `X × Y`.-/
@@ -557,16 +577,81 @@ instance CWComplex.ProductKification [CWComplex C] [CWComplex E] :
     CWComplex (X := kification (X × Y)) (C ×ˢ E) :=
   ofEq (X := kification (X × Y)) (C ×ˢ E) (∅ ×ˢ E ∪ C ×ˢ ∅) rfl (by simp)
 
+instance RelCWComplex.finiteDimensional_productKification [RelCWComplex C D]
+    [RelCWComplex E F] [FiniteDimensional C] [FiniteDimensional E] :
+    FiniteDimensional (X := kification (X × Y)) (C ×ˢ E) where
+  eventually_isEmpty_cell := by
+    have hC := FiniteDimensional.eventually_isEmpty_cell (C := C) (D := D)
+    have hE := FiniteDimensional.eventually_isEmpty_cell (C := E) (D := F)
+    rw [Filter.eventually_atTop] at hC hE ⊢
+    obtain ⟨c, hc⟩ := hC
+    obtain ⟨e, he⟩ := hE
+    use c + e
+    intro n hn
+    simp [prodcell]
+    intro m l hml
+    rw [← hml] at hn
+    suffices m ≥ c ∨ l ≥ e by
+      rcases this with h | h
+      · exact .inl (hc m h)
+      · exact .inr (he l h)
+    by_contra h
+    push_neg at h
+    linarith
+
+instance RelCWComplex.finiteType_productKification [RelCWComplex C D]
+    [RelCWComplex E F] [FiniteType C] [FiniteType E] :
+    FiniteType (X := kification (X × Y)) (C ×ˢ E) where
+  finite_cell := by
+    have hC := FiniteType.finite_cell (C := C) (D := D)
+    have hD := FiniteType.finite_cell (C := E) (D := F)
+    intro n
+    simp [prodcell]
+    rw [← Equiv.finite_iff (pSigmaAssoc _), ← Equiv.finite_iff (pSigmaAssoc _)]
+    suffices _root_.Finite ((a : (_ : ℕ) ×' ℕ) ×' a.fst + a.snd = n) from inferInstance
+    rw [Equiv.finite_iff (Equiv.psigmaEquivSubtype _)]
+    let f : { a : (_ : ℕ) ×' ℕ // a.fst + a.snd = n } → {m // m ≤ n} × {m // m ≤ n} :=
+      fun ⟨m, hm⟩ ↦ ⟨⟨m.1, Nat.le.intro hm⟩, ⟨m.2, Nat.le.intro (m.1.add_comm m.2 ▸ hm)⟩⟩
+    have hf : Function.Injective f := by
+      intro ⟨m1, hm1⟩ ⟨m2, hm2⟩ hm
+      simp_all [f, PSigma.ext_iff]
+    exact Finite.of_injective f hf
+
+instance CWComplex.finiteDimensional_productKification [CWComplex C] [CWComplex E]
+    [FiniteDimensional C] [FiniteDimensional E] :
+    FiniteDimensional (X := kification (X × Y)) (C ×ˢ E) :=
+  -- why does it not find this instance itself?
+  letI := RelCWComplex.ProductKification (C := C) (E := E)
+  finiteDimensional_ofEq ..
+
+instance CWComplex.finiteType_productKification [CWComplex C] [CWComplex E]
+    [FiniteType C] [FiniteType E] : FiniteType (X := kification (X × Y)) (C ×ˢ E) :=
+  -- why does it not find this instance itself?
+  letI := RelCWComplex.ProductKification (C := C) (E := E)
+  finiteType_ofEq ..
+
 @[simps!]
-instance CWComplex.ProductKificationUniv [CWComplex (univ : Set X)]
-    [CWComplex (univ : Set Y)] :
-    CWComplex (X := kification (X × Y)) (univ : Set (X × Y)) :=
-  ofEq (X := kification (X × Y)) (univ ×ˢ univ : Set (X × Y)) ∅ univ_prod_univ rfl
+instance RelCWComplex.ProductUniv [KSpace (X × Y)] [RelCWComplex (univ : Set X) D]
+    [RelCWComplex (univ : Set Y) F] : RelCWComplex (univ : Set (X × Y)) (D ×ˢ univ ∪ univ ×ˢ F) :=
+  ofEq (univ ×ˢ univ : Set (X × Y)) (D ×ˢ univ ∪ univ ×ˢ F) univ_prod_univ rfl
 
 @[simps!]
 instance CWComplex.ProductUniv [KSpace (X × Y)] [CWComplex (univ : Set X)]
     [CWComplex (univ : Set Y)] : CWComplex (univ : Set (X × Y)) :=
   ofEq (univ ×ˢ univ : Set (X × Y)) ∅ univ_prod_univ rfl
+
+@[simps!]
+instance RelCWComplex.ProductKificationUniv [RelCWComplex (univ : Set X) D]
+    [RelCWComplex (univ : Set Y) F] :
+    RelCWComplex (X := kification (X × Y)) (univ : Set (X × Y)) (D ×ˢ univ ∪ univ ×ˢ F) :=
+  ofEq (X := kification (X × Y)) (univ ×ˢ univ : Set (X × Y)) (D ×ˢ univ ∪ univ ×ˢ F)
+    univ_prod_univ rfl
+
+@[simps!]
+instance CWComplex.ProductKificationUniv [CWComplex (univ : Set X)]
+    [CWComplex (univ : Set Y)] :
+    CWComplex (X := kification (X × Y)) (univ : Set (X × Y)) :=
+  ofEq (X := kification (X × Y)) (univ ×ˢ univ : Set (X × Y)) ∅ univ_prod_univ rfl
 
 end
 
