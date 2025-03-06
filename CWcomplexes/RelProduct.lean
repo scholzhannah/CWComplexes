@@ -1,5 +1,4 @@
 import CWcomplexes.RelLemmas
-import CWcomplexes.KSpace
 import Mathlib.Data.Finset.NatAntidiagonal
 
 /-!

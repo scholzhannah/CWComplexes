@@ -1,5 +1,6 @@
 import CWcomplexes.RelConstructions
 import CWcomplexes.RelSubcomplex
+import CWcomplexes.KSpace
 import Mathlib.Topology.Sets.Compacts
 
 /-!
@@ -430,6 +431,36 @@ instance RelCWComplex.finiteDimensional_instskeletonLT_of_nat [RelCWComplex C D]
 instance RelCWComplex.finiteDimensional_instskeleton_of_nat [RelCWComplex C D] [FiniteDimensional C]
     (n : ℕ) : FiniteDimensional (skeleton C n) :=
   finiteDimensional_instskeletonLT_of_nat _
+
+lemma RelCWComplex.kSpace [RelCWComplex (univ: Set X) D] (hD : IsCompact D) : KSpace X := by
+  apply KSpace.kspace_of_isClosed
+  intro A hA
+  rw [closed univ A A.subset_univ]
+  constructor
+  · intro n j
+    rw [inter_comm, ← isClosed_closedCell.inter_preimage_val_iff]
+    apply hA
+    exact isCompact_closedCell
+  · rw [inter_comm, ← hD.isClosed.inter_preimage_val_iff]
+    apply hA
+    exact hD
+
+
+/-
+`exact?` finds `compact_of_finite` here (which it definitely shouldn't).
+
+1. First it knows that ∅ is a subcomplex of the CW complex `univ` because it is the base
+
+2. It knows that a Subcomplex is a CW complex and for this construction it knows that its finite.
+
+3. It knows that a finite CW complex is finite.
+
+-/
+
+--set_option trace.Meta.synthInstance true in
+instance CWComplex.instKSpace [CWComplex (univ : Set X)] : KSpace X := by
+  exact RelCWComplex.kSpace isCompact_empty
+--    (by exact compact_of_finite)
 
 
 namespace CWComplex
