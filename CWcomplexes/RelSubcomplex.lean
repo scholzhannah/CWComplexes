@@ -516,6 +516,7 @@ lemma RelCWComplex.Subcomplex.finite_attachBase [T2Space X] [RelCWComplex C D] (
         intro c eq
         contradiction}
 
+@[simps!]
 instance RelCWComplex.Subcomplex.cellZero [T2Space X] [RelCWComplex C D] (i : cell C 0) :
   Subcomplex C (D ∪ closedCell 0 i) := attachBase 0 i (by simp [cellFrontier_zero_eq_empty])
 
@@ -626,8 +627,7 @@ lemma RelCWComplex.Subcomplex.attachCell_I [T2Space X] [RelCWComplex C D] (n : �
   rfl
 
 /-- The subcomplex that results from attaching a cell to a subcomplex when the edge of the cell is
-  contained in the original subcomplex.-/
--- @[simps?]
+contained in the original subcomplex.-/
 def CWComplex.Subcomplex.attachCell [T2Space X] [CWComplex C] (n : ℕ) (i : cell C n)
     (E : Set X)
     [sub : Subcomplex C E]
@@ -866,7 +866,8 @@ namespace CWComplex.Subcomplex
 export RelCWComplex.Subcomplex (subset_complex finiteType_subcomplex_of_finiteType
   finiteDimensional_subcomplex_of_finiteDimensional finite_subcomplex_of_finite
   cell_mem_finite_subcomplex closedCell_subset_finite_subcomplex
-  finite_iUnion_subset_finite_subcomplex instSkeletonLT instSkeleton)
+  finite_iUnion_subset_finite_subcomplex instSkeletonLT instSkeletonLT_I instSkeleton
+  instSkeleton_I)
 
 end CWComplex.Subcomplex
 
