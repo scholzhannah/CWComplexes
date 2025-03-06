@@ -76,7 +76,7 @@ instance instFiniteSet (C : Set X) [_root_.Finite C] : CWComplex C := mkFinite C
       simp)
 
 /-- The CW-complex on a finite set is finite. -/
-instance Finite_instFiniteSet (C : Set X) [_root_.Finite C] : Finite C := Finite_mkFinite ..
+instance finite_instFiniteSet (C : Set X) [_root_.Finite C] : Finite C := finite_mkFinite ..
 
 /- This works now. 🎉-/
 example (x : X) : CWComplex {x} := inferInstance
@@ -153,10 +153,10 @@ protected def instIccLT' {a b : ℝ} (hab : a < b) :
         Subset.rfl])
 
 /-- A helper lemma for `Finite_IccLT.`-/
-protected lemma Finite_instIccLT' {a b : ℝ} (hab : a < b) :
+protected lemma finite_instIccLT' {a b : ℝ} (hab : a < b) :
     letI := CWComplex.instIccLT' hab
     Finite (mapLTPartial hab '' closedBall 0 1 ∪ {a, b}) :=
-  Finite_attachCellFiniteType ..
+  finite_attachCellFiniteType ..
 
 /-- A (non-degenerate closed interval is a CW-complex.-/
 @[simps!]
@@ -170,12 +170,12 @@ def instIccLT {a b : ℝ} (hab : a < b) : CWComplex (Icc a b : Set ℝ) :=
     rfl
 
 /-- The Cw-complex structure on a (non-degenerate) closed interval is finite. -/
-lemma Finite_instIccLT {a b : ℝ} (hab : a < b) :
+lemma finite_instIccLT {a b : ℝ} (hab : a < b) :
     letI := instIccLT hab
     Finite (Icc a b) :=
   let _ := instIccLT hab
   let _ := CWComplex.instIccLT' hab
-  let _ := CWComplex.Finite_instIccLT' hab
+  let _ := CWComplex.finite_instIccLT' hab
   finite_ofEq (mapLTPartial hab '' closedBall 0 1 ∪ {a, b}) ∅
     (by
       rw [mapLTPartial_image, mapLT_image_closedBall, union_eq_left, pair_subset_iff, left_mem_Icc,
@@ -319,7 +319,7 @@ instance instReal : CWComplex (univ : Set ℝ) := mk (univ : Set ℝ)
 example : CWComplex (univ : Set (ℝ × ℝ)) := inferInstance
 
 /-- The CW-structure on the reals is finite dimensional. -/
-instance FiniteDimensional_instReal : FiniteDimensional (univ : Set ℝ) where
+instance finiteDimensional_instReal : FiniteDimensional (univ : Set ℝ) where
   eventually_isEmpty_cell := by
     rw [Filter.eventually_atTop]
     use 2
@@ -338,7 +338,7 @@ def SphereZero (x : EuclideanSpace ℝ (Fin 0)) (ε : ℝ) (h : ε ≠ 0) : CWCo
   ofEq ∅ ∅ (E := (sphere x ε)) (sphere_eq_empty_of_subsingleton h).symm rfl
 
 /-- The CW-complex structure on the sphere in dimension zero  is finite. -/
-lemma Finite_SphereZero (x : EuclideanSpace ℝ (Fin 0)) (ε : ℝ) (h : ε ≠ 0) :
+lemma finite_SphereZero (x : EuclideanSpace ℝ (Fin 0)) (ε : ℝ) (h : ε ≠ 0) :
     letI := SphereZero x ε h
     Finite (sphere x ε) :=
   finite_ofEq ..
@@ -365,7 +365,7 @@ def SphereOne (x ε : ℝ) (hε : ε ≥ 0) : CWComplex (sphere x ε) :=
     rfl
 
 /-- The CW-complex structure on the sphere in dimension 1 in finite. -/
-lemma Finite_SphereOne (x ε : ℝ) (hε : ε ≥ 0) :
+lemma finite_SphereOne (x ε : ℝ) (hε : ε ≥ 0) :
     letI := SphereOne x ε hε
     Finite (sphere x ε) :=
   finite_ofEq ..
@@ -378,12 +378,12 @@ def SphereOneEuclidean (ε : ℝ) (x : EuclideanSpace ℝ (Fin 1)) (hε : ε ≥
   (EuclideanUnique ℝ (Fin 1)).symm.toHomeomorph (by simp)
 
 /-- The CW-complex structure on the sphere in `ℝ` with he euclidean metric is finite. -/
-lemma Finite_SphereOneEuclidean (ε : ℝ) (x : EuclideanSpace ℝ (Fin 1)) (hε : ε ≥ 0) :
+lemma finite_SphereOneEuclidean (ε : ℝ) (x : EuclideanSpace ℝ (Fin 1)) (hε : ε ≥ 0) :
     letI := SphereOneEuclidean ε x hε
     Finite (sphere x ε) :=
   let _ := SphereOne (EuclideanUnique ℝ (Fin 1) x) ε hε
-  let _ := Finite_SphereOne (EuclideanUnique ℝ (Fin 1) x) ε hε
-  Finite_ofHomeomorph ..
+  let _ := finite_SphereOne (EuclideanUnique ℝ (Fin 1) x) ε hε
+  finite_ofHomeomorph ..
 
 /-! # Construction with two cells overall. -/
 
@@ -646,10 +646,10 @@ def instSphereGT' (n : ℕ) (h : n > 0) :
 
 /-- The CW-complex structure on the sphere is finite. An auxiliary version of `Finite_instSphereGT`
   where the set is presented in a nicer way. -/
-lemma Finite_instSphereGT' (n : ℕ) (h : n > 0) :
+lemma finite_instSphereGT' (n : ℕ) (h : n > 0) :
     letI := instSphereGT' n h
     Finite ((spheremap n) '' closedBall 0 1 ∪ {EuclideanSpace.single (Fin.last n) 1}) :=
-  Finite_attachCellFiniteType ..
+  finite_attachCellFiniteType ..
 
 /-- The sphere in dimension at least 1 is a CW-complex. -/
 @[simps!]
@@ -665,11 +665,11 @@ def instSphereGT (n : ℕ) (h : n > 0) :
   rfl
 
 /-- The CW-complex structure on the sphere in dimension at least 1 is finite. -/
-lemma Finite_instSphereGT (n : ℕ) (h : n > 0) :
+lemma finite_instSphereGT (n : ℕ) (h : n > 0) :
     letI := instSphereGT n h
     Finite (sphere 0 1 : Set (EuclideanSpace ℝ (Fin (n + 1)))) :=
   let _ := instSphereGT' n h
-  let _ := Finite_instSphereGT' n h
+  let _ := finite_instSphereGT' n h
   finite_ofEq ((spheremap n) '' closedBall 0 1 ∪ {EuclideanSpace.single (Fin.last n) 1}) ∅
   (by
     simp only [spheremap, Equiv.transPartialEquiv_apply, Homeomorph.coe_toEquiv, ← image_image,
@@ -690,9 +690,9 @@ instance instSphere {n : ℕ} : CWComplex (sphere 0 1 : Set (EuclideanSpace ℝ 
 /-- The CW-complex structure on the sphere is finite. -/
 instance Finite_instSphere {n : ℕ} : Finite (sphere 0 1 : Set (EuclideanSpace ℝ (Fin n))) :=
   match n with
-  | 0 => Finite_SphereZero 0 1 one_ne_zero
-  | 1 => Finite_SphereOneEuclidean 1 0 zero_le_one
-  | (n + 2) => Finite_instSphereGT (n + 1) n.zero_lt_succ
+  | 0 => finite_SphereZero 0 1 one_ne_zero
+  | 1 => finite_SphereOneEuclidean 1 0 zero_le_one
+  | (n + 2) => finite_instSphereGT (n + 1) n.zero_lt_succ
 
 /- **ToDo** :
   Generalize this to other centre points, radii and metrics. This should be fairly easy using
@@ -965,12 +965,12 @@ def sphereEmbed (n : ℕ) [CWComplex (sphere (0 : EuclideanSpace ℝ (Fin n)) 1)
 
 /-- If the CW-complex structure on the sphere in dimension `n` is fintite than so is the
   the CW-complex structure on the 'equator' of the sphere in dimension `n + 1`.-/
-lemma Finite_sphereEmbed (n : ℕ) [CWComplex (sphere (0 : EuclideanSpace ℝ (Fin n)) 1)]
+lemma finite_sphereEmbed (n : ℕ) [CWComplex (sphere (0 : EuclideanSpace ℝ (Fin n)) 1)]
     [Finite (sphere (0 : EuclideanSpace ℝ (Fin n)) 1)] :
     letI := sphereEmbed n
     Finite (sphere 0 1 ∩ {x | x (Fin.last n) = 0} : Set (EuclideanSpace ℝ (Fin (n + 1)))) :=
   let _ := sphereEmbed n
-  Finite_ofPartialEquiv ..
+  finite_ofPartialEquiv ..
 
 /-- If the Cw-complex structure on the sphere in dimension `n` has no cells in dimension
   `n` or higher then the CW-complex structure on the 'equator' of the sphere in dimension
@@ -993,7 +993,7 @@ def SphereInductStep' (n : ℕ) [CWComplex (sphere (0 : EuclideanSpace ℝ (Fin 
     CWComplex ((⋃ (i : Fin 2), spheremaps n i '' (closedBall 0 1)) ∪
       (sphere 0 1 ∩ {x | x (Fin.last n) = 0})) :=
   letI := sphereEmbed n
-  letI := Finite_sphereEmbed n
+  letI := finite_sphereEmbed n
   attachCellsFiniteType (sphere 0 1 ∩ {x | x (Fin.last n) = 0}) (ι := Fin 2)
     (spheremaps n)
     (fun i ↦ match i with
@@ -1078,16 +1078,16 @@ def SphereInductStep' (n : ℕ) [CWComplex (sphere (0 : EuclideanSpace ℝ (Fin 
       exact (isEmpty_cell_sphereEmbed n h l hl).false j)
 
 /-- An auxiliary version of `Finite_SphereInductStep` where the set is presented in a nicer way.-/
-lemma Finite_SphereInductStep' (n : ℕ) [CWComplex (sphere (0 : EuclideanSpace ℝ (Fin n)) 1)]
+lemma finite_SphereInductStep' (n : ℕ) [CWComplex (sphere (0 : EuclideanSpace ℝ (Fin n)) 1)]
     [Finite (sphere (0 : EuclideanSpace ℝ (Fin n)) 1)]
     (h : ∀ m ≥ n, IsEmpty (cell (sphere (0 : EuclideanSpace ℝ (Fin n)) 1) m)) :
     letI := SphereInductStep' n h
     Finite ((⋃ (i : Fin 2), spheremaps n i '' (closedBall 0 1)) ∪
       (sphere 0 1 ∩ {x | x (Fin.last n) = 0})) :=
   letI := sphereEmbed n
-  letI := Finite_sphereEmbed n
+  letI := finite_sphereEmbed n
   letI := SphereInductStep' n
-  Finite_attachCellsFiniteType ..
+  finite_attachCellsFiniteType ..
 
 /-- An auxiliary version of `isEmpty_cell_SphereInductStep` where the set is presented in a nicer
   way.-/
@@ -1143,7 +1143,7 @@ def SphereInductStep (n : ℕ) [CWComplex (sphere (0 : EuclideanSpace ℝ (Fin n
 
 /-- If the sphere in dimension `n` is a finite CW-complex that has no cells in dimension
   `n` or higher, then the CW-complex structure on the sphere in dimension `n + 1` is finite. -/
-lemma Finite_SphereInductStep (n : ℕ)
+lemma finite_SphereInductStep (n : ℕ)
     [CWComplex (sphere (0 : EuclideanSpace ℝ (Fin n)) 1)]
     [Finite (sphere (0 : EuclideanSpace ℝ (Fin n)) 1)]
     (h : ∀ m ≥ n, IsEmpty (cell (sphere (0 : EuclideanSpace ℝ (Fin n)) 1) m)) :
@@ -1151,7 +1151,7 @@ lemma Finite_SphereInductStep (n : ℕ)
     Finite (sphere 0 1 : Set (EuclideanSpace ℝ (Fin (n + 1)))) :=
   let _ := SphereInductStep' n h
   letI := SphereInductStep n h
-  let _ := Finite_SphereInductStep'
+  let _ := finite_SphereInductStep'
   finite_ofEq ..
 
 /-- If the sphere in dimension `n` is a finite CW-complex that has no cells in dimension
@@ -1179,13 +1179,13 @@ def SphereInduct' (n : ℕ) :
     Finite (sphere (0 : EuclideanSpace ℝ (Fin n)) 1) ∧
     (∀ m ≥ n, IsEmpty (cell (sphere (0 : EuclideanSpace ℝ (Fin n)) 1) m))} :=
   match n with
-  | 0 => ⟨SphereZero 0 1 (one_ne_zero), Finite_SphereZero 0 1 (one_ne_zero),
+  | 0 => ⟨SphereZero 0 1 (one_ne_zero), finite_SphereZero 0 1 (one_ne_zero),
     fun m _ ↦ isEmpty_cell_SphereZero 0 1 (one_ne_zero) m⟩
   | (m + 1) =>
     letI := (SphereInduct' m).1
     letI := (SphereInduct' m).2.1
     letI h := (SphereInduct' m).2.2
-    ⟨SphereInductStep m h, Finite_SphereInductStep m h, isEmpty_cell_SphereInductStep m h⟩
+    ⟨SphereInductStep m h, finite_SphereInductStep m h, isEmpty_cell_SphereInductStep m h⟩
 
 /-- The unit sphere is a CW-complex. This construction uses two cells in each dimension. See
   `instSphere` for an alternative construction. -/

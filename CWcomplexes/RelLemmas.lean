@@ -32,7 +32,7 @@ variable {X : Type*} [t : TopologicalSpace X] [T2Space X] {C D : Set X}
 2. Then it seems to want to prove that `skeletonLT C n` is a subcomplex of `∅`. Which it doesn't
   give up on immediately since it knows now that `∅` is a CW complex.
 
-3. Then it thinks that it should try to decompose `∅` into `iUnions` and just never stops.
+3. Then it thinks that it should try to decompose `∅` into `iUnion`s and just never stops.
 -/
 
 --set_option trace.Meta.synthInstance true in
@@ -418,7 +418,7 @@ lemma RelCWComplex.Subcomplex.compact_subset_finite_subcomplex [RelCWComplex C D
   rw [iUnion_sigma]
   exact subset
 
-instance RelCWComplex.FiniteDimensional_instskeletonLT_of_nat [RelCWComplex C D]
+instance RelCWComplex.finiteDimensional_instskeletonLT_of_nat [RelCWComplex C D]
     [FiniteDimensional C] (n : ℕ) : FiniteDimensional (skeletonLT C n) where
   eventually_isEmpty_cell := by
     simp only [Subcomplex.instSubcomplex_cell, Subcomplex.mk''_I, Nat.cast_lt, coe_setOf,
@@ -427,9 +427,9 @@ instance RelCWComplex.FiniteDimensional_instskeletonLT_of_nat [RelCWComplex C D]
     intro b hnb
     simp [hnb]
 
-instance RelCWComplex.FiniteDimensional_instskeleton_of_nat [RelCWComplex C D] [FiniteDimensional C]
+instance RelCWComplex.finiteDimensional_instskeleton_of_nat [RelCWComplex C D] [FiniteDimensional C]
     (n : ℕ) : FiniteDimensional (skeleton C n) :=
-  FiniteDimensional_instskeletonLT_of_nat _
+  finiteDimensional_instskeletonLT_of_nat _
 
 
 namespace CWComplex
@@ -438,8 +438,8 @@ export RelCWComplex (isClosed_skeletonLT isClosed_skeleton isClosed_iff_inter_sk
   inter_skeletonLT_succ_isClosed_iff compact_inter_finite compact_inter_finite_subset
   compact_inter_finite' compact_inter_finite_subset' finite_of_compact
   Subcomplex.compact_subset_finite_subcomplex Subcomplex.instSkeletonLT
-  Subcomplex.instSkeleton FiniteDimensional_instskeletonLT_of_nat
-  FiniteDimensional_instskeleton_of_nat)
+  Subcomplex.instSkeleton finiteDimensional_instskeletonLT_of_nat
+  finiteDimensional_instskeleton_of_nat)
 
 end CWComplex
 
