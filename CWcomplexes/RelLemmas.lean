@@ -21,11 +21,25 @@ In this file we proof some lemmas about CW-complexes such as:
 
 open Metric Set
 
+namespace Topology
+
 variable {X : Type*} [t : TopologicalSpace X] [T2Space X] {C D : Set X}
 
+/-
+1. Somehow it forgets `D` at the beginning of the inference. Is that supposed to happen?
+  (But that also happens when inference doesn't fail)
+
+2. Then it seems to want to prove that `skeletonLT C n` is a subcomplex of `∅`. Which it doesn't
+  give up on immediately since it knows now that `∅` is a CW complex.
+
+3. Then it thinks that it should try to decompose `∅` into `iUnions` and just never stops.
+-/
+
+--set_option trace.Meta.synthInstance true in
 lemma RelCWComplex.isClosed_skeletonLT [RelCWComplex C D] (n : ℕ∞) :
     IsClosed (skeletonLT C n) :=
-  isClosed
+  --let _ := ClasCWComplex.instEmpty (X := X)
+  isClosed --(D := D)
 
 lemma RelCWComplex.isClosed_skeleton [RelCWComplex C D] (n : ℕ∞) : IsClosed (skeleton C n) :=
   let _ := Subcomplex.instSubcomplex (C := C) (skeleton C n)
@@ -95,7 +109,7 @@ lemma RelCWComplex.inter_skeletonLT_succ_isClosed_iff
     have : n.succ ≤ m := by
       push_neg at msuccltn msucceqn
       exact msuccltn.lt_of_ne msucceqn.symm
-    rw [inter_assoc, skeletonLT_inter_openCell_eq_empty (by norm_cast), inter_empty]
+    rw [inter_assoc, (disjoint_skeletonLT_openCell (by norm_cast)).inter_eq, inter_empty]
     exact isClosed_empty
 
 /--  A set `A` in a CW-complex is closed if `A ∩ D` is closed and assuming that the intersection
@@ -115,7 +129,7 @@ lemma RelCWComplex.induction_isClosed_skeletonLT [RelCWComplex C D] {A : Set X} 
 
 /--  A set `A` in a CW-complex is closed if assuming that the intersection `A ∩ levelaux C m` is
   closed for all `m ≤ n` implies that `A ∩ closedCell n j` is closed for every `j : cell C n`.-/
-lemma ClasCWComplex.induction_isClosed_skeletonLT [ClasCWComplex C] {A : Set X} (asub : A ⊆ C)
+lemma CWComplex.induction_isClosed_skeletonLT [CWComplex C] {A : Set X} (asub : A ⊆ C)
     (step : ∀ (n : ℕ), (∀ m (_ : m ≤ n), IsClosed (A ∩ skeletonLT C m)) →
     ∀ j, IsClosed (A ∩ closedCell (C := C) (D := ∅) n j)) :
     IsClosed A := by
@@ -127,7 +141,7 @@ lemma ClasCWComplex.induction_isClosed_skeletonLT [ClasCWComplex C] {A : Set X} 
   exact ⟨hn n n.le_refl, step n hn⟩
 
 /-- `levelaux C 1` is discrete.-/
-lemma ClasCWComplex.isDiscrete_levelaux_one [ClasCWComplex C] {A : Set X} :
+lemma CWComplex.isDiscrete_levelaux_one [CWComplex C] {A : Set X} :
     IsClosed (A ∩ skeletonLT C 1) := by
   apply isClosed_of_isClosed_inter_openCell_or_isClosed_inter_closedCell (C := C)
     (inter_subset_right.trans
@@ -135,12 +149,12 @@ lemma ClasCWComplex.isDiscrete_levelaux_one [ClasCWComplex C] {A : Set X} :
   intro n nlt j
   left
   simp_rw [← Nat.succ_le_iff] at nlt
-  rw [inter_assoc, skeletonLT_inter_openCell_eq_empty (by simp only [Nat.one_le_cast, nlt]),
+  rw [inter_assoc, (disjoint_skeletonLT_openCell (by simp only [Nat.one_le_cast, nlt])).inter_eq,
     inter_empty]
   exact isClosed_empty
 
 /-- `level 0` is discrete.-/
-lemma ClasCWComplex.isDiscrete_level_zero [ClasCWComplex C] {A : Set X} :
+lemma CWComplex.isDiscrete_level_zero [CWComplex C] {A : Set X} :
     IsClosed (A ∩ skeleton C 0) :=
   isDiscrete_levelaux_one
 
@@ -170,7 +184,7 @@ lemma RelCWComplex.compact_inter_finite [RelCWComplex C D] (A : Set X) (compact 
     have hpj : p ⟨m, j, hj⟩ ∈ openCell m j := by simp_rw [p, (Classical.choose_spec hj).2]
     have hpi : p ⟨m, j, hj⟩ ∈ openCell n i := by simp_rw [peqp, p, (Classical.choose_spec hi).2]
     suffices (⟨m, j⟩ : Σ n, cell C n) = ⟨n, i⟩ by aesop
-    apply eq_cell_of_not_disjoint
+    apply eq_of_not_disjoint_openCell
     rw [not_disjoint_iff]
     use p ⟨m, j, hj⟩
   have subsetA : P ⊆ A := by
@@ -234,7 +248,7 @@ lemma RelCWComplex.compact_inter_finite [RelCWComplex C D] (A : Set X) (compact 
           rw [heq_eq_eq] at eq2
           subst eq2
           rfl
-        apply eq_cell_of_not_disjoint
+        apply eq_of_not_disjoint_openCell
         rw [not_disjoint_iff]
         use p ⟨m, ⟨i, hmi⟩⟩
         exact ⟨hpmi.2, ymemopen⟩
@@ -312,7 +326,7 @@ lemma RelCWComplex.subset_not_disjoint' {X : Type*} [TopologicalSpace X] {C D : 
     [RelCWComplex C D] (A : Set X) : A ∩ C ⊆ D ∪ ⋃ (x : Σ (m : ℕ),
     {j : cell C m // ¬ Disjoint A (openCell m j)}), openCell (C := C) x.1 x.2 := by
   intro x ⟨xmem1, xmem2⟩
-  rw [← iUnion_openCell (C := C) (D := D)] at xmem2
+  rw [← union_iUnion_openCell_eq_complex (C := C) (D := D)] at xmem2
   rcases xmem2 with xmem2 | xmem2
   · exact mem_union_left _ xmem2
   right
@@ -322,8 +336,8 @@ lemma RelCWComplex.subset_not_disjoint' {X : Type*} [TopologicalSpace X] {C D : 
 
 /-- For a set `A` the intersection `A ∩ C` is a subset of all the cells of `C` that `A` meets.
   This is useful when applied together with `compact_inter_finite`.-/
-lemma ClasCWComplex.subset_not_disjoint' {X : Type*} [TopologicalSpace X] {C : Set X}
-    [ClasCWComplex C] (A : Set X) : A ∩ C ⊆ ⋃ (x : Σ (m : ℕ),
+lemma CWComplex.subset_not_disjoint' {X : Type*} [TopologicalSpace X] {C : Set X}
+    [CWComplex C] (A : Set X) : A ∩ C ⊆ ⋃ (x : Σ (m : ℕ),
     {j : cell C m // ¬ Disjoint A (openCell m j)}), openCell (C := C) x.1 x.2 := by
   have := RelCWComplex.subset_not_disjoint' A (C := C)
   rw [empty_union] at this
@@ -334,7 +348,7 @@ lemma RelCWComplex.subset_not_disjoint {X : Type*} [TopologicalSpace X] {C D : S
     [RelCWComplex C D] (A : Set X) : A ∩ C ⊆ D ∪ ⋃ (x : Σ (m : ℕ),
     {j : cell C m // ¬ Disjoint A (openCell m j)}), closedCell (C := C) (D := D) x.1 x.2 := by
   intro x ⟨xmem1, xmem2⟩
-  rw [← iUnion_openCell (C := C) (D := D)] at xmem2
+  rw [← union_iUnion_openCell_eq_complex (C := C) (D := D)] at xmem2
   rcases xmem2 with xmem2 | xmem2
   · exact mem_union_left _ xmem2
   right
@@ -344,8 +358,8 @@ lemma RelCWComplex.subset_not_disjoint {X : Type*} [TopologicalSpace X] {C D : S
   exact openCell_subset_closedCell _ _ hmj
 
 /-- A version of `subset_not_disjoint'` using closed cells.-/
-lemma ClasCWComplex.subset_not_disjoint {X : Type*} [TopologicalSpace X] {C : Set X}
-    [ClasCWComplex C] (A : Set X) : A ∩ C ⊆ ⋃ (x : Σ (m : ℕ),
+lemma CWComplex.subset_not_disjoint {X : Type*} [TopologicalSpace X] {C : Set X}
+    [CWComplex C] (A : Set X) : A ∩ C ⊆ ⋃ (x : Σ (m : ℕ),
     {j : cell C m // ¬ Disjoint A (openCell m j)}), closedCell (C := C) x.1 x.2 := by
   have := RelCWComplex.subset_not_disjoint (C := C) A
   rw [empty_union] at this
@@ -373,8 +387,8 @@ lemma RelCWComplex.compact_of_finite {X : Type*} [TopologicalSpace X] {C D : Set
   exact hD.union (isCompact_iUnion (fun ⟨n, i⟩ ↦ isCompact_closedCell))
 
 /-- A finite CW-complex is compact.-/
-lemma ClasCWComplex.compact_of_finite {X : Type*} [TopologicalSpace X] {C : Set X}
-    [ClasCWComplex C] [finite : Finite C] : IsCompact C := by
+lemma CWComplex.compact_of_finite {X : Type*} [TopologicalSpace X] {C : Set X}
+    [CWComplex C] [finite : Finite C] : IsCompact C := by
   rw [finite_iff_finite_cells] at finite
   rw [← union (C := C), iUnion_sigma']
   exact isCompact_iUnion (fun ⟨n, i⟩ ↦ isCompact_closedCell)
@@ -385,7 +399,7 @@ lemma RelCWComplex.compact_iff_finite [RelCWComplex C D] (hD : IsCompact D) :
   ⟨finite_of_compact, fun _ ↦ compact_of_finite hD⟩
 
 /-- A CW-complex is compact iff it is finite. -/
-lemma ClasCWComplex.compact_iff_finite [ClasCWComplex C] : IsCompact C ↔ Finite C :=
+lemma CWComplex.compact_iff_finite [CWComplex C] : IsCompact C ↔ Finite C :=
   ⟨RelCWComplex.finite_of_compact, fun _ ↦ RelCWComplex.compact_of_finite isCompact_empty⟩
 
 /-- Every compact set in a CW-complex is contained in a finite subcomplex.-/
@@ -418,7 +432,7 @@ instance RelCWComplex.FiniteDimensional_instskeleton_of_nat [RelCWComplex C D] [
   FiniteDimensional_instskeletonLT_of_nat _
 
 
-namespace ClasCWComplex
+namespace CWComplex
 
 export RelCWComplex (isClosed_skeletonLT isClosed_skeleton isClosed_iff_inter_skeletonLT_isClosed
   inter_skeletonLT_succ_isClosed_iff compact_inter_finite compact_inter_finite_subset
@@ -427,4 +441,6 @@ export RelCWComplex (isClosed_skeletonLT isClosed_skeleton isClosed_iff_inter_sk
   Subcomplex.instSkeleton FiniteDimensional_instskeletonLT_of_nat
   FiniteDimensional_instskeleton_of_nat)
 
-end ClasCWComplex
+end CWComplex
+
+end Topology

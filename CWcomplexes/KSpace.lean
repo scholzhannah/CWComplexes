@@ -2,7 +2,6 @@ import Mathlib.Topology.Sets.Compacts
 import Mathlib.Topology.Defs.Induced
 import Mathlib.Topology.RestrictGen
 import Mathlib.Topology.Compactness.CompactlyGeneratedSpace
-import CWcomplexes.Auxiliary
 
 open Set Set.Notation Topology
 

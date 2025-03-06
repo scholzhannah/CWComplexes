@@ -18,6 +18,8 @@ noncomputable section
 
 open Metric Set Set.Notation KSpace
 
+namespace Topology
+
 section
 
 variable {X : Type*} {Y : Type*} [t1 : TopologicalSpace X] [t2 : TopologicalSpace Y]
@@ -137,8 +139,8 @@ instance RelCWComplex.Product [RelCWComplex C D] [RelCWComplex E F] [KSpace (X �
     rw [prodmap_image_ball, prodmap_image_ball, prod_inter_prod, prod_eq_empty_iff]
     suffices (⟨m, j⟩ : Σ n, cell C n) ≠ ⟨p, i⟩ ∨  (⟨l, k⟩ : Σ n, cell E n) ≠ ⟨q, o⟩ by
       rcases this with ne1 | ne2
-      · exact Or.intro_left _ (disjoint_openCell_of_ne ne1)
-      · exact Or.intro_right _ (disjoint_openCell_of_ne ne2)
+      · exact Or.intro_left _ (disjoint_openCell_of_ne ne1).inter_eq
+      · exact Or.intro_right _ (disjoint_openCell_of_ne ne2).inter_eq
     by_contra h
     push_neg at h
     apply ne
@@ -147,7 +149,7 @@ instance RelCWComplex.Product [RelCWComplex C D] [RelCWComplex E F] [KSpace (X �
     intro ⟨m, l, hml, i, j⟩
     simp [prodmap_image_ball, disjoint_iff_inter_eq_empty, inter_union_distrib_left,
       prod_inter_prod, (disjointBase _ _).inter_eq]
-  mapsto n i := by
+  mapsTo n i := by
     -- We first use `prodmap_image_sphere` to write the edge of the cell as a union.
     -- We then use `exists_and_iff_of_monotone` to show that we can verify the
     -- statement seperately for the two parts of the union.
@@ -301,8 +303,8 @@ instance RelCWComplex.Product [RelCWComplex C D] [RelCWComplex E F] [KSpace (X �
 /-- If `C` and `E` are CW-complexes in `X` and `Y`, and `X × Y` is a k-space, then `C ×ˢ D` is a
   CW-complex.-/
 @[simps!]
-instance ClasCWComplex.Product [ClasCWComplex C] [ClasCWComplex E] [KSpace (X × Y)] :
-    ClasCWComplex (C ×ˢ E) :=
+instance CWComplex.Product [CWComplex C] [CWComplex E] [KSpace (X × Y)] :
+    CWComplex (C ×ˢ E) :=
   ofEq (C ×ˢ E) (∅ ×ˢ E ∪ C ×ˢ ∅) rfl (by simp)
 
 instance RelCWComplex.FiniteDimensional_Product [KSpace (X × Y)] [RelCWComplex C D]
@@ -382,8 +384,8 @@ instance RelCWComplex.ProductKification [RelCWComplex C D] [RelCWComplex E F] :
     rw [prodmap_image_ball, prodmap_image_ball, prod_inter_prod, prod_eq_empty_iff]
     suffices (⟨m, j⟩ : Σ n, cell C n) ≠ ⟨p, i⟩ ∨  (⟨l, k⟩ : Σ n, cell E n) ≠ ⟨q, o⟩ by
       rcases this with ne1 | ne2
-      · exact Or.intro_left _ (disjoint_openCell_of_ne ne1)
-      · exact Or.intro_right _ (disjoint_openCell_of_ne ne2)
+      · exact Or.intro_left _ (disjoint_openCell_of_ne ne1).inter_eq
+      · exact Or.intro_right _ (disjoint_openCell_of_ne ne2).inter_eq
     by_contra h
     push_neg at h
     apply ne
@@ -393,7 +395,7 @@ instance RelCWComplex.ProductKification [RelCWComplex C D] [RelCWComplex E F] :
     rw [prodmap_image_ball]
     simp [disjoint_iff_inter_eq_empty, inter_union_distrib_left,
       prod_inter_prod, (disjointBase _ _).inter_eq]
-  mapsto n i := by
+  mapsTo n i := by
     -- We first use `prodmap_image_sphere` to write the edge of the cell as a union.
     -- We then use `exists_and_iff_of_monotone` to show that we can verify the
     -- statement seperately for the two parts of the union.
@@ -551,19 +553,21 @@ instance RelCWComplex.ProductKification [RelCWComplex C D] [RelCWComplex E F] :
 /-- If `C` and `E` are CW-complexes in `X` and `Y`, and `X × Y` is a k-space, then `C ×ˢ D` is a
   CW-complex.-/
 @[simps!]
-instance ClasCWComplex.ProductKification [ClasCWComplex C] [ClasCWComplex E] :
-    ClasCWComplex (X := kification (X × Y)) (C ×ˢ E) :=
+instance CWComplex.ProductKification [CWComplex C] [CWComplex E] :
+    CWComplex (X := kification (X × Y)) (C ×ˢ E) :=
   ofEq (X := kification (X × Y)) (C ×ˢ E) (∅ ×ˢ E ∪ C ×ˢ ∅) rfl (by simp)
 
 @[simps!]
-instance ClasCWComplex.ProductKificationUniv [ClasCWComplex (univ : Set X)]
-    [ClasCWComplex (univ : Set Y)] :
-    ClasCWComplex (X := kification (X × Y)) (univ : Set (X × Y)) :=
+instance CWComplex.ProductKificationUniv [CWComplex (univ : Set X)]
+    [CWComplex (univ : Set Y)] :
+    CWComplex (X := kification (X × Y)) (univ : Set (X × Y)) :=
   ofEq (X := kification (X × Y)) (univ ×ˢ univ : Set (X × Y)) ∅ univ_prod_univ rfl
 
 @[simps!]
-instance ClasCWComplex.ProductUniv [KSpace (X × Y)] [ClasCWComplex (univ : Set X)]
-    [ClasCWComplex (univ : Set Y)] : ClasCWComplex (univ : Set (X × Y)) :=
+instance CWComplex.ProductUniv [KSpace (X × Y)] [CWComplex (univ : Set X)]
+    [CWComplex (univ : Set Y)] : CWComplex (univ : Set (X × Y)) :=
   ofEq (univ ×ˢ univ : Set (X × Y)) ∅ univ_prod_univ rfl
 
 end
+
+end Topology
