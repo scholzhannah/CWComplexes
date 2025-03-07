@@ -37,9 +37,11 @@ variable {X : Type*} [t : TopologicalSpace X] [T2Space X] {C D : Set X}
 -/
 
 --set_option trace.Meta.synthInstance true in
+--set_option allowUnsafeReducibility true in
+--attribute [local semireducible] RelCWComplex.Subcomplex.Sub in
 lemma RelCWComplex.isClosed_skeletonLT [RelCWComplex C D] (n : ℕ∞) :
     IsClosed (skeletonLT C n) :=
-  --let _ := ClasCWComplex.instEmpty (X := X)
+  --let _ := CWComplex.instEmpty (X := X)
   isClosed --(D := D)
 
 lemma RelCWComplex.isClosed_skeleton [RelCWComplex C D] (n : ℕ∞) : IsClosed (skeleton C n) :=

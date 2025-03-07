@@ -177,6 +177,8 @@ lemma CWComplex.Subcomplex.union_closedCell [T2Space X] [CWComplex C] (E : Set X
 
 namespace RelCWComplex.Subcomplex
 
+-- needs to be a def, maybe a structure?
+
 set_option linter.unusedVariables false in
 /-- Abbreviation for a subcomplex containing the CW complex. This is used to make type class
   inference work.-/
