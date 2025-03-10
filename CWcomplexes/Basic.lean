@@ -478,7 +478,7 @@ class Subcomplex (C : Set X) {D : Set X} [RelCWComplex C D] where
   /-- The indexing set of cells of the subcomplex.-/
   I : Π n, Set (cell C n)
   /-- A subcomplex is closed.-/
-  closed : IsClosed (carrier : Set X)
+  closed' : IsClosed (carrier : Set X)
   /-- The union of all open cells of the subcomplex equals the subcomplex.-/
   union' : D ∪ ⋃ (n : ℕ) (j : I n), openCell (C := C) (D := D) n j = carrier
 
@@ -508,6 +508,8 @@ lemma union (E : Subcomplex C) :
   rw [E.union']
   rfl
 
+lemma closed (E : Subcomplex C) : IsClosed (E : Set X) := closed'
+
 end Subcomplex
 
 end RelCWComplex
@@ -534,7 +536,7 @@ def RelCWComplex.Subcomplex.mk' [T2Space X] (C : Set X) {D : Set X} [RelCWComple
     (union : D ∪ ⋃ (n : ℕ) (j : I n), openCell (C := C) n j = E) : Subcomplex C where
   carrier := E
   I := I
-  closed := by
+  closed' := by
     have EsubC : (E : Set X) ⊆ C := by
       simp_rw [← union, ← union_iUnion_openCell_eq_complex (C := C) (D := D)]
       exact union_subset_union_right D
@@ -582,7 +584,7 @@ def RelCWComplex.Subcomplex.mk'' [T2Space X] (C : Set X) {D : Set X} [RelCWCompl
     (union : D ∪ ⋃ (n : ℕ) (j : I n), openCell (C := C) (D := D) n j = E) : Subcomplex C where
   carrier := E
   I := I
-  closed := isClosed (D := D)
+  closed' := isClosed (D := D)
   union' := union
 
 /-- An alternative version of `Subcomplex`: Instead of requiring that `E` is closed it requires that
@@ -594,7 +596,7 @@ def CWComplex.Subcomplex.mk'' [T2Space X] (C : Set X) [h : CWComplex C] (E : Set
     Subcomplex C where
   carrier := E
   I := I
-  closed := RelCWComplex.isClosed (D := ∅)
+  closed' := RelCWComplex.isClosed (D := ∅)
   union' := by
     rw [empty_union]
     exact union
