@@ -1,4 +1,4 @@
-import Mathlib.Topology.CWComplex.Classical.Basic
+import CWcomplexes.Basic
 
 /-!
 # Finiteness notions on CW complexes
