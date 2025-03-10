@@ -38,18 +38,13 @@ namespace Topology
 variable {X : Type*} [t : TopologicalSpace X] {C D : Set X}
 
 section
-
--- rename Subcomplex as it does the same thing.
--- create the namespaces
--- find a way to make this make sense with namespaces
-
 /-- A subcomplex is a closed subspace of a CW-complex that is the union of open cells of the
   CW-complex.-/
-class RelCWComplex.Subcomplex (C : Set X) {D : Set X} [RelCWComplex C D] (E : Set X) where
+class RelCWComplex.Subcomplex (C : Set X) {D : Set X} [RelCWComplex C D] (E : Sub C) where
   /-- The indexing set of cells of the subcomplex.-/
   I : Π n, Set (cell C n)
   /-- A subcomplex is closed.-/
-  closed : IsClosed E
+  closed : IsClosed (E : Set X)
   /-- The union of all open cells of the subcomplex equals the subcomplex.-/
   union : D ∪ ⋃ (n : ℕ) (j : I n), openCell (C := C) (D := D) n j = E
 
@@ -59,7 +54,7 @@ export RelCWComplex (Subcomplex Subcomplex.I Subcomplex.closed Subcomplex.union)
 
 end CWComplex
 
-lemma CWComplex.Subcomplex.union {C E : Set X} [CWComplex C] [Subcomplex C E] :
+lemma CWComplex.Subcomplex.union {C : Set X} {E : Sub C} [CWComplex C] [Subcomplex C E] :
     ⋃ (n : ℕ) (j : I (C := C) (D := ∅) E n), openCell (C := C) n j = E := by
   have := RelCWComplex.Subcomplex.union (C := C) (D := ∅) (E := E)
   rw [empty_union] at this
@@ -68,13 +63,13 @@ lemma CWComplex.Subcomplex.union {C E : Set X} [CWComplex C] [Subcomplex C E] :
 /-- An alternative version of `Subcomplex`: Instead of requiring that `E` is closed it requires
   that for every cell of the subcomplex the corresponding closed cell is a subset of `E`.-/
 @[simps -isSimp]
-def RelCWComplex.Subcomplex.mk' [T2Space X] (C : Set X) {D : Set X} [RelCWComplex C D] (E : Set X)
+def RelCWComplex.Subcomplex.mk' [T2Space X] (C : Set X) {D : Set X} [RelCWComplex C D] (E : Sub C)
     (I : Π n, Set (cell C n))
     (closedCell_subset : ∀ (n : ℕ) (i : I n), closedCell (C := C) n i ⊆ E)
     (union : D ∪ ⋃ (n : ℕ) (j : I n), openCell (C := C) n j = E) : Subcomplex C E where
   I := I
   closed := by
-    have EsubC : E ⊆ C := by
+    have EsubC : (E : Set X) ⊆ C := by
       simp_rw [← union, ← union_iUnion_openCell_eq_complex (C := C) (D := D)]
       exact union_subset_union_right D
         (iUnion_mono fun n ↦ iUnion_subset fun i ↦ by apply subset_iUnion_of_subset ↑i; rfl)
@@ -107,7 +102,7 @@ def RelCWComplex.Subcomplex.mk' [T2Space X] (C : Set X) {D : Set X} [RelCWComple
 /-- An alternative version of `Subcomplex`: Instead of requiring that `E` is closed it requires
   that for every cell of the subcomplex the corresponding closed cell is a subset of `E`.-/
 @[simps!]
-def CWComplex.Subcomplex.mk' [T2Space X] (C : Set X) [CWComplex C] (E : Set X)
+def CWComplex.Subcomplex.mk' [T2Space X] (C : Set X) [CWComplex C] (E : Sub C)
     (I : Π n, Set (cell C n))
     (closedCell_subset : ∀ (n : ℕ) (i : I n), closedCell (C := C) (D := ∅) n i ⊆ E)
     (union : ⋃ (n : ℕ) (j : I n), openCell (C := C) (D := ∅) n j = E) : Subcomplex C E :=
@@ -116,7 +111,7 @@ def CWComplex.Subcomplex.mk' [T2Space X] (C : Set X) [CWComplex C] (E : Set X)
 /-- An alternative version of `Subcomplex`: Instead of requiring that `E` is closed it requires that
   `E` is a CW-complex. -/
 @[simps]
-def RelCWComplex.Subcomplex.mk'' [T2Space X] (C : Set X) {D : Set X} [RelCWComplex C D] (E : Set X)
+def RelCWComplex.Subcomplex.mk'' [T2Space X] (C : Set X) {D : Set X} [RelCWComplex C D] (E : Sub C)
     (I : Π n, Set (cell C n)) [RelCWComplex E D]
     (union : D ∪ ⋃ (n : ℕ) (j : I n), openCell (C := C) (D := D) n j = E) : Subcomplex C E where
   I := I
@@ -129,7 +124,7 @@ def RelCWComplex.Subcomplex.mk'' [T2Space X] (C : Set X) {D : Set X} [RelCWCompl
 def CWComplex.Subcomplex.mk'' [T2Space X] (C : Set X) [CWComplex C] (E : Set X)
     (I : Π n, Set (cell C n)) [CWComplex E]
     (union : ⋃ (n : ℕ) (j : I n), openCell (C := C) (D := ∅) n j = E) :
-    Subcomplex C E where
+    Subcomplex C (D := ∅) E where
   I := I
   closed := isClosed (D := ∅)
   union := by
@@ -174,29 +169,6 @@ lemma CWComplex.Subcomplex.union_closedCell [T2Space X] [CWComplex C] (E : Set X
   · simp_rw [← CWComplex.Subcomplex.union (C := C) (E := E)]
     apply iUnion_mono fun n ↦ iUnion_mono fun (i : ↑(subcomplex.I n)) ↦ ?_
     exact openCell_subset_closedCell (C := C) (D := ∅) n i
-
-namespace RelCWComplex.Subcomplex
-
--- needs to be a def, maybe a structure?
-
-set_option linter.unusedVariables false in
-/-- Abbreviation for a subcomplex containing the CW complex. This is used to make type class
-  inference work.-/
-abbrev Sub (E C : Set X) : Set X := E
-
-/-- `E ⇂ C` should be used to say that `E` is a subcomplex of `C`. -/
-scoped infixr:35 " ⇂ "  => Sub
-
-end RelCWComplex.Subcomplex
-
-namespace CWComplex.Subcomplex
-
-export RelCWComplex.Subcomplex (Sub)
-
-/-- `E ⇂ C` should be used to say that `E` is a subcomplex of `C`. -/
-scoped infixr:35 " ⇂ "  => Sub
-
-end CWComplex.Subcomplex
 
 open RelCWComplex.Subcomplex in
 /-- A subcomplex is again a CW-complex. -/

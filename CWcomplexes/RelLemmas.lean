@@ -36,13 +36,23 @@ variable {X : Type*} [t : TopologicalSpace X] [T2Space X] {C D : Set X}
 3. Then it thinks that it should try to decompose `∅` into `iUnion`s and just never stops.
 -/
 
---set_option trace.Meta.synthInstance true in
+open RelCWComplex in
+set_option trace.Meta.synthInstance true in
 --set_option allowUnsafeReducibility true in
 --attribute [local semireducible] RelCWComplex.Subcomplex.Sub in
 lemma RelCWComplex.isClosed_skeletonLT [RelCWComplex C D] (n : ℕ∞) :
     IsClosed (skeletonLT C n) :=
-  --let _ := CWComplex.instEmpty (X := X)
+  let _ := CWComplex.instEmpty (X := X)
+  /-
+  have : RelCWComplex (skeletonLT C n) ∅ := by
+    refine @Subcomplex.instSubcomplex _ _ ?_ _ _ ?_ _ ?_
+    · sorry
+    · sorry
+    · sorry
+  -/
   isClosed --(D := D)
+
+#exit
 
 lemma RelCWComplex.isClosed_skeleton [RelCWComplex C D] (n : ℕ∞) : IsClosed (skeleton C n) :=
   let _ := Subcomplex.instSubcomplex (C := C) (skeleton C n)
