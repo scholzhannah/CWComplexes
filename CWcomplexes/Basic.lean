@@ -498,6 +498,8 @@ instance : SetLike (Subcomplex C) X where
 
 @[simp] lemma mem_carrier {E : Subcomplex C} {x : X} : x ∈ E.carrier ↔ x ∈ (E : Set X) := Iff.rfl
 
+lemma coe_eq_carrier {E : Subcomplex C} : (E : Set X) = E.carrier := rfl
+
 @[simp] lemma mem {E : Subcomplex C} {x : X} : x ∈ E ↔ x ∈ (E : Set X) := Iff.rfl
 
 @[ext] lemma ext {E F : Subcomplex C} (h : ∀ x, x ∈ E ↔ x ∈ F) : E = F :=
@@ -517,7 +519,7 @@ end RelCWComplex
 namespace CWComplex
 
 export RelCWComplex (Subcomplex Subcomplex.I Subcomplex.closed Subcomplex.union
-  Subcomplex.mem_carrier Subcomplex.mem Subcomplex.ext)
+  Subcomplex.mem_carrier Subcomplex.coe_eq_carrier Subcomplex.mem Subcomplex.ext)
 
 end CWComplex
 
@@ -569,7 +571,7 @@ def RelCWComplex.Subcomplex.mk' [T2Space X] (C : Set X) {D : Set X} [RelCWComple
 
 /-- An alternative version of `Subcomplex`: Instead of requiring that `E` is closed it requires
   that for every cell of the subcomplex the corresponding closed cell is a subset of `E`.-/
-@[simps!]
+@[simps! -isSimp]
 def CWComplex.Subcomplex.mk' [T2Space X] (C : Set X) [CWComplex C] (E : Set X)
     (I : Π n, Set (cell C n))
     (closedCell_subset : ∀ (n : ℕ) (i : I n), closedCell (C := C) (D := ∅) n i ⊆ E)
@@ -589,7 +591,7 @@ def RelCWComplex.Subcomplex.mk'' [T2Space X] (C : Set X) {D : Set X} [RelCWCompl
 
 /-- An alternative version of `Subcomplex`: Instead of requiring that `E` is closed it requires that
   `E` is a CW-complex. -/
-@[simps]
+@[simps -isSimp]
 def CWComplex.Subcomplex.mk'' [T2Space X] (C : Set X) [h : CWComplex C] (E : Set X)
     (I : Π n, Set (cell C n)) [CWComplex E]
     (union : ⋃ (n : ℕ) (j : I n), openCell (C := C) (D := ∅) n j = E) :

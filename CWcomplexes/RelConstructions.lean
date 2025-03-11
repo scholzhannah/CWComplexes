@@ -23,7 +23,7 @@ section
 
 /-- The empty set is a CW-complex.-/
 @[simps!]
-def CWComplex.instEmpty : CWComplex (∅ : Set X) := mkFinite ∅
+instance CWComplex.instEmpty : CWComplex (∅ : Set X) := mkFinite ∅
   (cell := fun _ ↦ PEmpty)
   (map := fun _ i ↦ i.elim)
   (eventually_isEmpty_cell := by
@@ -39,7 +39,7 @@ def CWComplex.instEmpty : CWComplex (∅ : Set X) := mkFinite ∅
   (union' := by simp [iUnion_of_empty, iUnion_empty])
 
 /-- The CW-complex on the empty set is finite. -/
-def CWComplex.finite_instEmpty :
+instance CWComplex.finite_instEmpty :
     letI := instEmpty (X := X)
     Finite (∅ : Set X) :=
   finite_mkFinite ..
@@ -1232,7 +1232,6 @@ lemma CWComplex.finite_enlargeNonempty [CWComplex (X := C) univ]
 open Set.Notation Classical in
 def RelCWComplex.enlarge [RelCWComplex (X := C) univ (C ↓∩ D)] (hC : IsClosed C)
     (hDC : D ⊆ C) : RelCWComplex C D :=
-  letI := CWComplex.instEmpty (X := X)
   if h : C.Nonempty then enlargeNonempty hC h hDC else
     ofEq ∅ ∅ (not_nonempty_iff_eq_empty.1 h).symm
     (subset_eq_empty hDC (not_nonempty_iff_eq_empty.1 h)).symm
@@ -1255,14 +1254,12 @@ open Set.Notation in
 lemma RelCWComplex.enlarge_eq_empty [RelCWComplex (X := C) univ (C ↓∩ D)]
     (hC : IsClosed C)
     (hC2 : ¬ C.Nonempty) (hDC : D ⊆ C) :
-    letI := CWComplex.instEmpty (X := X)
     enlarge hC hDC = ofEq ∅ ∅ (not_nonempty_iff_eq_empty.1 hC2).symm
     (subset_eq_empty hDC (not_nonempty_iff_eq_empty.1 hC2)).symm := by
   simp [enlarge, hC2]
 
 lemma CWComplex.enlarge_eq_empty [CWComplex (X := C) univ]
     (hC : IsClosed C) (hC2 : ¬ C.Nonempty) :
-    letI := CWComplex.instEmpty (X := X)
     enlarge hC = RelCWComplex.ofEq ∅ ∅ (not_nonempty_iff_eq_empty.1 hC2).symm rfl :=
   RelCWComplex.enlarge_eq_empty hC hC2 (empty_subset C)
 
@@ -1272,8 +1269,6 @@ lemma RelCWComplex.finiteDimensional_enlarge [RelCWComplex (X := C) univ (C ↓�
     letI := enlarge hC hDC
     FiniteDimensional C :=
   let _ := enlarge hC hDC
-  let _ := CWComplex.instEmpty (X := X)
-  let _ := CWComplex.finite_instEmpty (X := X)
   if hC2 : C.Nonempty then
     (enlarge_eq_enlargeNonempty hC hC2 hDC ▸ finiteDimensional_enlargeNonempty hC hC2 hDC)
     else (enlarge_eq_empty hC hC2 hDC ▸ finiteDimensional_ofEq ..)
@@ -1284,8 +1279,6 @@ lemma RelCWComplex.finiteType_enlarge [RelCWComplex (X := C) univ (C ↓∩ D)]
     letI := enlarge hC hDC
     FiniteType C :=
   let _ := enlarge hC
-  let _ := CWComplex.instEmpty (X := X)
-  let _ := CWComplex.finite_instEmpty (X := X)
   if hC2 : C.Nonempty then
     (enlarge_eq_enlargeNonempty hC hC2 hDC ▸ finiteType_enlargeNonempty hC hC2 hDC)
     else (enlarge_eq_empty hC hC2 hDC ▸ finiteType_ofEq ..)
@@ -1375,7 +1368,6 @@ lemma RelCWComplex.finite_restrictNonempty [RelCWComplex C D] [Finite C]
 open Set.Notation Classical in
 def RelCWComplex.restrict [RelCWComplex C D] (Y : Set X) (hCY : C ⊆ Y) :
     RelCWComplex (X := Y) (Y ↓∩ C) (Y ↓∩ D) :=
-  letI := CWComplex.instEmpty (X := Y)
   if h : C.Nonempty then restrictNonempty Y hCY h else
     ofEq ∅ ∅ (by rw [not_nonempty_iff_eq_empty.1 h, preimage_empty])
     (by rw [subset_eq_empty base_subset_complex (not_nonempty_iff_eq_empty.1 h), preimage_empty])
@@ -1388,7 +1380,6 @@ lemma RelCWComplex.restrict_eq_restrictNonempty [RelCWComplex C D] (Y : Set X) (
 open Set.Notation in
 lemma RelCWComplex.restrict_eq_empty [RelCWComplex C D] (Y : Set X) (hCY : C ⊆ Y)
     (hC : ¬ C.Nonempty) :
-    letI := CWComplex.instEmpty (X := Y)
     restrict Y hCY = ofEq (E := (Y ↓∩ C)) ∅ ∅
       (by rw [not_nonempty_iff_eq_empty.1 hC, preimage_empty])
       (by rw [subset_eq_empty base_subset_complex (not_nonempty_iff_eq_empty.1 hC),
@@ -1401,8 +1392,6 @@ lemma RelCWComplex.finiteDimensional_restrict [RelCWComplex C D] [FiniteDimensio
     letI := restrict Y hCY
     FiniteDimensional (Y ↓∩ C) :=
   let _ := restrict Y hCY
-  let _ := CWComplex.instEmpty (X := Y)
-  let _ := CWComplex.finite_instEmpty (X := Y)
   if hC : C.Nonempty then
     (restrict_eq_restrictNonempty Y hCY hC ▸ finiteDimensional_restrictNonempty Y hCY hC)
     else (restrict_eq_empty Y hCY hC ▸ finiteDimensional_ofEq ..)
@@ -1413,8 +1402,6 @@ lemma RelCWComplex.finiteType_restrict [RelCWComplex C D] [FiniteType C]
     letI := restrict Y hCY
     FiniteType (Y ↓∩ C) :=
   let _ := restrict Y hCY
-  let _ := CWComplex.instEmpty (X := Y)
-  let _ := CWComplex.finite_instEmpty (X := Y)
   if hC : C.Nonempty then
     (restrict_eq_restrictNonempty Y hCY hC ▸ finiteType_restrictNonempty Y hCY hC)
     else (restrict_eq_empty Y hCY hC ▸ finiteType_ofEq ..)

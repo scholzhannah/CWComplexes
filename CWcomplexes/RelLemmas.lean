@@ -26,36 +26,13 @@ namespace Topology
 
 variable {X : Type*} [t : TopologicalSpace X] [T2Space X] {C D : Set X}
 
-/-
-1. Somehow it forgets `D` at the beginning of the inference. Is that supposed to happen?
-  (But that also happens when inference doesn't fail)
-
-2. Then it seems to want to prove that `skeletonLT C n` is a subcomplex of `∅`. Which it doesn't
-  give up on immediately since it knows now that `∅` is a CW complex.
-
-3. Then it thinks that it should try to decompose `∅` into `iUnion`s and just never stops.
--/
-
 open RelCWComplex in
-set_option trace.Meta.synthInstance true in
---set_option allowUnsafeReducibility true in
---attribute [local semireducible] RelCWComplex.Subcomplex.Sub in
 lemma RelCWComplex.isClosed_skeletonLT [RelCWComplex C D] (n : ℕ∞) :
-    IsClosed (skeletonLT C n) :=
-  let _ := CWComplex.instEmpty (X := X)
-  /-
-  have : RelCWComplex (skeletonLT C n) ∅ := by
-    refine @Subcomplex.instSubcomplex _ _ ?_ _ _ ?_ _ ?_
-    · sorry
-    · sorry
-    · sorry
-  -/
-  isClosed --(D := D)
+    IsClosed (skeletonLT C n : Set X) :=
+  isClosed
 
-#exit
-
-lemma RelCWComplex.isClosed_skeleton [RelCWComplex C D] (n : ℕ∞) : IsClosed (skeleton C n) :=
-  let _ := Subcomplex.instSubcomplex (C := C) (skeleton C n)
+lemma RelCWComplex.isClosed_skeleton [RelCWComplex C D] (n : ℕ∞) :
+    IsClosed (skeleton C n : Set X) :=
   isClosed
 
 lemma RelCWComplex.isClosed_iff_inter_skeletonLT_isClosed [RelCWComplex C D] {A : Set X}
@@ -110,13 +87,13 @@ lemma RelCWComplex.inter_skeletonLT_succ_isClosed_iff
       rw [inter_assoc, ← inter_eq_right.2
         ((closedCell_subset_skeletonLT m j).trans
           (skeletonLT_mono (by norm_cast : (m : ℕ∞) + 1 ≤ n))),
-        ← inter_assoc (skeletonLT _ _),
+        ← inter_assoc (skeletonLT C _ : Set X),
         inter_eq_right.2 (skeletonLT_mono (by norm_cast; exact Nat.le_succ n)), ← inter_assoc]
       exact closed1.inter isClosed_closedCell
     by_cases msucceqn : m = n
     · right
       subst msucceqn
-      rw [inter_assoc, inter_comm (skeletonLT _ m.succ), ← inter_assoc]
+      rw [inter_assoc, inter_comm (skeletonLT C m.succ : Set X), ← inter_assoc]
       exact (closed2 _).inter (isClosed_skeletonLT _)
     left
     have : n.succ ≤ m := by
@@ -418,12 +395,12 @@ lemma CWComplex.compact_iff_finite [CWComplex C] : IsCompact C ↔ Finite C :=
 /-- Every compact set in a CW-complex is contained in a finite subcomplex.-/
 lemma RelCWComplex.Subcomplex.compact_subset_finite_subcomplex [RelCWComplex C D]
     {B : Set X} (compact : IsCompact B) :
-    ∃ (E : Set X) (_sub : Subcomplex C E), Finite E ∧ B ∩ C ⊆ E := by
+    ∃ (E : Subcomplex C), Finite (E : Set X) ∧ B ∩ C ⊆ E := by
   have : _root_.Finite (Σ n, { j | ¬Disjoint B (openCell (C:= C) n j)}) :=
     compact_inter_finite (C := C) (D := D) B compact
-  obtain ⟨E, sub, finite, subset⟩ := finite_iUnion_subset_finite_subcomplex (C := C) (D := D)
+  obtain ⟨E, finite, subset⟩ := finite_iUnion_subset_finite_subcomplex (C := C) (D := D)
     (fun n ↦ { j | ¬Disjoint B (openCell (C := C) n j)})
-  use E,sub
+  use E
   refine ⟨finite, ?_⟩
   apply subset_trans (subset_not_disjoint (C := C) (D := D) B)
   apply union_subset
@@ -432,7 +409,7 @@ lemma RelCWComplex.Subcomplex.compact_subset_finite_subcomplex [RelCWComplex C D
   exact subset
 
 instance RelCWComplex.finiteDimensional_instskeletonLT_of_nat [RelCWComplex C D]
-    [FiniteDimensional C] (n : ℕ) : FiniteDimensional (skeletonLT C n) where
+    [FiniteDimensional C] (n : ℕ) : FiniteDimensional (skeletonLT C n : Set X) where
   eventually_isEmpty_cell := by
     simp only [Subcomplex.instSubcomplex_cell, Subcomplex.mk''_I, Nat.cast_lt, coe_setOf,
       isEmpty_subtype, not_lt, Filter.eventually_atTop, ge_iff_le]
@@ -441,7 +418,7 @@ instance RelCWComplex.finiteDimensional_instskeletonLT_of_nat [RelCWComplex C D]
     simp [hnb]
 
 instance RelCWComplex.finiteDimensional_instskeleton_of_nat [RelCWComplex C D] [FiniteDimensional C]
-    (n : ℕ) : FiniteDimensional (skeleton C n) :=
+    (n : ℕ) : FiniteDimensional (skeleton C n : Set X) :=
   finiteDimensional_instskeletonLT_of_nat _
 
 lemma RelCWComplex.kSpace [RelCWComplex (univ: Set X) D] (hD : IsCompact D) : KSpace X := by
@@ -471,7 +448,7 @@ lemma RelCWComplex.kSpace [RelCWComplex (univ: Set X) D] (hD : IsCompact D) : KS
 
 --set_option trace.Meta.synthInstance true in
 instance CWComplex.instKSpace [CWComplex (univ : Set X)] : KSpace X := by
-  exact RelCWComplex.kSpace isCompact_empty
+  exact RelCWComplex.kSpace (isCompact_empty)
 --    (by exact compact_of_finite)
 
 
@@ -480,8 +457,7 @@ namespace CWComplex
 export RelCWComplex (isClosed_skeletonLT isClosed_skeleton isClosed_iff_inter_skeletonLT_isClosed
   inter_skeletonLT_succ_isClosed_iff compact_inter_finite compact_inter_finite_subset
   compact_inter_finite' compact_inter_finite_subset' finite_of_compact
-  Subcomplex.compact_subset_finite_subcomplex Subcomplex.instSkeletonLT
-  Subcomplex.instSkeleton finiteDimensional_instskeletonLT_of_nat
+  Subcomplex.compact_subset_finite_subcomplex finiteDimensional_instskeletonLT_of_nat
   finiteDimensional_instskeleton_of_nat)
 
 end CWComplex

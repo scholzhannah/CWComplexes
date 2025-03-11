@@ -350,7 +350,7 @@ lemma isEmpty_cell_SphereZero (x : EuclideanSpace ℝ (Fin 0)) (ε : ℝ) (h : �
     ∀ m, IsEmpty (cell (sphere x ε) m) := by
   intro m
   simp only [RelCWComplex.ofEq_cell, instFiniteSet_cell]
-  cases m <;> infer_instance
+  cases m <;> (rw [CWComplex.instEmpty_cell]; infer_instance)
 
 /-- The sphere in dimension 1 is a CW-complex. -/
 def SphereOne (x ε : ℝ) (hε : ε ≥ 0) : CWComplex (sphere x ε) :=
