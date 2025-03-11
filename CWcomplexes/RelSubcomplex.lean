@@ -149,19 +149,16 @@ instance RelCWComplex.Subcomplex.instSubcomplex [T2Space X] [RelCWComplex C D] (
   isClosedBase := RelCWComplex.isClosedBase (C := C) (D := D)
   union' := Subcomplex.union_closedCell E (D := D)
 
-open CWComplex.Subcomplex in
 /-- A subcomplex is again a CW-complex. -/
 instance CWComplex.Subcomplex.instSubcomplex [T2Space X] [CWComplex C] (E : Subcomplex C) :
     CWComplex (E : Set X) :=
   RelCWComplex.Subcomplex.instSubcomplex (C := C) E
 
-open CWComplex.Subcomplex in
 @[simp]
 lemma CWComplex.Subcomplex.instSubcomplex_cell [T2Space X] [CWComplex C] (E : Subcomplex C)
     (n : ℕ) : cell (E : Set X) n = E.I (C := C) n :=
   rfl
 
-open CWComplex.Subcomplex in
 @[simp]
 lemma CWComplex.Subcomplex.instSubcomplex_map [T2Space X] [CWComplex C] (E : Subcomplex C) (n : ℕ)
     (i : E.I n) : map (C := E) n i = map (C := C) n i :=
