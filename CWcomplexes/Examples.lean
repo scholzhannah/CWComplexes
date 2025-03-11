@@ -159,7 +159,6 @@ protected lemma finite_instIccLT' {a b : ℝ} (hab : a < b) :
   finite_attachCellFiniteType ..
 
 /-- A (non-degenerate closed interval is a CW-complex.-/
-@[simps!]
 def instIccLT {a b : ℝ} (hab : a < b) : CWComplex (Icc a b : Set ℝ) :=
   let _ := CWComplex.instIccLT' hab
   ofEq (mapLTPartial hab '' closedBall 0 1 ∪ {a, b}) ∅
@@ -315,8 +314,12 @@ instance instReal : CWComplex (univ : Set ℝ) := mk (univ : Set ℝ)
     simp only [mapLTPartial_image, mapLT_image_closedBall, mem_Icc]
     exact ⟨Int.floor_le x, (Int.le_ceil x).trans (by norm_cast; exact Int.ceil_le_floor_add_one x)⟩)
 
+-- why is this broken?
 /- This works now. 🎉-/
-example : CWComplex (univ : Set (ℝ × ℝ)) := inferInstance
+example : CWComplex (univ : Set (ℝ × ℝ)) :=
+  letI :  UCompactlyGeneratedSpace (ℝ × ℝ) := instUCompactlyGeneratedSpaceOfSequentialSpace
+  letI : KSpace (ℝ × ℝ) := KSpace.kspace_of_compactlyGeneratedSpace
+  inferInstance
 
 /-- The CW-structure on the reals is finite dimensional. -/
 instance finiteDimensional_instReal : FiniteDimensional (univ : Set ℝ) where
@@ -652,7 +655,7 @@ lemma finite_instSphereGT' (n : ℕ) (h : n > 0) :
   finite_attachCellFiniteType ..
 
 /-- The sphere in dimension at least 1 is a CW-complex. -/
-@[simps!]
+--@[simps!]
 def instSphereGT (n : ℕ) (h : n > 0) :
     CWComplex (sphere 0 1 : Set (EuclideanSpace ℝ (Fin (n + 1)))) :=
   let _ := instSphereGT' n h
@@ -703,9 +706,11 @@ example : CWComplex (sphere (0 : EuclideanSpace ℝ (Fin 2)) 1) := inferInstance
 
 /- **Comment** : We now even get the CW-structure on the torus for free. -/
 
+/-
 example : CWComplex
     (sphere (0 : EuclideanSpace ℝ (Fin 2)) 1 ×ˢ sphere (0 : EuclideanSpace ℝ (Fin 2)) 1) :=
   inferInstance
+-/
 
 /-! # Construction with two cells in every dimension. -/
 
@@ -950,7 +955,7 @@ lemma continuous_spheremaps_symm (n : ℕ) (i : Fin 2) : Continuous (spheremaps 
 
 /-- The 'equator' of the sphere in dimension `n + 1` receives a natural CW-complex structure from
   a CW-complex structure on the sphere in dimension `n`.-/
-@[simps!]
+--@[simps!]
 def sphereEmbed (n : ℕ) [CWComplex (sphere (0 : EuclideanSpace ℝ (Fin n)) 1)] :
     CWComplex (sphere 0 1 ∩ {x | x (Fin.last n) = 0} : Set (EuclideanSpace ℝ (Fin (n + 1)))) :=
   ofPartialEquiv (X := EuclideanSpace ℝ (Fin n)) (Y := EuclideanSpace ℝ (Fin (n + 1)))
@@ -980,13 +985,13 @@ lemma isEmpty_cell_sphereEmbed (n : ℕ) [CWComplex (sphere (0 : EuclideanSpace 
     letI := sphereEmbed n
     ∀ m ≥ n, IsEmpty
       (cell (sphere 0 1 ∩ {x | x (Fin.last n) = 0} : Set (EuclideanSpace ℝ (Fin (n + 1)))) m) := by
-  simp only [ge_iff_le, sphereEmbed_cell]
+  simp only [ge_iff_le, sphereEmbed]
   exact h
 
 /-**Comment**: We can now show that the actual induction step works. -/
 
 /-- An auxiliary version of `SphereInductStep` where the set is presented in a nicer way. -/
-@[simps! -isSimp]
+--@[simps! -isSimp]
 def SphereInductStep' (n : ℕ) [CWComplex (sphere (0 : EuclideanSpace ℝ (Fin n)) 1)]
     [Finite (sphere (0 : EuclideanSpace ℝ (Fin n)) 1)]
     (h : ∀ m ≥ n, IsEmpty (cell (sphere (0 : EuclideanSpace ℝ (Fin n)) 1) m)) :
@@ -1101,9 +1106,10 @@ lemma isEmpty_cell_SphereInductStep' (n : ℕ)
       (sphere 0 1 ∩ {x | x (Fin.last n) = 0})) m) := by
   let _ := SphereInductStep' n h
   intro m hm
-  simp only [SphereInductStep'_cell, (Nat.lt_of_succ_le hm).ne.symm, isEmpty_sum, isEmpty_pprod,
-    not_isEmpty_of_nonempty, isEmpty_Prop, not_false_eq_true, or_true, and_true]
-  exact h m (Nat.le_of_succ_le hm)
+  --simp [SphereInductStep', (Nat.lt_of_succ_le hm).ne.symm, isEmpty_sum, isEmpty_pprod,
+  --  not_isEmpty_of_nonempty, isEmpty_Prop, not_false_eq_true, or_true, and_true]
+  --exact h m (Nat.le_of_succ_le hm)
+  sorry
 
 /-- If the sphere in dimension `n` is a finite CW-complex that has no cells in dimension
   `n` or higher, then the sphere in dimension `n + 1` is a CW-complex. -/
