@@ -505,6 +505,20 @@ lemma coe_eq_carrier {E : Subcomplex C} : (E : Set X) = E.carrier := rfl
 @[ext] lemma ext {E F : Subcomplex C} (h : ∀ x, x ∈ E ↔ x ∈ F) : E = F :=
   SetLike.ext h
 
+/-- Copy of a `MySubobject` with a new `carrier` equal to the old one. Useful to fix definitional
+equalities. See Note [range copy pattern]. -/
+protected def copy (E : Subcomplex C) (F : Set X) (hF : F = E) : Subcomplex C :=
+  { carrier := F
+    I := I
+    closed' := hF.symm ▸ closed'
+    union' := hF.symm ▸ union' }
+
+@[simp] lemma coe_copy (E : Subcomplex C) (F : Set X) (hF : F = E) :
+  (E.copy F hF : Set X) = F := rfl
+
+lemma copy_eq (E : Subcomplex C) (F : Set X) (hF : F = E) : E.copy F hF = E :=
+  SetLike.coe_injective hF
+
 lemma union (E : Subcomplex C) :
     D ∪ ⋃ (n : ℕ) (j : I n), openCell (C := C) (D := D) n j.1 = E := by
   rw [E.union']
@@ -518,10 +532,14 @@ end RelCWComplex
 
 namespace CWComplex
 
-export RelCWComplex (Subcomplex Subcomplex.I Subcomplex.closed Subcomplex.union
-  Subcomplex.mem_carrier Subcomplex.coe_eq_carrier Subcomplex.mem Subcomplex.ext)
+export RelCWComplex (Subcomplex)
 
-end CWComplex
+namespace Subcomplex
+
+export RelCWComplex.Subcomplex (I closed union mem_carrier coe_eq_carrier mem ext copy coe_copy
+  copy_eq)
+
+end CWComplex.Subcomplex
 
 lemma CWComplex.Subcomplex.union {C : Set X} [CWComplex C] {E : Subcomplex C} :
     ⋃ (n : ℕ) (j : I (C := C) (D := ∅) n), openCell (C := C) n j = E := by

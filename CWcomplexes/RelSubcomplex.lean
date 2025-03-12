@@ -186,6 +186,81 @@ instance RelCWComplex.Subcomplex.finite_subcomplex_of_finite [T2Space X] [RelCWC
     [Finite C] (E : Subcomplex C) : Finite (E : Set X) :=
   inferInstance
 
+section DistribLattice
+
+@[simps]
+protected def RelCWComplex.Subcomplex.sup [RelCWComplex C D] (E F : Subcomplex C) :
+    Subcomplex C where
+  carrier := E ∪ F
+  I n := E.I n ∪ F.I n
+  closed' := (closed E).union (closed F)
+  union' := by
+    simp only [iUnion_coe_set, mem_union, iUnion_or, iUnion_union_distrib, ← union]
+    rw [union_assoc, ← union_assoc _ D, union_comm _ D, union_assoc, ← union_assoc _ D,
+      union_self]
+
+@[simps]
+protected def RelCWComplex.Subcomplex.inf [RelCWComplex C D] (E F : Subcomplex C) :
+    Subcomplex C where
+  carrier := E ∩ F
+  I n := E.I n ∩ F.I n
+  closed' := (closed E).inter (closed F)
+  union' := by
+    simp only [iUnion_coe_set, mem_inter_iff, iUnion_and, ← union]
+    rw [inter_union_distrib_left, union_inter_cancel_left, union_inter_distrib_left, ← union_assoc,
+      union_self, ← union_inter_distrib_left]
+    congrm D ∪ ?_
+    apply subset_antisymm
+    · refine Subset.trans ?_ iUnion_inter_subset
+      apply iUnion_mono
+      intro n
+      refine Subset.trans ?_ iUnion_inter_subset
+      apply iUnion_mono
+      intro i
+      simp only [subset_inter_iff, iUnion_subset_iff, subset_refl, implies_true, and_true]
+      exact fun hi hi' ↦ subset_iUnion_of_subset hi Subset.rfl
+    · intro x
+      simp only [mem_inter_iff, mem_iUnion, exists_prop, exists_and_left, and_imp,
+        forall_exists_index]
+      intro n i hi hxi m j hj hxj
+      use n, i, hi
+      refine ⟨?_, hxi⟩
+      suffices (⟨n, i⟩ : Σ n, cell C n) = ⟨m, j⟩ by aesop
+      apply eq_of_not_disjoint_openCell
+      rw [not_disjoint_iff]
+      exact ⟨x, hxi, hxj⟩
+
+instance RelCWComplex.Subcomplex.instDistribLattice [RelCWComplex C D] :
+    DistribLattice (Subcomplex C) :=
+  {(inferInstance : PartialOrder (Subcomplex C)) with
+    sup E F := RelCWComplex.Subcomplex.sup E F
+    le_sup_left E F := by
+      rw [← SetLike.coe_subset_coe, sup_carrier]
+      exact subset_union_left
+    le_sup_right E F := by
+      rw [← SetLike.coe_subset_coe, sup_carrier]
+      exact subset_union_right
+    sup_le E F G hEG hFG := by
+      rw [← SetLike.coe_subset_coe]
+      simp [hEG, hFG]
+    inf E F := RelCWComplex.Subcomplex.inf E F
+    inf_le_left E F := by
+      rw [← SetLike.coe_subset_coe, inf_carrier]
+      exact inter_subset_left
+    inf_le_right E F := by
+      rw [← SetLike.coe_subset_coe, inf_carrier]
+      exact inter_subset_right
+    le_inf E F G hEF hEG := by
+      rw [← SetLike.coe_subset_coe]
+      simp [hEF, hEG]
+    le_sup_inf E F G := by
+      rw [← SetLike.coe_subset_coe]
+      simp only [min, SemilatticeInf.inf, max, inf_carrier, sup_carrier]
+      rw [← union_inter_distrib_left]
+    }
+
+end DistribLattice
+
 section TopBot
 
 @[simps]
@@ -219,6 +294,8 @@ instance RelCWComplex.Subcomplex.finite_instBot [T2Space X] [RelCWComplex C D] :
     exact Finite.of_subsingleton
 
 end TopBot
+
+instance RelCWComplex.Subcomplex.instInhabited [RelCWComplex C D] : Inhabited (Subcomplex C) := ⟨⊥⟩
 
 section SupSet
 
@@ -299,7 +376,7 @@ instance RelCWComplex.Subcomplex.finiteDimensional_finite_iSupSubcomplex_of_fini
     exact h
 
 /-- A finite union of subcomplexes of finite type is again a subcomplex of finite type.-/
-instance RelCWComplex.Subcomplex.finiteType_finite_iSupSubComplex_of_finiteType [T2Space X]
+instance RelCWComplex.Subcomplex.finiteType_finite_iSupSubcomplex_of_finiteType [T2Space X]
     [RelCWComplex C D] {J : Type*} [_root_.Finite J] {sub : J → Subcomplex C}
     [finite : ∀ (j : J), FiniteType (sub j : Set X)] :
     FiniteType ((⨆ j, sub j : Subcomplex C) : Set X) where
@@ -309,11 +386,127 @@ instance RelCWComplex.Subcomplex.finiteType_finite_iSupSubComplex_of_finiteType 
     simp only [instSubcomplex_cell, mk''_I, mem_range, iUnion_exists, iUnion_iUnion_eq'] at h ⊢
     apply Finite.Set.finite_iUnion
 
+set_option trace.Meta.synthInstance true in
+example {α : Type*} : CompleteLattice (Set α) := inferInstance
+
 end SupSet
 
 section InfSet
 
--- ## TODO
+@[simps]
+instance RelCWComplex.Subcomplex.instInfSet [T2Space X] [RelCWComplex C D] :
+    InfSet (Subcomplex C) where
+  sInf := fun S ↦ {
+    carrier := C ∩ ⋂ (E ∈ S), E
+    I n := ⋂ (E ∈ S), E.I n
+    closed' := isClosed.inter (isClosed_biInter (fun E _ ↦ closed E))
+    union' := by
+      rw [← iInter_subtype (p := fun E ↦ E ∈ S) (s := fun E ↦ (E: Set X))]
+      by_cases h : Nonempty S
+      · simp_rw [inter_iInter, inter_eq_right.2 (subset_complex _), ← Subcomplex.union,
+          ← union_iInter]
+        congrm D ∪ ?_
+        simp_rw [iUnion_subtype, mem_iInter]
+        ext x
+        simp only [mem_iUnion, exists_prop, mk''_I, iInter_coe_set, mem_iInter]
+        constructor
+        · intro ⟨n, i, hi, hx⟩ E hE
+          exact ⟨n, i, hi E hE, hx⟩
+        · intro h'
+          let ⟨E, hE⟩ := Classical.choice h
+          obtain ⟨n, i, hi, hx⟩ := h' E hE
+          use n, i
+          refine ⟨?_, hx⟩
+          intro F hF
+          obtain ⟨m, j, hj, hx'⟩ := h' F hF
+          suffices (⟨n, i⟩ : Σ n, cell C n) = ⟨m, j⟩ by aesop
+          apply eq_of_not_disjoint_openCell
+          rw [not_disjoint_iff]
+          exact ⟨x, hx, hx'⟩
+      · simp_all only [nonempty_subtype, not_exists, iUnion_coe_set, iInter_of_empty, iInter_univ,
+        mem_univ, iUnion_true, mk''_I, iInter_coe_set, eq_mp_eq_cast, id_eq,
+        not_isEmpty_of_nonempty, iUnion_of_empty, union_empty, inter_univ]
+        exact union_iUnion_openCell_eq_complex
+  }
+
+lemma RelCWComplex.Subcomplex.instInfSet_carrier [T2Space X] [RelCWComplex C D]
+    {J : Type*} (sub : J → Subcomplex C) :
+    (((⨅ (j : J), sub j) : Subcomplex C) : Set X) = C ∩ ⋂ j, sub j := by
+  unfold instInfSet iInf
+  simp [coe_eq_carrier]
+
+@[simp] lemma RelCWComplex.Subcomplex.instInfSet_coe_eq_of_nonempty [T2Space X] [RelCWComplex C D]
+    {J : Type*} [Nonempty J] (sub : J → Subcomplex C) :
+    (((⨅ (j : J), sub j) : Subcomplex C) : Set X) = ⋂ j, sub j := by
+  simp only [instInfSet_carrier, inter_eq_right]
+  apply iInter_subset_of_subset (Classical.choice (α := J) inferInstance)
+  exact subset_complex _
+
+@[simp] lemma RelCWComplex.Subcomplex.instInfSet_coe_eq_of_empty [T2Space X] [RelCWComplex C D]
+    {J : Type*} [IsEmpty J] (sub : J → Subcomplex C) :
+    ⨅ (j : J), sub j = ⊤ := by
+  ext
+  simp only [mem, instInfSet_carrier, instTop_top_carrier, iInter_of_empty, inter_univ]
+
+@[simp]
+lemma RelCWComplex.Subcomplex.instInfSet_I [T2Space X] [RelCWComplex C D]
+    {J : Type*} (sub : J → Subcomplex C) (n : ℕ) :
+    (⨅ (j : J), sub j).I n = ⋂ (j : J), (sub j).I n := by
+  simp
+
+/-- A nonempty intersection of subcomplexes where one is finite dimensional is again a
+finite-dimensional subcomplex. -/
+lemma RelCWComplex.Subcomplex.finiteDimensional_iInfSubcomplex_of_exists_finiteDimensional
+    [T2Space X] [RelCWComplex C D] {J : Type*} [Nonempty J] {sub : J → Subcomplex C} (j : J)
+    [finite : FiniteDimensional (sub j : Set X)] :
+    FiniteDimensional (((⨅ j : J, sub j) : Subcomplex C) : Set X) where
+  eventually_isEmpty_cell := by
+    have h := finite.eventually_isEmpty_cell
+    simp_all only [instSubcomplex_cell, isEmpty_coe_sort, Filter.eventually_atTop, ge_iff_le,
+      mk''_I, mem_range, iInter_exists, iInter_iInter_eq']
+    obtain ⟨n, hn⟩ := h
+    use n
+    intro m hm
+    rw [← subset_empty_iff]
+    exact iInter_subset_of_subset j (subset_empty_iff.2 (hn m hm))
+
+/-- A nonempty intersection of finite-dimensional subcomplexes is again a finite-dimensional
+subcomplex. -/
+instance RelCWComplex.Subcomplex.finiteDimensional_iInfSubcomplex_of_finiteDimensional
+    [T2Space X] [RelCWComplex C D] {J : Type*} [Nonempty J] {sub : J → Subcomplex C}
+    [finite : ∀ j, FiniteDimensional (sub j : Set X)] :
+    FiniteDimensional (((⨅ j : J, sub j) : Subcomplex C) : Set X) :=
+  let j := Classical.choice (α := J) inferInstance
+  finiteDimensional_iInfSubcomplex_of_exists_finiteDimensional j
+
+/-- A nonempty union of subcomplexes where one is of finite type is again of finite type .-/
+lemma RelCWComplex.Subcomplex.finiteType_iInfSubcomplex_of_exists_finiteType
+    [T2Space X] [RelCWComplex C D] {J : Type*} [Nonempty J] {sub : J → Subcomplex C} (j : J)
+    [finite : FiniteType (sub j : Set X)] :
+    FiniteType (((⨅ j : J, sub j) : Subcomplex C) : Set X) where
+  finite_cell := by
+    intro n
+    have := FiniteType.finite_cell (C := (sub j : Set X)) (D := D) n
+    simp_all only [instSubcomplex_cell, mk''_I, mem_range, iInter_exists, iInter_iInter_eq',
+      finite_coe_iff]
+    exact Finite.subset this (iInter_subset _ j)
+
+/-- A nonempty union of subcomplexes where one is of finite type is again of finite type .-/
+instance RelCWComplex.Subcomplex.finiteType_iInfSubcomplex_of_finiteType
+    [T2Space X] [RelCWComplex C D] {J : Type*} [Nonempty J] {sub : J → Subcomplex C}
+    [finite : ∀ j, FiniteType (sub j : Set X)] :
+    FiniteType (((⨅ j : J, sub j) : Subcomplex C) : Set X) :=
+  let j := Classical.choice (α := J) inferInstance
+  finiteType_iInfSubcomplex_of_exists_finiteType j
+
+/-- A nonempty union of subcomplexes where one is finite is again a finite subcomplex. -/
+lemma RelCWComplex.Subcomplex.finite_iInfSubcomplex_of_exists_finite
+    [T2Space X] [RelCWComplex C D] {J : Type*} [Nonempty J] {sub : J → Subcomplex C} (j : J)
+    [finite : Finite (sub j : Set X)] :
+    Finite (((⨅ j : J, sub j) : Subcomplex C) : Set X) :=
+  let _ := finiteDimensional_iInfSubcomplex_of_exists_finiteDimensional (sub := sub) j
+  let _ := finiteType_iInfSubcomplex_of_exists_finiteType (sub := sub) j
+  inferInstance
 
 end InfSet
 
@@ -667,9 +860,15 @@ namespace CWComplex.Subcomplex
 
 export RelCWComplex.Subcomplex (subset_complex finiteType_subcomplex_of_finiteType
   finiteDimensional_subcomplex_of_finiteDimensional finite_subcomplex_of_finite
-  instTop instTop_top_carrier instBot instBot_bot_carrier finite_instBot instSupSet instSupSet_I
+  instTop instTop_top_carrier instBot instBot_bot_carrier finite_instBot instInhabited
+  instSupSet instSupSet_I
   finiteDimensional_finite_iSupSubcomplex_of_finiteDimensional
-  finiteType_finite_iSupSubComplex_of_finiteType
+  finiteType_finite_iSupSubcomplex_of_finiteType
+  instInfSet instInfSet_carrier instInfSet_coe_eq_of_nonempty instInfSet_coe_eq_of_empty
+  instInfSet_I finiteDimensional_iInfSubcomplex_of_exists_finiteDimensional
+  finiteDimensional_iInfSubcomplex_of_finiteDimensional
+  finiteType_iInfSubcomplex_of_exists_finiteType finiteType_iInfSubcomplex_of_finiteType
+  finite_iInfSubcomplex_of_exists_finite
   cell_mem_finite_subcomplex closedCell_subset_finite_subcomplex
   finite_iUnion_subset_finite_subcomplex)
 
