@@ -32,8 +32,9 @@ def direction1: TopCat.RelativeCWComplex.{v} (X := TopCat.of D) (Y := TopCat.of 
       app n :=
         (TopCat.ofHom (ContinuousMap.inclusion Topology.RelCWComplex.skeletonLT_subset_complex))
     }
-    isColimit := by
-
+    isColimit :=
+      { desc s := sorry }
+      /-
       let c : CategoryTheory.Limits.Cocone (F.comp (CategoryTheory.forget TopCat)) := {
         pt := C
         ι := { app := fun n ↦
@@ -42,11 +43,13 @@ def direction1: TopCat.RelativeCWComplex.{v} (X := TopCat.of D) (Y := TopCat.of 
       apply CategoryTheory.Limits.IsColimit.ofIsoColimit (r := TopCat.coconeOfCoconeForget c)
       · apply TopCat.isColimitCoconeOfForget
         sorry
-      · apply CategoryTheory.eqToIso
+      · sorry
+        /-apply CategoryTheory.eqToIso
         --unfold TopCat.coconeOfCoconeForget
         rw [CategoryTheory.Limits.Cocone.mk.injEq]
         simp
-        sorry
+        sorry-/
+      -/
     attachCells n hn := {
       ι := Topology.RelCWComplex.cell C n.succ
       π i := ()
