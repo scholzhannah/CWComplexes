@@ -230,6 +230,9 @@ protected def RelCWComplex.Subcomplex.inf [RelCWComplex C D] (E F : Subcomplex C
       rw [not_disjoint_iff]
       exact ⟨x, hxi, hxj⟩
 
+
+-- complete distrib lattice
+
 instance RelCWComplex.Subcomplex.instDistribLattice [RelCWComplex C D] :
     DistribLattice (Subcomplex C) :=
   {(inferInstance : PartialOrder (Subcomplex C)) with
@@ -332,7 +335,7 @@ instance RelCWComplex.Subcomplex.instSupSet [T2Space X] [RelCWComplex C D] :
 -- its annoying to have to write it like this. Notation?
 lemma RelCWComplex.Subcomplex.instSupSet_carrier [T2Space X] [RelCWComplex C D]
     {J : Type*} (sub : J → Subcomplex C) :
-    (((⨆ (j : J), sub j) : Subcomplex C) : Set X) = D ∪ ⋃ j, sub j := by
+    ((⨆ (j : J), sub j) : Subcomplex C) = D ∪ ⋃ j, sub j := by
   unfold instSupSet mk' iSup
   simp [coe_eq_carrier]
 
@@ -379,7 +382,7 @@ instance RelCWComplex.Subcomplex.finiteDimensional_finite_iSupSubcomplex_of_fini
 instance RelCWComplex.Subcomplex.finiteType_finite_iSupSubcomplex_of_finiteType [T2Space X]
     [RelCWComplex C D] {J : Type*} [_root_.Finite J] {sub : J → Subcomplex C}
     [finite : ∀ (j : J), FiniteType (sub j : Set X)] :
-    FiniteType ((⨆ j, sub j : Subcomplex C) : Set X) where
+    FiniteType (X := X) ↑(⨆ j, sub j) where
  finite_cell := by
     have h j := (finite j).finite_cell
     intro n
