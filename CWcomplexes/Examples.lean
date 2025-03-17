@@ -1106,10 +1106,10 @@ lemma isEmpty_cell_SphereInductStep' (n : ℕ)
       (sphere 0 1 ∩ {x | x (Fin.last n) = 0})) m) := by
   let _ := SphereInductStep' n h
   intro m hm
-  --simp [SphereInductStep', (Nat.lt_of_succ_le hm).ne.symm, isEmpty_sum, isEmpty_pprod,
-  --  not_isEmpty_of_nonempty, isEmpty_Prop, not_false_eq_true, or_true, and_true]
-  --exact h m (Nat.le_of_succ_le hm)
-  sorry
+  simp only [SphereInductStep', attachCells_cell, ofPartialEquiv_cell,
+    (Nat.lt_of_succ_le hm).ne.symm, isEmpty_sum, isEmpty_pprod, not_isEmpty_of_nonempty,
+    isEmpty_Prop, not_false_eq_true, or_true, and_true]
+  exact h m (Nat.le_of_succ_le hm)
 
 /-- If the sphere in dimension `n` is a finite CW-complex that has no cells in dimension
   `n` or higher, then the sphere in dimension `n + 1` is a CW-complex. -/
