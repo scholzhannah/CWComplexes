@@ -348,7 +348,7 @@ I think what is happening here is that it forgets the base again and then gets l
 Is this an outParam thing?
 -/
 
-set_option trace.Meta.synthInstance true in
+--set_option trace.Meta.synthInstance true in
 instance CWComplex.finiteDimensional_product [KSpace (X × Y)] [CWComplex C] [CWComplex E]
     [FiniteDimensional C] [FiniteDimensional E] : FiniteDimensional (C ×ˢ E) :=
   -- why does it not find this instance itself?
