@@ -98,7 +98,7 @@ def RelCWComplex.mkFiniteType.{u} {X : Type u} [TopologicalSpace X] (C : Set X)
   continuousOn_symm := continuousOn_symm
   pairwiseDisjoint' := pairwiseDisjoint'
   disjointBase' := disjointBase'
-  mapsTo n i := by
+  mapsTo' n i := by
     use fun m ↦ finite_univ.toFinset (s := (univ : Set (cell m)))
     simp only [Finite.mem_toFinset, mem_univ, iUnion_true]
     exact mapsto n i
@@ -145,21 +145,15 @@ def CWComplex.mkFiniteType.{u} {X : Type u} [TopologicalSpace X] (C : Set X)
     (closed' : ∀ (A : Set X) (_ : A ⊆ C),
     (∀ n j, IsClosed (A ∩ map n j '' closedBall 0 1)) → IsClosed A)
     (union' :  ⋃ (n : ℕ) (j : cell n), map n j '' closedBall 0 1 = C) :
-    CWComplex C where
-  cell := cell
-  map := map
-  source_eq := source_eq
-  continuousOn := continuousOn
-  continuousOn_symm := continuousOn_symm
-  pairwiseDisjoint' := pairwiseDisjoint'
-  disjointBase' := by simp only [disjoint_empty, implies_true]
-  mapsTo n i := by
+    CWComplex C :=
+  mk C cell map source_eq continuousOn continuousOn_symm pairwiseDisjoint'
+  (mapsTo := by
+    intro n i
     use fun m ↦ finite_univ.toFinset (s := (univ : Set (cell m)))
     simp only [Finite.mem_toFinset, mem_univ, iUnion_true, empty_union]
-    exact mapsto n i
-  closed' := by simpa only [inter_empty, isClosed_empty, and_true]
-  isClosedBase := isClosed_empty
-  union' := by simpa only [empty_union]
+    exact mapsto n i)
+  (closed' := by simpa only [inter_empty, isClosed_empty, and_true])
+  union'
 
 /-- A CW complex that was constructed using `CWComplex.mkFiniteType` is of finite type.-/
 lemma CWComplex.finiteType_mkFiniteType.{u} {X : Type u} [TopologicalSpace X] (C : Set X)
@@ -208,7 +202,7 @@ def RelCWComplex.mkFinite.{u} {X : Type u} [TopologicalSpace X] (C : Set X)
   continuousOn_symm := continuousOn_symm
   pairwiseDisjoint' := pairwiseDisjoint'
   disjointBase' := disjointBase'
-  mapsTo n i := by
+  mapsTo' n i := by
     use fun m ↦ finite_univ.toFinset (s := (univ : Set (cell m)))
     simp only [Finite.mem_toFinset, mem_univ, iUnion_true]
     exact mapsto n i
@@ -274,19 +268,20 @@ def CWComplex.mkFinite.{u} {X : Type u} [TopologicalSpace X] (C : Set X)
     (mapsto : ∀ (n : ℕ) (i : cell n),
       MapsTo (map n i) (sphere 0 1) (⋃ (m < n) (j : cell m), map m j '' closedBall 0 1))
     (union' : ⋃ (n : ℕ) (j : cell n), map n j '' closedBall 0 1 = C) :
-    CWComplex C := RelCWComplex.mkFinite C ∅
-  (cell := cell)
-  (map := map)
-  (eventually_isEmpty_cell := eventually_isEmpty_cell)
-  (finite_cell := finite_cell)
-  (source_eq := source_eq)
-  (continuousOn := continuousOn)
-  (continuousOn_symm := continuousOn_symm)
-  (pairwiseDisjoint' := pairwiseDisjoint')
-  (disjointBase' := by simp only [disjoint_empty, implies_true])
-  (mapsto := by simpa only [empty_union])
-  (isClosedBase := isClosed_empty)
-  (union' := by simpa only [empty_union])
+    CWComplex C where
+  __ := RelCWComplex.mkFinite C ∅
+    (cell := cell)
+    (map := map)
+    (eventually_isEmpty_cell := eventually_isEmpty_cell)
+    (finite_cell := finite_cell)
+    (source_eq := source_eq)
+    (continuousOn := continuousOn)
+    (continuousOn_symm := continuousOn_symm)
+    (pairwiseDisjoint' := pairwiseDisjoint')
+    (disjointBase' := by simp only [disjoint_empty, implies_true])
+    (mapsto := by simpa only [empty_union])
+    (isClosedBase := isClosed_empty)
+    (union' := by simpa only [empty_union])
 
 /-- A CW complex that was constructed using `CWComplex.mkFinite` is finite.-/
 lemma CWComplex.finite_mkFinite.{u} {X : Type u} [TopologicalSpace X] (C : Set X)

@@ -94,11 +94,11 @@ instance RelCWComplex.Subcomplex.instSubcomplex [T2Space X] [RelCWComplex C D] (
     subst a
     simp_all only [heq_eq_eq, Subtype.mk.injEq, forall_const, not_false_eq_true]
   disjointBase' := fun n i ↦ RelCWComplex.disjointBase' (C := C) (D := D) n i
-  mapsTo := by
+  mapsTo' := by
     intro n i
     rcases cellFrontier_subset_finite_openCell (C := C) (D := D) n i with ⟨J, hJ⟩
     use fun m ↦ Finset.preimage (J m) (fun (x : E.I m) ↦ ↑x) (by simp [InjOn])
-    rw [mapsTo']
+    rw [Set.mapsTo']
     intro x xmem
     simp_rw [iUnion_coe_set, mem_union, mem_iUnion, exists_prop, exists_and_right]
     replace hJ := hJ xmem
@@ -151,8 +151,8 @@ instance RelCWComplex.Subcomplex.instSubcomplex [T2Space X] [RelCWComplex C D] (
 
 /-- A subcomplex is again a CW-complex. -/
 instance CWComplex.Subcomplex.instSubcomplex [T2Space X] [CWComplex C] (E : Subcomplex C) :
-    CWComplex (E : Set X) :=
-  RelCWComplex.Subcomplex.instSubcomplex (C := C) E
+    CWComplex (E : Set X) where
+  __ := RelCWComplex.Subcomplex.instSubcomplex (C := C) E
 
 @[simp]
 lemma CWComplex.Subcomplex.instSubcomplex_cell [T2Space X] [CWComplex C] (E : Subcomplex C)

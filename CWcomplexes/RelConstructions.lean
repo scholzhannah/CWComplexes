@@ -54,7 +54,7 @@ def RelCWComplex.ofEq {X : Type*} [TopologicalSpace X] (C D : Set X)
   continuousOn_symm := continuousOn_symm
   pairwiseDisjoint' := pairwiseDisjoint'
   disjointBase' := hDF ▸ disjointBase'
-  mapsTo := hDF ▸ mapsTo
+  mapsTo' := hDF ▸ mapsTo'
   closed' := hCE ▸ hDF ▸ closed'
   isClosedBase := hDF ▸ isClosedBase C
   union' := hCE ▸ hDF ▸ union'
@@ -116,12 +116,12 @@ def RelCWComplex.disjointUnion [RelCWComplex C D] {E F : Set X} [RelCWComplex E 
        (disjoint.mono (openCell_subset_complex _ _) base_subset_complex)
     · exact (disjoint.symm.mono (openCell_subset_complex n cn) base_subset_complex).union_right
         (disjointBase (C := E) (D := F) _ _)
-  mapsTo n i := by
+  mapsTo' n i := by
     classical
     rcases i with ic | id
     · obtain ⟨I, hI⟩ := cellFrontier_subset_base_union_finite_closedCell n ic
       use fun m ↦ (I m).image Sum.inl
-      rw [mapsTo', union_assoc]
+      rw [Set.mapsTo', union_assoc]
       apply hI.trans
       apply union_subset_union_right
       apply subset_union_of_subset_right
@@ -129,7 +129,7 @@ def RelCWComplex.disjointUnion [RelCWComplex C D] {E F : Set X} [RelCWComplex E 
       rfl
     · obtain ⟨I, hI⟩ := cellFrontier_subset_base_union_finite_closedCell n id
       use fun m ↦ (I m).image Sum.inr
-      rw [mapsTo', union_comm D, union_assoc]
+      rw [Set.mapsTo', union_comm D, union_assoc]
       apply hI.trans
       apply union_subset_union_right
       apply subset_union_of_subset_right
@@ -171,7 +171,8 @@ def RelCWComplex.disjointUnion [RelCWComplex C D] {E F : Set X} [RelCWComplex E 
 def CWComplex.disjointUnion {E : Set X} [CWComplex C] [CWComplex E]
     (hCE : Disjoint C E) : CWComplex (C ∪ E) :=
   letI := RelCWComplex.disjointUnion hCE (SeparatedNhds.empty_left ∅)
-  RelCWComplex.ofEq (C ∪ E) (∅ ∪ ∅) rfl (empty_union ∅)
+  letI := RelCWComplex.ofEq (C ∪ E) (∅ ∪ ∅) rfl (empty_union ∅)
+  mk'
 
 lemma RelCWComplex.finiteDimensional_disjointUnion [RelCWComplex C D] {E F : Set X}
     [RelCWComplex E F] [FiniteDimensional C] [FiniteDimensional E]
@@ -300,7 +301,7 @@ def RelCWComplex.attachCell.{u} {X : Type u} [TopologicalSpace X] [T2Space X] (C
   disjointBase' m i := match i with
     | .inl j => RelCWComplex.disjointBase' m j
     | .inr hj => hj ▸ disjointBase'
-  mapsTo m i := match i with
+  mapsTo' m i := match i with
     | .inl j => by
       classical
       obtain ⟨I, hI⟩ := mapsTo m j
@@ -457,15 +458,16 @@ def CWComplex.attachCell.{u} {X : Type u} [TopologicalSpace X] [T2Space X] (C : 
     (disjoint' : ∀ m (i : cell C m), Disjoint (map' '' ball 0 1) (openCell m i))
     (mapsto' : ∃ I : Π m, Finset (cell C m),
       MapsTo map' (sphere 0 1) (⋃ (m < n) (j ∈ I m), closedCell m j)) :
-    CWComplex (map' '' closedBall 0 1 ∪ C) := RelCWComplex.attachCell C map'
-  (source_eq' := source_eq')
-  (continuousOn' := continuousOn')
-  (continuousOn_symm' := continuousOn_symm')
-  (disjoint' := disjoint')
-  (disjointBase' := disjoint_empty _)
-  (mapsto' := by
-    simp_rw [empty_union]
-    exact mapsto')
+    CWComplex (map' '' closedBall 0 1 ∪ C) where
+  __ :=  RelCWComplex.attachCell C map'
+    (source_eq' := source_eq')
+    (continuousOn' := continuousOn')
+    (continuousOn_symm' := continuousOn_symm')
+    (disjoint' := disjoint')
+    (disjointBase' := disjoint_empty _)
+    (mapsto' := by
+      simp_rw [empty_union]
+      exact mapsto')
 
 lemma CWComplex.finiteDimensional_attachCell {X : Type*} [TopologicalSpace X] [T2Space X]
     (C : Set X) [CWComplex C] [FiniteDimensional C]
@@ -614,7 +616,7 @@ def RelCWComplex.attachCells.{u} {X : Type u} [TopologicalSpace X] [T2Space X] (
   disjointBase' m j := match m, j with
     | m, .inl j => RelCWComplex.disjointBase' m j
     | _, .inr ⟨j, rfl⟩ => disjointBase' j
-  mapsTo m j := match m, j with
+  mapsTo' m j := match m, j with
     | m, .inl j => by
       classical
       obtain ⟨I, hI⟩ := mapsTo m j
@@ -782,9 +784,9 @@ def CWComplex.attachCells.{u} {X : Type u} [TopologicalSpace X] [T2Space X] (C :
     (disjoint'' : ∀ i j, i ≠ j → Disjoint (map' i '' ball 0 1) (map' j '' ball 0 1))
     (mapsto' : ∀ i, ∃ I : Π m, Finset (cell C m),
       MapsTo (map' i) (sphere 0 1) (⋃ (m < n) (j ∈ I m), closedCell m j)) :
-    CWComplex ((⋃ i, map' i '' closedBall 0 1) ∪ C) :=
-  RelCWComplex.attachCells C ∅ map' source_eq' continuousOn' continuousOn_symm' disjoint' disjoint''
-    (disjointBase' := by simp) (mapsto' := by simpa)
+    CWComplex ((⋃ i, map' i '' closedBall 0 1) ∪ C) where
+  __ := RelCWComplex.attachCells C ∅ map' source_eq' continuousOn' continuousOn_symm' disjoint'
+    disjoint'' (disjointBase' := by simp) (mapsto' := by simpa)
 
 lemma CWComplex.finiteDimensional_attachCells.{u} {X : Type u} [TopologicalSpace X] [T2Space X]
     (C : Set X) [CWComplex C] [FiniteDimensional C] {n : ℕ} {ι : Type u} [_root_.Finite ι]
@@ -910,7 +912,7 @@ def RelCWComplex.ofPartialEquiv.{u} {X Y : Type u} [TopologicalSpace X] [T2Space
     simp only [PartialEquiv.trans', PartialEquiv.restr_coe, PartialEquiv.restr_coe_symm,
       PartialEquiv.restr_target]
     apply hfC2.comp (continuousOn n i)
-    rw [mapsTo']
+    rw [Set.mapsTo']
     exact closedCell_subset_complex n i
   continuousOn_symm n i := by
     simp only [PartialEquiv.trans', PartialEquiv.restr_coe, PartialEquiv.restr_coe_symm,
@@ -918,7 +920,7 @@ def RelCWComplex.ofPartialEquiv.{u} {X Y : Type u} [TopologicalSpace X] [T2Space
     apply (continuousOn_symm n i).comp
     · apply hfE2.mono
       simp [hfE1]
-    · simp [mapsTo']
+    · simp [Set.mapsTo']
   pairwiseDisjoint' := by
     have := pairwiseDisjoint' (C := C)
     simp only [PairwiseDisjoint, Set.Pairwise, mem_univ, ne_eq, Function.onFun, forall_const,
@@ -938,10 +940,10 @@ def RelCWComplex.ofPartialEquiv.{u} {X Y : Type u} [TopologicalSpace X] [T2Space
       exact f.injOn
     · exact openCell_subset_complex _ _
     · exact base_subset_complex
-  mapsTo n i := by
+  mapsTo' n i := by
     obtain ⟨I, hI⟩ := mapsTo n i
     use I
-    rw [mapsTo'] at hI ⊢
+    rw [Set.mapsTo'] at hI ⊢
     simp only [PartialEquiv.trans'_apply, PartialEquiv.restr_coe, Function.comp_apply,
       ← image_image, ← image_iUnion (f := f), ← hDF, ← image_union]
     apply image_mono
@@ -1043,8 +1045,8 @@ def CWComplex.ofPartialEquiv.{u} {X Y : Type u} [TopologicalSpace X] [T2Space X]
     [TopologicalSpace Y] (C : Set X) (E : Set Y) [CWComplex C] (hC : IsClosed C)
     (hE : IsClosed E) (f : PartialEquiv X Y) (hfC1 : f.source = C) (hfE1 : f.target = E)
     (hfC2 : ContinuousOn f C) (hfE2 : ContinuousOn f.symm E)  :
-    CWComplex E :=
-  RelCWComplex.ofPartialEquiv C E hC hE f hfC1 hfE1 (image_empty f)  hfC2 hfE2
+    CWComplex E where
+  __ := RelCWComplex.ofPartialEquiv C E hC hE f hfC1 hfE1 (image_empty f)  hfC2 hfE2
 
 /-- `CWComplex.ofPartialEquiv` preserves finite dimensionality. -/
 lemma CWComplex.finiteDimensional_ofPartialEquiv .{u} {X Y : Type u} [TopologicalSpace X]
@@ -1125,8 +1127,8 @@ lemma RelCWComplex.finite_ofHomeomorph.{u} {X Y : Type u} [TopologicalSpace X]
 @[simps!]
 def CWComplex.ofHomeomorph.{u} {X Y : Type u} [TopologicalSpace X] [TopologicalSpace Y]
     [T2Space X] (C : Set X) (E : Set Y) [CWComplex C] (f : X ≃ₜ Y)
-    (hCE : f '' C = E) : CWComplex E :=
-  RelCWComplex.ofHomeomorph C E f hCE (image_empty ⇑f)
+    (hCE : f '' C = E) : CWComplex E where
+  __ := RelCWComplex.ofHomeomorph C E f hCE (image_empty ⇑f)
 
 lemma CWComplex.finiteDimensional_ofHomeomorph.{u} {X Y : Type u} [TopologicalSpace X]
     [TopologicalSpace Y] [T2Space X] (C : Set X) (E : Set Y) [CWComplex C] (f : X ≃ₜ Y)
@@ -1201,8 +1203,8 @@ lemma RelCWComplex.finite_enlargeNonempty [RelCWComplex (X := C) univ (C ↓∩ 
 
 @[simps!]
 def CWComplex.enlargeNonempty [CWComplex (X := C) univ] (hC : IsClosed C)
-    (hC2 : C.Nonempty) : CWComplex C :=
-  RelCWComplex.enlargeNonempty hC hC2 (empty_subset C)
+    (hC2 : C.Nonempty) : CWComplex C where
+  __ := RelCWComplex.enlargeNonempty hC hC2 (empty_subset C)
 
 lemma CWComplex.finiteDimensional_enlargeNonempty [CWComplex (X := C) univ]
     [FiniteDimensional (X := C) univ]
@@ -1236,8 +1238,8 @@ def RelCWComplex.enlarge [RelCWComplex (X := C) univ (C ↓∩ D)] (hC : IsClose
     ofEq ∅ ∅ (not_nonempty_iff_eq_empty.1 h).symm
     (subset_eq_empty hDC (not_nonempty_iff_eq_empty.1 h)).symm
 
-def CWComplex.enlarge [CWComplex (X := C) univ] (hC : IsClosed C) : CWComplex C :=
-  RelCWComplex.enlarge hC (empty_subset C)
+def CWComplex.enlarge [CWComplex (X := C) univ] (hC : IsClosed C) : CWComplex C where
+  __ := RelCWComplex.enlarge hC (empty_subset C)
 
 open Set.Notation in
 lemma RelCWComplex.enlarge_eq_enlargeNonempty [RelCWComplex (X := C) univ (C ↓∩ D)]
@@ -1248,7 +1250,7 @@ lemma RelCWComplex.enlarge_eq_enlargeNonempty [RelCWComplex (X := C) univ (C ↓
 lemma CWComplex.enlarge_eq_enlargeNonempty [CWComplex (X := C) univ]
     (hC : IsClosed C) (hC2 : C.Nonempty) :
     enlarge hC = enlargeNonempty hC hC2 :=
-  RelCWComplex.enlarge_eq_enlargeNonempty ..
+  congrArg _ (RelCWComplex.enlarge_eq_enlargeNonempty hC hC2 (empty_subset C))
 
 open Set.Notation in
 lemma RelCWComplex.enlarge_eq_empty [RelCWComplex (X := C) univ (C ↓∩ D)]
@@ -1260,8 +1262,9 @@ lemma RelCWComplex.enlarge_eq_empty [RelCWComplex (X := C) univ (C ↓∩ D)]
 
 lemma CWComplex.enlarge_eq_empty [CWComplex (X := C) univ]
     (hC : IsClosed C) (hC2 : ¬ C.Nonempty) :
-    enlarge hC = RelCWComplex.ofEq ∅ ∅ (not_nonempty_iff_eq_empty.1 hC2).symm rfl :=
-  RelCWComplex.enlarge_eq_empty hC hC2 (empty_subset C)
+    letI := RelCWComplex.ofEq ∅ ∅ (not_nonempty_iff_eq_empty.1 hC2).symm rfl
+    enlarge hC = mk' :=
+  congrArg _ (RelCWComplex.enlarge_eq_empty hC hC2 (empty_subset C))
 
 open Set.Notation Classical in
 lemma RelCWComplex.finiteDimensional_enlarge [RelCWComplex (X := C) univ (C ↓∩ D)]

@@ -148,14 +148,14 @@ instance RelCWComplex.Product [RelCWComplex C D] [RelCWComplex E F] [KSpace (X �
     intro ⟨m, l, hml, i, j⟩
     simp [prodmap_image_ball, disjoint_iff_inter_eq_empty, inter_union_distrib_left,
       prod_inter_prod, (disjointBase _ _).inter_eq]
-  mapsTo n i := by
+  mapsTo' n i := by
     -- We first use `prodmap_image_sphere` to write the edge of the cell as a union.
     -- We then use `exists_and_iff_of_monotone` to show that we can verify the
     -- statement seperately for the two parts of the union.
     -- We then do two completely symmetric proofs.
     classical
     rcases i with ⟨m, l, hmln, j, k⟩
-    simp_rw [mapsTo', prodmap_image_sphere, union_subset_iff]
+    simp_rw [Set.mapsTo', prodmap_image_sphere, union_subset_iff]
     rw [← exists_and_iff_of_monotone]
     swap
     · refine fun J K JleK sub ↦ sub.trans ?_
@@ -301,8 +301,8 @@ instance RelCWComplex.Product [RelCWComplex C D] [RelCWComplex E F] [KSpace (X �
   CW-complex.-/
 @[simps!]
 instance CWComplex.Product [CWComplex C] [CWComplex E] [KSpace (X × Y)] :
-    CWComplex (C ×ˢ E) :=
-  ofEq (C ×ˢ E) (∅ ×ˢ E ∪ C ×ˢ ∅) rfl (by simp)
+    CWComplex (C ×ˢ E) where
+  __ := ofEq (C ×ˢ E) (∅ ×ˢ E ∪ C ×ˢ ∅) rfl (by simp)
 
 instance RelCWComplex.finiteDimensional_product [KSpace (X × Y)] [RelCWComplex C D]
     [RelCWComplex E F] [FiniteDimensional C] [FiniteDimensional E] :
@@ -353,7 +353,8 @@ instance CWComplex.finiteDimensional_product [KSpace (X × Y)] [CWComplex C] [CW
     [FiniteDimensional C] [FiniteDimensional E] : FiniteDimensional (C ×ˢ E) :=
   -- why does it not find this instance itself?
   letI := RelCWComplex.Product (C := C) (E := E)
-  finiteDimensional_ofEq ..
+  letI := mk'
+  have := finiteDimensional_ofEq ..
 
 instance CWComplex.finiteType_product [KSpace (X × Y)] [CWComplex C] [CWComplex E]
     [FiniteType C] [FiniteType E] : FiniteType (C ×ˢ E) :=
