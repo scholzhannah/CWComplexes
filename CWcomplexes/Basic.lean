@@ -473,7 +473,7 @@ namespace RelCWComplex
 
 /-- A subcomplex is a closed subspace of a CW-complex that is the union of open cells of the
   CW-complex.-/
-class Subcomplex (C : Set X) {D : Set X} [RelCWComplex C D] where
+structure Subcomplex (C : Set X) {D : Set X} [RelCWComplex C D] where
   carrier : Set X
   /-- The indexing set of cells of the subcomplex.-/
   I : Π n, Set (cell C n)
@@ -509,9 +509,9 @@ lemma coe_eq_carrier {E : Subcomplex C} : (E : Set X) = E.carrier := rfl
 equalities. See Note [range copy pattern]. -/
 protected def copy (E : Subcomplex C) (F : Set X) (hF : F = E) : Subcomplex C :=
   { carrier := F
-    I := I
-    closed' := hF.symm ▸ closed'
-    union' := hF.symm ▸ union' }
+    I := E.I
+    closed' := hF.symm ▸ E.closed'
+    union' := hF.symm ▸ E.union' }
 
 @[simp] lemma coe_copy (E : Subcomplex C) (F : Set X) (hF : F = E) :
   (E.copy F hF : Set X) = F := rfl
@@ -520,11 +520,11 @@ lemma copy_eq (E : Subcomplex C) (F : Set X) (hF : F = E) : E.copy F hF = E :=
   SetLike.coe_injective hF
 
 lemma union (E : Subcomplex C) :
-    D ∪ ⋃ (n : ℕ) (j : I n), openCell (C := C) (D := D) n j.1 = E := by
+    D ∪ ⋃ (n : ℕ) (j : E.I n), openCell (C := C) (D := D) n j.1 = E := by
   rw [E.union']
   rfl
 
-lemma closed (E : Subcomplex C) : IsClosed (E : Set X) := closed'
+lemma closed (E : Subcomplex C) : IsClosed (E : Set X) := E.closed'
 
 end Subcomplex
 
@@ -542,7 +542,7 @@ export RelCWComplex.Subcomplex (I closed union mem_carrier coe_eq_carrier mem ex
 end CWComplex.Subcomplex
 
 lemma CWComplex.Subcomplex.union {C : Set X} [CWComplex C] {E : Subcomplex C} :
-    ⋃ (n : ℕ) (j : I (C := C) (D := ∅) n), openCell (C := C) n j = E := by
+    ⋃ (n : ℕ) (j : E.I n), openCell (C := C) n j = E := by
   have := RelCWComplex.Subcomplex.union E (C := C) (D := ∅)
   rw [empty_union] at this
   exact this
@@ -634,6 +634,7 @@ This allows the base case of induction to be about the base instead of being abo
 the base and some points.
 The standard `skeleton` is defined in terms of `skeletonLT`. `skeletonLT` is preferred
 in statements. You should then derive the statement about `skeleton`. -/
+@[simps!]
 abbrev skeletonLT (C : Set X) {D : Set X} [RelCWComplex C D] (n : ℕ∞) : Subcomplex C :=
     Subcomplex.mk' _ (D ∪ ⋃ (m : ℕ) (_ : m < n) (j : cell C m), closedCell m j)
     (fun l ↦ {x : cell C l | l < n})
@@ -651,6 +652,7 @@ abbrev skeletonLT (C : Set X) {D : Set X} [RelCWComplex C D] (n : ℕ∞) : Subc
 
 /-- The `n`-skeleton of a CW complex, for `n ∈ ℕ ∪ {∞}`. For statements use `skeletonLT` instead
 and then derive the statement about `skeleton`. -/
+@[simps!]
 abbrev skeleton (C : Set X) {D : Set X} [RelCWComplex C D] (n : ℕ∞) : Subcomplex C :=
   skeletonLT C (n + 1)
 
@@ -666,7 +668,8 @@ end RelCWComplex
 
 namespace CWComplex
 
-export RelCWComplex (skeletonLT skeleton skeletonLT_def skeleton_def)
+export RelCWComplex (skeletonLT skeletonLT_carrier skeletonLT_I skeleton skeleton_carrier skeleton_I
+  skeletonLT_def skeleton_def)
 
 end CWComplex
 
