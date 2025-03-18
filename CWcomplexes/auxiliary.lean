@@ -15,33 +15,6 @@ noncomputable section
 
 /-! ### Topology -/
 
--- write an equivalence version
-
---**PR**
-lemma isClosed_left_of_isClosed_union {X : Type*} [TopologicalSpace X] {A B : Set X}
-    (hAB : SeparatedNhds A B) (hAB' : IsClosed (A ∪ B)) : IsClosed A := by
-  obtain ⟨U, V, hU, hV, hAU, hBV, hUV⟩ := hAB
-  rw [← isOpen_compl_iff] at hAB' ⊢
-  suffices Aᶜ = (A ∪ B)ᶜ ∪ V from this ▸ hAB'.union hV
-  have : B ∩ Vᶜ = ∅ := by aesop
-  rw [← compl_inj_iff, Set.compl_union, compl_compl, compl_compl, Set.union_inter_distrib_right,
-    this, Set.union_empty, Set.left_eq_inter, Set.subset_compl_comm]
-  exact (hUV.mono_left hAU).subset_compl_left
-
--- used in constructions
---**PR**
-lemma isClosed_right_of_isClosed_union {X : Type*} [TopologicalSpace X] {A B : Set X}
-    (hAB : SeparatedNhds A B) (closedAB : IsClosed (A ∪ B)) : IsClosed B :=
-  isClosed_left_of_isClosed_union hAB.symm (Set.union_comm _ _ ▸ closedAB)
-
--- completeness
---**PR**
-lemma isClosed_union_iff_isClosed {X : Type*} [TopologicalSpace X] {A B : Set X}
-    (hAB : SeparatedNhds A B) : IsClosed (A ∪ B) ↔ IsClosed A ∧ IsClosed B :=
-  ⟨fun h ↦ ⟨isClosed_left_of_isClosed_union hAB h, isClosed_right_of_isClosed_union hAB h⟩,
-    fun ⟨h1, h2⟩ ↦ h1.union h2⟩
-
-
 /-! ### PartialEquiv-/
 
 -- needed in this file
@@ -317,7 +290,7 @@ lemma stereographic'_symm_tendsto {n : ℕ} (α : Filter (EuclideanSpace ℝ (Fi
 /-- This is just a preliminary lemma showing the continuity of the map we are about to define.-/
 lemma continuous_normScale {E F : Type*}  [SeminormedAddCommGroup E] [T1Space E]
     [NormedAddCommGroup F] [MulActionWithZero ℝ F]
-    {f : E → F} (hf : Continuous f) [ContinuousSMul ℝ F] [BoundedSMul ℝ F]
+    {f : E → F} (hf : Continuous f) [ContinuousSMul ℝ F] [IsBoundedSMul ℝ F]
     (hf0 : ∀ x, f x = 0 ↔ x = 0) :
     Continuous fun x ↦ (‖x‖ * ‖f x‖⁻¹) • (f x) := by
   rw [continuous_iff_continuousOn_univ, ← diff_union_of_subset (subset_univ {0})]
@@ -354,8 +327,8 @@ lemma continuous_normScale {E F : Type*}  [SeminormedAddCommGroup E] [T1Space E]
   Unfortunatly this does not preserve distances so this is not an isometry
   (in fact such an isometry generally does not exist). -/
 def normScale {E F : Type*}  [NormedAddCommGroup E] [T1Space E] [Module ℝ E]
-    [ContinuousSMul ℝ E] [BoundedSMul ℝ E] [NormedAddCommGroup F] [Module ℝ F] [T1Space F]
-    [ContinuousSMul ℝ F] [BoundedSMul ℝ F] (f : E ≃L[ℝ] F) : E ≃ₜ F where
+    [ContinuousSMul ℝ E] [IsBoundedSMul ℝ E] [NormedAddCommGroup F] [Module ℝ F] [T1Space F]
+    [ContinuousSMul ℝ F] [IsBoundedSMul ℝ F] (f : E ≃L[ℝ] F) : E ≃ₜ F where
   toFun x := (‖x‖ * ‖f x‖⁻¹) • (f x)
   invFun y := (‖y‖ * ‖f.symm y‖⁻¹) • (f.symm y)
   left_inv x := by
@@ -399,16 +372,16 @@ def normScale {E F : Type*}  [NormedAddCommGroup E] [T1Space E] [Module ℝ E]
 /-- `normScale` preserves the zero. -/
 @[simp]
 lemma normScale_zero {E F : Type*}  [NormedAddCommGroup E] [T1Space E] [Module ℝ E]
-    [ContinuousSMul ℝ E] [BoundedSMul ℝ E] [NormedAddCommGroup F] [Module ℝ F] [T1Space F]
-    [ContinuousSMul ℝ F] [BoundedSMul ℝ F] (f : E ≃L[ℝ] F) :
+    [ContinuousSMul ℝ E] [IsBoundedSMul ℝ E] [NormedAddCommGroup F] [Module ℝ F] [T1Space F]
+    [ContinuousSMul ℝ F] [IsBoundedSMul ℝ F] (f : E ≃L[ℝ] F) :
     normScale f 0 = 0 := by
   simp [normScale]
 
 /-- `normScale` is norm-preserving. -/
 @[simp]
 lemma norm_normScale {E F : Type*}  [NormedAddCommGroup E] [T1Space E] [Module ℝ E]
-    [ContinuousSMul ℝ E] [BoundedSMul ℝ E] [NormedAddCommGroup F] [Module ℝ F] [T1Space F]
-    [ContinuousSMul ℝ F] [BoundedSMul ℝ F] (f : E ≃L[ℝ] F) {x : E} : ‖normScale f x‖ = ‖x‖ := by
+    [ContinuousSMul ℝ E] [IsBoundedSMul ℝ E] [NormedAddCommGroup F] [Module ℝ F] [T1Space F]
+    [ContinuousSMul ℝ F] [IsBoundedSMul ℝ F] (f : E ≃L[ℝ] F) {x : E} : ‖normScale f x‖ = ‖x‖ := by
   simp only [normScale, Homeomorph.homeomorph_mk_coe, Equiv.coe_fn_mk, norm_smul, norm_mul,
     Real.norm_eq_abs, abs_norm, norm_inv, mul_assoc]
   by_cases h : x = 0
@@ -421,8 +394,8 @@ lemma norm_normScale {E F : Type*}  [NormedAddCommGroup E] [T1Space E] [Module �
 /-- The inverse of `normScale` of the continuous linear bijection `f` is just
   `normScale` of the inverse of `f`. -/
 lemma normScale_symm_eq {E F : Type*}  [NormedAddCommGroup E] [T1Space E] [Module ℝ E]
-    [ContinuousSMul ℝ E] [BoundedSMul ℝ E] [NormedAddCommGroup F] [Module ℝ F] [T1Space F]
-    [ContinuousSMul ℝ F] [BoundedSMul ℝ F] (f : E ≃L[ℝ] F) :
+    [ContinuousSMul ℝ E] [IsBoundedSMul ℝ E] [NormedAddCommGroup F] [Module ℝ F] [T1Space F]
+    [ContinuousSMul ℝ F] [IsBoundedSMul ℝ F] (f : E ≃L[ℝ] F) :
     (normScale f).symm = normScale f.symm := by
   ext
   simp [normScale]
@@ -430,8 +403,8 @@ lemma normScale_symm_eq {E F : Type*}  [NormedAddCommGroup E] [T1Space E] [Modul
 /-- `normScale` preserves closed balls.-/
 @[simp]
 lemma normScale_image_closedBall {E F : Type*}  [NormedAddCommGroup E] [T1Space E] [Module ℝ E]
-    [ContinuousSMul ℝ E] [BoundedSMul ℝ E] [NormedAddCommGroup F] [Module ℝ F] [T1Space F]
-    [ContinuousSMul ℝ F] [BoundedSMul ℝ F] (f : E ≃L[ℝ] F) (r : ℝ) :
+    [ContinuousSMul ℝ E] [IsBoundedSMul ℝ E] [NormedAddCommGroup F] [Module ℝ F] [T1Space F]
+    [ContinuousSMul ℝ F] [IsBoundedSMul ℝ F] (f : E ≃L[ℝ] F) (r : ℝ) :
     normScale f '' closedBall 0 r = closedBall 0 r := by
   ext x
   simp only [mem_image, mem_closedBall, dist_zero_right]
@@ -448,8 +421,8 @@ lemma normScale_image_closedBall {E F : Type*}  [NormedAddCommGroup E] [T1Space 
 /-- `normScale` preserves balls. -/
 @[simp]
 lemma normScale_image_ball {E F : Type*}  [NormedAddCommGroup E] [T1Space E] [Module ℝ E]
-    [ContinuousSMul ℝ E] [BoundedSMul ℝ E] [NormedAddCommGroup F] [Module ℝ F] [T1Space F]
-    [ContinuousSMul ℝ F] [BoundedSMul ℝ F] (f : E ≃L[ℝ] F) (r : ℝ) :
+    [ContinuousSMul ℝ E] [IsBoundedSMul ℝ E] [NormedAddCommGroup F] [Module ℝ F] [T1Space F]
+    [ContinuousSMul ℝ F] [IsBoundedSMul ℝ F] (f : E ≃L[ℝ] F) (r : ℝ) :
     normScale f '' ball 0 r = ball 0 r := by
   ext x
   simp only [mem_image, mem_ball, dist_zero_right]
@@ -466,8 +439,8 @@ lemma normScale_image_ball {E F : Type*}  [NormedAddCommGroup E] [T1Space E] [Mo
 /-- `normScale` preserves spheres. -/
 @[simp]
 lemma normScale_image_sphere {E F : Type*}  [NormedAddCommGroup E] [T1Space E] [Module ℝ E]
-    [ContinuousSMul ℝ E] [BoundedSMul ℝ E] [NormedAddCommGroup F] [Module ℝ F] [T1Space F]
-    [ContinuousSMul ℝ F] [BoundedSMul ℝ F] (f : E ≃L[ℝ] F) (r : ℝ) :
+    [ContinuousSMul ℝ E] [IsBoundedSMul ℝ E] [NormedAddCommGroup F] [Module ℝ F] [T1Space F]
+    [ContinuousSMul ℝ F] [IsBoundedSMul ℝ F] (f : E ≃L[ℝ] F) (r : ℝ) :
     normScale f '' sphere 0 r = sphere 0 r := by
   ext x
   simp only [mem_image, mem_sphere, dist_zero_right]
@@ -617,20 +590,6 @@ lemma isClosed_plane (n : ℕ) :
   We use `Fin.init` to construct the map `discToSphereUp` and therefore need some more information
   about it. -/
 
--- **PR** of something similar
-/-- `Fin.init` is continuous. -/
-lemma Continuous.finInit {n : ℕ} {α : Type*} [PseudoMetricSpace α] :
-    Continuous (Fin.init : (Fin (n + 1) → α) → (Fin n → α)) := by
-  rw [Metric.continuous_iff]
-  intro b ε hε
-  use ε, hε
-  intro a hab
-  suffices dist (Fin.init a) (Fin.init b) ≤ dist a b from lt_of_le_of_lt this hab
-  simp only [dist_pi_def, Fin.init, NNReal.coe_le_coe, Finset.sup_le_iff, Finset.mem_univ,
-    forall_const]
-  intro c
-  exact Finset.le_sup (Finset.mem_univ c.castSucc) (f := fun x ↦ nndist (a x) (b x))
-
 -- I am not sure where the next three would go
 
 /-- The euclidean norm of `Fin.init` is less then or equal to the euclidean norm of the element. -/
@@ -694,7 +653,7 @@ lemma PartialEquiv.continuous_EuclideanSpaceSucc (n : ℕ) :
 lemma PartialEquiv.continuous_EuclideanSpaceSucc_symm (n : ℕ) :
     Continuous (EuclideanSpaceSucc n).symm := by
   simp only [EuclideanSpaceSucc, PartialEquiv.coe_symm_mk]
-  exact Continuous.finInit
+  exact Continuous.finInit continuous_id'
 
 /-- The image of the sphere under `PartialEquiv.EuclideanSpaceSucc` is the sphere intersected
   with the hyperplane with last coordinate zero. -/

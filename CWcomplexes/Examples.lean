@@ -778,7 +778,7 @@ lemma continuous_discToSphereUp (n : ℕ) : Continuous (discToSphereUp n) := by
 
 /-- The inverse of `discToSphereUp` is continuous. -/
 lemma continuous_discToSphereUp_symm (n : ℕ) : Continuous (discToSphereUp n).symm :=
-  Continuous.finInit
+  continuous_id.finInit
 
 /-- The image of the sphere in dimension `n` under `discToSphereUp` is the 'equator' of the
   sphere in dimension `n + 1`, i.e. the sphere intersected with the hyperplane where the last

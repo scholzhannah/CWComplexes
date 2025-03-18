@@ -153,14 +153,14 @@ def RelCWComplex.disjointUnion [RelCWComplex C D] {E F : Set X} [RelCWComplex E 
         rw [inter_right_comm]
         exact (h1 n (Sum.inl j)).inter (isClosed (D := D))
       · rw [inter_assoc, (inter_eq_right (s := C)).2 base_subset_complex]
-        exact isClosed_left_of_isClosed_union this h2
+        exact SeparatedNhds.isClosed_left_of_isClosed_union this h2
     · rw [closed E (A ∩ E) inter_subset_right]
       constructor
       · intro n j
         rw [inter_right_comm]
         exact (h1 n (Sum.inr j)).inter (isClosed (D := F))
       · rw [inter_assoc, (inter_eq_right (s := E)).2 base_subset_complex]
-        exact isClosed_right_of_isClosed_union this h2
+        exact SeparatedNhds.isClosed_right_of_isClosed_union this h2
   isClosedBase := (isClosedBase C).union (isClosedBase E)
   union' := by
     simp_rw [← union (C := C) (D := D), ← union (C := E) (D := F), ← union_assoc,
