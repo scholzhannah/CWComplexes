@@ -304,7 +304,7 @@ def RelCWComplex.attachCell.{u} {X : Type u} [TopologicalSpace X] [T2Space X] (C
   mapsTo' m i := match i with
     | .inl j => by
       classical
-      obtain ⟨I, hI⟩ := mapsTo m j
+      obtain ⟨I, hI⟩ := mapsTo' m j
       use fun m ↦ (I m).image .inl
       simp [hI]
     | .inr hj => by
@@ -619,7 +619,7 @@ def RelCWComplex.attachCells.{u} {X : Type u} [TopologicalSpace X] [T2Space X] (
   mapsTo' m j := match m, j with
     | m, .inl j => by
       classical
-      obtain ⟨I, hI⟩ := mapsTo m j
+      obtain ⟨I, hI⟩ := mapsTo' m j
       use fun l ↦ (I l).image .inl
       simp [hI]
     | _, .inr ⟨j, rfl⟩ => by
@@ -941,7 +941,7 @@ def RelCWComplex.ofPartialEquiv.{u} {X Y : Type u} [TopologicalSpace X] [T2Space
     · exact openCell_subset_complex _ _
     · exact base_subset_complex
   mapsTo' n i := by
-    obtain ⟨I, hI⟩ := mapsTo n i
+    obtain ⟨I, hI⟩ := mapsTo' n i
     use I
     rw [Set.mapsTo'] at hI ⊢
     simp only [PartialEquiv.trans'_apply, PartialEquiv.restr_coe, Function.comp_apply,

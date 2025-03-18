@@ -159,14 +159,16 @@ protected lemma finite_instIccLT' {a b : ℝ} (hab : a < b) :
   finite_attachCellFiniteType ..
 
 /-- A (non-degenerate closed interval is a CW-complex.-/
-def instIccLT {a b : ℝ} (hab : a < b) : CWComplex (Icc a b : Set ℝ) :=
-  let _ := CWComplex.instIccLT' hab
-  ofEq (mapLTPartial hab '' closedBall 0 1 ∪ {a, b}) ∅
-    (by
-      rw [mapLTPartial_image, mapLT_image_closedBall, union_eq_left, pair_subset_iff, left_mem_Icc,
-        right_mem_Icc, and_self]
-      exact hab.le)
-    rfl
+def instIccLT {a b : ℝ} (hab : a < b) : CWComplex (Icc a b : Set ℝ) where
+  __ :=
+    letI := CWComplex.instIccLT' hab
+    ofEq (mapLTPartial hab '' closedBall 0 1 ∪ {a, b}) ∅
+      (by
+        rw [mapLTPartial_image, mapLT_image_closedBall, union_eq_left, pair_subset_iff,
+          left_mem_Icc,
+          right_mem_Icc, and_self]
+        exact hab.le)
+      rfl
 
 /-- The Cw-complex structure on a (non-degenerate) closed interval is finite. -/
 lemma finite_instIccLT {a b : ℝ} (hab : a < b) :
@@ -337,8 +339,8 @@ instance finiteDimensional_instReal : FiniteDimensional (univ : Set ℝ) where
 
 /-- The sphere in dimension zero is a CW-complex. -/
 @[simps!]
-def SphereZero (x : EuclideanSpace ℝ (Fin 0)) (ε : ℝ) (h : ε ≠ 0) : CWComplex (sphere x ε) :=
-  ofEq ∅ ∅ (E := (sphere x ε)) (sphere_eq_empty_of_subsingleton h).symm rfl
+def SphereZero (x : EuclideanSpace ℝ (Fin 0)) (ε : ℝ) (h : ε ≠ 0) : CWComplex (sphere x ε) where
+  __ := ofEq ∅ ∅ (E := (sphere x ε)) (sphere_eq_empty_of_subsingleton h).symm rfl
 
 /-- The CW-complex structure on the sphere in dimension zero  is finite. -/
 lemma finite_SphereZero (x : EuclideanSpace ℝ (Fin 0)) (ε : ℝ) (h : ε ≠ 0) :
@@ -356,8 +358,8 @@ lemma isEmpty_cell_SphereZero (x : EuclideanSpace ℝ (Fin 0)) (ε : ℝ) (h : �
   cases m <;> (rw [CWComplex.instEmpty_cell]; infer_instance)
 
 /-- The sphere in dimension 1 is a CW-complex. -/
-def SphereOne (x ε : ℝ) (hε : ε ≥ 0) : CWComplex (sphere x ε) :=
-  RelCWComplex.ofEq {x - ε, x + ε} ∅ (by
+def SphereOne (x ε : ℝ) (hε : ε ≥ 0) : CWComplex (sphere x ε) where
+  __ := RelCWComplex.ofEq {x - ε, x + ε} ∅ (by
     ext y
     simp [abs_eq hε]
     rw[or_comm]
@@ -657,15 +659,17 @@ lemma finite_instSphereGT' (n : ℕ) (h : n > 0) :
 /-- The sphere in dimension at least 1 is a CW-complex. -/
 --@[simps!]
 def instSphereGT (n : ℕ) (h : n > 0) :
-    CWComplex (sphere 0 1 : Set (EuclideanSpace ℝ (Fin (n + 1)))) :=
-  let _ := instSphereGT' n h
-  ofEq (E := sphere 0 1)
-  ((spheremap n) '' closedBall 0 1 ∪ {EuclideanSpace.single (Fin.last n) 1}) ∅
-  (by
-    simp only [spheremap, Equiv.transPartialEquiv_apply, Homeomorph.coe_toEquiv, ← image_image,
-      toEuclideanNormScale_image_closedBall, sphereToDisc_symm_image_closedBall n h, union_eq_left,
-      singleton_subset_iff, mem_sphere_iff_norm, sub_zero, EuclideanSpace.norm_single, norm_one])
-  rfl
+    CWComplex (sphere 0 1 : Set (EuclideanSpace ℝ (Fin (n + 1)))) where
+  __ :=
+    letI := instSphereGT' n h
+    ofEq (E := sphere 0 1)
+    ((spheremap n) '' closedBall 0 1 ∪ {EuclideanSpace.single (Fin.last n) 1}) ∅
+    (by
+      simp only [spheremap, Equiv.transPartialEquiv_apply, Homeomorph.coe_toEquiv, ← image_image,
+        toEuclideanNormScale_image_closedBall, sphereToDisc_symm_image_closedBall n h,
+        union_eq_left, singleton_subset_iff, mem_sphere_iff_norm, sub_zero,
+        EuclideanSpace.norm_single, norm_one])
+    rfl
 
 /-- The CW-complex structure on the sphere in dimension at least 1 is finite. -/
 lemma finite_instSphereGT (n : ℕ) (h : n > 0) :
@@ -1116,36 +1120,38 @@ lemma isEmpty_cell_SphereInductStep' (n : ℕ)
 def SphereInductStep (n : ℕ) [CWComplex (sphere (0 : EuclideanSpace ℝ (Fin n)) 1)]
     [Finite (sphere (0 : EuclideanSpace ℝ (Fin n)) 1)]
     (h : ∀ m ≥ n, IsEmpty (cell (sphere (0 : EuclideanSpace ℝ (Fin n)) 1) m)) :
-    CWComplex (sphere 0 1 : Set (EuclideanSpace ℝ (Fin (n + 1)))) :=
-  letI := SphereInductStep' n h
-  ofEq
-    ((⋃ (i : Fin 2), spheremaps n i '' (closedBall 0 1)) ∪ (sphere 0 1 ∩ {x | x (Fin.last n) = 0}))
-    ∅
-    (E := sphere 0 1)
-    (by
-      apply subset_antisymm
-      · apply union_subset
-        · apply iUnion_subset
-          exact fun i ↦ match i with
-            | 0 => by
-              simp only [Fin.isValue, spheremaps, spheremapup_image_closedBall]
-              exact inter_subset_left
-            | 1 => by
-              simp only [Fin.isValue, spheremaps, spheremapdown_image_closedBall]
-              exact inter_subset_left
-        · exact inter_subset_left
-      · intro x hx
-        left
-        rw [mem_iUnion]
-        by_cases hx' : x (Fin.last n) ≥ 0
-        · use 0
-          simp only [spheremaps, spheremapup_image_closedBall, ge_iff_le, mem_inter_iff, hx,
-            mem_setOf_eq, hx', and_self]
-        · use 1
-          simp only [ge_iff_le, not_le] at hx'
-          simp only [spheremaps, spheremapdown_image_closedBall, ge_iff_le, mem_inter_iff, hx,
-            mem_setOf_eq, hx'.le, and_self])
-    rfl
+    CWComplex (sphere 0 1 : Set (EuclideanSpace ℝ (Fin (n + 1)))) where
+  __ :=
+    letI := SphereInductStep' n h
+    ofEq
+      ((⋃ (i : Fin 2),
+        spheremaps n i '' (closedBall 0 1)) ∪ (sphere 0 1 ∩ {x | x (Fin.last n) = 0}))
+      ∅
+      (E := sphere 0 1)
+      (by
+        apply subset_antisymm
+        · apply union_subset
+          · apply iUnion_subset
+            exact fun i ↦ match i with
+              | 0 => by
+                simp only [Fin.isValue, spheremaps, spheremapup_image_closedBall]
+                exact inter_subset_left
+              | 1 => by
+                simp only [Fin.isValue, spheremaps, spheremapdown_image_closedBall]
+                exact inter_subset_left
+          · exact inter_subset_left
+        · intro x hx
+          left
+          rw [mem_iUnion]
+          by_cases hx' : x (Fin.last n) ≥ 0
+          · use 0
+            simp only [spheremaps, spheremapup_image_closedBall, ge_iff_le, mem_inter_iff, hx,
+              mem_setOf_eq, hx', and_self]
+          · use 1
+            simp only [ge_iff_le, not_le] at hx'
+            simp only [spheremaps, spheremapdown_image_closedBall, ge_iff_le, mem_inter_iff, hx,
+              mem_setOf_eq, hx'.le, and_self])
+      rfl
 
 /-- If the sphere in dimension `n` is a finite CW-complex that has no cells in dimension
   `n` or higher, then the CW-complex structure on the sphere in dimension `n + 1` is finite. -/
