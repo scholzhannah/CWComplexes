@@ -17,6 +17,7 @@ noncomputable section
 
 /-! ### PartialEquiv-/
 
+--**PR**
 -- needed in this file
 /-- A partial bijection that is continuous on the source and the target restricts to a
 homeomorphism.-/
@@ -26,25 +27,20 @@ def PartialEquiv.toHomeomorph {α β : Type*} [TopologicalSpace α]
     (he2 : ContinuousOn e.symm e.target) : e.source ≃ₜ e.target where
   toFun := e.toEquiv
   invFun := e.toEquiv.symm
-  left_inv x := by simp
-  right_inv y := by simp
+  left_inv := e.toEquiv.symm_apply_apply
+  right_inv := e.toEquiv.apply_symm_apply
   continuous_toFun := by
-    simp only [PartialEquiv.toEquiv, Equiv.coe_fn_mk]
     apply Continuous.subtype_mk
-    have : (fun (x : e.source) ↦ e ↑x) = e.source.restrict e := by
-      ext
-      simp
-    rw [this, ← continuousOn_iff_continuous_restrict]
+    change Continuous (e.source.restrict e)
+    rw [← continuousOn_iff_continuous_restrict]
     exact he1
   continuous_invFun := by
-    simp only [PartialEquiv.toEquiv, Equiv.coe_fn_mk]
     apply Continuous.subtype_mk
-    have : (fun (x : e.target) ↦ e.symm ↑x) = e.target.restrict e.symm := by
-      ext
-      simp
-    rw [this, ← continuousOn_iff_continuous_restrict]
+    change Continuous (e.target.restrict e.symm)
+    rw [← continuousOn_iff_continuous_restrict]
     exact he2
 
+--**PR**
 -- needed in constructions file
 open Set in
 /-- A partial bijection that is continuous on both source and target and where the source and
@@ -53,44 +49,24 @@ lemma PartialEquiv.isClosed_of_isClosed_preimage {X Y : Type*} [TopologicalSpace
     [TopologicalSpace Y] (e : PartialEquiv X Y) (h1 : ContinuousOn e e.source)
     (h2 : ContinuousOn e.symm e.target) (he1 : IsClosed e.target) (he2 : IsClosed e.source)
     (A : Set Y) (hAe : A ⊆ e.target) (hA : IsClosed (e.source ∩ e ⁻¹' A)) : IsClosed A := by
-  rw [← inter_eq_right.2 hAe]
-  rw [← he1.inter_preimage_val_iff]
-  let g : e.source ≃ₜ e.target := e.toHomeomorph h1 h2
-  rw [← g.isClosed_preimage]
-  have : ⇑g ⁻¹' (Subtype.val ⁻¹' A) = e.source ∩ ↑e ⁻¹' A := by
-    ext x
-    simp [mem_image, mem_preimage, PartialEquiv.toHomeomorph_apply, Subtype.exists,
-      exists_and_right, exists_eq_right, mem_inter_iff, g, PartialEquiv.toEquiv, and_comm]
-  rw [Topology.IsClosedEmbedding.isClosed_iff_image_isClosed he2.isClosedEmbedding_subtypeVal, this]
-  exact hA
+  rw [← inter_eq_right.2 hAe, ← he1.inter_preimage_val_iff,
+    ← (e.toHomeomorph h1 h2).isClosed_preimage,
+    he2.isClosedEmbedding_subtypeVal.isClosed_iff_image_isClosed]
+  convert hA
+  ext
+  simp [PartialEquiv.toEquiv, and_comm]
 
 /-! ### Random-/
 
+--**PR**
 -- needed in product file
-/-- Dependent product of types is associative up to an equivalence. -/
+/-- Dependent product of sorts is associative up to an equivalence. -/
 def pSigmaAssoc {α : Sort*} {β : α → Sort*} (γ : ∀ a : α, β a → Sort*) :
     (Σ' ab : Σ' a : α, β a, γ ab.1 ab.2) ≃ Σ' a : α, Σ' b : β a, γ a b where
   toFun x := ⟨x.1.1, ⟨x.1.2, x.2⟩⟩
   invFun x := ⟨⟨x.1, x.2.1⟩, x.2.2⟩
   left_inv _ := rfl
   right_inv _ := rfl
-
-theorem ENat.lt_add_one_iff' {m n : ℕ∞} (hm : m ≠ ⊤) : m < n + 1 ↔ m ≤ n := by
-  obtain ⟨l, hl⟩ := ENat.ne_top_iff_exists.1 hm
-  subst m
-  cases n
-  · simp
-  · rw [← Nat.cast_one, ← Nat.cast_add, Nat.cast_lt, Nat.cast_le, Order.lt_add_one_iff]
-
--- not needed anymore but probably still good to contribute?
-@[elab_as_elim]
-theorem ENat.nat_strong_induction {P : ℕ∞ → Prop} (a : ℕ∞) (h0 : P 0)
-    (hsuc : ∀ n : ℕ, (∀ m (_ : m ≤ n), P m) → P n.succ)
-    (htop : (∀ n : ℕ, P n) → P ⊤) : P a := by
-  have A : ∀ n : ℕ, P n := fun n => Nat.caseStrongRecOn n h0 hsuc
-  cases a
-  · exact htop A
-  · exact A _
 
 /-! ### Auxiliary stuff for spheres-/
 
