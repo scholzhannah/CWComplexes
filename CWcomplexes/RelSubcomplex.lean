@@ -164,6 +164,26 @@ lemma CWComplex.Subcomplex.instSubcomplex_map [T2Space X] [CWComplex C] (E : Sub
     (i : E.I n) : map (C := E) n i = map (C := C) n i :=
   rfl
 
+@[simp]
+lemma RelCWComplex.Subcomplex.openCell_eq [T2Space X] [RelCWComplex C D] (E : Subcomplex C) (n : ℕ)
+    (i : E.I n) : openCell (C := E) n i = openCell n (i : cell C n) := by
+  simp [openCell]
+
+@[simp]
+lemma RelCWComplex.Subcomplex.closedCell_eq [T2Space X] [RelCWComplex C D] (E : Subcomplex C)
+    (n : ℕ) (i : E.I n) : closedCell (C := E) n i = closedCell n (i : cell C n) := by
+  simp [closedCell]
+
+@[simp]
+lemma RelCWComplex.Subcomplex.cellFrontier_eq [T2Space X] [RelCWComplex C D] (E : Subcomplex C)
+    (n : ℕ) (i : E.I n) : cellFrontier (C := E) n i = cellFrontier n (i : cell C n) := by
+  simp [cellFrontier]
+
+lemma RelCWComplex.Subcomplex.disjoint_openCell_subcomplex_of_not_mem [T2Space X] [RelCWComplex C D]
+    (E : Subcomplex C) {n : ℕ} {i : cell C n} (h : i ∉ E.I n) : Disjoint (openCell n i) E := by
+  simp_rw [← union, disjoint_union_right, disjoint_iUnion_right]
+  exact ⟨disjointBase n i , fun _ _ ↦ disjoint_openCell_of_ne (by aesop)⟩
+
 instance RelCWComplex.Subcomplex.finiteType_subcomplex_of_finiteType [T2Space X]
     [RelCWComplex C D] [FiniteType C] (E : Subcomplex C) : FiniteType (E : Set X) where
   finite_cell n :=
@@ -870,6 +890,22 @@ lemma RelCWComplex.Subcomplex.finite_iUnion_subset_finite_subcomplex [T2Space X]
     exact iUnion_mono fun n ↦ iUnion_mono fun i ↦ subset n i
   · use ⊥, inferInstance
     simp_all
+
+lemma RelCWComplex.Subcomplex.skeletonLT_eq [T2Space X] [RelCWComplex C D] (E : Subcomplex C)
+    (n : ℕ)  : (skeletonLT (E : Set X) n : Set X) = (E : Set X) ∩ skeletonLT C n := by
+  simp only [← iUnion_openCell_eq_skeletonLT, Nat.cast_lt, instSubcomplex_cell, iUnion_coe_set,
+    inter_union_distrib_left, inter_eq_right.2 base_subset_complex, inter_iUnion]
+  congrm D ∪ ⋃ (m : ℕ) (_ : m < n) (i : cell C m), ?_
+  by_cases h : i ∈ E.I m
+  · simp only [h, openCell_eq, iUnion_true, right_eq_inter]
+    rw [← openCell_eq E m ⟨i, h⟩]
+    exact openCell_subset_complex _ _
+  · simp only [h, openCell_eq, iUnion_of_empty]
+    exact (disjoint_openCell_subcomplex_of_not_mem _ h).symm.inter_eq.symm
+
+lemma RelCWComplex.Subcomplex.skeleton_eq [T2Space X] [RelCWComplex C D] (E : Subcomplex C)
+    (n : ℕ)  : (skeleton (E : Set X) n : Set X) = (E : Set X) ∩ skeleton C n :=
+  skeletonLT_eq _ _
 
 namespace CWComplex.Subcomplex
 

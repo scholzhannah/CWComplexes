@@ -1,4 +1,4 @@
-import CWcomplexes.Basic
+import CWcomplexes.RelSubcomplex
 
 open Metric Set Function
 
@@ -63,7 +63,7 @@ lemma image_skeletonLT_subset (f : CellularMap C E) (n : ℕ∞) :
     | ⊤ => by
       simp_rw [skeletonLT_top, image_subset_iff]
       intro x hx
-      simp_rw [← iUnion_skeletonLT_eq_complex, mem_iUnion] at hx
+      simp_rw [← iUnion_skeletonLT_eq_complex (C := C), mem_iUnion] at hx
       rw [mem_preimage]
       obtain ⟨n, hxn⟩ := hx
       apply skeletonLT_subset_complex
@@ -77,7 +77,7 @@ def comp {Z : Type*} [TopologicalSpace Z] [T2Space Z] {G H : Set Z} [RelCWComple
   toFun := f ∘ g
   continuousOn_toFun := by
     apply f.continuousOn.comp g.continuousOn
-    simp_rw [Set.mapsTo', ← skeletonLT_top]
+    simp_rw [Set.mapsTo', ← skeletonLT_top (C := C), ← skeletonLT_top (C := E)]
     exact g.image_skeletonLT_subset ⊤
   image_skeletonLT_subset' n := by
     rw [image_comp]
@@ -183,7 +183,7 @@ def Simps.symm_apply (e : CellularEquiv C E) : Y → X := e.symm
 
 initialize_simps_projections CellularEquiv (toFun → apply, invFun → symm_apply)
 
-lemma continuousOn : ContinuousOn e C := e.continuousOn_toPartialEquiv
+protected lemma continuousOn : ContinuousOn e C := e.continuousOn_toPartialEquiv
 
 lemma continuousOn_symm : ContinuousOn e.symm E := e.continuousOn_toPartialEquiv_symm
 
@@ -260,6 +260,43 @@ lemma replaceEquiv_eq_self (e' : PartialEquiv X Y)
   rfl
 
 lemma source_preimage_target : e.source ⊆ e ⁻¹' e.target := e.mapsTo
+
+lemma image_eq_target_inter_inv_preimage {s : Set X} (h : s ⊆ e.source) :
+    e '' s = e.target ∩ e.symm ⁻¹' s :=
+  e.toPartialEquiv.image_eq_target_inter_inv_preimage h
+
+/-- A version of `image_source_inter_eq` in which instead of the preimage of `s` the preimage of the
+intersection of the source with `s` is considered. -/
+lemma image_source_inter_eq' (s : Set X) : e '' (e.source ∩ s) = e.target ∩ e.symm ⁻¹' s :=
+  e.toPartialEquiv.image_source_inter_eq' s
+
+lemma image_source_inter_eq (s : Set X) :
+    e '' (e.source ∩ s) = e.target ∩ e.symm ⁻¹' (e.source ∩ s) :=
+  e.toPartialEquiv.image_source_inter_eq s
+
+lemma symm_image_eq_source_inter_preimage {s : Set Y} (h : s ⊆ e.target) :
+    e.symm '' s = e.source ∩ e ⁻¹' s :=
+  e.symm.image_eq_target_inter_inv_preimage h
+
+lemma symm_image_target_inter_eq (s : Set Y) :
+    e.symm '' (e.target ∩ s) = e.source ∩ e ⁻¹' (e.target ∩ s) :=
+  e.symm.image_source_inter_eq _
+
+lemma source_inter_preimage_inv_preimage (s : Set X) :
+    e.source ∩ e ⁻¹' (e.symm ⁻¹' s) = e.source ∩ s :=
+  e.toPartialEquiv.source_inter_preimage_inv_preimage s
+
+lemma target_inter_inv_preimage_preimage (s : Set Y) :
+    e.target ∩ e.symm ⁻¹' (e ⁻¹' s) = e.target ∩ s :=
+  e.symm.source_inter_preimage_inv_preimage _
+
+lemma source_inter_preimage_target_inter (s : Set Y) :
+    e.source ∩ e ⁻¹' (e.target ∩ s) = e.source ∩ e ⁻¹' s :=
+  e.toPartialEquiv.source_inter_preimage_target_inter s
+
+lemma image_source_eq_target : e '' e.source = e.target := e.toPartialEquiv.image_source_eq_target
+
+lemma symm_image_target_eq_source : e.symm '' e.target = e.source := e.symm.image_source_eq_target
 
 /-- Two partial homeomorphisms are equal when they have equal `toFun`, `invFun` and `source`.
 It is not sufficient to have equal `toFun` and `source`, as this only determines `invFun` on
@@ -343,9 +380,90 @@ lemma iff_symm_preimage_eq : e.IsImage s t ↔ e.target ∩ e.symm ⁻¹' s = e.
 
 alias ⟨symm_preimage_eq, of_symm_preimage_eq⟩ := iff_symm_preimage_eq
 
--- **TODO** : Keep copying lemmas from PartialHomeomorph here!
+/-- A version of `iff_symm_preimage_eq` in which instead of the preimage of `s` the preimage of the
+intersection of the source with `s` is considered. -/
+lemma iff_symm_preimage_eq' :
+    e.IsImage s t ↔ e.target ∩ e.symm ⁻¹' (e.source ∩ s) = e.target ∩ t := by
+  rw [iff_symm_preimage_eq, ← image_source_inter_eq, ← image_source_inter_eq']
+
+alias ⟨symm_preimage_eq', of_symm_preimage_eq'⟩ := iff_symm_preimage_eq'
+
+lemma iff_preimage_eq' : e.IsImage s t ↔ e.source ∩ e ⁻¹' (e.target ∩ t) = e.source ∩ s :=
+  symm_iff.symm.trans iff_symm_preimage_eq'
+
+alias ⟨preimage_eq', of_preimage_eq'⟩ := iff_preimage_eq'
+
+lemma of_image_eq (h : e '' (e.source ∩ s) = e.target ∩ t) : e.IsImage s t :=
+  PartialEquiv.IsImage.of_image_eq h
+
+lemma of_symm_image_eq (h : e.symm '' (e.target ∩ t) = e.source ∩ s) : e.IsImage s t :=
+  PartialEquiv.IsImage.of_symm_image_eq h
+
+protected lemma compl (h : e.IsImage s t) : e.IsImage sᶜ tᶜ := fun _ hx => (h hx).not
+
+protected lemma inter {s' t'} (h : e.IsImage s t) (h' : e.IsImage s' t') :
+    e.IsImage (s ∩ s') (t ∩ t') := fun _ hx => (h hx).and (h' hx)
+
+protected lemma union {s' t'} (h : e.IsImage s t) (h' : e.IsImage s' t') :
+    e.IsImage (s ∪ s') (t ∪ t') := fun _ hx => (h hx).or (h' hx)
+
+protected lemma diff {s' t'} (h : e.IsImage s t) (h' : e.IsImage s' t') :
+    e.IsImage (s \ s') (t \ t') :=
+  h.inter h'.compl
+
+lemma leftInvOn_piecewise {e' : CellularEquiv C E} [∀ i, Decidable (i ∈ s)]
+    [∀ i, Decidable (i ∈ t)] (h : e.IsImage s t) (h' : e'.IsImage s t) :
+    LeftInvOn (t.piecewise e.symm e'.symm) (s.piecewise e e') (s.ite e.source e'.source) :=
+  h.toPartialEquiv.leftInvOn_piecewise h'
+
+lemma inter_eq_of_inter_eq_of_eqOn {e' : CellularEquiv C E} (h : e.IsImage s t)
+    (h' : e'.IsImage s t) (hs : e.source ∩ s = e'.source ∩ s) (Heq : EqOn e e' (e.source ∩ s)) :
+    e.target ∩ t = e'.target ∩ t :=
+  h.toPartialEquiv.inter_eq_of_inter_eq_of_eqOn h' hs Heq
+
+lemma symm_eqOn_of_inter_eq_of_eqOn {e' : CellularEquiv C E} (h : e.IsImage s t)
+    (hs : e.source ∩ s = e'.source ∩ s) (Heq : EqOn e e' (e.source ∩ s)) :
+    EqOn e.symm e'.symm (e.target ∩ t) :=
+  h.toPartialEquiv.symm_eq_on_of_inter_eq_of_eqOn hs Heq
+
+/- **Note**: This is the first time I need anything more that CWComplexes.Basic. Maybe this should
+be taken out and PR'd later?
+-/
+
+/-- Restrict a `PartialHomeomorph` to a pair of corresponding open sets. -/
+@[simps toPartialEquiv]
+def restr [T2Space X] [T2Space Y] (C' : Subcomplex C) (E' : Subcomplex E) (h : e.IsImage C' E') :
+    CellularEquiv C' (D := D) E' (F := F) where
+  toPartialEquiv := h.toPartialEquiv.restr
+  continuousOn_toPartialEquiv := e.continuousOn.mono C'.subset_complex
+  image_topPartialEquiv_skeletonLT_subset' n := by
+    simp_rw [PartialEquiv.IsImage.restr_apply, Subcomplex.skeletonLT_eq]
+    apply (image_inter_subset _ _ _).trans
+    rw [← inter_eq_right.2 C'.subset_complex]
+    simp_rw [← e.source_eq, h.image_eq, e.target_eq, inter_eq_right.2 E'.subset_complex]
+    apply inter_subset_inter_right
+    exact e.image_topPartialEquiv_skeletonLT_subset' n
+  continuousOn_toPartialEquiv_symm := e.continuousOn_symm.mono E'.subset_complex
+  image_topPartialEquiv_symm_skeletonLT_subset' n := by
+    simp only [PartialEquiv.IsImage.restr_symm_apply, coe_coe_symm, symm_toPartialEquiv,
+      Subcomplex.skeletonLT_eq]
+    apply (image_inter_subset _ _ _).trans
+    rw [← inter_eq_right.2 E'.subset_complex]
+    simp_rw [← e.symm.source_eq, h.symm.image_eq, e.symm.target_eq,
+      inter_eq_right.2 C'.subset_complex]
+    apply inter_subset_inter_right
+    exact e.symm.image_topPartialEquiv_skeletonLT_subset' n
+  source_eq := by simp [e.source_eq, C'.subset_complex]
+  target_eq := by simp [e.target_eq, E'.subset_complex]
 
 end IsImage
+
+lemma isImage_source_target : e.IsImage e.source e.target := e.toPartialEquiv.isImage_source_target
+
+lemma isImage_source_target_of_disjoint (e' : CellularEquiv C E)
+    (hs : Disjoint e.source e'.source) (ht : Disjoint e.target e'.target) :
+    e.IsImage e'.source e'.target :=
+  e.toPartialEquiv.isImage_source_target_of_disjoint e'.toPartialEquiv hs ht
 
 end IsImage
 
