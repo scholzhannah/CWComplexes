@@ -1,8 +1,12 @@
 import CWcomplexes.RelSubcomplex
+import Mathlib.Topology.PartialHomeomorph
+import Mathlib.Data.Setoid.Partition
 
 open Metric Set Function
 
-namespace Topology.RelCWComplex
+namespace Topology
+
+namespace RelCWComplex
 
 section CellularMap
 
@@ -159,9 +163,13 @@ variable {C D : Set X} [RelCWComplex C D] {E F : Set Y} [RelCWComplex E F] (e : 
 instance : CoeFun (CellularEquiv C E) fun _ => X → Y :=
   ⟨fun e => e.toFun⟩
 
+def toCellularMap (e : CellularEquiv C E) : CellularMap C E where
+  toFun := e
+  continuousOn_toFun := e.continuousOn_toPartialEquiv
+  image_skeletonLT_subset' := e.image_topPartialEquiv_skeletonLT_subset'
+
 /-- Coercion of a cellular equivalence to a cellular map. -/
-instance : Coe (CellularEquiv C E) (CellularMap C E) :=
-  ⟨fun e => ⟨e.toFun, e.continuousOn_toPartialEquiv, e.image_topPartialEquiv_skeletonLT_subset'⟩⟩
+instance : Coe (CellularEquiv C E) (CellularMap C E) := ⟨fun e => e.toCellularMap⟩
 
 /-- The inverse of a cellular equivalence  -/
 @[symm]
@@ -388,6 +396,8 @@ lemma iff_symm_preimage_eq' :
 
 alias ⟨symm_preimage_eq', of_symm_preimage_eq'⟩ := iff_symm_preimage_eq'
 
+/-- A version of `iff_preimage_eq` in which instead of the preimage of `t` the preimage of the
+intersection of the target with `t` is considered. -/
 lemma iff_preimage_eq' : e.IsImage s t ↔ e.source ∩ e ⁻¹' (e.target ∩ t) = e.source ∩ s :=
   symm_iff.symm.trans iff_symm_preimage_eq'
 
@@ -471,4 +481,75 @@ end CellularEquiv
 
 end CellularEquiv
 
-end Topology.RelCWComplex
+end RelCWComplex
+
+variable {X Y : Type*} [TopologicalSpace X] [TopologicalSpace Y] {C D : Set X}
+
+lemma RelCWComplex.continuousOn_of_continuousOn_closedCell [T2Space X] [RelCWComplex C D]
+    (f : X → Y)
+    (hf1 : ∀ n (i : cell C n), ContinuousOn f (closedCell n i)) (hf2 : ContinuousOn f D) :
+    ContinuousOn f C := by
+  rw [continuousOn_iff_isClosed]
+  intro A hA
+  refine ⟨f ⁻¹' A ∩ C, ?_, by simp⟩
+  simp_rw [closed (C := C) _ inter_subset_right, inter_assoc,
+    inter_eq_right.2 (closedCell_subset_complex _ _), inter_eq_right.2 base_subset_complex]
+  refine ⟨?_, ?_⟩
+  · intro n j
+    obtain ⟨B, hB, hAB⟩ := (continuousOn_iff_isClosed.1 (hf1 n j)) A hA
+    rw [hAB]
+    exact hB.inter isClosed_closedCell
+  · obtain ⟨B, hB, hAB⟩ := continuousOn_iff_isClosed.1 hf2 A hA
+    rw [hAB]
+    exact hB.inter (isClosedBase C)
+
+lemma RelCWComplex.continuousOn_iff [T2Space X] [RelCWComplex C D] (f : X → Y) :
+    ContinuousOn f C ↔ ContinuousOn f D ∧ ∀ n (i : cell C n), ContinuousOn f (closedCell n i) :=
+  ⟨fun hf ↦ ⟨hf.mono base_subset_complex, fun n i ↦ hf.mono (closedCell_subset_complex n i)⟩,
+    fun ⟨hf2, hf1⟩ ↦ continuousOn_of_continuousOn_closedCell f hf1 hf2⟩
+
+lemma CWComplex.continuousOn_of_continuousOn_closedCell [T2Space X] [CWComplex C] (f : X → Y)
+    (hf : ∀ n (i : cell C n), ContinuousOn f (closedCell n i)) : ContinuousOn f C :=
+  RelCWComplex.continuousOn_of_continuousOn_closedCell f hf (continuousOn_empty f)
+
+lemma CWComplex.continuousOn_iff [T2Space X] [CWComplex C] (f : X → Y) :
+    ContinuousOn f C ↔ ∀ n (i : cell C n), ContinuousOn f (closedCell n i) :=
+  ⟨fun hf ↦ fun n i ↦ hf.mono (closedCell_subset_complex n i),
+    fun hf ↦ continuousOn_of_continuousOn_closedCell f hf⟩
+
+def RelCWComplex.partitionMap (C : Set X) [RelCWComplex C D] (j : Fin 2 ⊕ Σ n, cell C n) : Set X :=
+  match j with
+    | .inl 0 => univ \ C
+    | .inl 1 => D
+    | .inr ⟨n, i⟩ => openCell n i
+
+def RelCWComplex.indexedPartition [RelCWComplex C D] :
+    IndexedPartition (partitionMap C) where
+  eq_of_mem {x} j j' hxj hxj' :=
+    match j, j' with
+    | .inl 0, .inl 0 => rfl
+    | .inl 0, .inl 1 => by
+      simp_all only [partitionMap, mem_diff, mem_univ, true_and, Sum.inl.injEq, zero_ne_one]
+      exact hxj (base_subset_complex hxj')
+    | .inl 0, .inr ⟨n, i⟩ => by
+      simp_all only [partitionMap, mem_diff, mem_univ, true_and, Fin.isValue, reduceCtorEq]
+      exact hxj ((openCell_subset_complex n i) hxj')
+    | .inl 1, .inl 0 => by
+      simp_all only [partitionMap, mem_diff, mem_univ, true_and, Sum.inl.injEq, one_ne_zero]
+      exact hxj' (base_subset_complex hxj)
+    | .inl 1, .inl 1 => rfl
+    | .inl 1, .inr ⟨n, i⟩ => by
+      simp_all only [partitionMap, Fin.isValue, reduceCtorEq]
+      have := (disjointBase n i).inter_eq
+      sorry
+    | .inr ⟨n, i⟩, .inl 0 => by
+      simp_all only [partitionMap, mem_diff, mem_univ, true_and, Fin.isValue, reduceCtorEq]
+      exact hxj' ((openCell_subset_complex n i) hxj)
+    | .inr ⟨n, i⟩, .inl 1 => sorry
+    | .inr ⟨n, i⟩, .inr ⟨m, k⟩ => sorry
+  some := sorry
+  some_mem := sorry
+  index := sorry
+  mem_index := sorry
+
+end Topology
