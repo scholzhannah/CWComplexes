@@ -2,6 +2,8 @@ import CWcomplexes.RelSubcomplex
 import Mathlib.Topology.PartialHomeomorph
 import Mathlib.Data.Setoid.Partition
 
+noncomputable section
+
 open Metric Set Function
 
 namespace Topology
@@ -517,39 +519,131 @@ lemma CWComplex.continuousOn_iff [T2Space X] [CWComplex C] (f : X → Y) :
   ⟨fun hf ↦ fun n i ↦ hf.mono (closedCell_subset_complex n i),
     fun hf ↦ continuousOn_of_continuousOn_closedCell f hf⟩
 
-def RelCWComplex.partitionMap (C : Set X) [RelCWComplex C D] (j : Fin 2 ⊕ Σ n, cell C n) : Set X :=
+def RelCWComplex.partitionMapComplexNotUniv (C : Set X) [RelCWComplex C D]
+  (j : Fin 2 ⊕ Σ n, cell C n) : Set X :=
   match j with
     | .inl 0 => univ \ C
     | .inl 1 => D
     | .inr ⟨n, i⟩ => openCell n i
 
-def RelCWComplex.indexedPartition [RelCWComplex C D] :
-    IndexedPartition (partitionMap C) where
-  eq_of_mem {x} j j' hxj hxj' :=
-    match j, j' with
-    | .inl 0, .inl 0 => rfl
-    | .inl 0, .inl 1 => by
-      simp_all only [partitionMap, mem_diff, mem_univ, true_and, Sum.inl.injEq, zero_ne_one]
-      exact hxj (base_subset_complex hxj')
-    | .inl 0, .inr ⟨n, i⟩ => by
-      simp_all only [partitionMap, mem_diff, mem_univ, true_and, Fin.isValue, reduceCtorEq]
-      exact hxj ((openCell_subset_complex n i) hxj')
-    | .inl 1, .inl 0 => by
-      simp_all only [partitionMap, mem_diff, mem_univ, true_and, Sum.inl.injEq, one_ne_zero]
-      exact hxj' (base_subset_complex hxj)
-    | .inl 1, .inl 1 => rfl
-    | .inl 1, .inr ⟨n, i⟩ => by
-      simp_all only [partitionMap, Fin.isValue, reduceCtorEq]
-      have := (disjointBase n i).inter_eq
-      sorry
-    | .inr ⟨n, i⟩, .inl 0 => by
-      simp_all only [partitionMap, mem_diff, mem_univ, true_and, Fin.isValue, reduceCtorEq]
-      exact hxj' ((openCell_subset_complex n i) hxj)
-    | .inr ⟨n, i⟩, .inl 1 => sorry
-    | .inr ⟨n, i⟩, .inr ⟨m, k⟩ => sorry
-  some := sorry
-  some_mem := sorry
-  index := sorry
-  mem_index := sorry
+def RelCWComplex.indexedPartitionComplexNotUniv [RelCWComplex C D] (hD : D.Nonempty)
+    (hC : C ≠ univ) : IndexedPartition (partitionMapComplexNotUniv C) :=
+  IndexedPartition.mk' (partitionMapComplexNotUniv C)
+    (by
+      simp only [Pairwise, onFun]
+      intro j j' hjj'
+      by_contra h
+      rw [not_disjoint_iff] at h
+      obtain ⟨x, hxj, hxj'⟩ := h
+      apply hjj'
+      exact match j, j' with
+        | .inl 0, .inl 0 => rfl
+        | .inl 0, .inl 1 => by
+          simp_all only [partitionMapComplexNotUniv, mem_diff, mem_univ, true_and]
+          exact hxj (base_subset_complex hxj')
+        | .inl 0, .inr ⟨n, i⟩ => by
+          simp_all only [partitionMapComplexNotUniv, mem_diff, mem_univ, true_and]
+          exact hxj ((openCell_subset_complex n i) hxj')
+        | .inl 1, .inl 0 => by
+          simp_all only [partitionMapComplexNotUniv, mem_diff, mem_univ, true_and]
+          exact hxj' (base_subset_complex hxj)
+        | .inl 1, .inl 1 => rfl
+        | .inl 1, .inr ⟨n, i⟩ => by
+          simp_all only [partitionMapComplexNotUniv, Fin.isValue, reduceCtorEq]
+          exact (disjointBase n i).not_mem_of_mem_left hxj' hxj
+        | .inr ⟨n, i⟩, .inl 0 => by
+          simp_all only [partitionMapComplexNotUniv, mem_diff, mem_univ, true_and]
+          exact hxj' ((openCell_subset_complex n i) hxj)
+        | .inr ⟨n, i⟩, .inl 1 => by
+          simp_all only [partitionMapComplexNotUniv, Fin.isValue, reduceCtorEq]
+          exact (disjointBase n i).not_mem_of_mem_left hxj hxj'
+        | .inr ⟨n, i⟩, .inr ⟨m, k⟩ => by
+          simp only [partitionMapComplexNotUniv, Sum.inr.injEq] at hxj hxj' ⊢
+          apply eq_of_not_disjoint_openCell
+          rw [not_disjoint_iff]
+          exact ⟨x, hxj, hxj'⟩)
+    (fun j ↦ match j with
+      | .inl 0 => by simp_all only [ne_eq, partitionMapComplexNotUniv,
+        nonempty_of_ssubset (ssubset_univ_iff.mpr hC)]
+      | .inl 1 => by simp [partitionMapComplexNotUniv, hD]
+      | .inr ⟨n, i⟩ => by
+        rw [nonempty_def]
+        use (map n i 0)
+        simp [partitionMapComplexNotUniv, map_zero_mem_openCell])
+    (by
+      intro x
+      by_cases h : x ∈ C
+      · simp only [← union_iUnion_openCell_eq_complex (C := C), mem_union, mem_iUnion] at h
+        rcases h with h | ⟨n, i, h⟩
+        · use .inl 1
+          simp [partitionMapComplexNotUniv, h]
+        · use .inr ⟨n, i⟩
+          simp [partitionMapComplexNotUniv, h]
+      · use .inl 0
+        simp [partitionMapComplexNotUniv, h])
+
+lemma RelCWComplex.indexedPartitionComplexNotUniv_index_not_mem_complex (Y : Type*) [Inhabited Y]
+    [RelCWComplex C D] {hD : D.Nonempty} {hC : C ≠ univ} {x : X} (hx : x ∉ C) :
+    (indexedPartitionComplexNotUniv hD hC).index x = .inl 0 := by
+  simp [← IndexedPartition.mem_iff_index_eq, partitionMapComplexNotUniv, hx]
+
+lemma RelCWComplex.indexedPartitionComplexNotUniv_index_mem_base (Y : Type*) [Inhabited Y]
+    [RelCWComplex C D] {hD : D.Nonempty} {hC : C ≠ univ} {x : X} (hx : x ∈ D) :
+    (indexedPartitionComplexNotUniv hD hC).index x = .inl 1 := by
+  simp [← IndexedPartition.mem_iff_index_eq, partitionMapComplexNotUniv, hx]
+
+lemma RelCWComplex.indexedPartitionComplexNotUniv_index_mem_openCell (Y : Type*) [Inhabited Y]
+    [RelCWComplex C D] {hD : D.Nonempty} {hC : C ≠ univ} (n : ℕ) (i : cell C n) {x : X}
+    (hx : x ∈ openCell n i) :
+    (indexedPartitionComplexNotUniv hD hC).index x = .inr ⟨n, i⟩ := by
+  simp [← IndexedPartition.mem_iff_index_eq, partitionMapComplexNotUniv, hx]
+
+open Classical in
+def RelCWComplex.mapComplexNotUniv [Inhabited Y] [RelCWComplex C D] (hD : D.Nonempty)
+    (hC : C ≠ univ) (f : ∀ n (i : cell C n), X → Y) (fD : X → Y) : X → Y :=
+  (indexedPartitionComplexNotUniv hD hC).piecewise
+   (fun j ↦ match j with
+    | .inl 0 => default
+    | .inl 1 => fD
+    | .inr ⟨n, i⟩ => f n i)
+
+lemma RelCWComplex.mapComplexNotUniv_apply_not_mem_complex (Y : Type*) [Inhabited Y]
+    [RelCWComplex C D] (hD : D.Nonempty) (hC : C ≠ univ)
+    {f : ∀ n (i : cell C n), X → Y} {fD : X → Y}
+    (x : X) (hx : x ∉ C) :
+    mapComplexNotUniv hD hC f fD x = default := by
+  simp [indexedPartitionComplexNotUniv_index_not_mem_complex Y hx,
+    mapComplexNotUniv, IndexedPartition.piecewise_apply, hx]
+
+lemma RelCWComplex.mapComplexNotUniv_apply_mem_base {Y : Type*} [Inhabited Y]
+    [RelCWComplex C D] (hD : D.Nonempty) (hC : C ≠ univ)
+    {f : ∀ n (i : cell C n), X → Y} {fD : X → Y} (x : X) (hx : x ∈ D) :
+    mapComplexNotUniv hD hC f fD x = fD x := by
+  simp [indexedPartitionComplexNotUniv_index_mem_base Y hx, mapComplexNotUniv,
+    IndexedPartition.piecewise_apply, hx]
+
+lemma RelCWComplex.mapComplexNotUniv_apply_mem_openCell {Y : Type*} [Inhabited Y]
+    [RelCWComplex C D] (hD : D.Nonempty) (hC : C ≠ univ)
+    {f : ∀ n (i : cell C n), X → Y} {fD : X → Y}
+    (n : ℕ) (i : cell C n) (x : X) (hx : x ∈ openCell n i) :
+    mapComplexNotUniv hD hC f fD x = f n i x := by
+  simp [indexedPartitionComplexNotUniv_index_mem_openCell Y n i hx, mapComplexNotUniv,
+    IndexedPartition.piecewise_apply, hx]
+
+lemma RelCWComplex.mapComplexNotUniv_continuousOn [T2Space X] [Inhabited Y]
+    [RelCWComplex C D] (hD : D.Nonempty) (hC : C ≠ univ)
+    {f : ∀ n (i : cell C n), X → Y} {fD : X → Y}
+    (hf1 : ∀ n (i : cell C n) m (j : cell C m) {x} (hi : x ∈ closedCell n i)
+      (hj : x ∈ closedCell m j),
+      f n i x = f m j x)
+    (hfD1 : ∀ n (i : cell C n) {x} (hi : x ∈ closedCell n i) (hxD : x ∈ D), f n i x = fD x)
+    (hf2 : ∀ n (i : cell C n), ContinuousOn (f n i) (closedCell n i))
+    (hfD2 : ContinuousOn fD D) :
+    ContinuousOn (mapComplexNotUniv hD hC f fD) C := by
+  rw [continuousOn_iff]
+  constructor
+  · sorry
+  · sorry
+
 
 end Topology
