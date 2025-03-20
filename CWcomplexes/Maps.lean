@@ -505,24 +505,52 @@ lemma RelCWComplex.continuousOn_of_continuousOn_closedCell [T2Space X] [RelCWCom
     rw [hAB]
     exact hB.inter (isClosedBase C)
 
+lemma CWComplex.continuousOn_of_continuousOn_closedCell [T2Space X] [CWComplex C] (f : X → Y)
+    (hf : ∀ n (i : cell C n), ContinuousOn f (closedCell n i)) : ContinuousOn f C :=
+  RelCWComplex.continuousOn_of_continuousOn_closedCell f hf (continuousOn_empty f)
+
 lemma RelCWComplex.continuousOn_iff [T2Space X] [RelCWComplex C D] (f : X → Y) :
     ContinuousOn f C ↔ ContinuousOn f D ∧ ∀ n (i : cell C n), ContinuousOn f (closedCell n i) :=
   ⟨fun hf ↦ ⟨hf.mono base_subset_complex, fun n i ↦ hf.mono (closedCell_subset_complex n i)⟩,
     fun ⟨hf2, hf1⟩ ↦ continuousOn_of_continuousOn_closedCell f hf1 hf2⟩
-
-lemma CWComplex.continuousOn_of_continuousOn_closedCell [T2Space X] [CWComplex C] (f : X → Y)
-    (hf : ∀ n (i : cell C n), ContinuousOn f (closedCell n i)) : ContinuousOn f C :=
-  RelCWComplex.continuousOn_of_continuousOn_closedCell f hf (continuousOn_empty f)
 
 lemma CWComplex.continuousOn_iff [T2Space X] [CWComplex C] (f : X → Y) :
     ContinuousOn f C ↔ ∀ n (i : cell C n), ContinuousOn f (closedCell n i) :=
   ⟨fun hf ↦ fun n i ↦ hf.mono (closedCell_subset_complex n i),
     fun hf ↦ continuousOn_of_continuousOn_closedCell f hf⟩
 
+lemma RelCWComplex.continuous_of_continuousOn_closedCell [T2Space X] [RelCWComplex C D]
+    (f : X → Y)
+    (hf : ∀ n (i : cell C n), ContinuousOn f (closedCell n i))
+    (hfD : ContinuousOn f D) (hfC : ContinuousOn f (closure Cᶜ)) :
+    Continuous f := by
+  rw [continuous_iff_continuousOn_univ, ← compl_union_self  (s := C)]
+  refine ContinuousOn.mono ?_ (union_subset_union_left C subset_closure)
+  apply ContinuousOn.union_isClosed isClosed_closure isClosed hfC
+  exact continuousOn_of_continuousOn_closedCell f hf hfD
+
+lemma CWComplex.continuous_of_continuousOn_closedCell [T2Space X] [CWComplex C]
+    (f : X → Y) (hf : ∀ n (i : cell C n), ContinuousOn f (closedCell n i))
+    (hfC : ContinuousOn f (closure Cᶜ)) :
+    Continuous f := by
+  exact RelCWComplex.continuous_of_continuousOn_closedCell f hf (continuousOn_empty f) hfC
+
+lemma RelCWComplex.continuous_iff [T2Space X] [RelCWComplex C D] (f : X → Y) :
+    Continuous f ↔ ContinuousOn f D ∧ (∀ n (i : cell C n), ContinuousOn f (closedCell n i))
+      ∧ ContinuousOn f (closure Cᶜ) :=
+  ⟨fun hf ↦ ⟨hf.continuousOn, fun _ _ ↦ hf.continuousOn, hf.continuousOn⟩,
+    fun ⟨hfD, hf, hfC⟩ ↦ continuous_of_continuousOn_closedCell f hf hfD hfC⟩
+
+lemma CWComplex.continuous_iff [T2Space X] [CWComplex C] (f : X → Y) :
+    Continuous f ↔ (∀ n (i : cell C n), ContinuousOn f (closedCell n i))
+      ∧ ContinuousOn f (closure Cᶜ) :=
+  ⟨fun hf ↦ ⟨fun _ _ ↦ hf.continuousOn, hf.continuousOn⟩,
+    fun ⟨hf, hfC⟩ ↦ continuous_of_continuousOn_closedCell f hf hfC⟩
+
 def RelCWComplex.partitionMapComplexNotUniv (C : Set X) [RelCWComplex C D]
   (j : Fin 2 ⊕ Σ n, cell C n) : Set X :=
   match j with
-    | .inl 0 => univ \ C
+    | .inl 0 => Cᶜ
     | .inl 1 => D
     | .inr ⟨n, i⟩ => openCell n i
 
@@ -563,8 +591,9 @@ def RelCWComplex.indexedPartitionComplexNotUniv [RelCWComplex C D] (hD : D.Nonem
           rw [not_disjoint_iff]
           exact ⟨x, hxj, hxj'⟩)
     (fun j ↦ match j with
-      | .inl 0 => by simp_all only [ne_eq, partitionMapComplexNotUniv,
-        nonempty_of_ssubset (ssubset_univ_iff.mpr hC)]
+      | .inl 0 => by
+        simp_all only [← compl_ne_univ, ne_eq, compl_univ_iff, partitionMapComplexNotUniv,
+          compl_compl, not_false_eq_true]
       | .inl 1 => by simp [partitionMapComplexNotUniv, hD]
       | .inr ⟨n, i⟩ => by
         rw [nonempty_def]
@@ -598,9 +627,11 @@ lemma RelCWComplex.indexedPartitionComplexNotUniv_index_mem_openCell (Y : Type*)
     (indexedPartitionComplexNotUniv hD hC).index x = .inr ⟨n, i⟩ := by
   simp [← IndexedPartition.mem_iff_index_eq, partitionMapComplexNotUniv, hx]
 
+/-! Defining a function on C -/
+
 open Classical in
 def RelCWComplex.mapComplexNotUniv [Inhabited Y] [RelCWComplex C D] (hD : D.Nonempty)
-    (hC : C ≠ univ) (f : ∀ n (i : cell C n), X → Y) (fD : X → Y) : X → Y :=
+    (hC : C ≠ univ) (f : ∀ n (_ : cell C n), X → Y) (fD : X → Y) : X → Y :=
   (indexedPartitionComplexNotUniv hD hC).piecewise
    (fun j ↦ match j with
     | .inl 0 => default
@@ -608,42 +639,154 @@ def RelCWComplex.mapComplexNotUniv [Inhabited Y] [RelCWComplex C D] (hD : D.None
     | .inr ⟨n, i⟩ => f n i)
 
 lemma RelCWComplex.mapComplexNotUniv_apply_not_mem_complex (Y : Type*) [Inhabited Y]
-    [RelCWComplex C D] (hD : D.Nonempty) (hC : C ≠ univ)
-    {f : ∀ n (i : cell C n), X → Y} {fD : X → Y}
-    (x : X) (hx : x ∉ C) :
+    [RelCWComplex C D] {hD : D.Nonempty} {hC : C ≠ univ}
+    {f : ∀ n (_ : cell C n), X → Y} {fD : X → Y}
+    {x : X} (hx : x ∉ C) :
     mapComplexNotUniv hD hC f fD x = default := by
   simp [indexedPartitionComplexNotUniv_index_not_mem_complex Y hx,
     mapComplexNotUniv, IndexedPartition.piecewise_apply, hx]
 
 lemma RelCWComplex.mapComplexNotUniv_apply_mem_base {Y : Type*} [Inhabited Y]
-    [RelCWComplex C D] (hD : D.Nonempty) (hC : C ≠ univ)
-    {f : ∀ n (i : cell C n), X → Y} {fD : X → Y} (x : X) (hx : x ∈ D) :
+    [RelCWComplex C D] {hD : D.Nonempty} {hC : C ≠ univ}
+    {f : ∀ n (_ : cell C n), X → Y} {fD : X → Y} {x : X} (hx : x ∈ D) :
     mapComplexNotUniv hD hC f fD x = fD x := by
   simp [indexedPartitionComplexNotUniv_index_mem_base Y hx, mapComplexNotUniv,
     IndexedPartition.piecewise_apply, hx]
 
 lemma RelCWComplex.mapComplexNotUniv_apply_mem_openCell {Y : Type*} [Inhabited Y]
-    [RelCWComplex C D] (hD : D.Nonempty) (hC : C ≠ univ)
-    {f : ∀ n (i : cell C n), X → Y} {fD : X → Y}
-    (n : ℕ) (i : cell C n) (x : X) (hx : x ∈ openCell n i) :
+    [RelCWComplex C D] {hD : D.Nonempty} {hC : C ≠ univ}
+    {f : ∀ n (_ : cell C n), X → Y} {fD : X → Y}
+    {n : ℕ} {i : cell C n} {x : X} (hx : x ∈ openCell n i) :
     mapComplexNotUniv hD hC f fD x = f n i x := by
   simp [indexedPartitionComplexNotUniv_index_mem_openCell Y n i hx, mapComplexNotUniv,
     IndexedPartition.piecewise_apply, hx]
 
+lemma RelCWComplex.mapComplexNotUniv_apply_mem_closedCell [T2Space X] {Y : Type*} [Inhabited Y]
+    [RelCWComplex C D] {hD : D.Nonempty} {hC : C ≠ univ}
+    {f : ∀ n (_ : cell C n), X → Y} {fD : X → Y}
+    (hf1 : ∀ n (i : cell C n) m (j : cell C m) {x} (_ : x ∈ closedCell n i)
+      (_ : x ∈ closedCell m j), f n i x = f m j x)
+    (hfD1 : ∀ n (i : cell C n) {x} (_ : x ∈ closedCell n i) (_ : x ∈ D), f n i x = fD x)
+    {n : ℕ} {i : cell C n} {x : X} (hx : x ∈ closedCell n i) :
+    mapComplexNotUniv hD hC f fD x = f n i x := by
+  have hx' := closedCell_subset_skeleton n i hx
+  simp_rw [← Subcomplex.mem, mem_skeleton_iff] at hx'
+  rcases hx' with hx' | ⟨m, _, j, hx'⟩
+  · rw [mapComplexNotUniv_apply_mem_base hx']
+    exact (hfD1 n i hx hx').symm
+  · rw [mapComplexNotUniv_apply_mem_openCell hx']
+    exact hf1 m j n i (openCell_subset_closedCell m j hx') hx
+
 lemma RelCWComplex.mapComplexNotUniv_continuousOn [T2Space X] [Inhabited Y]
     [RelCWComplex C D] (hD : D.Nonempty) (hC : C ≠ univ)
-    {f : ∀ n (i : cell C n), X → Y} {fD : X → Y}
-    (hf1 : ∀ n (i : cell C n) m (j : cell C m) {x} (hi : x ∈ closedCell n i)
-      (hj : x ∈ closedCell m j),
-      f n i x = f m j x)
-    (hfD1 : ∀ n (i : cell C n) {x} (hi : x ∈ closedCell n i) (hxD : x ∈ D), f n i x = fD x)
+    {f : ∀ n (_ : cell C n), X → Y} {fD : X → Y}
+    (hf1 : ∀ n (i : cell C n) m (j : cell C m) {x} (_ : x ∈ closedCell n i)
+      (_ : x ∈ closedCell m j), f n i x = f m j x)
+    (hfD1 : ∀ n (i : cell C n) {x} (_ : x ∈ closedCell n i) (_ : x ∈ D), f n i x = fD x)
     (hf2 : ∀ n (i : cell C n), ContinuousOn (f n i) (closedCell n i))
     (hfD2 : ContinuousOn fD D) :
     ContinuousOn (mapComplexNotUniv hD hC f fD) C := by
   rw [continuousOn_iff]
   constructor
-  · sorry
-  · sorry
+  · apply hfD2.congr
+    intro x hx
+    exact mapComplexNotUniv_apply_mem_base hx
+  · intro n i
+    apply (hf2 n i).congr
+    intro x hx
+    exact mapComplexNotUniv_apply_mem_closedCell hf1 hfD1 hx
 
+/-! Defining a function on the whole type -/
+
+open Classical in
+/-- A version of `mapComplexNotUniv` that also defines a sensible function outside of the
+complex. -/
+def RelCWComplex.mapComplexNotUniv' [Inhabited Y] [RelCWComplex C D] (hD : D.Nonempty)
+    (hC : C ≠ univ) (f : ∀ n (_ : cell C n), X → Y) (fD : X → Y) (fC : X → Y) : X → Y :=
+  (indexedPartitionComplexNotUniv hD hC).piecewise
+   (fun j ↦ match j with
+    | .inl 0 => fC
+    | .inl 1 => fD
+    | .inr ⟨n, i⟩ => f n i)
+
+lemma RelCWComplex.mapComplexNotUniv'_apply_not_mem_complex (Y : Type*) [Inhabited Y]
+    [RelCWComplex C D] {hD : D.Nonempty} {hC : C ≠ univ}
+    {f : ∀ n (_ : cell C n), X → Y} {fD : X → Y} {fC : X → Y}
+    {x : X} (hx : x ∉ C) :
+    mapComplexNotUniv' hD hC f fD fC x = fC x := by
+  simp [indexedPartitionComplexNotUniv_index_not_mem_complex Y hx,
+    mapComplexNotUniv', IndexedPartition.piecewise_apply, hx]
+
+lemma RelCWComplex.mapComplexNotUniv'_apply_mem_base {Y : Type*} [Inhabited Y]
+    [RelCWComplex C D] {hD : D.Nonempty} {hC : C ≠ univ}
+    {f : ∀ n (_ : cell C n), X → Y} {fD : X → Y} {fC : X → Y} {x : X} (hx : x ∈ D) :
+    mapComplexNotUniv' hD hC f fD fC x = fD x := by
+  simp [indexedPartitionComplexNotUniv_index_mem_base Y hx, mapComplexNotUniv',
+    IndexedPartition.piecewise_apply, hx]
+
+lemma RelCWComplex.mapComplexNotUniv'_apply_mem_openCell {Y : Type*} [Inhabited Y]
+    [RelCWComplex C D] {hD : D.Nonempty} {hC : C ≠ univ}
+    {f : ∀ n (_ : cell C n), X → Y} {fD : X → Y} {fC : X → Y}
+    {n : ℕ} {i : cell C n} {x : X} (hx : x ∈ openCell n i) :
+    mapComplexNotUniv' hD hC f fD fC x = f n i x := by
+  simp [indexedPartitionComplexNotUniv_index_mem_openCell Y n i hx, mapComplexNotUniv',
+    IndexedPartition.piecewise_apply, hx]
+
+lemma RelCWComplex.mapComplexNotUniv'_apply_mem_closedCell [T2Space X] {Y : Type*} [Inhabited Y]
+    [RelCWComplex C D] {hD : D.Nonempty} {hC : C ≠ univ}
+    {f : ∀ n (_ : cell C n), X → Y} {fD : X → Y} {fC : X → Y}
+    (hf1 : ∀ n (i : cell C n) m (j : cell C m) {x} (_ : x ∈ closedCell n i)
+      (_ : x ∈ closedCell m j), f n i x = f m j x)
+    (hfD1 : ∀ n (i : cell C n) {x} (_ : x ∈ closedCell n i) (_ : x ∈ D), f n i x = fD x)
+    {n : ℕ} {i : cell C n} {x : X} (hx : x ∈ closedCell n i) :
+    mapComplexNotUniv' hD hC f fD fC x = f n i x := by
+  have hx' := closedCell_subset_skeleton n i hx
+  simp_rw [← Subcomplex.mem, mem_skeleton_iff] at hx'
+  rcases hx' with hx' | ⟨m, _, j, hx'⟩
+  · rw [mapComplexNotUniv'_apply_mem_base hx']
+    exact (hfD1 n i hx hx').symm
+  · rw [mapComplexNotUniv'_apply_mem_openCell hx']
+    exact hf1 m j n i (openCell_subset_closedCell m j hx') hx
+
+lemma RelCWComplex.mapComplexNotUniv'_apply_mem_closure_complex_compl (Y : Type*) [Inhabited Y]
+    [RelCWComplex C D] {hD : D.Nonempty} {hC : C ≠ univ}
+    {f : ∀ n (_ : cell C n), X → Y} {fD : X → Y} {fC : X → Y}
+    (hfC1 : ∀ n (i : cell C n) {x} (_ : x ∈ closedCell n i) (_ : x ∈ closure Cᶜ), f n i x = fC x)
+    (hfCD : ∀ {x} (_ : x ∈ closure Cᶜ) (_ : x ∈ D), fC x = fD x)
+    {x : X} (hx : x ∈ closure Cᶜ) :
+    mapComplexNotUniv' hD hC f fD fC x = fC x := by
+  by_cases h : x ∈ Cᶜ
+  · exact mapComplexNotUniv'_apply_not_mem_complex Y h
+  · simp only [← union_iUnion_openCell_eq_complex, mem_compl_iff, mem_union, mem_iUnion,
+      not_not] at h
+    rcases h with h | ⟨n, i, h⟩
+    · rw [mapComplexNotUniv'_apply_mem_base h]
+      exact (hfCD hx h).symm
+    · rw [mapComplexNotUniv'_apply_mem_openCell h]
+      exact hfC1 n i (openCell_subset_closedCell n i h) hx
+
+lemma RelCWComplex.mapComplexNotUniv'_continuous [T2Space X] [Inhabited Y]
+    [RelCWComplex C D] (hD : D.Nonempty) (hC : C ≠ univ)
+    {f : ∀ n (_ : cell C n), X → Y} {fD : X → Y} {fC : X → Y}
+    (hf1 : ∀ n (i : cell C n) m (j : cell C m) {x} (_ : x ∈ closedCell n i)
+      (_ : x ∈ closedCell m j), f n i x = f m j x)
+    (hfD1 : ∀ n (i : cell C n) {x} (_ : x ∈ closedCell n i) (_ : x ∈ D), f n i x = fD x)
+    (hfC1 : ∀ n (i : cell C n) {x} (_ : x ∈ closedCell n i) (_ : x ∈ closure Cᶜ), f n i x = fC x)
+    (hfCD : ∀ {x} (_ : x ∈ closure Cᶜ) (_ : x ∈ D), fC x = fD x)
+    (hf2 : ∀ n (i : cell C n), ContinuousOn (f n i) (closedCell n i))
+    (hfD2 : ContinuousOn fD D) (hfC2 : ContinuousOn fC (closure Cᶜ)) :
+    Continuous (mapComplexNotUniv' hD hC f fD fC) := by
+  rw [continuous_iff (C := C)]
+  refine ⟨?_, ?_, ?_⟩
+  · apply hfD2.congr
+    intro x hx
+    exact mapComplexNotUniv'_apply_mem_base hx
+  · intro n i
+    apply (hf2 n i).congr
+    intro x hx
+    exact mapComplexNotUniv'_apply_mem_closedCell hf1 hfD1 hx
+  · apply hfC2.congr
+    intro x hx
+    exact mapComplexNotUniv'_apply_mem_closure_complex_compl Y hfC1 hfCD hx
 
 end Topology
