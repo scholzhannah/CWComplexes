@@ -14,6 +14,7 @@ section CellularMap
 
 variable {X Y : Type*} [TopologicalSpace X] [T2Space X] [TopologicalSpace Y] [T2Space Y]
 
+
 /-- A cellular map is a map between two CW complexes `C` and `E` that respects the skeletal
 structure: Sending the `n`-skelton of `C` to the `n`-skeleton of `E` for every `n : ℕ`. -/
 structure CellularMap (C : Set X) {D : Set X} [RelCWComplex C D] (E : Set Y) {F : Set Y}
@@ -63,7 +64,7 @@ protected def id (C : Set X) {D : Set X} [RelCWComplex C D] : CellularMap C C wh
 @[simp] theorem id_apply (x : X) : CellularMap.id C x = x := rfl
 
 lemma image_skeletonLT_subset (f : CellularMap C E) (n : ℕ∞) :
-    f '' (skeletonLT C n) ⊆ skeletonLT E n :=
+    f '' skeletonLT C n ⊆ skeletonLT E n :=
   match n with
     | (m : ℕ) => f.image_skeletonLT_subset' m
     | ⊤ => by
@@ -75,7 +76,7 @@ lemma image_skeletonLT_subset (f : CellularMap C E) (n : ℕ∞) :
       apply skeletonLT_subset_complex
       exact f.image_skeletonLT_subset' n (mem_image_of_mem f hxn)
 
-lemma image_skeleton_subset (f : CellularMap C E) (n : ℕ∞) : f '' (skeleton C n) ⊆ skeleton E n :=
+lemma image_skeleton_subset (f : CellularMap C E) (n : ℕ∞) : f '' skeleton C n ⊆ skeleton E n :=
   f.image_skeletonLT_subset _
 
 def comp {Z : Type*} [TopologicalSpace Z] [T2Space Z] {G H : Set Z} [RelCWComplex G H]
@@ -84,6 +85,7 @@ def comp {Z : Type*} [TopologicalSpace Z] [T2Space Z] {G H : Set Z} [RelCWComple
   continuousOn_toFun := by
     apply f.continuousOn.comp g.continuousOn
     simp_rw [Set.mapsTo', ← skeletonLT_top (C := C), ← skeletonLT_top (C := E)]
+    -- make a lemma for the complex
     exact g.image_skeletonLT_subset ⊤
   image_skeletonLT_subset' n := by
     rw [image_comp]
@@ -361,8 +363,7 @@ variable {e} {s : Set X} {t : Set Y} {x : X} {y : Y}
 
 lemma toPartialEquiv (h : e.IsImage s t) : e.toPartialEquiv.IsImage s t := h
 
-lemma apply_mem_iff (h : e.IsImage s t) (hx : x ∈ e.source) : e x ∈ t ↔ x ∈ s :=
-  h hx
+lemma apply_mem_iff (h : e.IsImage s t) (hx : x ∈ e.source) : e x ∈ t ↔ x ∈ s := h hx
 
 protected lemma symm (h : e.IsImage s t) : e.symm.IsImage t s := h.toPartialEquiv.symm
 

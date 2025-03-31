@@ -107,6 +107,8 @@ class CWComplex {X : Type*} [TopologicalSpace X] (C : Set X) extends RelCWComple
   /-- The constructor for `CWComplex`. Use `CWComplex.mk` instead. -/
   mk' ::
 
+-- make this not and extends, create instance from CWComplex to RelCWComplex
+
 /-- A constructor for `CWComplex`. -/
 def CWComplex.mk.{u} {X : Type u} [TopologicalSpace X] (C : Set X)
     (cell : ℕ → Type u) (map : (n : ℕ) → (i : cell n) → PartialEquiv (Fin n → ℝ) X)
@@ -506,7 +508,14 @@ lemma coe_eq_carrier {E : Subcomplex C} : (E : Set X) = E.carrier := rfl
 @[ext] lemma ext {E F : Subcomplex C} (h : ∀ x, x ∈ E ↔ x ∈ F) : E = F :=
   SetLike.ext h
 
-/-- Copy of a `MySubobject` with a new `carrier` equal to the old one. Useful to fix definitional
+lemma eq_iff (E F : Subcomplex C) : E = F ↔ (E : Set X) = F := by
+  constructor
+  · exact fun h ↦ congrArg SetLike.coe h
+  · intro h
+    ext x
+    rw [mem, mem, h]
+
+/-- Copy of a `Subcomplex` with a new `carrier` equal to the old one. Useful to fix definitional
 equalities. See Note [range copy pattern]. -/
 protected def copy (E : Subcomplex C) (F : Set X) (hF : F = E) : Subcomplex C :=
   { carrier := F
