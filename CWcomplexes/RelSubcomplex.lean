@@ -280,7 +280,7 @@ instance RelCWComplex.Subcomplex.instDistribLattice [RelCWComplex C D] :
     }
 
 /-- Auxiliary definition used to define `top` in `Subcomplex C`. -/
-@[simps]
+@[irreducible, simps]
 protected def RelCWComplex.Subcomplex.top' [T2Space X] [RelCWComplex C D] : Subcomplex C where
   carrier := C
   I n := univ
@@ -288,7 +288,7 @@ protected def RelCWComplex.Subcomplex.top' [T2Space X] [RelCWComplex C D] : Subc
   union' := by simp [← union_iUnion_openCell_eq_complex]
 
 /-- Auxiliary definition used to define `bot` in `Subcomplex C`. -/
-@[simps]
+@[irreducible, simps]
 protected def RelCWComplex.Subcomplex.bot' [RelCWComplex C D] : Subcomplex C where
   carrier := D
   I n := ∅
@@ -296,7 +296,7 @@ protected def RelCWComplex.Subcomplex.bot' [RelCWComplex C D] : Subcomplex C whe
   union' := by simp
 
 /-- Auxiliary definition used to define `sSup` in `Subcomplex C`. -/
-@[simps!]
+@[irreducible, simps!]
 protected def RelCWComplex.Subcomplex.sSup' [T2Space X] [RelCWComplex C D]
     (S : Set (Subcomplex C)) : Subcomplex C :=
   mk' C (D ∪ ⋃ (E ∈ S), E) (fun n ↦ ⋃ (E ∈ S), E.I n)
@@ -328,7 +328,7 @@ protected def RelCWComplex.Subcomplex.sSup' [T2Space X] [RelCWComplex C D]
         not_isEmpty_of_nonempty])
 
 /-- Auxiliary definition used to define `sInf` in `Subcomplex C`. -/
-@[simps]
+@[irreducible, simps]
 protected def RelCWComplex.Subcomplex.sInf' [T2Space X] [RelCWComplex C D]
     (S : Set (Subcomplex C)) : Subcomplex C where
   carrier := C ∩ ⋂ (E ∈ S), E
@@ -361,27 +361,7 @@ protected def RelCWComplex.Subcomplex.sInf' [T2Space X] [RelCWComplex C D]
       mem_univ, iUnion_true, mk''_I, iInter_coe_set, eq_mp_eq_cast, id_eq,
       not_isEmpty_of_nonempty, iUnion_of_empty, union_empty, inter_univ]
       exact union_iUnion_openCell_eq_complex
-/-
-instance RelCWComplex.Subcomplex.instCompleteLattice [T2Space X] [RelCWComplex C D] :
-    CompleteLattice (Subcomplex C) :=
-    { __ := (inferInstance : DistribLattice (Subcomplex C))
-      sSup := Topology.RelCWComplex.Subcomplex.sSup'
-      le_sSup S E hES := by
-        simp only [← SetLike.coe_subset_coe, sSup'_carrier]
-        apply subset_union_of_subset_right
-        exact subset_biUnion_of_mem hES
-      sSup_le S E hE := by simp_all [← SetLike.coe_subset_coe, base_subset_complex]
-      sInf := Topology.RelCWComplex.Subcomplex.sInf'
-      sInf_le S E hES := by
-        simp only [← SetLike.coe_subset_coe, sInf'_carrier]
-        apply inter_subset_right.trans
-        exact biInter_subset_of_mem hES
-      le_sInf S E hE := by simp_all [← SetLike.coe_subset_coe, subset_complex]
-      top := Topology.RelCWComplex.Subcomplex.top'
-      bot := Topology.RelCWComplex.Subcomplex.bot'
-      le_top E := by simp [← SetLike.coe_subset_coe, subset_complex]
-      bot_le E := by simp [← SetLike.coe_subset_coe, base_subset_complex]}
--/
+
 protected def RelCWComplex.Subcomplex.CompletelyDistribLattice.MinimalAxioms [T2Space X]
     [RelCWComplex C D] : CompletelyDistribLattice.MinimalAxioms (Subcomplex C) :=
   { __ := (inferInstance : DistribLattice (Subcomplex C))
@@ -406,9 +386,27 @@ protected def RelCWComplex.Subcomplex.CompletelyDistribLattice.MinimalAxioms [T2
       by_cases h : Nonempty ι
       · simp only [mem_range, iInter_exists, iInter_iInter_eq', sSup'_carrier, iUnion_exists,
           iUnion_iUnion_eq', sInf'_carrier, inter_iInter, inter_union_distrib_left, inter_iUnion,
-          union_iUnion]
-
-        sorry
+          union_iUnion, inter_eq_right.2 (base_subset_complex (C := C))]
+        by_cases h' : ∀ a, Nonempty (f a)
+        · simp only [union_iUnion, union_iInter]
+          ext x
+          simp only [mem_iUnion, mem_iInter]
+          constructor
+          · intro hE
+            use (fun i ↦ (hE i).choose)
+            intro i
+            exact (hE i).choose_spec
+          · intro ⟨g, hg⟩
+            intro i
+            use g i, hg i
+        · simp_all only [not_forall, not_nonempty_iff, isEmpty_pi, iUnion_of_empty, union_empty]
+          apply subset_antisymm
+          · obtain ⟨a, ha⟩ := h'
+            apply iInter_subset_of_subset a
+            simp
+          · apply subset_iInter
+            intro i
+            exact subset_union_left
       · simp_all only [not_nonempty_iff, mem_range, IsEmpty.exists_iff, iInter_of_empty,
         iInter_univ, inter_univ, iUnion_exists, iUnion_iUnion_eq', sInf'_carrier]
         ext x
@@ -423,19 +421,27 @@ instance RelCWComplex.Subcomplex.instCompletelyDistribLattice [T2Space X]
 
 @[simp]
 lemma RelCWComplex.Subcomplex.top_carrier [T2Space X] [RelCWComplex C D] :
-    (⊤ : Subcomplex C) = C := rfl
+    (⊤ : Subcomplex C) = C := by
+  simp [instCompletelyDistribLattice, CompletelyDistribLattice.toCompleteLattice,
+    CompletelyDistribLattice.MinimalAxioms]
 
 @[simp]
 lemma RelCWComplex.Subcomplex.top_I [T2Space X] [RelCWComplex C D] (n : ℕ) :
-    (⊤ : Subcomplex C).I n = univ := rfl
+    (⊤ : Subcomplex C).I n = univ := by
+  simp [instCompletelyDistribLattice, CompletelyDistribLattice.toCompleteLattice,
+    CompletelyDistribLattice.MinimalAxioms]
 
 @[simp]
 lemma RelCWComplex.Subcomplex.bot_carrier [T2Space X] [RelCWComplex C D] :
-    (⊥ : Subcomplex C) = D := rfl
+    (⊥ : Subcomplex C) = D := by
+  simp [instCompletelyDistribLattice, CompletelyDistribLattice.toCompleteLattice,
+    CompletelyDistribLattice.MinimalAxioms]
 
 @[simp]
 lemma RelCWComplex.Subcomplex.bot_I [T2Space X] [RelCWComplex C D] (n : ℕ) :
-    (⊥ : Subcomplex C).I n = ∅ := rfl
+    (⊥ : Subcomplex C).I n = ∅ := by
+  simp [instCompletelyDistribLattice, CompletelyDistribLattice.toCompleteLattice,
+    CompletelyDistribLattice.MinimalAxioms]
 
 -- `bot_carrier` rewrites it to a presentation that then cannot be used by `instSubcomplex_cell`
 -- I think this is an issue of the definition equality generated by `ofMinimalAxioms`
@@ -446,7 +452,7 @@ instance RelCWComplex.Subcomplex.finite_bot [T2Space X] [RelCWComplex C D] :
     simp_rw [instSubcomplex_cell]
     simp
   finite_cell n := by
-    simp only [instSubcomplex_cell, bot_I, Finite.of_subsingleton]
+    simp [instSubcomplex_cell, Finite.of_subsingleton]
 
 lemma RelCWComplex.Subcomplex.iSup_carrier [T2Space X] [RelCWComplex C D]
     {J : Type*} (sub : J → Subcomplex C) :
