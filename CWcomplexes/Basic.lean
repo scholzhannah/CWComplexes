@@ -483,7 +483,7 @@ structure Subcomplex (C : Set X) {D : Set X} [RelCWComplex C D] where
   /-- A subcomplex is closed.-/
   closed' : IsClosed (carrier : Set X)
   /-- The union of all open cells of the subcomplex equals the subcomplex.-/
-  union' : D ∪ ⋃ (n : ℕ) (j : I n), openCell (C := C) (D := D) n j = carrier
+  union' : D ∪ ⋃ (n : ℕ) (j : I n), openCell (C := C) n j = carrier
 
 namespace Subcomplex
 
