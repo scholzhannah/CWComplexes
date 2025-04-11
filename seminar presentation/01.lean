@@ -4,6 +4,8 @@ noncomputable section
 
 namespace Topology
 
+open RelCWComplex
+
 variable {X : Type*} [TopologicalSpace X]
 
 class RelCWComplex.Subcomplex (C : Set X) {D : Set X} [RelCWComplex C D] (E : Set X) where
@@ -23,14 +25,15 @@ scoped infixr:35 " ⇂ "  => Sub
 instance RelCWComplex.Subcomplex.instSubcomplex {C D : Set X} [T2Space X] [RelCWComplex C D] (E : Set X)
     [subcomplex : Subcomplex C E] : RelCWComplex (E ⇂ C) D := sorry
 
-instance RelCWComplex.Subcomplex.iUnionSubcomplex {C D : Set X} [T2Space X] [RelCWComplex C D]
-    (J : Type*) [Nonempty J] (sub : J → Set X) [cw : ∀ (j : J), Subcomplex C (sub j)] :
-    Subcomplex C (⋃ (j : J), sub j) := sorry
+instance CWComplex.Subcomplex.instSubcomplex {C : Set X} [T2Space X] [CWComplex C] (E : Set X)
+    [subcomplex : Subcomplex C E] : CWComplex (E ⇂ C) := sorry
 
-instance RelCWComplex.Subcomplex.instSkeletonLT {C D : Set X} [T2Space X] [RelCWComplex C D] (n : ℕ∞) :
-    Subcomplex C (skeletonLT C n) := sorry
+instance RelCWComplex.Subcomplex.instSkeleton {C D : Set X} [T2Space X] [RelCWComplex C D] (n : ℕ∞) :
+    Subcomplex C (skeleton C n) := sorry
 
-set_option trace.Meta.synthInstance true in
-open RelCWComplex in
 instance {C D : Set X} [T2Space X] [RelCWComplex C D] (n : ℕ∞) :
-  RelCWComplex (skeletonLT C n) D := inferInstance
+  RelCWComplex (skeleton C n) D := RelCWComplex.Subcomplex.instSubcomplex (C := C) _
+
+--set_option trace.Meta.synthInstance true in
+instance {C D : Set X} [T2Space X] [RelCWComplex C D] (n : ℕ∞) :
+  RelCWComplex (skeleton C n) D :=  sorry --inferInstance

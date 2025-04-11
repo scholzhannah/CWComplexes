@@ -62,6 +62,8 @@
 
 \input{thesis_macros}
 
+\newcommand{\myinline}[1]{\lstinline[basicstyle={\ttfamily\footnotesize}]|#1|}
+
 %Information to be included in the title page:
 \title{Formalizing CW complexes in Lean}
 \author{Hannah Scholz}
@@ -75,6 +77,17 @@
 \frame{\titlepage}
 
 \section{Introduction}
+
+\begin{frame}
+\frametitle{Timeline of the project}
+\begin{enumerate}
+  \item[\textbullet] February 2024: I am learning Lean
+  \item[\textbullet] March - August 2024: I officially start my bachelor thesis
+  \item[\textbullet] July 2024: My first (tiny) PR gets merged 
+  \item[\textbullet] November 2024 - now: I continue working on the project as a student assistant
+  \item[\textbullet] February 2025: My first bigger PR gets merged
+\end{enumerate}
+\end{frame}
 
 \begin{frame}
 \frametitle{Definition of CW-complexes}
@@ -93,24 +106,6 @@
     We call $Q_i^n$ a \emph{characteristic map} and $\cellFrontier{n}{i} \coloneq Q_i^n(\boundary D_i^n)$ the \emph{frontier of the $n$-cell} for any $i$ and $n$.
 \end{frame}
 
-\begin{frame}
-  \frametitle{Project Overview}
-  \fontsize{10pt}{5}\selectfont
-  The current progress in terms of files/topics looks like this:
-  \begin{itemize}
-    \item[\textcolor{Green}{\textbullet}] Definition and basic properties: In mathlib
-    \item[\textcolor{Yellow}{\textbullet}] Finiteness notions on CW Complexes: PR
-    \item[\textcolor{YellowOrange}{\textbullet}] Subcomplexes: Done
-    \item[\textcolor{YellowOrange}{\textbullet}] Basic constructions: Done 
-    \item[\textcolor{Yellow}{\textbullet}] KSpaces: PR
-    \item[\textcolor{YellowOrange}{\textbullet}] Additional Lemmas: Done
-    \item[\textcolor{YellowOrange}{\textbullet}] Product: Done
-    \item[\textcolor{Orange}{\textbullet}] Examples: Needs clean-up
-    \item[\textcolor{Orange}{\textbullet}] Maps: Work in progress
-    \item[\textcolor{Red}{\textbullet}] Quotients: To be done (by me)
-    \item[\textcolor{BrickRed}{\textbullet}] Equivalence to other definition: To be done (probably not by me)
-  \end{itemize}
-\end{frame}
 
 \section{Definition: Evolution}
 
@@ -334,13 +329,67 @@ class Subcomplex (C D : Set X) [RelCWComplex C D] (E : Set X) where
 \end{lstlisting}
 \end{frame}
 
+\begin{frame}
+\frametitle{The problem}
+\footnotesize
+\begin{enumerate}
+  \item[\textbullet] Tries to find \myinline{RelCWComplex (skelton C n) ?_}
+  \begin{enumerate}
+    \item[$\vdash$] \myinline{RelCWComplex (skelton C n) ?_}
+  \end{enumerate}
+  \item[\textcolor{Green}{\textbullet}] Applies \myinline{CWComplex.Subcomplex.instSubcomplex}
+  \begin{enumerate}
+    \item[$\vdash$] \myinline{Subcomplex ?C1 (skelton C n)}
+    \item[$\vdash$] \myinline{CWComplex ?C1}
+  \end{enumerate}
+  \item[\textcolor{Green}{\textbullet}] Applies \myinline{CWComplex.Subcomplex.instSubcomplex} to \myinline{CWComplex ?C1}
+  \begin{enumerate}
+    \item[$\vdash$] \myinline{Subcomplex ?C1 (skelton C n)}
+    \item[$\vdash$] \myinline{Subcomplex ?C2 ?C1}
+  \end{enumerate}
+  \item[\textcolor{Red}{\textbullet}] Finds \myinline{Subcomplex ∅ (skelton ∅ ?_)}
+  \begin{enumerate}
+    \item[$\vdash$] \myinline{Subcomplex (skelton ∅ ?_) (skelton C n)}
+  \end{enumerate}
+  \item[\textcolor{Red}{\textbullet}] Finds \myinline{Subcomplex (skelton ∅ ?_) (skelton (skelton ∅ ?_) ?_)}
+  \begin{enumerate}
+    \item[$\vdash$] \myinline{Subcomplex (skelton (skelton ∅ ?_) ?_) (skelton C n)}
+  \end{enumerate}
+  \item[\textcolor{Red}{\textbullet}] \dots
+\end{enumerate}
+\end{frame}
+
 \begin{frame}[fragile]
-\framtitle{The problem}
-\begin{lstlisting}
-instance CWComplex.instEmpty : CWComplex (∅ : Set X) := ... 
-
-
+\frametitle{The fix}
+\begin{lstlisting}[basicstyle=\ttfamily\footnotesize]
+structure Subcomplex (C : Set X) {D : Set X} [RelCWComplex C D] where
+  carrier : Set X
+  I : Π n, Set (cell C n)
+  closed' : IsClosed (carrier : Set X)
+  union' : 
+    D ∪ ⋃ (n : ℕ) (j : I n), openCell (C := C) n j = carrier
 \end{lstlisting}
+\end{frame}
+
+\section{Project Overview}
+
+\begin{frame}
+  \frametitle{Project Overview}
+  \fontsize{10pt}{5}\selectfont
+  The current progress in terms of files/topics looks like this:
+  \begin{itemize}
+    \item[\textcolor{Green}{\textbullet}] Definition and basic properties: In mathlib
+    \item[\textcolor{Yellow}{\textbullet}] Finiteness notions on CW Complexes: PR
+    \item[\textcolor{YellowOrange}{\textbullet}] Subcomplexes: Done
+    \item[\textcolor{YellowOrange}{\textbullet}] Basic constructions: Done 
+    \item[\textcolor{Yellow}{\textbullet}] KSpaces: PR
+    \item[\textcolor{YellowOrange}{\textbullet}] Additional Lemmas: Done
+    \item[\textcolor{YellowOrange}{\textbullet}] Product: Done
+    \item[\textcolor{Orange}{\textbullet}] Examples: Needs clean-up
+    \item[\textcolor{Orange}{\textbullet}] Maps: Work in progress
+    \item[\textcolor{Red}{\textbullet}] Quotients: To be done (by me)
+    \item[\textcolor{BrickRed}{\textbullet}] Equivalence to other definition: To be done (probably not by me)
+  \end{itemize}
 \end{frame}
 
 \end{document}
