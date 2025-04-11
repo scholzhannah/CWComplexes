@@ -1,10 +1,10 @@
-This is pdfTeX, Version 3.141592653-2.6-1.40.26 (TeX Live 2024) (preloaded format=pdflatex 2024.4.20)  18 SEP 2024 12:04
+This is pdfTeX, Version 3.141592653-2.6-1.40.26 (TeX Live 2024) (preloaded format=pdflatex 2024.4.20)  10 APR 2025 11:04
 entering extended mode
  restricted \write18 enabled.
  file:line:error style messages enabled.
  %&-line parsing enabled.
-**"c:/Users/hanna/Documents/Uni/Bachelorarbeit/CWComplexes/Latex/Final presentation/formalisationofcwcomplexes.tex"
-(c:/Users/hanna/Documents/Uni/Bachelorarbeit/CWComplexes/Latex/Final presentation/formalisationofcwcomplexes.tex
+**"c:/Users/hanna/Documents/Uni/Bachelor/Bachelorarbeit/CWComplexes/Latex/Final presentation/formalisationofcwcomplexes.tex"
+(c:/Users/hanna/Documents/Uni/Bachelor/Bachelorarbeit/CWComplexes/Latex/Final presentation/formalisationofcwcomplexes.tex
 LaTeX2e <2023-11-01> patch level 1
 L3 programming layer <2024-03-14>
 (c:/texlive/2024/texmf-dist/tex/latex/beamer/beamer.cls
@@ -810,12 +810,12 @@ Package rerunfilecheck Info: File `formalisationofcwcomplexes.out' has not chang
  ) 
 Here is how much of TeX's memory you used:
  24568 strings out of 474104
- 462682 string characters out of 5747502
+ 462709 string characters out of 5747502
  2122496 words of memory out of 5000000
  46409 multiletter control sequences out of 15000+600000
  581403 words of font info for 100 fonts, out of 8000000 for 9000
  1141 hyphenation exceptions out of 8191
- 128i,15n,123p,508b,1166s stack positions out of 10000i,1000n,20000p,200000b,200000s
+ 128i,15n,123p,517b,1166s stack positions out of 10000i,1000n,20000p,200000b,200000s
 <c:/texlive/2024/texmf-dist/fonts/type1/public/amsfonts/cm/cmex10.pfb><c:/texlive/2024/texmf-dist/fonts/type1/public/amsfonts/cmextra/cmex9.pfb><c:/texlive/2024/texmf-dist/fonts/type1/public/amsfonts/cm/cmmi10.pfb><c:/texlive/2024/texmf-dist/fonts/type1/public/amsfonts/cm/cmmi8.pfb><c:/texlive/2024/texmf-dist/fonts/type1/public/amsfonts/cm/cmss10.pfb><c:/texlive/2024/texmf-dist/fonts/type1/public/amsfonts/cm/cmss8.pfb><c:/texlive/2024/texmf-dist/fonts/type1/public/amsfonts/cm/cmss9.pfb><c:/texlive/2024/texmf-dist/fonts/type1/public/amsfonts/cm/cmssi10.pfb><c:/texlive/2024/texmf-dist/fonts/type1/public/amsfonts/cm/cmssi8.pfb><c:/texlive/2024/texmf-dist/fonts/type1/public/amsfonts/cm/cmsy10.pfb><c:/texlive/2024/texmf-dist/fonts/type1/public/amsfonts/cm/cmsy6.pfb><c:/texlive/2024/texmf-dist/fonts/type1/public/amsfonts/cm/cmsy8.pfb><c:/texlive/2024/texmf-dist/fonts/type1/public/amsfonts/cm/cmsy9.pfb><c:/texlive/2024/texmf-dist/fonts/type1/public/amsfonts/euler/eurm10.pfb><c:/texlive/2024/texmf-dist/fonts/type1/public/amsfonts/symbols/msam10.pfb><c:/texlive/2024/texmf-dist/fonts/type1/public/amsfonts/symbols/msbm10.pfb><c:/texlive/2024/texmf-dist/fonts/type1/public/cm-super/sfsi1095.pfb><c:/texlive/2024/texmf-dist/fonts/type1/public/cm-super/sfss0600.pfb><c:/texlive/2024/texmf-dist/fonts/type1/public/cm-super/sfss0800.pfb><c:/texlive/2024/texmf-dist/fonts/type1/public/cm-super/sfss1000.pfb><c:/texlive/2024/texmf-dist/fonts/type1/public/cm-super/sfss1095.pfb><c:/texlive/2024/texmf-dist/fonts/type1/public/cm-super/sfss1200.pfb><c:/texlive/2024/texmf-dist/fonts/type1/public/cm-super/sfss1440.pfb><c:/texlive/2024/texmf-dist/fonts/type1/public/cm-super/sftt0900.pfb><c:/texlive/2024/texmf-dist/fonts/type1/public/cm-super/sftt1000.pfb>
 Output written on formalisationofcwcomplexes.pdf (7 pages, 306650 bytes).
 PDF statistics:

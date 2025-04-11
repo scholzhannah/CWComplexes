@@ -1,8 +1,8 @@
-PWD c:/Users/hanna/Documents/Uni/Bachelorarbeit/CWComplexes/Latex/Final presentation
+PWD C:/Users/hanna/Documents/Uni/Bachelor/Bachelorarbeit/CWComplexes/Latex/Final presentation
 INPUT c:/texlive/2024/texmf.cnf
 INPUT c:/texlive/2024/texmf-dist/web2c/texmf.cnf
 INPUT c:/texlive/2024/texmf-var/web2c/pdftex/pdflatex.fmt
-INPUT c:/Users/hanna/Documents/Uni/Bachelorarbeit/CWComplexes/Latex/Final presentation/formalisationofcwcomplexes.tex
+INPUT c:/Users/hanna/Documents/Uni/Bachelor/Bachelorarbeit/CWComplexes/Latex/Final presentation/formalisationofcwcomplexes.tex
 OUTPUT formalisationofcwcomplexes.log
 INPUT c:/texlive/2024/texmf-dist/tex/latex/beamer/beamer.cls
 INPUT c:/texlive/2024/texmf-dist/tex/latex/beamer/beamer.cls

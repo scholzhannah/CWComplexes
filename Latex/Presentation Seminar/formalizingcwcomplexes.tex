@@ -5,6 +5,8 @@
 \usepackage{amssymb}
 \usepackage{upgreek}
 \usepackage{mathtools}
+\usepackage{graphicx}
+\graphicspath{ {./images/} }
 \usepackage{tikz}
 \usetikzlibrary{shapes.callouts,shadows, calc}
 
@@ -223,17 +225,80 @@ class RelCWComplex.{u} {X : Type u} [TopologicalSpace X]
   cont (n : ℕ) (i : cell n) : ContinuousOn (map n i) (closedBall 0 1)
   cont_symm (n : ℕ) (i : cell n) : 
     ContinuousOn (map n i).symm (map n i).target
-  pairwiseDisjoint' :
-    (univ : Set (Σ n, cell n)).PairwiseDisjoint 
+  pairwiseDisjoint' : (univ : Set (Σ n, cell n)).PairwiseDisjoint 
     (fun ni ↦ map ni.1 ni.2 '' ball 0 1)
   @disjointBase' (n : ℕ) (i : cell n) : Disjoint (map n i '' ball 0 1) D@
   mapsto (n : ℕ) (i : cell n) : ∃ I : Π m, Finset (cell m),
     MapsTo (map n i) (sphere 0 1) 
     (D ∪ ⋃ (m < n) (j ∈ I m), map m j '' closedBall 0 1)
-  closed' (A : Set X) (asubc : A ⊆ C) : ((∀ n j, IsClosed (A ∩ map n j '' closedBall 0 1)) ∧ IsClosed (A ∩ D)) → IsClosed A
+  closed' (A : Set X) (asubc : A ⊆ C) : 
+    ((∀ n j, IsClosed (A ∩ map n j '' closedBall 0 1)) ∧ 
+    IsClosed (A ∩ D)) → IsClosed A
   @isClosedBase : IsClosed D@
   union' : D ∪ ⋃ (n : ℕ) (j : cell n), map n j '' closedBall 0 1 = C
 \end{lstlisting}
+\end{frame}
+
+\begin{frame}[fragile]
+\frametitle{November 2024}
+\begin{lstlisting}[basicstyle=\ttfamily\scriptsize]
+class RelCWComplex.{u} {X : Type u} [TopologicalSpace X] (C : Set X) @(D : outParam (Set X))@ where
+  cell (n : ℕ) : Type u
+  map (n : ℕ) (i : cell n) : PartialEquiv (Fin n → ℝ) X
+  source_eq (n : ℕ) (i : cell n) : (map n i).source = closedBall 0 1
+  cont (n : ℕ) (i : cell n) : ContinuousOn (map n i) (closedBall 0 1)
+  cont_symm (n : ℕ) (i : cell n) : 
+    ContinuousOn (map n i).symm (map n i).target
+  pairwiseDisjoint' : (univ : Set (Σ n, cell n)).PairwiseDisjoint 
+    (fun ni ↦ map ni.1 ni.2 '' ball 0 1)
+  disjointBase' (n : ℕ) (i : cell n) : Disjoint (map n i '' ball 0 1) D
+  mapsto (n : ℕ) (i : cell n) : ∃ I : Π m, Finset (cell m),
+    MapsTo (map n i) (sphere 0 1) 
+    (D ∪ ⋃ (m < n) (j ∈ I m), map m j '' closedBall 0 1)
+  closed' (A : Set X) (asubc : A ⊆ C) : 
+    ((∀ n j, IsClosed (A ∩ map n j '' closedBall 0 1)) ∧ 
+    IsClosed (A ∩ D)) → IsClosed A
+  isClosedBase : IsClosed D
+  union' : D ∪ ⋃ (n : ℕ) (j : cell n), map n j '' closedBall 0 1 = C
+\end{lstlisting}
+\end{frame}
+
+\begin{frame}[fragile]
+\frametitle{November 2024: Reason for change}
+\begin{lstlisting}[basicstyle=\ttfamily\scriptsize]
+instance RelCWComplex_levelaux [RelCWComplex C D] (n : ℕ∞) : RelCWComplex (levelaux C @D@ n) @D@ where
+  cell l := {x : cell C @D@ l // l < n}
+  map l i := map (C := C) @(D := D)@ l i
+  source_eq l i:= source_eq (C := C) @(D := D)@ l i
+  cont l i := cont (C := C) @(D := D)@ l i
+  cont_symm l i := cont_symm (C := C) @(D := D)@ l i
+  ...
+\end{lstlisting}
+\end{frame}
+
+\begin{frame}[fragile]
+\frametitle{January 2025}
+\begin{lstlisting}[basicstyle=\ttfamily\scriptsize]
+class RelCWComplex.{u} {X : Type u} [TopologicalSpace X] (C : Set X) 
+    (D : outParam (Set X)) where
+  cell (n : ℕ) : Type u
+  map (n : ℕ) (i : cell n) : PartialEquiv (Fin n → ℝ) X
+  source_eq (n : ℕ) (i : cell n) : (map n i).source = @ball@ 0 1
+  continuousOn (n : ℕ) (i : cell n) : 
+    ContinuousOn (map n i) (closedBall 0 1)
+  continuousOn_symm (n : ℕ) (i : cell n) : 
+    ContinuousOn (map n i).symm (map n i).target
+  pairwiseDisjoint' : (univ : Set (Σ n, cell n)).PairwiseDisjoint 
+    (fun ni ↦ map ni.1 ni.2 '' ball 0 1)
+  disjointBase' (n : ℕ) (i : cell n) : Disjoint (map n i '' ball 0 1) D
+  mapsto (n : ℕ) (i : cell n) : ∃ I : Π m, Finset (cell m),
+    MapsTo (map n i) (sphere 0 1) 
+    (D ∪ ⋃ (m < n) (j ∈ I m), map m j '' closedBall 0 1)
+  closed' (A : Set X) (asubc : A ⊆ C) : ((∀ n j, IsClosed (A ∩ map n j '' closedBall 0 1)) ∧ IsClosed (A ∩ D)) → IsClosed A
+  isClosedBase : IsClosed D
+  union' : D ∪ ⋃ (n : ℕ) (j : cell n), map n j '' closedBall 0 1 = C
+\end{lstlisting}
+
 \end{frame}
 
 \section{Subcomplexes}
@@ -251,7 +316,31 @@ class RelCWComplex.{u} {X : Type u} [TopologicalSpace X]
   Let $E \subseteq X$ together with $J_n \subseteq I_n$ for every $n \in \bN$ be a subcomplex of the CW complex $X$. 
   Then $E$ is again a CW complex with respect to the cells determined by $J_n$ and $X$.
 \end{block}
+\end{frame}
 
+\begin{frame}
+\frametitle{What I should have done}
+\includegraphics[width=\textwidth]{SetLikeDocs}
+\end{frame}
+
+\begin{frame}[fragile]
+\frametitle{What I actually did}
+\begin{lstlisting}[basicstyle=\ttfamily\footnotesize]
+class Subcomplex (C D : Set X) [RelCWComplex C D] (E : Set X) where
+  I : Π n, Set (cell C D n)
+  closed : IsClosed E
+  union : 
+    D ∪ ⋃ (n : ℕ) (j : I n), openCell (C := C) (D := D) n j = E
+\end{lstlisting}
+\end{frame}
+
+\begin{frame}[fragile]
+\framtitle{The problem}
+\begin{lstlisting}
+instance CWComplex.instEmpty : CWComplex (∅ : Set X) := ... 
+
+
+\end{lstlisting}
 \end{frame}
 
 \end{document}
