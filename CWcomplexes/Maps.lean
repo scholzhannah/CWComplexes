@@ -486,6 +486,8 @@ end CellularEquiv
 
 end RelCWComplex
 
+section
+
 variable {X Y : Type*} [TopologicalSpace X] [TopologicalSpace Y] {C D : Set X}
 
 lemma RelCWComplex.continuousOn_of_continuousOn_closedCell [T2Space X] [RelCWComplex C D]
@@ -548,8 +550,62 @@ lemma CWComplex.continuous_iff [T2Space X] [CWComplex C] (f : X → Y) :
   ⟨fun hf ↦ ⟨fun _ _ ↦ hf.continuousOn, hf.continuousOn⟩,
     fun ⟨hf, hfC⟩ ↦ continuous_of_continuousOn_closedCell f hf hfC⟩
 
+end
 
+variable {X Y : Type*} [TopologicalSpace X] {C D : Set X}
 
+open Classical in
+/-- Defining a piecewise function out of a CW complex `C` in a space `X`. `f` is used on the open
+cells, `fD` on the base `D` and `fX` on the rest of `X`. -/
+def RelCWComplex.piecewise [RelCWComplex C D] (f : ∀ n (_ : cell C n), X → Y) (fD : X → Y)
+    (fX : X → Y) (x : X) : Y :=
+  if h : ∃ (n : ℕ) (j : cell C n), x ∈ openCell n j then f (h.choose) ((h.choose_spec).choose) x
+    else if x ∈ D then fD x
+    else fX x
+
+lemma RelCWComplex.piecewise_apply_of_mem_openCell [RelCWComplex C D]
+    {f : ∀ n (_ : cell C n), X → Y} {fD : X → Y} {fX : X → Y} {x : X} {n : ℕ} {j : cell C n}
+    (hx : x ∈ openCell n j) : piecewise f fD fX x = f n j x := by
+  have h : ∃ (n : ℕ) (j : cell C n), x ∈ openCell n j := ⟨n, j, hx⟩
+  have : (⟨h.choose, h.choose_spec.choose⟩ : Σ n, cell C n) = ⟨n, j⟩ := by
+    apply eq_of_not_disjoint_openCell
+    rw [not_disjoint_iff]
+    use x, h.choose_spec.choose_spec
+  simp only [piecewise, h, ↓reduceDIte]
+  aesop
+
+lemma RelCWComplex.piecewise_apply_of_mem_base [RelCWComplex C D]
+    {f : ∀ n (_ : cell C n), X → Y} {fD : X → Y} {fX : X → Y} {x : X}
+    (hx : x ∈ D) : piecewise f fD fX x = fD x := by
+  have : ¬ ∃ (n : ℕ) (j : cell C n), x ∈ openCell n j :=
+    fun ⟨n, j, h⟩ ↦ (disjointBase n j).not_mem_of_mem_left h hx
+  simp_all [piecewise]
+
+lemma RelCWComplex.piecewise_apply_of_not_mem_complex [RelCWComplex C D]
+    (f : ∀ n (_ : cell C n), X → Y) (fD : X → Y) (fX : X → Y) (x : X) (hx : x ∉ C) :
+    piecewise f fD fX x = fX x := by
+  have : ¬ ∃ (n : ℕ) (j : cell C n), x ∈ openCell n j := by
+    intro ⟨n, j, hj⟩
+    exact hx (openCell_subset_complex n j hj)
+  have : ¬ x ∈ D := by
+    intro h
+    exact hx (base_subset_complex h)
+  simp_all [piecewise]
+
+lemma RelCWComplex.piecewise_apply_of_mem_closedCell [T2Space X] [RelCWComplex C D]
+    {f : ∀ n (_ : cell C n), X → Y} {fD : X → Y} {fX : X → Y}
+    (hf1 : ∀ n (i : cell C n) m (j : cell C m) {x} (_ : x ∈ closedCell n i)
+      (_ : x ∈ closedCell m j), f n i x = f m j x)
+    (hfD1 : ∀ n (i : cell C n) {x} (_ : x ∈ closedCell n i) (_ : x ∈ D), f n i x = fD x)
+    {n : ℕ} {i : cell C n} {x : X} (hx : x ∈ closedCell n i) :
+    piecewise f fD fX x = f n i x := by
+  have hx' := closedCell_subset_skeleton n i hx
+  simp_rw [← Subcomplex.mem, mem_skeleton_iff] at hx'
+  rcases hx' with hx' | ⟨m, _, j, hx'⟩
+  · rw [piecewise_apply_of_mem_base hx']
+    exact (hfD1 n i hx hx').symm
+  · rw [piecewise_apply_of_mem_openCell hx']
+    exact hf1 m j n i (openCell_subset_closedCell m j hx') hx
 
 -- I think everything starting from here needs to be redone
 
@@ -682,6 +738,8 @@ lemma RelCWComplex.mapComplexNotUniv_apply_mem_closedCell [T2Space X] {Y : Type*
     exact (hfD1 n i hx hx').symm
   · rw [mapComplexNotUniv_apply_mem_openCell hx']
     exact hf1 m j n i (openCell_subset_closedCell m j hx') hx
+
+variable [TopologicalSpace Y]
 
 lemma RelCWComplex.mapComplexNotUniv_continuousOn [T2Space X] [Inhabited Y]
     [RelCWComplex C D] (hD : D.Nonempty) (hC : C ≠ univ)
