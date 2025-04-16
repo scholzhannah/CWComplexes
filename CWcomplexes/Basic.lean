@@ -88,7 +88,7 @@ class RelCWComplex.{u} {X : Type u} [TopologicalSpace X] (C : Set X) (D : outPar
     MapsTo (map n i) (sphere 0 1) (D ∪ ⋃ (m < n) (j ∈ I m), map m j '' closedBall 0 1)
   /-- A CW complex has weak topology, i.e. a set `A` in `X` is closed iff its intersection with
   every closed cell and `D` is closed. Use `RelCWComplex.closed` instead. -/
-  closed' (A : Set X) (asubc : A ⊆ C) :
+  closed' (A : Set X) (hAC : A ⊆ C) :
     ((∀ n j, IsClosed (A ∩ map n j '' closedBall 0 1)) ∧ IsClosed (A ∩ D)) → IsClosed A
   /-- The base `D` is closed. -/
   isClosedBase : IsClosed D

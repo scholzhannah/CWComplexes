@@ -766,7 +766,7 @@ lemma RelCWComplex.Subcomplex.attachCell_I [T2Space X] [RelCWComplex C D] (n : �
 contained in the original subcomplex.-/
 def CWComplex.Subcomplex.attachCell [T2Space X] [CWComplex C] (n : ℕ) (i : cell C n)
     (E : Subcomplex C)
-    (subset : ∃ (I : Π m, Set (cell C m)), (∀ m < n, I m ⊆ E.I m) ∧  cellFrontier n i ⊆
+    (subset : ∃ (I : Π m, Set (cell C m)), (∀ m < n, I m ⊆ E.I m) ∧ cellFrontier n i ⊆
       (⋃ (m < n) (j ∈ I m), closedCell (C := C) m j)) :
     Subcomplex C where
   carrier := E ∪ openCell n i

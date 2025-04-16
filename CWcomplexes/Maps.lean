@@ -175,7 +175,7 @@ def toCellularMap (e : CellularEquiv C E) : CellularMap C E where
 /-- Coercion of a cellular equivalence to a cellular map. -/
 instance : Coe (CellularEquiv C E) (CellularMap C E) := ⟨fun e => e.toCellularMap⟩
 
-/-- The inverse of a cellular equivalence  -/
+/-- The inverse of a cellular equivalence -/
 @[symm]
 protected def symm : CellularEquiv E C where
   toPartialEquiv := e.toPartialEquiv.symm
@@ -547,6 +547,11 @@ lemma CWComplex.continuous_iff [T2Space X] [CWComplex C] (f : X → Y) :
       ∧ ContinuousOn f (closure Cᶜ) :=
   ⟨fun hf ↦ ⟨fun _ _ ↦ hf.continuousOn, hf.continuousOn⟩,
     fun ⟨hf, hfC⟩ ↦ continuous_of_continuousOn_closedCell f hf hfC⟩
+
+
+
+
+-- I think everything starting from here needs to be redone
 
 def RelCWComplex.partitionMapComplexNotUniv (C : Set X) [RelCWComplex C D]
   (j : Fin 2 ⊕ Σ n, cell C n) : Set X :=
