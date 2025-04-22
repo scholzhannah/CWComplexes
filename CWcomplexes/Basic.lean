@@ -475,7 +475,7 @@ section Subcomplex
 namespace RelCWComplex
 
 /-- A subcomplex is a closed subspace of a CW-complex that is the union of open cells of the
-  CW-complex.-/
+  CW complex. -/
 structure Subcomplex (C : Set X) {D : Set X} [RelCWComplex C D] where
   carrier : Set X
   /-- The indexing set of cells of the subcomplex.-/
@@ -558,7 +558,7 @@ lemma CWComplex.Subcomplex.union {C : Set X} [CWComplex C] {E : Subcomplex C} :
   exact this
 
 /-- An alternative version of `Subcomplex`: Instead of requiring that `E` is closed it requires
-  that for every cell of the subcomplex the corresponding closed cell is a subset of `E`.-/
+  that for every cell of the subcomplex the corresponding closed cell is a subset of `E`. -/
 @[simps -isSimp]
 def RelCWComplex.Subcomplex.mk' [T2Space X] (C : Set X) {D : Set X} [RelCWComplex C D]
     (E : Set X) (I : Π n, Set (cell C n))
@@ -598,7 +598,7 @@ def RelCWComplex.Subcomplex.mk' [T2Space X] (C : Set X) {D : Set X} [RelCWComple
   union' := union
 
 /-- An alternative version of `Subcomplex`: Instead of requiring that `E` is closed it requires
-  that for every cell of the subcomplex the corresponding closed cell is a subset of `E`.-/
+  that for every cell of the subcomplex the corresponding closed cell is a subset of `E`. -/
 @[simps! -isSimp]
 def CWComplex.Subcomplex.mk' [T2Space X] (C : Set X) [CWComplex C] (E : Set X)
     (I : Π n, Set (cell C n))
