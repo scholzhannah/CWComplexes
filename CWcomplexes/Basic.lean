@@ -103,36 +103,48 @@ RelCWComplex.mapsTo := Topology.RelCWComplex.mapsTo'
 
 /-- Characterizing when a subspace `C` of a topological space `X` is a CW complex. Note that this
 requires `C` to be closed. If `C` is not closed choose `X` to be `C`. -/
-class CWComplex {X : Type*} [TopologicalSpace X] (C : Set X) extends RelCWComplex C ∅ where
-  /-- The constructor for `CWComplex`. Use `CWComplex.mk` instead. -/
-  mk' ::
+class CWComplex.{u} {X : Type u} [TopologicalSpace X] (C : Set X) where
+  /-- The indexing type of the cells of dimension `n`. -/
+  cell (n : ℕ) : Type u
+  /-- The characteristic map of the `n`-cell given by the index `i`.
+  This map is a bijection when restricting to `ball 0 1`, where we consider `(Fin n → ℝ)`
+  endowed with the maximum metric. -/
+  map (n : ℕ) (i : cell n) : PartialEquiv (Fin n → ℝ) X
+  /-- The source of every characteristic map of dimension `n` is
+  `(ball 0 1 : Set (Fin n → ℝ))`. -/
+  source_eq (n : ℕ) (i : cell n) : (map n i).source = ball 0 1
+  /-- The characteristic maps are continuous when restricting to `closedBall 0 1`. -/
+  continuousOn (n : ℕ) (i : cell n) : ContinuousOn (map n i) (closedBall 0 1)
+  /-- The inverse of the restriction to `ball 0 1` is continuous on the image. -/
+  continuousOn_symm (n : ℕ) (i : cell n) : ContinuousOn (map n i).symm (map n i).target
+  /-- The open cells are pairwise disjoint. Use `RelCWComplex.pairwiseDisjoint` or
+  `RelCWComplex.disjoint_openCell_of_ne` instead. -/
+  pairwiseDisjoint' :
+    (univ : Set (Σ n, cell n)).PairwiseDisjoint (fun ni ↦ map ni.1 ni.2 '' ball 0 1)
+  /-- The boundary of a cell is contained in a finite union of closed cells of a lower dimension.
+  Use `RelCWComplex.cellFrontier_subset_finite_closedCell` instead. -/
+  mapsTo' (n : ℕ) (i : cell n) : ∃ I : Π m, Finset (cell m),
+    MapsTo (map n i) (sphere 0 1) (⋃ (m < n) (j ∈ I m), map m j '' closedBall 0 1)
+  /-- A CW complex has weak topology, i.e. a set `A` in `X` is closed iff its intersection with
+  every closed cell is closed. Use `RelCWComplex.closed` instead. -/
+  closed' (A : Set X) (hAC : A ⊆ C) :
+    (∀ n j, IsClosed (A ∩ map n j '' closedBall 0 1)) → IsClosed A
+  /-- The union of all closed cells equals `C`. Use `RelCWComplex.union` instead. -/
+  union' : ⋃ (n : ℕ) (j : cell n), map n j '' closedBall 0 1 = C
 
--- make this not and extends, create instance from CWComplex to RelCWComplex
-
-/-- A constructor for `CWComplex`. -/
-def CWComplex.mk.{u} {X : Type u} [TopologicalSpace X] (C : Set X)
-    (cell : ℕ → Type u) (map : (n : ℕ) → (i : cell n) → PartialEquiv (Fin n → ℝ) X)
-    (source_eq : ∀ (n : ℕ) (i : cell n), (map n i).source = ball 0 1)
-    (continuousOn : ∀ (n : ℕ) (i : cell n), ContinuousOn (map n i) (closedBall 0 1))
-    (continuousOn_symm : ∀ (n : ℕ) (i : cell n), ContinuousOn (map n i).symm (map n i).target)
-    (pairwiseDisjoint' :
-      (univ : Set (Σ n, cell n)).PairwiseDisjoint (fun ni ↦ map ni.1 ni.2 '' ball 0 1))
-    (mapsTo: ∀ n i, ∃ I : Π m, Finset (cell m),
-      MapsTo (map n i) (sphere 0 1) (⋃ (m < n) (j ∈ I m), map m j '' closedBall 0 1))
-    (closed' : ∀ (A : Set X), (asubc : A ⊆ C) →
-      (∀ n j, IsClosed (A ∩ map n j '' closedBall 0 1)) → IsClosed A)
-    (union' : ⋃ (n : ℕ) (j : cell n), map n j '' closedBall 0 1 = C) : CWComplex C where
-  cell := cell
+instance CWComplex.instRelCWComplex {X : Type*} [TopologicalSpace X] (C : Set X) [CWComplex C] :
+    RelCWComplex C ∅ where
+  cell := cell C
   map := map
   source_eq := source_eq
   continuousOn := continuousOn
   continuousOn_symm := continuousOn_symm
   pairwiseDisjoint' := pairwiseDisjoint'
-  disjointBase' := by simp only [disjoint_empty, implies_true]
-  mapsTo' := by simpa only [empty_union]
-  closed' := by simpa only [inter_empty, isClosed_empty, and_true]
+  disjointBase' := by simp [disjoint_empty]
+  mapsTo' := by simpa only [empty_union] using mapsTo'
+  closed' := by simpa only [inter_empty, isClosed_empty, and_true] using closed'
   isClosedBase := isClosed_empty
-  union' := by simpa only [empty_union]
+  union' := by simpa only [empty_union] using union'
 
 variable {X : Type*} [t : TopologicalSpace X] {C D : Set X}
 
