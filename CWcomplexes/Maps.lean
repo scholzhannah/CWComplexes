@@ -563,8 +563,6 @@ def RelCWComplex.piecewise [RelCWComplex C D] (f : ∀ n (_ : cell C n), X → Y
     else if x ∈ D then fD x
     else fX x
 
--- just use fX as fD
-
 open Classical in
 /-- Defining a piecewise function out of a CW complex `C` in a space `X`. `f` is used on the open
 cells and `fX` on the rest of `X`. -/
@@ -615,31 +613,31 @@ lemma CWComplex.piecewise_apply_of_not_mem_complex [CWComplex C]
 
 lemma RelCWComplex.piecewise_apply_of_mem_closedCell [T2Space X] [RelCWComplex C D]
     {f : ∀ n (_ : cell C n), X → Y} {fD : X → Y} {fX : X → Y}
-    (hf1 : ∀ n (i : cell C n) m (j : cell C m) {x} (_ : x ∈ closedCell n i)
-      (_ : x ∈ closedCell m j), f n i x = f m j x)
-    (hfD1 : ∀ n (i : cell C n) {x} (_ : x ∈ closedCell n i) (_ : x ∈ D), f n i x = fD x)
+    (hf1 : ∀ n (i : cell C n) m (j : cell C m),
+      (closedCell n i ∩ closedCell m j).EqOn (f n i) (f m j))
+    (hfD1 : ∀ n (i : cell C n), (closedCell n i ∩ D).EqOn (f n i) fD)
     {n : ℕ} {i : cell C n} {x : X} (hx : x ∈ closedCell n i) :
     piecewise f fD fX x = f n i x := by
   have hx' := closedCell_subset_skeleton n i hx
   simp_rw [← Subcomplex.mem, mem_skeleton_iff] at hx'
   rcases hx' with hx' | ⟨m, _, j, hx'⟩
   · rw [piecewise_apply_of_mem_base hx']
-    exact (hfD1 n i hx hx').symm
+    exact (hfD1 n i ⟨hx, hx'⟩).symm
   · rw [piecewise_apply_of_mem_openCell hx']
-    exact hf1 m j n i (openCell_subset_closedCell m j hx') hx
+    exact hf1 m j n i ⟨(openCell_subset_closedCell m j hx'), hx⟩
 
 lemma CWComplex.piecewise_apply_of_mem_closedCell [T2Space X] [CWComplex C]
     {f : ∀ n (_ : cell C n), X → Y} {fX : X → Y}
-    (hf1 : ∀ n (i : cell C n) m (j : cell C m) {x} (_ : x ∈ closedCell n i)
-      (_ : x ∈ closedCell m j), f n i x = f m j x)
+    (hf1 : ∀ n (i : cell C n) m (j : cell C m),
+      (closedCell n i ∩ closedCell m j).EqOn (f n i) (f m j))
     {n : ℕ} {i : cell C n} {x : X} (hx : x ∈ closedCell n i) :
     piecewise f fX x = f n i x :=
-  RelCWComplex.piecewise_apply_of_mem_closedCell hf1 (fun _ _ _ _ x ↦ x.elim) hx
+  RelCWComplex.piecewise_apply_of_mem_closedCell hf1 (fun _ _ _ hx ↦ hx.2.elim) hx
 
 lemma RelCWComplex.piecewise_apply_of_mem_closure_complex_compl [RelCWComplex C D]
     {f : ∀ n (_ : cell C n), X → Y} {fD : X → Y} {fX : X → Y}
-    (hfC1 : ∀ n (i : cell C n) {x} (_ : x ∈ closedCell n i) (_ : x ∈ closure Cᶜ), f n i x = fX x)
-    (hfCD : ∀ {x} (_ : x ∈ closure Cᶜ) (_ : x ∈ D), fX x = fD x)
+    (hfC1 : ∀ n (i : cell C n), (closedCell n i ∩ closure Cᶜ).EqOn (f n i) fX)
+    (hfCD : (closure Cᶜ ∩ D).EqOn fX fD)
     {x : X} (hx : x ∈ closure Cᶜ) :
     piecewise f fD fX x = fX x := by
   by_cases h : x ∈ Cᶜ
@@ -648,13 +646,13 @@ lemma RelCWComplex.piecewise_apply_of_mem_closure_complex_compl [RelCWComplex C 
       not_not] at h
     rcases h with h | ⟨n, i, h⟩
     · rw [piecewise_apply_of_mem_base h]
-      exact (hfCD hx h).symm
+      exact (hfCD ⟨hx, h⟩).symm
     · rw [piecewise_apply_of_mem_openCell h]
-      exact hfC1 n i (openCell_subset_closedCell n i h) hx
+      exact hfC1 n i ⟨(openCell_subset_closedCell n i h), hx⟩
 
 lemma CWComplex.piecewise_apply_of_mem_closure_complex_compl [CWComplex C]
     {f : ∀ n (_ : cell C n), X → Y} {fX : X → Y}
-    (hfC1 : ∀ n (i : cell C n) {x} (_ : x ∈ closedCell n i) (_ : x ∈ closure Cᶜ), f n i x = fX x)
+    (hfC1 : ∀ n (i : cell C n), (closedCell n i ∩ closure Cᶜ).EqOn (f n i) fX)
     {x : X} (hx : x ∈ closure Cᶜ) :
     piecewise f fX x = fX x :=
   RelCWComplex.piecewise_apply_of_mem_closure_complex_compl hfC1 (fun _ _ ↦ rfl) hx
@@ -663,9 +661,9 @@ variable [TopologicalSpace Y]
 
 lemma RelCWComplex.piecewise_continuousOn [T2Space X] [Inhabited Y]
     [RelCWComplex C D] {f : ∀ n (_ : cell C n), X → Y} {fD : X → Y} {fX : X → Y}
-    (hf1 : ∀ n (i : cell C n) m (j : cell C m) {x} (_ : x ∈ closedCell n i)
-      (_ : x ∈ closedCell m j), f n i x = f m j x)
-    (hfD1 : ∀ n (i : cell C n) {x} (_ : x ∈ closedCell n i) (_ : x ∈ D), f n i x = fD x)
+    (hf1 : ∀ n (i : cell C n) m (j : cell C m),
+      (closedCell n i ∩ closedCell m j).EqOn (f n i) (f m j))
+    (hfD1 : ∀ n (i : cell C n), (closedCell n i ∩ D).EqOn (f n i) fD)
     (hf2 : ∀ n (i : cell C n), ContinuousOn (f n i) (closedCell n i))
     (hfD2 : ContinuousOn fD D) :
     ContinuousOn (piecewise f fD fX) C := by
@@ -681,19 +679,19 @@ lemma RelCWComplex.piecewise_continuousOn [T2Space X] [Inhabited Y]
 
 lemma CWComplex.piecewise_continuousOn [T2Space X] [Inhabited Y]
     [CWComplex C] {f : ∀ n (_ : cell C n), X → Y} {fX : X → Y}
-    (hf1 : ∀ n (i : cell C n) m (j : cell C m) {x} (_ : x ∈ closedCell n i)
-      (_ : x ∈ closedCell m j), f n i x = f m j x)
+    (hf1 : ∀ n (i : cell C n) m (j : cell C m),
+      (closedCell n i ∩ closedCell m j).EqOn (f n i) (f m j))
     (hf2 : ∀ n (i : cell C n), ContinuousOn (f n i) (closedCell n i)) :
     ContinuousOn (piecewise f fX) C :=
-  RelCWComplex.piecewise_continuousOn hf1 (fun _ _ _ _ x ↦ x.elim) hf2 (continuousOn_empty _)
+  RelCWComplex.piecewise_continuousOn hf1 (fun _ _ _ hx ↦ hx.2.elim) hf2 (continuousOn_empty _)
 
 lemma RelCWComplex.piecewise_continuous [T2Space X] [RelCWComplex C D]
     {f : ∀ n (_ : cell C n), X → Y} {fD : X → Y} {fX : X → Y}
-    (hf1 : ∀ n (i : cell C n) m (j : cell C m) {x} (_ : x ∈ closedCell n i)
-      (_ : x ∈ closedCell m j), f n i x = f m j x)
-    (hfD1 : ∀ n (i : cell C n) {x} (_ : x ∈ closedCell n i) (_ : x ∈ D), f n i x = fD x)
-    (hfC1 : ∀ n (i : cell C n) {x} (_ : x ∈ closedCell n i) (_ : x ∈ closure Cᶜ), f n i x = fX x)
-    (hfCD : ∀ {x} (_ : x ∈ closure Cᶜ) (_ : x ∈ D), fX x = fD x)
+    (hf1 : ∀ n (i : cell C n) m (j : cell C m),
+      (closedCell n i ∩ closedCell m j).EqOn (f n i) (f m j))
+    (hfD1 : ∀ n (i : cell C n), (closedCell n i ∩ D).EqOn (f n i) fD)
+    (hfC1 : ∀ n (i : cell C n), (closedCell n i ∩ closure Cᶜ).EqOn (f n i) fX)
+    (hfCD : (closure Cᶜ ∩ D).EqOn fX fD)
     (hf2 : ∀ n (i : cell C n), ContinuousOn (f n i) (closedCell n i))
     (hfD2 : ContinuousOn fD D) (hfC2 : ContinuousOn fX (closure Cᶜ)) :
     Continuous (piecewise f fD fX) := by
@@ -712,13 +710,13 @@ lemma RelCWComplex.piecewise_continuous [T2Space X] [RelCWComplex C D]
 
 lemma CWComplex.piecewise_continuous [T2Space X] [CWComplex C]
     {f : ∀ n (_ : cell C n), X → Y} {fX : X → Y}
-    (hf1 : ∀ n (i : cell C n) m (j : cell C m) {x} (_ : x ∈ closedCell n i)
-      (_ : x ∈ closedCell m j), f n i x = f m j x)
-    (hfC1 : ∀ n (i : cell C n) {x} (_ : x ∈ closedCell n i) (_ : x ∈ closure Cᶜ), f n i x = fX x)
+    (hf1 : ∀ n (i : cell C n) m (j : cell C m),
+      (closedCell n i ∩ closedCell m j).EqOn (f n i) (f m j))
+    (hfC1 : ∀ n (i : cell C n), (closedCell n i ∩ closure Cᶜ).EqOn (f n i) fX)
     (hf2 : ∀ n (i : cell C n), ContinuousOn (f n i) (closedCell n i))
     (hfC2 : ContinuousOn fX (closure Cᶜ)) :
     Continuous (piecewise f fX) :=
-  RelCWComplex.piecewise_continuous hf1 (fun _ _ _ _ x ↦ x.elim) hfC1 (fun _ _ ↦ rfl) hf2
+  RelCWComplex.piecewise_continuous hf1 (fun _ _ _ hx ↦ hx.2.elim) hfC1 (fun _ _ ↦ rfl) hf2
     (continuousOn_empty _) hfC2
 
 namespace CWComplex
