@@ -280,7 +280,7 @@ instance RelCWComplex.Subcomplex.instDistribLattice [RelCWComplex C D] :
     }
 
 /-- Auxiliary definition used to define `top` in `Subcomplex C`. -/
-@[irreducible, simps]
+@[simps]
 protected def RelCWComplex.Subcomplex.top' [T2Space X] [RelCWComplex C D] : Subcomplex C where
   carrier := C
   I n := univ
@@ -288,7 +288,7 @@ protected def RelCWComplex.Subcomplex.top' [T2Space X] [RelCWComplex C D] : Subc
   union' := by simp [← union_iUnion_openCell_eq_complex]
 
 /-- Auxiliary definition used to define `bot` in `Subcomplex C`. -/
-@[irreducible, simps]
+@[simps]
 protected def RelCWComplex.Subcomplex.bot' [RelCWComplex C D] : Subcomplex C where
   carrier := D
   I n := ∅
@@ -296,7 +296,7 @@ protected def RelCWComplex.Subcomplex.bot' [RelCWComplex C D] : Subcomplex C whe
   union' := by simp
 
 /-- Auxiliary definition used to define `sSup` in `Subcomplex C`. -/
-@[irreducible, simps!]
+@[simps!]
 protected def RelCWComplex.Subcomplex.sSup' [T2Space X] [RelCWComplex C D]
     (S : Set (Subcomplex C)) : Subcomplex C :=
   mk' C (D ∪ ⋃ (E ∈ S), E) (fun n ↦ ⋃ (E ∈ S), E.I n)
@@ -328,7 +328,7 @@ protected def RelCWComplex.Subcomplex.sSup' [T2Space X] [RelCWComplex C D]
         not_isEmpty_of_nonempty])
 
 /-- Auxiliary definition used to define `sInf` in `Subcomplex C`. -/
-@[irreducible, simps]
+@[simps]
 protected def RelCWComplex.Subcomplex.sInf' [T2Space X] [RelCWComplex C D]
     (S : Set (Subcomplex C)) : Subcomplex C where
   carrier := C ∩ ⋂ (E ∈ S), E
@@ -488,7 +488,7 @@ lemma RelCWComplex.Subcomplex.iSup_I [T2Space X] [RelCWComplex C D]
     CompletelyDistribLattice.toCompleteLattice, instCompletelyDistribLattice,
     CompletelyDistribLattice.MinimalAxioms]
 
-/-- A finite union of finite-dimensional subcomplexes is again a finite-dimensional subcomplex.-/
+/-- A finite union of finite-dimensional subcomplexes is again a finite-dimensional subcomplex. -/
 instance RelCWComplex.Subcomplex.finiteDimensional_finite_iSup_of_finiteDimensional
     [T2Space X] [RelCWComplex C D] {J : Type*} [_root_.Finite J]
     {sub : J → Subcomplex C}

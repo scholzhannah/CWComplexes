@@ -481,7 +481,7 @@ structure Subcomplex (C : Set X) {D : Set X} [RelCWComplex C D] where
   /-- The indexing set of cells of the subcomplex.-/
   I : Π n, Set (cell C n)
   /-- A subcomplex is closed.-/
-  closed' : IsClosed (carrier : Set X)
+  closed' : IsClosed carrier
   /-- The union of all open cells of the subcomplex equals the subcomplex.-/
   union' : D ∪ ⋃ (n : ℕ) (j : I n), openCell (C := C) n j = carrier
 
@@ -508,12 +508,8 @@ lemma coe_eq_carrier {E : Subcomplex C} : (E : Set X) = E.carrier := rfl
 @[ext] lemma ext {E F : Subcomplex C} (h : ∀ x, x ∈ E ↔ x ∈ F) : E = F :=
   SetLike.ext h
 
-lemma eq_iff (E F : Subcomplex C) : E = F ↔ (E : Set X) = F := by
-  constructor
-  · exact fun h ↦ congrArg SetLike.coe h
-  · intro h
-    ext x
-    rw [mem, mem, h]
+lemma eq_iff (E F : Subcomplex C) : E = F ↔ (E : Set X) = F :=
+  SetLike.coe_injective.eq_iff.symm
 
 /-- Copy of a `Subcomplex` with a new `carrier` equal to the old one. Useful to fix definitional
 equalities. See Note [range copy pattern]. -/
