@@ -105,46 +105,46 @@ RelCWComplex.mapsTo := Topology.RelCWComplex.mapsTo'
 requires `C` to be closed. If `C` is not closed choose `X` to be `C`. -/
 class CWComplex.{u} {X : Type u} [TopologicalSpace X] (C : Set X) where
   /-- The indexing type of the cells of dimension `n`. -/
-  cell (n : ℕ) : Type u
+  protected cell (n : ℕ) : Type u
   /-- The characteristic map of the `n`-cell given by the index `i`.
   This map is a bijection when restricting to `ball 0 1`, where we consider `(Fin n → ℝ)`
   endowed with the maximum metric. -/
-  map (n : ℕ) (i : cell n) : PartialEquiv (Fin n → ℝ) X
+  protected map (n : ℕ) (i : cell n) : PartialEquiv (Fin n → ℝ) X
   /-- The source of every characteristic map of dimension `n` is
   `(ball 0 1 : Set (Fin n → ℝ))`. -/
-  source_eq (n : ℕ) (i : cell n) : (map n i).source = ball 0 1
+  protected source_eq (n : ℕ) (i : cell n) : (map n i).source = ball 0 1
   /-- The characteristic maps are continuous when restricting to `closedBall 0 1`. -/
-  continuousOn (n : ℕ) (i : cell n) : ContinuousOn (map n i) (closedBall 0 1)
+  protected continuousOn (n : ℕ) (i : cell n) : ContinuousOn (map n i) (closedBall 0 1)
   /-- The inverse of the restriction to `ball 0 1` is continuous on the image. -/
-  continuousOn_symm (n : ℕ) (i : cell n) : ContinuousOn (map n i).symm (map n i).target
+  protected continuousOn_symm (n : ℕ) (i : cell n) : ContinuousOn (map n i).symm (map n i).target
   /-- The open cells are pairwise disjoint. Use `RelCWComplex.pairwiseDisjoint` or
   `RelCWComplex.disjoint_openCell_of_ne` instead. -/
-  pairwiseDisjoint' :
+  protected pairwiseDisjoint' :
     (univ : Set (Σ n, cell n)).PairwiseDisjoint (fun ni ↦ map ni.1 ni.2 '' ball 0 1)
   /-- The boundary of a cell is contained in a finite union of closed cells of a lower dimension.
   Use `RelCWComplex.cellFrontier_subset_finite_closedCell` instead. -/
-  mapsTo' (n : ℕ) (i : cell n) : ∃ I : Π m, Finset (cell m),
+  protected mapsTo' (n : ℕ) (i : cell n) : ∃ I : Π m, Finset (cell m),
     MapsTo (map n i) (sphere 0 1) (⋃ (m < n) (j ∈ I m), map m j '' closedBall 0 1)
   /-- A CW complex has weak topology, i.e. a set `A` in `X` is closed iff its intersection with
   every closed cell is closed. Use `RelCWComplex.closed` instead. -/
-  closed' (A : Set X) (hAC : A ⊆ C) :
+  protected closed' (A : Set X) (hAC : A ⊆ C) :
     (∀ n j, IsClosed (A ∩ map n j '' closedBall 0 1)) → IsClosed A
   /-- The union of all closed cells equals `C`. Use `RelCWComplex.union` instead. -/
-  union' : ⋃ (n : ℕ) (j : cell n), map n j '' closedBall 0 1 = C
+  protected union' : ⋃ (n : ℕ) (j : cell n), map n j '' closedBall 0 1 = C
 
 instance CWComplex.instRelCWComplex {X : Type*} [TopologicalSpace X] (C : Set X) [CWComplex C] :
     RelCWComplex C ∅ where
-  cell := cell C
-  map := map
-  source_eq := source_eq
-  continuousOn := continuousOn
-  continuousOn_symm := continuousOn_symm
-  pairwiseDisjoint' := pairwiseDisjoint'
+  cell := CWComplex.cell C
+  map := CWComplex.map
+  source_eq := CWComplex.source_eq
+  continuousOn := CWComplex.continuousOn
+  continuousOn_symm := CWComplex.continuousOn_symm
+  pairwiseDisjoint' := CWComplex.pairwiseDisjoint'
   disjointBase' := by simp [disjoint_empty]
-  mapsTo' := by simpa only [empty_union] using mapsTo'
-  closed' := by simpa only [inter_empty, isClosed_empty, and_true] using closed'
+  mapsTo' := by simpa only [empty_union] using CWComplex.mapsTo'
+  closed' := by simpa only [inter_empty, isClosed_empty, and_true] using CWComplex.closed'
   isClosedBase := isClosed_empty
-  union' := by simpa only [empty_union] using union'
+  union' := by simpa only [empty_union] using CWComplex.union'
 
 variable {X : Type*} [t : TopologicalSpace X] {C D : Set X}
 
