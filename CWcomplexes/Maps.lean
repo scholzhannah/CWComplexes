@@ -748,4 +748,31 @@ lemma CWComplex.piecewise_continuous [T2Space X] [CWComplex C]
     intro x hx
     exact piecewise_apply_of_mem_closure_complex_compl hfC1 hx
 
+namespace CWComplex
+
+export RelCWComplex (CellularMap CellularEquiv )
+
+namespace CellularMap
+
+export RelCWComplex.CellularMap (continuousOn copy coe_copy copy_eq id coe_id id_apply
+  image_skeletonLT_subset comp coe_comp comp_apply comp_assoc id_comp comp_id cancel_right
+  cancel_left)
+
+end CellularMap
+
+namespace CellularEquiv
+
+-- still a lot missing here because I am lazy
+-- I want to export basically everything from that entire section
+-- Is there a better way to do this
+
+export RelCWComplex.CellularEquiv (toCellularMap symm continuousOn continuousOn_symm mk_coe
+  mk_coe_symm toPartialEquiv_injective toFun_eq_coe invFun_eq_coe coe_coe coe_coe_symm
+  map_source map_source'' map_target left_inv right_inv eq_symm_apply mapsTo symm_mapsTo
+  leftInvOn rightInvOn invOn injOn bijOn surjOn replaceEquiv replaceEquiv_eq_self)
+
+end CellularEquiv
+
+end CWComplex
+
 end Topology
