@@ -14,7 +14,6 @@ section CellularMap
 
 variable {X Y : Type*} [TopologicalSpace X] [T2Space X] [TopologicalSpace Y] [T2Space Y]
 
-
 /-- A cellular map is a map between two CW complexes `C` and `E` that respects the skeletal
 structure: Sending the `n`-skelton of `C` to the `n`-skeleton of `E` for every `n : ℕ`. -/
 structure CellularMap (C : Set X) {D : Set X} [RelCWComplex C D] (E : Set Y) {F : Set Y}

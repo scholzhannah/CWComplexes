@@ -24,17 +24,17 @@ section
 variable {X : Type*} {Y : Type*} [t1 : TopologicalSpace X] [t2 : TopologicalSpace Y]
   {C D : Set X} {E F : Set Y}
 
-/-- The indexing types of cells of the product of two CW-complexes.-/
+/-- The indexing types of cells of the product of two CW-complexes. -/
 def RelCWComplex.prodcell (C : Set X) {D : Set X} (E : Set Y) {F : Set Y} [RelCWComplex C D]
     [RelCWComplex E F] (n : ℕ) :=
   (Σ' (m : ℕ) (l : ℕ) (_ : m + l = n), cell C m × cell E l)
 
-/-- The natural `IsometryEquiv` `(Fin n → ℝ) ≃ᵢ (Fin m → ℝ) × (Fin l → ℝ)` when `n = m + n`.-/
+/-- The natural `IsometryEquiv` `(Fin n → ℝ) ≃ᵢ (Fin m → ℝ) × (Fin l → ℝ)` when `n = m + n`. -/
 def RelCWComplex.prodisometryequiv {n m l : ℕ}  (hmln : m + l = n) :=
   (IsometryEquiv.piCongrLeft (Y := fun _ ↦ ℝ) (finCongr hmln.symm)).trans
   ((Fin.appendIsometry m l).symm)
 
-/-- The characterstic maps of the product of CW-complexes.-/
+/-- The characterstic maps of the product of CW-complexes. -/
 def RelCWComplex.prodmap [RelCWComplex C D] [RelCWComplex E F] {n m l : ℕ} (hmln : m + l = n)
     (j : cell C m) (k : cell E l) :=
   (prodisometryequiv hmln).transPartialEquiv
@@ -101,7 +101,7 @@ end ClasCWComplex
 variable [T2Space X] [T2Space Y]
 
 /-- If `C` and `E` are CW-complexes in `X` and `Y` relative to `D` and `F`,
-  and `X × Y` is a k-space, then `C ×ˢ D` is a CW-complex relative to `D ×ˢ E ∪ C ×ˢ F`.-/
+  and `X × Y` is a k-space, then `C ×ˢ D` is a CW-complex relative to `D ×ˢ E ∪ C ×ˢ F`. -/
 @[simps]
 instance RelCWComplex.Product [RelCWComplex C D] [RelCWComplex E F] [KSpace (X × Y)] :
     RelCWComplex (C ×ˢ E) (D ×ˢ E ∪ C ×ˢ F) where
@@ -121,7 +121,7 @@ instance RelCWComplex.Product [RelCWComplex C D] [RelCWComplex E F] [KSpace (X �
     apply ContinuousOn.image_comp_continuous
     · rw [Equiv.toPartialEquiv_apply, IsometryEquiv.coe_toEquiv, prodisometryequiv_image_closedBall]
       simp only [PartialEquiv.prod_coe]
-      exact ContinuousOn.prod_map (continuousOn _ _) (continuousOn _ _)
+      exact ContinuousOn.prodMap (continuousOn _ _) (continuousOn _ _)
     · rw [Equiv.toPartialEquiv_apply, IsometryEquiv.coe_toEquiv]
       exact (prodisometryequiv hmln).continuous
   continuousOn_symm n i := by
@@ -131,7 +131,7 @@ instance RelCWComplex.Product [RelCWComplex C D] [RelCWComplex E F] [KSpace (X �
       Equiv.toPartialEquiv_target, preimage_univ, inter_univ, prodmap]
     apply (prodisometryequiv hmln).symm.continuous.comp_continuousOn
     rw [PartialEquiv.prod_symm]
-    exact ((continuousOn_symm m j).prod_map (continuousOn_symm l k))
+    exact ((continuousOn_symm m j).prodMap (continuousOn_symm l k))
   pairwiseDisjoint' := by
     intro ⟨n1, m, l, hmln1, j, k⟩ _ ⟨n2, p, q, hpqn2, i, o⟩ _ ne
     simp only [Function.onFun, disjoint_iff_inter_eq_empty]
@@ -148,7 +148,7 @@ instance RelCWComplex.Product [RelCWComplex C D] [RelCWComplex E F] [KSpace (X �
     intro ⟨m, l, hml, i, j⟩
     simp [prodmap_image_ball, disjoint_iff_inter_eq_empty, inter_union_distrib_left,
       prod_inter_prod, (disjointBase _ _).inter_eq]
-  mapsTo' n i := by
+  mapsTo n i := by
     -- We first use `prodmap_image_sphere` to write the edge of the cell as a union.
     -- We then use `exists_and_iff_of_monotone` to show that we can verify the
     -- statement seperately for the two parts of the union.
@@ -298,11 +298,11 @@ instance RelCWComplex.Product [RelCWComplex C D] [RelCWComplex E F] [KSpace (X �
         exact mk_mem_prod hx1' hx2
 
 /-- If `C` and `E` are CW-complexes in `X` and `Y`, and `X × Y` is a k-space, then `C ×ˢ D` is a
-  CW-complex.-/
+  CW-complex. -/
 @[simps!]
 instance CWComplex.Product [CWComplex C] [CWComplex E] [KSpace (X × Y)] :
-    CWComplex (C ×ˢ E) where
-  __ := ofEq (C ×ˢ E) (∅ ×ˢ E ∪ C ×ˢ ∅) rfl (by simp)
+    CWComplex (C ×ˢ E) :=
+  (ofEq (C ×ˢ E) (∅ ×ˢ E ∪ C ×ˢ ∅) rfl (by simp)).toCWComplex
 
 instance RelCWComplex.finiteDimensional_product [KSpace (X × Y)] [RelCWComplex C D]
     [RelCWComplex E F] [FiniteDimensional C] [FiniteDimensional E] :
@@ -346,7 +346,7 @@ instance RelCWComplex.finiteType_product [KSpace (X × Y)] [RelCWComplex C D] [R
 instance CWComplex.finiteDimensional_product [KSpace (X × Y)] [CWComplex C] [CWComplex E]
     [FiniteDimensional C] [FiniteDimensional E] : FiniteDimensional (C ×ˢ E) :=
   letI := RelCWComplex.Product (C := C) (E := E)
-  finiteDimensional_ofEq (hCE := rfl) (hDF := rfl) ..
+  finiteDimensional_ofEq _ _ rfl rfl
 
 instance CWComplex.finiteType_product [KSpace (X × Y)] [CWComplex C] [CWComplex E]
     [FiniteType C] [FiniteType E] : FiniteType (C ×ˢ E) :=

@@ -84,7 +84,7 @@ class RelCWComplex.{u} {X : Type u} [TopologicalSpace X] (C : Set X) (D : outPar
   disjointBase' (n : ℕ) (i : cell n) : Disjoint (map n i '' ball 0 1) D
   /-- The boundary of a cell is contained in a finite union of closed cells of a lower dimension.
   Use `RelCWComplex.cellFrontier_subset_finite_closedCell` instead. -/
-  mapsTo' (n : ℕ) (i : cell n) : ∃ I : Π m, Finset (cell m),
+  mapsTo (n : ℕ) (i : cell n) : ∃ I : Π m, Finset (cell m),
     MapsTo (map n i) (sphere 0 1) (D ∪ ⋃ (m < n) (j ∈ I m), map m j '' closedBall 0 1)
   /-- A CW complex has weak topology, i.e. a set `A` in `X` is closed iff its intersection with
   every closed cell and `D` is closed. Use `RelCWComplex.closed` instead. -/
@@ -96,10 +96,7 @@ class RelCWComplex.{u} {X : Type u} [TopologicalSpace X] (C : Set X) (D : outPar
   union' : D ∪ ⋃ (n : ℕ) (j : cell n), map n j '' closedBall 0 1 = C
 
 @[deprecated (since := "2025-02-20")] alias
-RelCWComplex.mapsto := Topology.RelCWComplex.mapsTo'
-
-@[deprecated (since := "2025-03-17")] alias
-RelCWComplex.mapsTo := Topology.RelCWComplex.mapsTo'
+RelCWComplex.mapsto := Topology.RelCWComplex.mapsTo
 
 /-- Characterizing when a subspace `C` of a topological space `X` is a CW complex. Note that this
 requires `C` to be closed. If `C` is not closed choose `X` to be `C`. -/
@@ -132,8 +129,8 @@ class CWComplex.{u} {X : Type u} [TopologicalSpace X] (C : Set X) where
   /-- The union of all closed cells equals `C`. Use `RelCWComplex.union` instead. -/
   protected union' : ⋃ (n : ℕ) (j : cell n), map n j '' closedBall 0 1 = C
 
-instance CWComplex.instRelCWComplex {X : Type*} [TopologicalSpace X] (C : Set X) [CWComplex C] :
-    RelCWComplex C ∅ where
+instance (priority := high) CWComplex.instRelCWComplex {X : Type*} [TopologicalSpace X] (C : Set X)
+    [CWComplex C] : RelCWComplex C ∅ where
   cell := CWComplex.cell C
   map := CWComplex.map
   source_eq := CWComplex.source_eq
@@ -141,10 +138,24 @@ instance CWComplex.instRelCWComplex {X : Type*} [TopologicalSpace X] (C : Set X)
   continuousOn_symm := CWComplex.continuousOn_symm
   pairwiseDisjoint' := CWComplex.pairwiseDisjoint'
   disjointBase' := by simp [disjoint_empty]
-  mapsTo' := by simpa only [empty_union] using CWComplex.mapsTo'
+  mapsTo := by simpa only [empty_union] using CWComplex.mapsTo'
   closed' := by simpa only [inter_empty, isClosed_empty, and_true] using CWComplex.closed'
   isClosedBase := isClosed_empty
   union' := by simpa only [empty_union] using CWComplex.union'
+
+def RelCWComplex.toCWComplex {X : Type*} [TopologicalSpace X] (C : Set X) [RelCWComplex C ∅] :
+    CWComplex C where
+  cell := cell C
+  map := map
+  source_eq := source_eq
+  continuousOn := continuousOn
+  continuousOn_symm := continuousOn_symm
+  pairwiseDisjoint' := pairwiseDisjoint'
+  mapsTo' := by simpa using mapsTo (C := C)
+  closed' := by
+    have := closed' (C := C)
+    simpa using closed' (C := C)
+  union' := by simpa using union' (C := C)
 
 variable {X : Type*} [t : TopologicalSpace X] {C D : Set X}
 
@@ -171,7 +182,7 @@ end CWComplex
 
 lemma CWComplex.mapsTo [CWComplex C] (n : ℕ) (i : cell C n) : ∃ I : Π m, Finset (cell C m),
     MapsTo (map n i) (sphere 0 1) (⋃ (m < n) (j ∈ I m), map m j '' closedBall 0 1) := by
-  have := RelCWComplex.mapsTo' n i
+  have := RelCWComplex.mapsTo n i
   simp_rw [empty_union] at this
   exact this
 
@@ -194,14 +205,14 @@ lemma RelCWComplex.disjoint_openCell_of_ne [RelCWComplex C D] {n m : ℕ} {i : c
 lemma RelCWComplex.cellFrontier_subset_base_union_finite_closedCell [RelCWComplex C D]
     (n : ℕ) (i : cell C n) : ∃ I : Π m, Finset (cell C m), cellFrontier n i ⊆
     D ∪ ⋃ (m < n) (j ∈ I m), closedCell m j := by
-  rcases mapsTo' n i with ⟨I, hI⟩
+  rcases mapsTo n i with ⟨I, hI⟩
   use I
   rw [Set.mapsTo'] at hI
   exact hI
 
 lemma CWComplex.cellFrontier_subset_finite_closedCell [CWComplex C] (n : ℕ) (i : cell C n) :
     ∃ I : Π m, Finset (cell C m), cellFrontier n i ⊆ ⋃ (m < n) (j ∈ I m), closedCell m j := by
-  rcases RelCWComplex.mapsTo' n i with ⟨I, hI⟩
+  rcases RelCWComplex.mapsTo n i with ⟨I, hI⟩
   use I
   rw [mapsTo', empty_union] at hI
   exact hI
