@@ -124,6 +124,7 @@ lemma mapLTPartial_image {a b : ℝ} (hab : a < b) {s : Set (Fin 1 → ℝ)} :
     mapLTPartial hab '' s = mapLT hab '' s :=
   rfl
 
+--set_option trace.Meta.Tactic.simp.rewrite true in
 /-- A helper definition for `instIccLT` where the set is presented differently. -/
 protected def instIccLT' {a b : ℝ} (hab : a < b) :
     CWComplex (mapLTPartial hab '' closedBall 0 1 ∪ {a, b}) :=
@@ -145,12 +146,14 @@ protected def instIccLT' {a b : ℝ} (hab : a < b) :
           · exact .inl (le_of_eq hi)
           · exact .inr (le_of_eq hi.symm)
         | (_ + 1), i => i.elim)
-    (mapsto' := by
-      simp only [Nat.lt_one_iff, instFiniteSet_cell, iUnion_iUnion_eq_left,
-        closedCell_zero_eq_singleton, instFiniteSet_map, PartialEquiv.single_apply,
-        Function.const_apply, iUnion_coe_set, pair_comm, mem_insert_iff, mem_singleton_iff,
-        iUnion_iUnion_eq_or_left, union_singleton, mapsTo', mapLTPartial_image, mapLT_image_sphere,
-        Subset.rfl])
+    (mapsTo := by
+      --simp
+      simp only [Nat.lt_one_iff, iUnion_iUnion_eq_left, closedCell_zero_eq_singleton, mapsTo',
+        mapLTPartial_image, mapLT_image_sphere, instRelCWComplex_cell, instRelCWComplex_map]
+      simp only [pair_comm, instFiniteSet_cell, RelCWComplex.mkFinite, instFiniteSet_map,
+        PartialEquiv.single_apply, Function.const_apply, iUnion_coe_set, mem_insert_iff,
+        mem_singleton_iff, iUnion_iUnion_eq_or_left, iUnion_iUnion_eq_left, union_singleton,
+        pair_comm, subset_refl])
 
 /-- A helper lemma for `Finite_IccLT.`-/
 protected lemma finite_instIccLT' {a b : ℝ} (hab : a < b) :
@@ -158,17 +161,16 @@ protected lemma finite_instIccLT' {a b : ℝ} (hab : a < b) :
     Finite (mapLTPartial hab '' closedBall 0 1 ∪ {a, b}) :=
   finite_attachCellFiniteType ..
 
-/-- A (non-degenerate closed interval is a CW-complex.-/
-def instIccLT {a b : ℝ} (hab : a < b) : CWComplex (Icc a b : Set ℝ) where
-  __ :=
-    letI := CWComplex.instIccLT' hab
-    ofEq (mapLTPartial hab '' closedBall 0 1 ∪ {a, b}) ∅
-      (by
-        rw [mapLTPartial_image, mapLT_image_closedBall, union_eq_left, pair_subset_iff,
-          left_mem_Icc,
-          right_mem_Icc, and_self]
-        exact hab.le)
-      rfl
+/-- A (non-degenerate closed interval is a CW-complex. -/
+def instIccLT {a b : ℝ} (hab : a < b) : CWComplex (Icc a b : Set ℝ) :=
+  letI := CWComplex.instIccLT' hab
+  (ofEq (mapLTPartial hab '' closedBall 0 1 ∪ {a, b}) ∅
+     (by
+       rw [mapLTPartial_image, mapLT_image_closedBall, union_eq_left, pair_subset_iff,
+         left_mem_Icc,
+         right_mem_Icc, and_self]
+       exact hab.le)
+     rfl).toCWComplex
 
 /-- The Cw-complex structure on a (non-degenerate) closed interval is finite. -/
 lemma finite_instIccLT {a b : ℝ} (hab : a < b) :
@@ -186,7 +188,7 @@ lemma finite_instIccLT {a b : ℝ} (hab : a < b) :
 
 /- **ToDo** : Write simp lemmas about `instIcc`. -/
 
-/-- The interval `Icc a b` in `ℝ` is a CW-complex.-/
+/-- The interval `Icc a b` in `ℝ` is a CW-complex. -/
 instance instIcc {a b : ℝ} : CWComplex (Icc a b : Set ℝ) :=
   if lt1 : a < b then instIccLT lt1
     else if lt2 : b < a then Icc_eq_empty_of_lt lt2 ▸ instEmpty
@@ -197,29 +199,29 @@ instance instIcc {a b : ℝ} : CWComplex (Icc a b : Set ℝ) :=
 /- **Commment**: This reuses the auxiliary definitions and lemmas of the interval. -/
 
 /-- The real numbers are a CW-complex. -/
-@[simps!]
-instance instReal : CWComplex (univ : Set ℝ) := mk (univ : Set ℝ)
-  (cell := fun n ↦ match n with
+@[simps]
+instance instReal : CWComplex (univ : Set ℝ) where
+  cell n := match n with
     | 0 => ℤ
     | 1 => ℤ
-    | (_ + 2) => PEmpty)
-  (map := fun n i ↦ match n with
+    | (_ + 2) => PEmpty
+  map n i := match n with
     | 0 => PartialEquiv.single ![] i
     | 1 => mapLTPartial (lt_add_one (i : ℝ))
-    | (_ + 2) => i.elim)
-  (source_eq := fun n i ↦ match n with
+    | (_ + 2) => i.elim
+  source_eq n i := match n with
     | 0 => by simp [ball, Matrix.empty_eq, eq_univ_iff_forall]
     | 1 => rfl
-    | (_ + 2) => i.elim)
-  (continuousOn := fun n i ↦ match n with
+    | (_ + 2) => i.elim
+  continuousOn n i := match n with
     | 0 => continuousOn_const
     | 1 => (mapLT (lt_add_one (i : ℝ))).continuous.continuousOn
-    | (_ + 2) => i.elim)
-  (continuousOn_symm := fun n i ↦ match n with
+    | (_ + 2) => i.elim
+  continuousOn_symm n i := match n with
     | 0 => continuousOn_const
     | 1 => (mapLT (lt_add_one (i : ℝ))).symm.continuous.continuousOn
-    | (_ + 2) => i.elim)
-  (pairwiseDisjoint' := by
+    | (_ + 2) => i.elim
+  pairwiseDisjoint' := by
     simp_rw [PairwiseDisjoint, Set.Pairwise, Function.onFun]
     exact fun ⟨n, j⟩ _ ⟨m, i⟩ _ ne ↦  match n with
       | 0 => match m with
@@ -247,8 +249,8 @@ instance instReal : CWComplex (univ : Set ℝ) := mk (univ : Set ℝ)
             le_sup_iff, inf_le_iff, add_le_iff_nonpos_right, or_comm, Int.reduceLE, false_or]
           exact Int.lt_or_gt_of_ne ne
         | (_ +  2) => i.elim
-      | (_ + 2) => j.elim)
-  (mapsTo := fun n i ↦ match n with
+      | (_ + 2) => j.elim
+  mapsTo' n i := match n with
     | 0 => by simp [Matrix.zero_empty, sphere_eq_empty_of_subsingleton]
     | 1 => by
       use fun n ↦  match n with
@@ -259,13 +261,12 @@ instance instReal : CWComplex (univ : Set ℝ) := mk (univ : Set ℝ)
         zero_le_one, Nonempty.image_const, iUnion_iUnion_eq_or_left, Int.cast_add, Int.cast_one,
         union_singleton, mapsTo', mapLTPartial_image, mapLT_image_sphere, pair_comm]
       exact Subset.rfl
-    | (_ + 2) => i.elim)
-  (closed' := by
+    | (_ + 2) => i.elim
+  closed' := by
     intro A _ hA
     apply SequentialSpace.isClosed_of_seq
     intro s a hs hsa
     have : a ∈ Ioo (⌊a⌋ - 1 : ℝ) (⌈a⌉ + 1) := by
-      simp
       constructor
       · refine lt_of_lt_of_le ?_ (Int.floor_le a)
         norm_num
@@ -307,20 +308,20 @@ instance instReal : CWComplex (univ : Set ℝ) := mk (univ : Set ℝ)
         simp only [mapLTPartial_image, mapLT_image_closedBall, add_sub_cancel_left, one_div,
           Fin.isValue]
     rw [← isSeqClosed_iff_isClosed] at hA
-    exact (hA htA hta).1)
-  (union' := by
+    exact (hA htA hta).1
+  union' := by
     apply subset_antisymm (subset_univ _)
     intro x _
     simp only [mem_iUnion]
     use 1, ⌊x⌋
     simp only [mapLTPartial_image, mapLT_image_closedBall, mem_Icc]
-    exact ⟨Int.floor_le x, (Int.le_ceil x).trans (by norm_cast; exact Int.ceil_le_floor_add_one x)⟩)
+    exact ⟨Int.floor_le x, (Int.le_ceil x).trans (by norm_cast; exact Int.ceil_le_floor_add_one x)⟩
 
 -- why is this broken?
 /- This works now. 🎉-/
 example : CWComplex (univ : Set (ℝ × ℝ)) :=
   letI :  UCompactlyGeneratedSpace (ℝ × ℝ) := instUCompactlyGeneratedSpaceOfSequentialSpace
-  letI : KSpace (ℝ × ℝ) := KSpace.kspace_of_compactlyGeneratedSpace
+  letI : KSpace (ℝ × ℝ) := KSpace.of_compactlyGeneratedSpace
   inferInstance
 
 /-- The CW-structure on the reals is finite dimensional. -/
@@ -329,7 +330,7 @@ instance finiteDimensional_instReal : FiniteDimensional (univ : Set ℝ) where
     rw [Filter.eventually_atTop]
     use 2
     intro n hn
-    simp only [instReal_cell]
+    simp only [instRelCWComplex_cell, instReal_cell]
     split
     · contradiction
     · contradiction
@@ -338,15 +339,15 @@ instance finiteDimensional_instReal : FiniteDimensional (univ : Set ℝ) where
 /-! # Spheres in dimensions zero and one -/
 
 /-- The sphere in dimension zero is a CW-complex. -/
-@[simps!]
-def SphereZero (x : EuclideanSpace ℝ (Fin 0)) (ε : ℝ) (h : ε ≠ 0) : CWComplex (sphere x ε) where
-  __ := ofEq ∅ ∅ (E := (sphere x ε)) (sphere_eq_empty_of_subsingleton h).symm rfl
+--@[simps!]
+def SphereZero (x : EuclideanSpace ℝ (Fin 0)) (ε : ℝ) (h : ε ≠ 0) : CWComplex (sphere x ε) :=
+  (ofEq ∅ ∅ (E := (sphere x ε)) (sphere_eq_empty_of_subsingleton h).symm rfl).toCWComplex
 
 /-- The CW-complex structure on the sphere in dimension zero  is finite. -/
 lemma finite_SphereZero (x : EuclideanSpace ℝ (Fin 0)) (ε : ℝ) (h : ε ≠ 0) :
     letI := SphereZero x ε h
     Finite (sphere x ε) :=
-  finite_ofEq ..
+  finite_ofEq ∅ ∅ (E := (sphere x ε)) (sphere_eq_empty_of_subsingleton h).symm rfl
 
 /-- The CW-complex structure on the sphere in dimension 0 has no cells. This is an auxiliary lemma
   for `AuxSphereInduct`. -/
@@ -355,7 +356,7 @@ lemma isEmpty_cell_SphereZero (x : EuclideanSpace ℝ (Fin 0)) (ε : ℝ) (h : �
     ∀ m, IsEmpty (cell (sphere x ε) m) := by
   intro m
   simp only [RelCWComplex.ofEq_cell, instFiniteSet_cell]
-  cases m <;> (rw [CWComplex.instEmpty_cell]; infer_instance)
+  cases m <;> (rw [CWComplex.instEmpty_cell, RelCWComplex.mkFinite_cell]; sorry)
 
 /-- The sphere in dimension 1 is a CW-complex. -/
 def SphereOne (x ε : ℝ) (hε : ε ≥ 0) : CWComplex (sphere x ε) where

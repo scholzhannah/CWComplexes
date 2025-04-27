@@ -184,6 +184,7 @@ lemma CWComplex.finiteType_mkFiniteType.{u} {X : Type u} [TopologicalSpace X] (C
 /-- If we want to construct a finite relative CW complex we can add the conditions
 `eventually_isEmpty_cell` and `finite_cell`, relax the condition `mapsTo` and remove the condition
 `closed'`. -/
+@[simps -isSimp]
 def RelCWComplex.mkFinite.{u} {X : Type u} [TopologicalSpace X] (C : Set X)
     (D : outParam (Set X)) (cell : (n : ℕ) → Type u)
     (map : (n : ℕ)  → (i : cell n) → PartialEquiv (Fin n → ℝ) X)

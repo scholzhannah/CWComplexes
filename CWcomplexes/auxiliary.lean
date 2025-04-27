@@ -20,7 +20,7 @@ noncomputable section
 --**PR**
 -- needed in this file
 /-- A partial bijection that is continuous on the source and the target restricts to a
-homeomorphism.-/
+homeomorphism. -/
 @[simps]
 def PartialEquiv.toHomeomorph {α β : Type*} [TopologicalSpace α]
     [TopologicalSpace β] (e : PartialEquiv α β) (he1 : ContinuousOn e e.source)
@@ -83,7 +83,7 @@ open Metric Set
   their domain.-/
 
 /-- As we approach the sphere from inside the ball the inverse of `Homeomorph.unitBall` tends to
-  infinity in its norm.-/
+  infinity in its norm. -/
 /- **Comment**: The proof of this statement just unfolds the definition of `Homeomorph.unitBall`
   and then applies basic facts about convergence.-/
 lemma Homeomorph.tendsto_norm_comp_unitBall_symm {E : Type*} [NormedAddCommGroup E]
@@ -106,7 +106,7 @@ lemma Homeomorph.tendsto_norm_comp_unitBall_symm {E : Type*} [NormedAddCommGroup
       inv_inj, abs_eq_self, Real.sqrt_nonneg, norm_eq_zero, true_or]
   rw [this]
   apply Filter.Tendsto.comp (y := nhdsWithin 1 (Ico 0 1))
-  · apply Filter.Tendsto.atTop_mul Real.zero_lt_one
+  · apply Filter.Tendsto.atTop_mul_pos Real.zero_lt_one
     · apply Filter.Tendsto.comp (y := nhdsWithin 0 (Set.Ioi 0))
       · exact tendsto_inv_nhdsGT_zero
       · refine Filter.Tendsto.mono_right (y := (nhdsWithin 0 (Ioc 0 1))) ?_
@@ -263,7 +263,7 @@ lemma stereographic'_symm_tendsto {n : ℕ} (α : Filter (EuclideanSpace ℝ (Fi
   We define this map in a little more generality. -/
 
 
-/-- This is just a preliminary lemma showing the continuity of the map we are about to define.-/
+/-- This is just a preliminary lemma showing the continuity of the map we are about to define. -/
 lemma continuous_normScale {E F : Type*}  [SeminormedAddCommGroup E] [T1Space E]
     [NormedAddCommGroup F] [MulActionWithZero ℝ F]
     {f : E → F} (hf : Continuous f) [ContinuousSMul ℝ F] [IsBoundedSMul ℝ F]
@@ -298,7 +298,7 @@ lemma continuous_normScale {E F : Type*}  [SeminormedAddCommGroup E] [T1Space E]
     rw [this, ← norm_zero (E := E)]
     exact continuous_norm.continuousAt
 
-/-- A homeomorphism from one normed group to another that preserves norms and the zero.-/
+/-- A homeomorphism from one normed group to another that preserves norms and the zero. -/
 /- **Comment**:
   Unfortunatly this does not preserve distances so this is not an isometry
   (in fact such an isometry generally does not exist). -/
@@ -376,7 +376,7 @@ lemma normScale_symm_eq {E F : Type*}  [NormedAddCommGroup E] [T1Space E] [Modul
   ext
   simp [normScale]
 
-/-- `normScale` preserves closed balls.-/
+/-- `normScale` preserves closed balls. -/
 @[simp]
 lemma normScale_image_closedBall {E F : Type*}  [NormedAddCommGroup E] [T1Space E] [Module ℝ E]
     [ContinuousSMul ℝ E] [IsBoundedSMul ℝ E] [NormedAddCommGroup F] [Module ℝ F] [T1Space F]
@@ -667,7 +667,7 @@ lemma PartialEquiv.EuclideanSpaceSucc_image_sphere (n : ℕ) :
 /- **Comment**:
   We need this to show that the sphere in the euclidean space of dimension one is a CW-complex. -/
 
-/-- The isometry between the euclidean and the `∞`-metric on `ℝ`.-/
+/-- The isometry between the euclidean and the `∞`-metric on `ℝ`. -/
 def EuclideanFunUnique (n 𝕜 : Type*) [RCLike 𝕜] [Unique n] [Fintype n] :
     EuclideanSpace 𝕜 n ≃ᵢ (n → 𝕜) where
   toFun := id
@@ -678,6 +678,6 @@ def EuclideanFunUnique (n 𝕜 : Type*) [RCLike 𝕜] [Unique n] [Fintype n] :
     intro x y
     simp [edist_pi_def, EuclideanSpace.edist_eq, ← ENNReal.rpow_natCast_mul]
 
-/-- The isometry between the euclidean and the usual metric on `ℝ`.-/
+/-- The isometry between the euclidean and the usual metric on `ℝ`. -/
 def EuclideanUnique (𝕜 n : Type*) [RCLike 𝕜] [Unique n] [Fintype n] : EuclideanSpace 𝕜 n ≃ᵢ 𝕜 :=
   (EuclideanFunUnique n 𝕜).trans (IsometryEquiv.funUnique n 𝕜)

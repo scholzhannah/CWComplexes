@@ -346,15 +346,23 @@ instance RelCWComplex.finiteType_product [KSpace (X × Y)] [RelCWComplex C D] [R
 instance CWComplex.finiteDimensional_product [KSpace (X × Y)] [CWComplex C] [CWComplex E]
     [FiniteDimensional C] [FiniteDimensional E] : FiniteDimensional (C ×ˢ E) :=
   letI := RelCWComplex.Product (C := C) (E := E)
-  finiteDimensional_ofEq _ _ rfl rfl
+  letI := ofEq (C ×ˢ E) (∅ ×ˢ E ∪ C ×ˢ ∅) rfl (by simp)
+  finiteDimensional_ofEq (C ×ˢ E) (∅ ×ˢ E ∪ C ×ˢ ∅) rfl (by simp)
 
+/-
+The old proof was
+  letI := RelCWComplex.Product (C := C) (E := E)
+  finiteType_ofEq (C ×ˢ E) (hCE := rfl) (hDF := rfl) ..
+But that doesn't work anymore because I needed to add `.toCWComplex` in CWComplex.Product
+-/
 instance CWComplex.finiteType_product [KSpace (X × Y)] [CWComplex C] [CWComplex E]
     [FiniteType C] [FiniteType E] : FiniteType (C ×ˢ E) :=
   letI := RelCWComplex.Product (C := C) (E := E)
-  finiteType_ofEq (C ×ˢ E) (hCE := rfl) (hDF := rfl) ..
+  letI := ofEq (C ×ˢ E) (∅ ×ˢ E ∪ C ×ˢ ∅) rfl (by simp)
+  finiteType_ofEq (C ×ˢ E) (∅ ×ˢ E ∪ C ×ˢ ∅) rfl (by simp)
 
 /-- If `C` and `D` are CW-complexes in `X` and `Y` then `C ×ˢ D` is a CW-complex in the k-ification
-  of `X × Y`.-/
+  of `X × Y`. -/
 @[simps]
 instance RelCWComplex.ProductKification [RelCWComplex C D] [RelCWComplex E F] :
     RelCWComplex (X := kification (X × Y)) (C ×ˢ E) (D ×ˢ E ∪ C ×ˢ F) where
@@ -376,7 +384,7 @@ instance RelCWComplex.ProductKification [RelCWComplex C D] [RelCWComplex E F] :
       simp only [PartialEquiv.prod_coe]
       apply continuousOn_compact_to_kification
         (by rw [closedBall_prod_same]; exact isCompact_closedBall _ _)
-      exact ContinuousOn.prod_map (continuousOn _ _) (continuousOn _ _)
+      exact ContinuousOn.prodMap (continuousOn _ _) (continuousOn _ _)
     · rw [Equiv.toPartialEquiv_apply, IsometryEquiv.coe_toEquiv]
       exact (prodisometryequiv hmln).continuous
   continuousOn_symm n i := by
@@ -387,7 +395,7 @@ instance RelCWComplex.ProductKification [RelCWComplex C D] [RelCWComplex E F] :
     apply (prodisometryequiv hmln).symm.continuous.comp_continuousOn
     rw [PartialEquiv.prod_symm]
     exact from_kification_continuousOn_of_continuousOn ((map m j).symm.prod (map l k).symm)
-      ((map m j).target ×ˢ (map l k).target) ((continuousOn_symm m j).prod_map
+      ((map m j).target ×ˢ (map l k).target) ((continuousOn_symm m j).prodMap
         (continuousOn_symm l k))
   pairwiseDisjoint' := by
     intro ⟨n1, m, l, hmln1, j, k⟩ _ ⟨n2, p, q, hpqn2, i, o⟩ _ ne
@@ -406,7 +414,7 @@ instance RelCWComplex.ProductKification [RelCWComplex C D] [RelCWComplex E F] :
     rw [prodmap_image_ball]
     simp [disjoint_iff_inter_eq_empty, inter_union_distrib_left,
       prod_inter_prod, (disjointBase _ _).inter_eq]
-  mapsTo' n i := by
+  mapsTo n i := by
     -- We first use `prodmap_image_sphere` to write the edge of the cell as a union.
     -- We then use `exists_and_iff_of_monotone` to show that we can verify the
     -- statement seperately for the two parts of the union.
@@ -562,11 +570,11 @@ instance RelCWComplex.ProductKification [RelCWComplex C D] [RelCWComplex E F] :
         exact mk_mem_prod hx1' hx2
 
 /-- If `C` and `E` are CW-complexes in `X` and `Y`, and `X × Y` is a k-space, then `C ×ˢ D` is a
-  CW-complex.-/
+  CW-complex. -/
 @[simps!]
 instance CWComplex.ProductKification [CWComplex C] [CWComplex E] :
-    CWComplex (X := kification (X × Y)) (C ×ˢ E) where
-  __ := ofEq (X := kification (X × Y)) (C ×ˢ E) (∅ ×ˢ E ∪ C ×ˢ ∅) rfl (by simp)
+    CWComplex (X := kification (X × Y)) (C ×ˢ E) :=
+  (ofEq (X := kification (X × Y)) (C ×ˢ E) (∅ ×ˢ E ∪ C ×ˢ ∅) rfl (by simp)).toCWComplex
 
 instance RelCWComplex.finiteDimensional_productKification [RelCWComplex C D]
     [RelCWComplex E F] [FiniteDimensional C] [FiniteDimensional E] :
@@ -611,15 +619,13 @@ instance RelCWComplex.finiteType_productKification [RelCWComplex C D]
 instance CWComplex.finiteDimensional_productKification [CWComplex C] [CWComplex E]
     [FiniteDimensional C] [FiniteDimensional E] :
     FiniteDimensional (X := kification (X × Y)) (C ×ˢ E) :=
-  -- why does it not find this instance itself?
-  letI := RelCWComplex.ProductKification (C := C) (E := E)
-  finiteDimensional_ofEq (hCE := rfl) (hDF := rfl) ..
+  @finiteDimensional_ofEq (kification (X × Y)) _ (C ×ˢ E) (∅ ×ˢ E ∪ C ×ˢ ∅) _ _
+    (RelCWComplex.ProductKification (C := C) (E := E)) _ rfl (by simp)
 
 instance CWComplex.finiteType_productKification [CWComplex C] [CWComplex E]
     [FiniteType C] [FiniteType E] : FiniteType (X := kification (X × Y)) (C ×ˢ E) :=
-  -- why does it not find this instance itself?
-  letI := RelCWComplex.ProductKification (C := C) (E := E)
-  finiteType_ofEq (hCE := rfl) (hDF := rfl) ..
+  @finiteType_ofEq (kification (X × Y)) _ (C ×ˢ E) (∅ ×ˢ E ∪ C ×ˢ ∅) _ _
+    (RelCWComplex.ProductKification (C := C) (E := E)) _ rfl (by simp)
 
 @[simps!]
 instance RelCWComplex.ProductUniv [KSpace (X × Y)] [RelCWComplex (univ : Set X) D]
@@ -628,10 +634,8 @@ instance RelCWComplex.ProductUniv [KSpace (X × Y)] [RelCWComplex (univ : Set X)
 
 @[simps!]
 instance CWComplex.ProductUniv [KSpace (X × Y)] [CWComplex (univ : Set X)]
-    [CWComplex (univ : Set Y)] : CWComplex (univ : Set (X × Y)) where
-  __ :=
-    letI := (Product (C := (univ : Set X)) (E := (univ : Set Y))).toRelCWComplex
-    ofEq (univ ×ˢ univ : Set (X × Y)) ∅ (E := (univ : Set (X × Y))) univ_prod_univ rfl
+    [CWComplex (univ : Set Y)] : CWComplex (univ : Set (X × Y)) :=
+  (ofEq (univ ×ˢ univ : Set (X × Y)) ∅ (E := (univ : Set (X × Y))) univ_prod_univ rfl).toCWComplex
 
 @[simps!]
 instance RelCWComplex.ProductKificationUniv [RelCWComplex (univ : Set X) D]
@@ -643,10 +647,8 @@ instance RelCWComplex.ProductKificationUniv [RelCWComplex (univ : Set X) D]
 @[simps!]
 instance CWComplex.ProductKificationUniv [CWComplex (univ : Set X)]
     [CWComplex (univ : Set Y)] :
-    CWComplex (X := kification (X × Y)) (univ : Set (X × Y)) where
-  __ :=
-    letI := (ProductKification (C := (univ : Set X)) (E := (univ : Set Y))).toRelCWComplex
-    ofEq (X := kification (X × Y)) (univ ×ˢ univ : Set (X × Y)) ∅ univ_prod_univ rfl
+    CWComplex (X := kification (X × Y)) (univ : Set (X × Y)) :=
+  (ofEq (X := kification (X × Y)) (univ ×ˢ univ : Set (X × Y)) ∅ univ_prod_univ rfl).toCWComplex
 
 end
 

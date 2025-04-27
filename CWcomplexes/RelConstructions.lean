@@ -828,7 +828,8 @@ def CWComplex.attachCellsFiniteType.{u} {X : Type u} [TopologicalSpace X] [T2Spa
     (mapsTo := by
       intro i
       use fun m ↦ finite_univ.toFinset
-      simp [mapsTo i])
+      simp only [instRelCWComplex_cell, Finite.mem_toFinset, mem_univ, iUnion_true]
+      exact mapsTo i)
 
 lemma CWComplex.finiteDimensional_attachCellsFiniteType.{u} {X : Type u} [TopologicalSpace X]
     [T2Space X] (C : Set X) [CWComplex C] [Finite C] {n : ℕ} {ι : Type u} [_root_.Finite ι]
