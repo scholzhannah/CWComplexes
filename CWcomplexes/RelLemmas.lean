@@ -26,7 +26,6 @@ namespace Topology
 
 variable {X : Type*} [t : TopologicalSpace X] [T2Space X] {C D : Set X}
 
-open RelCWComplex in
 lemma RelCWComplex.isClosed_skeletonLT [RelCWComplex C D] (n : ℕ∞) :
     IsClosed (skeletonLT C n : Set X) :=
   isClosed
@@ -47,7 +46,7 @@ lemma RelCWComplex.isClosed_iff_inter_skeletonLT_isClosed [RelCWComplex C D] {A 
   · rw [← skeletonLT_zero_eq_base (C := C) (D := D)]
     exact h 0
 
-/-- The intersection with `skeletonLT C (Nat.succ n)` is closed iff the intersection with
+/-- The intersection with `skeletonLT C n.succ` is closed iff the intersection with
   `skeletonLT C n ` and every cell of dimension `n` is closed. -/
 lemma RelCWComplex.inter_skeletonLT_succ_isClosed_iff
     [RelCWComplex C D] (A : Set X) (n : ℕ):

@@ -46,7 +46,7 @@ lemma RelCWComplex.prodisometryequiv_image_closedBall {n m l : ℕ} {hmln : m + 
   rfl
 
 lemma RelCWComplex.prodisometryequiv_image_ball {n m l : ℕ} {hmln : m + l = n} :
-    ⇑(prodisometryequiv hmln) '' ball 0 1 =  ball 0 1 ×ˢ ball 0 1 := by
+    prodisometryequiv hmln '' ball 0 1 =  ball 0 1 ×ˢ ball 0 1 := by
   simp only [IsometryEquiv.image_ball, ball_prod_same]
   rfl
 
@@ -90,13 +90,13 @@ lemma RelCWComplex.iUnion_prodcell [RelCWComplex C D] [RelCWComplex E F] :
   · intro ⟨m, i, l, j, h⟩
     use m + l, l, m, ⟨l.add_comm m, j, i⟩
 
-namespace ClasCWComplex
+namespace CWComplex
 
 export RelCWComplex (prodcell prodisometryequiv prodmap prodisometryequiv_image_closedBall
   prodisometryequiv_image_ball prodisometryequiv_image_sphere prodmap_image_ball
   prodmap_image_sphere prodmap_image_closedBall iUnion_prodcell)
 
-end ClasCWComplex
+end CWComplex
 
 variable [T2Space X] [T2Space Y]
 

@@ -44,7 +44,7 @@ instance CWComplex.finite_instEmpty :
     Finite (∅ : Set X) :=
   finite_mkFinite ..
 
-@[simps]
+@[simps -isSimp]
 def RelCWComplex.ofEq {X : Type*} [TopologicalSpace X] (C D : Set X)
     {E F : Set X} [RelCWComplex C D] (hCE : C = E) (hDF : D = F) : RelCWComplex E F where
   cell := cell C
@@ -83,7 +83,7 @@ lemma RelCWComplex.finite_ofEq {X : Type*} [TopologicalSpace X] (C D : Set X)
   inferInstance
 
 /-- The union of two disjoint CW-complexes is again a CW-complex. -/
-@[simps]
+@[simps -isSimp]
 def RelCWComplex.disjointUnion [RelCWComplex C D] {E F : Set X} [RelCWComplex E F]
     (disjoint : Disjoint C E) (hDF : SeparatedNhds D F) : RelCWComplex (C ∪ E) (D ∪ F) where
   cell n := Sum (cell C n) (cell E n)
@@ -167,7 +167,7 @@ def RelCWComplex.disjointUnion [RelCWComplex C D] {E F : Set X} [RelCWComplex E 
       union_right_comm D _ F, union_assoc (D ∪ F), ← iUnion_union_distrib, iUnion_sum]
     rfl
 
-@[simps!]
+@[simps! -isSimp]
 def CWComplex.disjointUnion {E : Set X} [CWComplex C] [CWComplex E]
     (hCE : Disjoint C E) : CWComplex (C ∪ E) :=
   letI := RelCWComplex.disjointUnion hCE (SeparatedNhds.empty_left ∅)
@@ -249,7 +249,7 @@ lemma CWComplex.finite_disjointUnion [CWComplex C] {E : Set X}
 
 end
 
-@[simps]
+@[simps -isSimp]
 def RelCWComplex.attachCell.{u} {X : Type u} [TopologicalSpace X] [T2Space X] (C : Set X)
     {D : Set X} [RelCWComplex C D]
     {n : ℕ} (map' : PartialEquiv (Fin n → ℝ) X) (source_eq' : map'.source = ball 0 1)
@@ -370,7 +370,7 @@ lemma RelCWComplex.finiteDimensional_attachCell {X : Type*} [TopologicalSpace X]
 
 /-- A version of `RelCWComplex.attachCell`. Assuming that the CW complex is of finite type lets us
   relax the condition `mapsTo`. -/
-@[simps!]
+@[simps! -isSimp]
 def RelCWComplex.attachCellFiniteType.{u} {X : Type u} [TopologicalSpace X] [T2Space X]
     (C : Set X) {D : Set X} [RelCWComplex C D] [FiniteType C]
     {n : ℕ} (map' : PartialEquiv (Fin n → ℝ) X) (source_eq' : map'.source = ball 0 1)
@@ -448,7 +448,7 @@ lemma RelCWComplex.finite_attachCellFiniteType {X : Type*} [TopologicalSpace X]
       source_eq' cont' cont_symm' disjoint' disjointBase' mapsTo
   inferInstance
 
-@[simps!]
+@[simps! -isSimp]
 def CWComplex.attachCell.{u} {X : Type u} [TopologicalSpace X] [T2Space X] (C : Set X)
     [CWComplex C]
     {n : ℕ} (map' : PartialEquiv (Fin n → ℝ) X) (source_eq' : map'.source = ball 0 1)
@@ -488,7 +488,7 @@ lemma CWComplex.finiteDimensional_attachCell {X : Type*} [TopologicalSpace X] [T
     intro b hb
     exact ⟨hN b (le_of_max_le_left hb) , Nat.ne_of_lt' (le_of_max_le_right hb)⟩}
 
-@[simps!]
+@[simps! -isSimp]
 def CWComplex.attachCellFiniteType.{u} {X : Type u} [TopologicalSpace X] [T2Space X] (C : Set X)
     [CWComplex C] [FiniteType C]
     {n : ℕ} (map' : PartialEquiv (Fin n → ℝ) X) (source_eq' : map'.source = ball 0 1)
@@ -561,7 +561,7 @@ lemma CWComplex.finite_attachCellFiniteType {X : Type*} [TopologicalSpace X] [T2
     continuousOn_symm' disjoint' mapsTo
   inferInstance
 
-@[simps]
+@[simps -isSimp]
 def RelCWComplex.attachCells.{u} {X : Type u} [TopologicalSpace X] [T2Space X] (C D : Set X)
     [RelCWComplex C D] {n : ℕ} {ι : Type u} [_root_.Finite ι]
     (map' : ι → PartialEquiv (Fin n → ℝ) X)
@@ -688,7 +688,7 @@ lemma RelCWComplex.finiteDimensional_attachCells.{u} {X : Type u} [TopologicalSp
 
 /-- A version of `RelCWComplex.attachCells`. Assuming that the CW complex is of finite type lets us
   relax the condition `mapsTo`. -/
-@[simps!]
+@[simps! -isSimp]
 def RelCWComplex.attachCellsFiniteType.{u} {X : Type u} [TopologicalSpace X] [T2Space X]
     (C D : Set X) [RelCWComplex C D] [FiniteType C] {n : ℕ} {ι : Type u} [_root_.Finite ι]
     (map' : ι → PartialEquiv (Fin n → ℝ) X)
@@ -772,7 +772,7 @@ lemma RelCWComplex.finite_attachCellsFiniteType.{u} {X : Type u} [TopologicalSpa
       disjoint' disjoint'' disjointBase' mapsTo
   inferInstance
 
-@[simps!]
+@[simps! -isSimp]
 def CWComplex.attachCells.{u} {X : Type u} [TopologicalSpace X] [T2Space X] (C : Set X)
     [CWComplex C] {n : ℕ} {ι : Type u} [_root_.Finite ι]
     (map' : ι → PartialEquiv (Fin n → ℝ) X)
@@ -813,7 +813,7 @@ lemma CWComplex.finiteDimensional_attachCells.{u} {X : Type u} [TopologicalSpace
 
 /-- A version of `RelCWComplex.attachCells`. Assuming that the CW complex is of finite type lets us
   relax the condition `mapsTo`. -/
-@[simps!]
+@[simps! -isSimp]
 def CWComplex.attachCellsFiniteType.{u} {X : Type u} [TopologicalSpace X] [T2Space X]
     (C : Set X) [CWComplex C] [FiniteType C] {n : ℕ} {ι : Type u} [_root_.Finite ι]
     (map' : ι → PartialEquiv (Fin n → ℝ) X)
@@ -895,7 +895,7 @@ lemma CWComplex.finite_attachCellsFiniteType.{u} {X : Type u} [TopologicalSpace 
 
 /-- A partial bijection with closed source and target that is continuous on both source and target
 preserves CW-structures. -/
-@[simps]
+@[simps -isSimp]
 def RelCWComplex.ofPartialEquiv.{u} {X Y : Type u} [TopologicalSpace X] [T2Space X]
     [TopologicalSpace Y] (C : Set X) {D : Set X} (E : Set Y) {F : Set Y} [RelCWComplex C D]
     (hC : IsClosed C) (hE : IsClosed E)
@@ -1040,7 +1040,7 @@ lemma RelCWComplex.finite_ofPartialEquiv.{u} {X Y : Type u} [TopologicalSpace X]
   inferInstance
 
 /-- A version of `RelCWComplex.ofPartialEquiv` for absolute CW-complexes. -/
-@[simps!]
+@[simps! -isSimp]
 def CWComplex.ofPartialEquiv.{u} {X Y : Type u} [TopologicalSpace X] [T2Space X]
     [TopologicalSpace Y] (C : Set X) (E : Set Y) [CWComplex C] (hC : IsClosed C)
     (hE : IsClosed E) (f : PartialEquiv X Y) (hfC1 : f.source = C) (hfE1 : f.target = E)
@@ -1081,7 +1081,7 @@ lemma CWComplex.finite_ofPartialEquiv .{u} {X Y : Type u} [TopologicalSpace X]
   inferInstance
 
 /-- The image of a CW-complex under a homeomorphisms is again a CW-complex. -/
-@[simps!]
+@[simps! -isSimp]
 def RelCWComplex.ofHomeomorph.{u} {X Y : Type u} [TopologicalSpace X] [TopologicalSpace Y]
     [T2Space X]
     (C : Set X) {D : Set X} (E : Set Y) {F : Set Y} [RelCWComplex C D] (f : X ≃ₜ Y)
@@ -1124,7 +1124,7 @@ lemma RelCWComplex.finite_ofHomeomorph.{u} {X Y : Type u} [TopologicalSpace X]
   inferInstance
 
 /-- The image of a CW-complex under a homeomorphisms is again a CW-complex. -/
-@[simps!]
+@[simps! -isSimp]
 def CWComplex.ofHomeomorph.{u} {X Y : Type u} [TopologicalSpace X] [TopologicalSpace Y]
     [T2Space X] (C : Set X) (E : Set Y) [CWComplex C] (f : X ≃ₜ Y)
     (hCE : f '' C = E) : CWComplex E :=
@@ -1157,7 +1157,7 @@ lemma CWComplex.finite_ofHomeomorph.{u} {X Y : Type u} [TopologicalSpace X]
   inferInstance
 
 open Set.Notation in
-@[simps!]
+@[simps! -isSimp]
 def RelCWComplex.enlargeNonempty [RelCWComplex (X := C) univ (C ↓∩ D)] (hC : IsClosed C)
     (hC2 : C.Nonempty) (hDC : D ⊆ C) :
     RelCWComplex C D :=
@@ -1201,7 +1201,7 @@ lemma RelCWComplex.finite_enlargeNonempty [RelCWComplex (X := C) univ (C ↓∩ 
   let _ := enlargeNonempty hC hC2 hDC
   finite_ofPartialEquiv ..
 
-@[simps!]
+@[simps! -isSimp]
 def CWComplex.enlargeNonempty [CWComplex (X := C) univ] (hC : IsClosed C)
     (hC2 : C.Nonempty) : CWComplex C :=
   (RelCWComplex.enlargeNonempty hC hC2 (empty_subset C)).toCWComplex
@@ -1238,6 +1238,7 @@ def RelCWComplex.enlarge [RelCWComplex (X := C) univ (C ↓∩ D)] (hC : IsClose
     ofEq ∅ ∅ (not_nonempty_iff_eq_empty.1 h).symm
     (subset_eq_empty hDC (not_nonempty_iff_eq_empty.1 h)).symm
 
+@[simps! -isSimp]
 def CWComplex.enlarge [CWComplex (X := C) univ] (hC : IsClosed C) : CWComplex C :=
   (RelCWComplex.enlarge hC (empty_subset C)).toCWComplex
 
@@ -1314,8 +1315,8 @@ lemma CWComplex.finite_enlarge [CWComplex (X := C) univ]
     Finite C :=
   @RelCWComplex.finite_enlarge _ _ _ _ _ _ h hC (empty_subset C)
 
-open Set.Notation in
-@[simps!]
+open Notation in
+@[simps! -isSimp]
 def RelCWComplex.restrictNonempty [RelCWComplex C D] (Y : Set X) (hCY : C ⊆ Y)
     (hC : C.Nonempty) : RelCWComplex (X := Y) (Y ↓∩ C) (Y ↓∩ D) :=
   letI : Nonempty Y := Nonempty.to_subtype (hC.mono hCY)
@@ -1344,7 +1345,7 @@ def RelCWComplex.restrictNonempty [RelCWComplex C D] (Y : Set X) (hCY : C ⊆ Y)
         (Subtype.val_injective.injOn.leftInvOn_invFunOn (x := (⟨x, hCY x.2⟩ : Y)))])
     continuous_subtype_val.continuousOn
 
-open Set.Notation in
+open Notation in
 lemma RelCWComplex.finiteDimensional_restrictNonempty [RelCWComplex C D] [FiniteDimensional C]
     (Y : Set X) (hCY : C ⊆ Y) (hC : C.Nonempty) :
     letI := restrictNonempty Y hCY hC
@@ -1352,7 +1353,7 @@ lemma RelCWComplex.finiteDimensional_restrictNonempty [RelCWComplex C D] [Finite
   letI := restrictNonempty Y hCY hC
   finiteDimensional_ofPartialEquiv ..
 
-open Set.Notation in
+open Notation in
 lemma RelCWComplex.finiteType_restrictNonempty [RelCWComplex C D] [FiniteType C]
     (Y : Set X) (hCY : C ⊆ Y) (hC : C.Nonempty) :
     letI := restrictNonempty Y hCY hC
@@ -1360,7 +1361,7 @@ lemma RelCWComplex.finiteType_restrictNonempty [RelCWComplex C D] [FiniteType C]
   letI := restrictNonempty Y hCY hC
   finiteType_ofPartialEquiv ..
 
-open Set.Notation in
+open Notation in
 lemma RelCWComplex.finite_restrictNonempty [RelCWComplex C D] [Finite C]
     (Y : Set X) (hCY : C ⊆ Y) (hC : C.Nonempty) :
     letI := restrictNonempty Y hCY hC
@@ -1368,7 +1369,7 @@ lemma RelCWComplex.finite_restrictNonempty [RelCWComplex C D] [Finite C]
   letI := restrictNonempty Y hCY hC
   finite_ofPartialEquiv ..
 
-open Set.Notation Classical in
+open Notation Classical in
 def RelCWComplex.restrict [RelCWComplex C D] (Y : Set X) (hCY : C ⊆ Y) :
     RelCWComplex (X := Y) (Y ↓∩ C) (Y ↓∩ D) :=
   if h : C.Nonempty then restrictNonempty Y hCY h else
@@ -1380,7 +1381,7 @@ lemma RelCWComplex.restrict_eq_restrictNonempty [RelCWComplex C D] (Y : Set X) (
     restrict Y hCY = restrictNonempty Y hCY hC := by
   simp [restrict, hC]
 
-open Set.Notation in
+open Notation in
 lemma RelCWComplex.restrict_eq_empty [RelCWComplex C D] (Y : Set X) (hCY : C ⊆ Y)
     (hC : ¬ C.Nonempty) :
     restrict Y hCY = ofEq (E := (Y ↓∩ C)) ∅ ∅
@@ -1389,7 +1390,7 @@ lemma RelCWComplex.restrict_eq_empty [RelCWComplex C D] (Y : Set X) (hCY : C ⊆
         preimage_empty]) := by
   simp [restrict, hC]
 
-open Set.Notation Classical in
+open Notation Classical in
 lemma RelCWComplex.finiteDimensional_restrict [RelCWComplex C D] [FiniteDimensional C]
     (Y : Set X) (hCY : C ⊆ Y) :
     letI := restrict Y hCY
@@ -1399,7 +1400,7 @@ lemma RelCWComplex.finiteDimensional_restrict [RelCWComplex C D] [FiniteDimensio
     (restrict_eq_restrictNonempty Y hCY hC ▸ finiteDimensional_restrictNonempty Y hCY hC)
     else (restrict_eq_empty Y hCY hC ▸ finiteDimensional_ofEq ..)
 
-open Set.Notation Classical in
+open Notation Classical in
 lemma RelCWComplex.finiteType_restrict [RelCWComplex C D] [FiniteType C]
     (Y : Set X) (hCY : C ⊆ Y) :
     letI := restrict Y hCY
@@ -1409,7 +1410,7 @@ lemma RelCWComplex.finiteType_restrict [RelCWComplex C D] [FiniteType C]
     (restrict_eq_restrictNonempty Y hCY hC ▸ finiteType_restrictNonempty Y hCY hC)
     else (restrict_eq_empty Y hCY hC ▸ finiteType_ofEq ..)
 
-open Set.Notation in
+open Notation in
 lemma RelCWComplex.finite_restrict [RelCWComplex C D] [Finite C]
     (Y : Set X) (hCY : C ⊆ Y) :
     letI := restrict Y hCY
