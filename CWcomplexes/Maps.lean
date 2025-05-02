@@ -78,14 +78,16 @@ lemma image_skeletonLT_subset (f : CellularMap C E) (n : ℕ∞) :
 lemma image_skeleton_subset (f : CellularMap C E) (n : ℕ∞) : f '' skeleton C n ⊆ skeleton E n :=
   f.image_skeletonLT_subset _
 
+lemma image_complex_subset (f : CellularMap C E) : f '' C ⊆ E := by
+  simp_rw [← skeletonLT_top (C := C), ← skeletonLT_top (C := E)]
+  exact f.image_skeletonLT_subset ⊤
+
 def comp {Z : Type*} [TopologicalSpace Z] [T2Space Z] {G H : Set Z} [RelCWComplex G H]
     (f : CellularMap E G) (g : CellularMap C E) : CellularMap C G where
   toFun := f ∘ g
   continuousOn_toFun := by
     apply f.continuousOn.comp g.continuousOn
-    simp_rw [Set.mapsTo', ← skeletonLT_top (C := C), ← skeletonLT_top (C := E)]
-    -- make a lemma for the complex
-    exact g.image_skeletonLT_subset ⊤
+    exact mapsTo'.mpr (image_complex_subset g)
   image_skeletonLT_subset' n := by
     rw [image_comp]
     exact (image_mono (image_skeletonLT_subset g n)).trans (image_skeletonLT_subset f n)

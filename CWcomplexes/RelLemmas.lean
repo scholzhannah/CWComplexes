@@ -36,13 +36,13 @@ lemma RelCWComplex.isClosed_skeleton [RelCWComplex C D] (n : ℕ∞) :
 
 lemma RelCWComplex.isClosed_iff_inter_skeletonLT_isClosed [RelCWComplex C D] {A : Set X}
     (asubc : A ⊆ C) : IsClosed A ↔ ∀ (n : ℕ), IsClosed (A ∩ skeletonLT C n) := by
-  refine ⟨fun closedA _ ↦  IsClosed.inter closedA (isClosed_skeletonLT _), ?_⟩
+  refine ⟨fun closedA _ ↦  closedA.inter (isClosed_skeletonLT _), ?_⟩
   intro h
   rw [closed C A asubc]
   constructor
   · intro n j
     rw [(inter_eq_right.2 (closedCell_subset_skeletonLT n j)).symm, ← inter_assoc]
-    exact IsClosed.inter (h (n + 1)) isClosed_closedCell
+    exact (h (n + 1)).inter isClosed_closedCell
   · rw [← skeletonLT_zero_eq_base (C := C) (D := D)]
     exact h 0
 
