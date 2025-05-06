@@ -333,7 +333,7 @@ instance RelCWComplex.finiteType_product [KSpace (X × Y)] [RelCWComplex C D] [R
     have hD := FiniteType.finite_cell (C := E) (D := F)
     intro n
     simp [prodcell]
-    rw [← Equiv.finite_iff (pSigmaAssoc _), ← Equiv.finite_iff (pSigmaAssoc _)]
+    rw [← Equiv.finite_iff (Equiv.pSigmaAssoc _), ← Equiv.finite_iff (Equiv.pSigmaAssoc _)]
     suffices _root_.Finite ((a : (_ : ℕ) ×' ℕ) ×' a.fst + a.snd = n) from inferInstance
     rw [Equiv.finite_iff (Equiv.psigmaEquivSubtype _)]
     let f : { a : (_ : ℕ) ×' ℕ // a.fst + a.snd = n } → {m // m ≤ n} × {m // m ≤ n} :=
@@ -606,7 +606,7 @@ instance RelCWComplex.finiteType_productKification [RelCWComplex C D]
     have hD := FiniteType.finite_cell (C := E) (D := F)
     intro n
     simp [prodcell]
-    rw [← Equiv.finite_iff (pSigmaAssoc _), ← Equiv.finite_iff (pSigmaAssoc _)]
+    rw [← Equiv.finite_iff (Equiv.pSigmaAssoc _), ← Equiv.finite_iff (Equiv.pSigmaAssoc _)]
     suffices _root_.Finite ((a : (_ : ℕ) ×' ℕ) ×' a.fst + a.snd = n) from inferInstance
     rw [Equiv.finite_iff (Equiv.psigmaEquivSubtype _)]
     let f : { a : (_ : ℕ) ×' ℕ // a.fst + a.snd = n } → {m // m ≤ n} × {m // m ≤ n} :=

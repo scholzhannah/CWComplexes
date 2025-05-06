@@ -58,16 +58,6 @@ lemma PartialEquiv.isClosed_of_isClosed_preimage {X Y : Type*} [TopologicalSpace
 
 /-! ### Random-/
 
---**PR**
--- needed in product file
-/-- Dependent product of sorts is associative up to an equivalence. -/
-def pSigmaAssoc {α : Sort*} {β : α → Sort*} (γ : ∀ a : α, β a → Sort*) :
-    (Σ' ab : Σ' a : α, β a, γ ab.1 ab.2) ≃ Σ' a : α, Σ' b : β a, γ a b where
-  toFun x := ⟨x.1.1, ⟨x.1.2, x.2⟩⟩
-  invFun x := ⟨⟨x.1, x.2.1⟩, x.2.2⟩
-  left_inv _ := rfl
-  right_inv _ := rfl
-
 /-! ### Auxiliary stuff for spheres-/
 
 open Metric Set
@@ -81,6 +71,58 @@ open Metric Set
   In order to show that ``sphereToDisc` is continuous on the sphere we need to study how
   (the inverses of) `Homeomorph.unitBall` and `stereographic'` behave as we approach the edge of
   their domain.-/
+
+lemma sqrt_one_sub_sq_image_ico : (fun x ↦ √(1 - x ^ 2)) '' (Ico 0 1) = Ioc 0 1 := by
+  ext y
+  simp only [mem_Ioc, mem_image, mem_Ioo]
+  constructor
+  · intro ⟨z, ⟨hz1, hz2⟩, hz3⟩
+    rw [← hz3]
+    constructor
+    · rw [Real.sqrt_pos, sub_pos, sq_lt_one_iff_abs_lt_one, abs_lt]
+      exact ⟨lt_of_lt_of_le neg_one_lt_zero hz1, hz2⟩
+    · rw [Real.sqrt_le_iff, one_pow]
+      refine ⟨zero_le_one, ?_⟩
+      apply sub_le_self
+      exact sq_nonneg z
+  · intro ⟨hy1, hy2⟩
+    use √(1 - y ^ 2)
+    refine ⟨⟨(1 - y ^ 2).sqrt_nonneg, ?_⟩, ?_⟩
+    · rw [← Real.sqrt_one, Real.sqrt_lt_sqrt_iff]
+      · rw [Real.sqrt_one]
+        apply sub_lt_self
+        exact sq_pos_of_pos hy1
+      · rw [sub_nonneg, Real.sqrt_one, ← one_pow 2, sq_le_sq]
+        simp [abs_le, (lt_trans neg_one_lt_zero hy1).le, hy2]
+    · suffices √(1 - y ^ 2) ^ 2 = 1 - y ^ 2 by rw [this, sub_sub_cancel, Real.sqrt_sq hy1.le]
+      apply Real.sq_sqrt
+      rw [sub_nonneg, ← one_pow 2, sq_le_sq]
+      simp [abs_le, (lt_trans neg_one_lt_zero hy1).le, hy2]
+
+lemma Filter.Tendsto.inv_sqrt_one_sub_sq_mul :
+    Filter.Tendsto (fun r ↦ (√(1 - r ^ 2))⁻¹ * r) (nhdsWithin 1 (Ico 0 1)) Filter.atTop := by
+  refine Filter.Tendsto.atTop_mul_pos Real.zero_lt_one ?_
+    (Filter.Tendsto.mono_left (continuous_id.continuousAt.tendsto) nhdsWithin_le_nhds)
+  apply Filter.Tendsto.comp tendsto_inv_nhdsGT_zero
+  refine Filter.Tendsto.mono_right (y := (nhdsWithin 0 (Ioc 0 1))) ?_
+    (nhdsWithin_mono 0 Ioc_subset_Ioi_self)
+  have h1 : 0 = (fun x ↦ √(1 - x ^ 2)) 1 := by simp
+  nth_rw 2 [h1]
+  nth_rw 1 [← sqrt_one_sub_sq_image_ico]
+  apply ContinuousWithinAt.tendsto_nhdsWithin_image
+  apply Continuous.continuousWithinAt
+  apply Real.continuous_sqrt.comp ((continuous_sub_left 1).comp (continuous_pow 2))
+
+lemma norm_image_ball_eq_ico {E : Type*} [NormedAddCommGroup E]
+    [NormedSpace ℝ E] [Nontrivial E] : norm '' ball (0 : E) 1 = Ico 0 1 := by
+  ext y
+  simp only [mem_Ioo, mem_image, mem_ball, dist_zero_right]
+  refine ⟨fun ⟨z, hz1, hz2⟩ ↦ by simp [← hz2, hz1], ?_⟩
+  intro ⟨hy1, hy2⟩
+  obtain ⟨r, hr⟩ := NormedSpace.exists_lt_norm ℝ E 0
+  use (y / ‖r‖) • r
+  suffices ‖(y / ‖r‖) • r‖ = y by simp [this, hy2]
+  simp [norm_smul, div_mul_cancel₀ _ hr.ne.symm, hy1]
 
 /-- As we approach the sphere from inside the ball the inverse of `Homeomorph.unitBall` tends to
   infinity in its norm. -/
@@ -96,76 +138,55 @@ lemma Homeomorph.tendsto_norm_comp_unitBall_symm {E : Type*} [NormedAddCommGroup
   change Filter.Tendsto
     (norm ∘ (PartialHomeomorph.univUnitBall (E := E)).symm ∘ (Subtype.val : ball (0 : E) 1 → E))
       (Filter.comap Subtype.val (nhds x)) Filter.atTop
-  rw [← Function.comp_assoc, ← Filter.tendsto_map'_iff, Filter.subtype_coe_map_comap]
-  simp only [PartialHomeomorph.univUnitBall, PartialHomeomorph.mk_coe_symm,
-    PartialEquiv.coe_symm_mk]
-  have : norm ∘ (fun y ↦ (√(1 - ‖y‖ ^ 2))⁻¹ • y)
-      = (fun r ↦ (√(1 - r ^ 2))⁻¹ * r) ∘ (norm : E → ℝ) := by
+  rw [← Function.comp_assoc, ← Filter.tendsto_map'_iff, Filter.subtype_coe_map_comap,
+    PartialHomeomorph.univUnitBall, PartialHomeomorph.mk_coe_symm, PartialEquiv.coe_symm_mk]
+  suffices Filter.Tendsto ((fun r ↦ (√(1 - r ^ 2))⁻¹ * r) ∘ norm)
+      (nhds x ⊓ Filter.principal (ball 0 1)) Filter.atTop by
+    convert this
     ext y
-    simp only [Function.comp_apply, norm_smul, norm_inv, Real.norm_eq_abs, mul_eq_mul_right_iff,
-      inv_inj, abs_eq_self, Real.sqrt_nonneg, norm_eq_zero, true_or]
+    simp [norm_smul]
+  apply Filter.Tendsto.inv_sqrt_one_sub_sq_mul.comp
+  rw [← norm_image_ball_eq_ico (E := E), (by simp_all : 1 = ‖x‖)]
+  exact continuous_norm.continuousWithinAt.tendsto_nhdsWithin_image
+
+lemma hola {a : ℝ} : Filter.Tendsto (fun (r : ℝ) ↦ r * (r ^ 2 + a)⁻¹) Filter.atTop (nhds 0) := by
+  have : (fun k ↦ k * (k ^ 2 + a)⁻¹) = fun k ↦ (k + a * k⁻¹)⁻¹ := by
+    ext k
+    nth_rw 1 [← inv_inv (a := k), ← mul_inv, mul_add, pow_two, ← mul_assoc, inv_mul_mul_self,
+      mul_comm]
   rw [this]
-  apply Filter.Tendsto.comp (y := nhdsWithin 1 (Ico 0 1))
-  · apply Filter.Tendsto.atTop_mul_pos Real.zero_lt_one
-    · apply Filter.Tendsto.comp (y := nhdsWithin 0 (Set.Ioi 0))
-      · exact tendsto_inv_nhdsGT_zero
-      · refine Filter.Tendsto.mono_right (y := (nhdsWithin 0 (Ioc 0 1))) ?_
-          (nhdsWithin_mono 0 Ioc_subset_Ioi_self)
-        have h1 : 0 = (fun x ↦ √(1 - x ^ 2)) 1 := by simp
-        have h2 : Ioc 0 1 = (fun x ↦ √(1 - x ^ 2)) '' (Ico 0 1) := by
-          ext y
-          simp only [mem_Ioc, mem_image, mem_Ioo]
-          constructor
-          · intro ⟨hy1, hy2⟩
-            use √(1 - y ^ 2)
-            refine ⟨⟨?_, ?_⟩, ?_⟩
-            · exact Real.sqrt_nonneg (1 - y ^ 2)
-            · rw [← Real.sqrt_one]
-              apply Real.sqrt_lt_sqrt
-              · rw [sub_nonneg, Real.sqrt_one, (by norm_num : (1 : ℝ) = 1 ^ 2), sq_le_sq]
-                simp only [abs_one, abs_le, (lt_trans neg_one_lt_zero hy1).le, hy2, and_self]
-              · rw [Real.sqrt_one]
-                apply sub_lt_self
-                exact sq_pos_of_pos hy1
-            · suffices √(1 - y ^ 2) ^ 2 = 1 - y ^ 2 by
-                rw [this, sub_sub_cancel, Real.sqrt_sq hy1.le]
-              apply Real.sq_sqrt
-              rw [sub_nonneg, (by norm_num : (1 : ℝ) = 1 ^ 2), sq_le_sq]
-              simp only [abs_one, abs_le, (lt_trans neg_one_lt_zero hy1).le, hy2, and_self]
-          · intro ⟨z, ⟨hz1, hz2⟩, hz3⟩
-            rw [← hz3]
-            constructor
-            · rw [Real.sqrt_pos, sub_pos, sq_lt_one_iff_abs_lt_one, abs_lt]
-              exact ⟨lt_of_lt_of_le neg_one_lt_zero hz1, hz2⟩
-            · rw [Real.sqrt_le_iff, one_pow]
-              refine ⟨zero_le_one, ?_⟩
-              apply sub_le_self
-              exact sq_nonneg z
-        nth_rw 2 [h1]
-        nth_rw 1 [h2]
-        apply ContinuousWithinAt.tendsto_nhdsWithin_image
-        apply Continuous.continuousWithinAt
-        apply Real.continuous_sqrt.comp
-        exact (continuous_sub_left 1).comp (continuous_pow 2)
-    · refine Filter.Tendsto.mono_left (x := nhds 1) ?_ nhdsWithin_le_nhds
-      apply ContinuousAt.tendsto
-      exact continuous_id.continuousAt
-  · have h1 : Ico 0 1 = norm '' ball (0 : E) 1 := by
-      ext y
-      simp only [mem_Ioo, mem_image, mem_ball, dist_zero_right]
-      constructor
-      · intro ⟨hy1, hy2⟩
-        rcases NormedSpace.exists_lt_norm ℝ E 0 with ⟨r, hr⟩
-        use (y / ‖r‖) • r
-        suffices ‖(y / ‖r‖) • r‖ = y by simp [this, hy2]
-        simp [norm_smul, div_mul_cancel₀ _ hr.ne.symm, hy1]
-      · intro ⟨z, hz1, hz2⟩
-        rw [← hz2]
-        simp only [mem_Ico, norm_nonneg, hz1, and_self]
-    have : 1 = ‖x‖ := by simp_all only [mem_sphere_iff_norm, sub_zero]
-    rw [h1, this]
-    apply ContinuousWithinAt.tendsto_nhdsWithin_image
-    exact continuous_norm.continuousWithinAt
+  apply Filter.Tendsto.inv_tendsto_atTop
+  apply Filter.Tendsto.atTop_add (C := 0) (fun _ a ↦ a)
+  change Filter.Tendsto (fun x ↦ a * x⁻¹) Filter.atTop (nhds 0)
+  rw [← mul_zero (a := a)]
+  apply Filter.Tendsto.const_mul
+  exact tendsto_inv_atTop_zero
+
+open Set Filter in
+theorem tendsto_add_mul_sq_div_add_mul_atTop_nhds {𝕜 : Type*}
+  [Field 𝕜] [LinearOrder 𝕜] [IsStrictOrderedRing 𝕜] [TopologicalSpace 𝕜]
+  [OrderTopology 𝕜] (a b c d e : 𝕜) {f : 𝕜} (hf : f ≠ 0) :
+    Tendsto
+      (fun k : 𝕜 ↦ (a + c * k + e * k ^ 2) / (b + d * k +  f * k ^ 2)) atTop (nhds (e / f)) := by
+  apply Filter.Tendsto.congr'
+  case f₁ => exact fun k ↦ (a * (↑k ^ 2)⁻¹ + c * ↑k⁻¹ + e) / (b * (↑k ^ 2)⁻¹ + d * ↑k⁻¹ + f)
+  · refine (eventually_ne_atTop 0).mp (Eventually.of_forall ?_)
+    intro x hx
+    simp only
+    rw [← mul_div_mul_left _ _ (pow_ne_zero 2 hx)]
+    congrm ?_ / ?_
+    · field_simp
+      ring
+    · field_simp
+      ring
+  · apply Filter.Tendsto.div _ _ hf
+    all_goals
+      apply zero_add (_ : 𝕜) ▸ Filter.Tendsto.add_const  _ _
+      apply zero_add (_ : 𝕜) ▸ Filter.Tendsto.add _ _
+      · apply mul_zero (_ : 𝕜) ▸ Filter.Tendsto.const_mul _ _
+        exact (Filter.tendsto_pow_atTop two_ne_zero).inv_tendsto_atTop
+      · apply mul_zero (_ : 𝕜) ▸ Filter.Tendsto.const_mul _ _
+        exact tendsto_inv_atTop_zero
 
 /-- As we approach infinite norm the inverse of hte stereographic projection `stereographic`
   approaches the center of the projection. -/
@@ -176,15 +197,13 @@ lemma stereographic_symm_tendsto {E : Type*} [NormedAddCommGroup E] [InnerProduc
     Filter.Tendsto (stereographic hv).symm α (nhds ⟨v, by simp [hv]⟩) := by
   simp only [stereographic, PartialHomeomorph.mk_coe_symm, PartialEquiv.coe_symm_mk]
   rw [nhds_subtype, Filter.tendsto_comap_iff]
-  have : Subtype.val ∘ (stereoInvFun hv) =
-      fun (w : ↥(Submodule.span ℝ {v})ᗮ) ↦
+  have : Subtype.val ∘ (stereoInvFun hv) = fun (w : ↥(Submodule.span ℝ {v})ᗮ) ↦
       (4 * (‖w‖ ^ 2 + 4)⁻¹) • w + ((‖w‖ ^ 2 - 4) * (‖w‖ ^ 2 + 4)⁻¹) • v := by
     ext w
     simp only [Function.comp_apply, stereoInvFun_apply, AddSubgroupClass.coe_norm, smul_add,
       smul_smul]
     ring_nf
-  rw [this]
-  simp only [AddSubgroupClass.coe_norm]
+  simp_rw [this, AddSubgroupClass.coe_norm]
   nth_rw 8 [← zero_add (a := v)]
   apply Filter.Tendsto.add
   · rw [← comap_norm_nhds_zero, Filter.tendsto_comap_iff]
@@ -197,41 +216,15 @@ lemma stereographic_symm_tendsto {E : Type*} [NormedAddCommGroup E] [InnerProduc
       ring
     rw [this]
     refine Filter.Tendsto.comp ?_ h
-    rw [← mul_zero (a := 4)]
-    simp_rw [mul_assoc]
-    apply Filter.Tendsto.const_mul
-    have : (fun (k : ℝ) ↦ k * (k ^ 2 + 4)⁻¹) = fun k ↦ (k + 4 * k⁻¹)⁻¹ := by
-      ext k
-      nth_rw 1 [← inv_inv (a := k), ← mul_inv, mul_add, pow_two, ← mul_assoc, inv_mul_mul_self,
-        mul_comm]
-    rw [this]
-    apply Filter.Tendsto.inv_tendsto_atTop
-    apply Filter.Tendsto.atTop_add (C := 0) (fun _ a ↦ a)
-    change Filter.Tendsto (fun x ↦ 4 * x⁻¹) Filter.atTop (nhds 0)
-    rw [← mul_zero (a := 4)]
-    apply Filter.Tendsto.const_mul
-    exact tendsto_inv_atTop_zero
+    simp_rw [← div_eq_mul_inv]
+    simpa [add_comm] using tendsto_add_mul_sq_div_add_mul_atTop_nhds (0 : ℝ) 4 4 0 0 one_ne_zero
   · nth_rw 6 [← one_smul (M := ℝ) (b := v)]
     apply Filter.Tendsto.smul_const
-    have : (fun (x : ↥(Submodule.span ℝ {v})ᗮ) ↦ (‖(x : E)‖ ^ 2 - 4) * (‖(x : E)‖ ^ 2 + 4)⁻¹) =
-        (fun y ↦ (y ^ 2 - 4) * (y ^ 2 + 4)⁻¹) ∘ (norm : ↥(Submodule.span ℝ {v})ᗮ → ℝ) := by
-      ext
-      simp
-    rw [this]
+    change Filter.Tendsto ((fun y ↦ (y ^ 2 - 4) * (y ^ 2 + 4)⁻¹) ∘ norm) α (nhds 1)
     refine Filter.Tendsto.comp ?_ h
-    have : (fun (y : ℝ) ↦ (y ^ 2 - 4) * (y ^ 2 + 4)⁻¹) = fun y ↦ 1 + -8 * (y ^ 2 + 4)⁻¹ := by
-      ext y
-      field_simp
-      rw [sub_eq_add_neg, add_assoc]
-      norm_num
-    rw [this]
-    nth_rw 2 [← add_zero (a := 1)]
-    apply Filter.Tendsto.const_add
-    rw [← mul_zero (a := -8)]
-    apply Filter.Tendsto.const_mul
-    apply Filter.Tendsto.inv_tendsto_atTop
-    apply Filter.tendsto_atTop_add_const_right
-    exact Filter.tendsto_pow_atTop two_ne_zero
+    simp_rw [← div_eq_mul_inv]
+    simpa [add_comm, ← sub_eq_add_neg] using
+      tendsto_add_mul_sq_div_add_mul_atTop_nhds (-4 : ℝ) 4 0 0 1 one_ne_zero
 
 /-- As we approach infinite norm the inverse of the stereographic projection `stereographic'`
   approaches the centre of the projection. -/
@@ -244,8 +237,7 @@ lemma stereographic'_symm_tendsto {n : ℕ} (α : Filter (EuclideanSpace ℝ (Fi
     (nhds ⟨EuclideanSpace.single (Fin.last n) 1, by simp⟩) := by
   simp only [stereographic', Real.norm_eq_abs, PartialHomeomorph.coe_trans_symm,
     Homeomorph.toPartialHomeomorph_symm_apply, LinearIsometryEquiv.toHomeomorph_symm,
-    LinearIsometryEquiv.coe_toHomeomorph]
-  rw [← Filter.tendsto_map'_iff]
+    LinearIsometryEquiv.coe_toHomeomorph, ← Filter.tendsto_map'_iff]
   apply stereographic_symm_tendsto
   rw [Filter.tendsto_map'_iff]
   convert h
