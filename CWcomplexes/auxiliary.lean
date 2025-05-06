@@ -149,19 +149,6 @@ lemma Homeomorph.tendsto_norm_comp_unitBall_symm {E : Type*} [NormedAddCommGroup
   rw [← norm_image_ball_eq_ico (E := E), (by simp_all : 1 = ‖x‖)]
   exact continuous_norm.continuousWithinAt.tendsto_nhdsWithin_image
 
-lemma hola {a : ℝ} : Filter.Tendsto (fun (r : ℝ) ↦ r * (r ^ 2 + a)⁻¹) Filter.atTop (nhds 0) := by
-  have : (fun k ↦ k * (k ^ 2 + a)⁻¹) = fun k ↦ (k + a * k⁻¹)⁻¹ := by
-    ext k
-    nth_rw 1 [← inv_inv (a := k), ← mul_inv, mul_add, pow_two, ← mul_assoc, inv_mul_mul_self,
-      mul_comm]
-  rw [this]
-  apply Filter.Tendsto.inv_tendsto_atTop
-  apply Filter.Tendsto.atTop_add (C := 0) (fun _ a ↦ a)
-  change Filter.Tendsto (fun x ↦ a * x⁻¹) Filter.atTop (nhds 0)
-  rw [← mul_zero (a := a)]
-  apply Filter.Tendsto.const_mul
-  exact tendsto_inv_atTop_zero
-
 open Set Filter in
 theorem tendsto_add_mul_sq_div_add_mul_atTop_nhds {𝕜 : Type*}
   [Field 𝕜] [LinearOrder 𝕜] [IsStrictOrderedRing 𝕜] [TopologicalSpace 𝕜]
