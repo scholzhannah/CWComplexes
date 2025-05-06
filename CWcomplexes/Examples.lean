@@ -199,7 +199,7 @@ instance instIcc {a b : ℝ} : CWComplex (Icc a b : Set ℝ) :=
 /- **Commment**: This reuses the auxiliary definitions and lemmas of the interval. -/
 
 /-- The real numbers are a CW-complex. -/
-@[simps?]
+@[simps]
 instance instReal : CWComplex (univ : Set ℝ) where
   cell n := match n with
     | 0 => ℤ
