@@ -24,7 +24,7 @@ variable {X : Type*} [t : TopologicalSpace X] [T2Space X]
 /-! # CW-complex structures on finite sets -/
 
 /-- Every finite set is a CW-complex. -/
-@[simps!]
+@[simps! -isSimp]
 instance instFiniteSet (C : Set X) [_root_.Finite C] : CWComplex C := mkFinite C
   (cell := fun n ↦ match n with
     | 0 => C
@@ -85,7 +85,7 @@ example (x : X) : CWComplex {x} := inferInstance
 
 /-- An auxiliary bijection sending the closed unit ball in `Fin 1 → ℝ` to a desired (non-degenerate)
   closed interval. -/
-@[simps!]
+@[simps! -isSimp]
 def mapLT {a b : ℝ} (hab : a < b) := (IsometryEquiv.funUnique (Fin 1) ℝ).toHomeomorph.trans
     (affineHomeomorph ((b - a) / 2) ((a + b) / 2) (by linarith))
 
@@ -114,7 +114,7 @@ lemma mapLT_image_sphere {a b : ℝ} (hab : a < b) : mapLT hab '' sphere 0 1 = {
   exact Icc_diff_Ioo_same (le_of_lt hab)
 
 /-- `mapLT` as a partial bijection. -/
-@[simps!]
+@[simps! -isSimp]
 def mapLTPartial {a b : ℝ} (hab : a < b) :=
   (mapLT hab).toPartialEquivOfImageEq (ball 0 1) (Ioo a b) (mapLT_image_ball hab)
 
@@ -124,6 +124,7 @@ lemma mapLTPartial_image {a b : ℝ} (hab : a < b) {s : Set (Fin 1 → ℝ)} :
     mapLTPartial hab '' s = mapLT hab '' s :=
   rfl
 
+--set_option trace. in
 --set_option trace.Meta.Tactic.simp.rewrite true in
 /-- A helper definition for `instIccLT` where the set is presented differently. -/
 protected def instIccLT' {a b : ℝ} (hab : a < b) :
@@ -147,13 +148,14 @@ protected def instIccLT' {a b : ℝ} (hab : a < b) :
           · exact .inr (le_of_eq hi.symm)
         | (_ + 1), i => i.elim)
     (mapsTo := by
-      --simp
-      simp only [Nat.lt_one_iff, iUnion_iUnion_eq_left, closedCell_zero_eq_singleton, mapsTo',
+      --simp [hab]
+      simp [Nat.lt_one_iff, iUnion_iUnion_eq_left, closedCell_zero_eq_singleton, mapsTo',
         mapLTPartial_image, mapLT_image_sphere, instRelCWComplex_cell, instRelCWComplex_map]
       simp only [pair_comm, instFiniteSet_cell, RelCWComplex.mkFinite, instFiniteSet_map,
         PartialEquiv.single_apply, Function.const_apply, iUnion_coe_set, mem_insert_iff,
         mem_singleton_iff, iUnion_iUnion_eq_or_left, iUnion_iUnion_eq_left, union_singleton,
-        pair_comm, subset_refl])
+        pair_comm, subset_refl]
+      simp [subset_def])
 
 /-- A helper lemma for `Finite_IccLT`. -/
 protected lemma finite_instIccLT' {a b : ℝ} (hab : a < b) :

@@ -358,7 +358,7 @@ But that doesn't work anymore because I needed to add `.toCWComplex` in CWComple
 instance CWComplex.finiteType_product [KSpace (X × Y)] [CWComplex C] [CWComplex E]
     [FiniteType C] [FiniteType E] : FiniteType (C ×ˢ E) :=
   letI := RelCWComplex.Product (C := C) (E := E)
-  letI := ofEq (C ×ˢ E) (∅ ×ˢ E ∪ C ×ˢ ∅) rfl (by simp)
+  --letI := ofEq (C ×ˢ E) (∅ ×ˢ E ∪ C ×ˢ ∅) rfl (by simp)
   finiteType_ofEq (C ×ˢ E) (∅ ×ˢ E ∪ C ×ˢ ∅) rfl (by simp)
 
 /-- If `C` and `D` are CW-complexes in `X` and `Y` then `C ×ˢ D` is a CW-complex in the k-ification

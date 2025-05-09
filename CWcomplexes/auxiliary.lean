@@ -149,6 +149,8 @@ lemma Homeomorph.tendsto_norm_comp_unitBall_symm {E : Type*} [NormedAddCommGroup
   rw [← norm_image_ball_eq_ico (E := E), (by simp_all : 1 = ‖x‖)]
   exact continuous_norm.continuousWithinAt.tendsto_nhdsWithin_image
 
+-- use polynomials here
+
 open Set Filter in
 theorem tendsto_add_mul_sq_div_add_mul_atTop_nhds {𝕜 : Type*}
   [Field 𝕜] [LinearOrder 𝕜] [IsStrictOrderedRing 𝕜] [TopologicalSpace 𝕜]

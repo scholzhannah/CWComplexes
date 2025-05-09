@@ -82,6 +82,8 @@ lemma RelCWComplex.finite_ofEq {X : Type*} [TopologicalSpace X] (C D : Set X)
   let _ := finiteType_ofEq C D hCE hDF
   inferInstance
 
+-- make `CWComplex.ofEq`
+
 /-- The union of two disjoint CW-complexes is again a CW-complex. -/
 @[simps -isSimp]
 def RelCWComplex.disjointUnion [RelCWComplex C D] {E F : Set X} [RelCWComplex E F]
