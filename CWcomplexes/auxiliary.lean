@@ -247,7 +247,7 @@ lemma stereographic'_symm_tendsto {n : ℕ} (α : Filter (EuclideanSpace ℝ (Fi
 /-- This is just a preliminary lemma showing the continuity of the map we are about to define. -/
 lemma continuous_normScale {E F : Type*}  [SeminormedAddCommGroup E] [T1Space E]
     [NormedAddCommGroup F] [MulActionWithZero ℝ F]
-    {f : E → F} (hf : Continuous f) [ContinuousSMul ℝ F] [IsBoundedSMul ℝ F]
+    {f : E → F} (hf : Continuous f) [ContinuousSMul ℝ F] [NormSMulClass ℝ F]
     (hf0 : ∀ x, f x = 0 ↔ x = 0) :
     Continuous fun x ↦ (‖x‖ * ‖f x‖⁻¹) • (f x) := by
   rw [continuous_iff_continuousOn_univ, ← diff_union_of_subset (subset_univ {0})]
@@ -284,8 +284,8 @@ lemma continuous_normScale {E F : Type*}  [SeminormedAddCommGroup E] [T1Space E]
   Unfortunatly this does not preserve distances so this is not an isometry
   (in fact such an isometry generally does not exist). -/
 def normScale {E F : Type*}  [NormedAddCommGroup E] [T1Space E] [Module ℝ E]
-    [ContinuousSMul ℝ E] [IsBoundedSMul ℝ E] [NormedAddCommGroup F] [Module ℝ F] [T1Space F]
-    [ContinuousSMul ℝ F] [IsBoundedSMul ℝ F] (f : E ≃L[ℝ] F) : E ≃ₜ F where
+    [ContinuousSMul ℝ E] [NormSMulClass ℝ E] [NormedAddCommGroup F] [Module ℝ F] [T1Space F]
+    [ContinuousSMul ℝ F] [NormSMulClass ℝ F] (f : E ≃L[ℝ] F) : E ≃ₜ F where
   toFun x := (‖x‖ * ‖f x‖⁻¹) • (f x)
   invFun y := (‖y‖ * ‖f.symm y‖⁻¹) • (f.symm y)
   left_inv x := by
@@ -329,17 +329,17 @@ def normScale {E F : Type*}  [NormedAddCommGroup E] [T1Space E] [Module ℝ E]
 /-- `normScale` preserves the zero. -/
 @[simp]
 lemma normScale_zero {E F : Type*}  [NormedAddCommGroup E] [T1Space E] [Module ℝ E]
-    [ContinuousSMul ℝ E] [IsBoundedSMul ℝ E] [NormedAddCommGroup F] [Module ℝ F] [T1Space F]
-    [ContinuousSMul ℝ F] [IsBoundedSMul ℝ F] (f : E ≃L[ℝ] F) :
+    [ContinuousSMul ℝ E] [NormSMulClass ℝ E] [NormedAddCommGroup F] [Module ℝ F] [T1Space F]
+    [ContinuousSMul ℝ F] [NormSMulClass ℝ F] (f : E ≃L[ℝ] F) :
     normScale f 0 = 0 := by
   simp [normScale]
 
 /-- `normScale` is norm-preserving. -/
 @[simp]
 lemma norm_normScale {E F : Type*}  [NormedAddCommGroup E] [T1Space E] [Module ℝ E]
-    [ContinuousSMul ℝ E] [IsBoundedSMul ℝ E] [NormedAddCommGroup F] [Module ℝ F] [T1Space F]
-    [ContinuousSMul ℝ F] [IsBoundedSMul ℝ F] (f : E ≃L[ℝ] F) {x : E} : ‖normScale f x‖ = ‖x‖ := by
-  simp only [normScale, Homeomorph.homeomorph_mk_coe, Equiv.coe_fn_mk, norm_smul, norm_mul,
+    [ContinuousSMul ℝ E] [NormSMulClass ℝ E] [NormedAddCommGroup F] [Module ℝ F] [T1Space F]
+    [ContinuousSMul ℝ F] [NormSMulClass ℝ F] (f : E ≃L[ℝ] F) {x : E} : ‖normScale f x‖ = ‖x‖ := by
+  simp [normScale, Homeomorph.homeomorph_mk_coe, Equiv.coe_fn_mk, norm_smul, norm_mul,
     Real.norm_eq_abs, abs_norm, norm_inv, mul_assoc]
   by_cases h : x = 0
   · simp [h]
@@ -351,8 +351,8 @@ lemma norm_normScale {E F : Type*}  [NormedAddCommGroup E] [T1Space E] [Module �
 /-- The inverse of `normScale` of the continuous linear bijection `f` is just
   `normScale` of the inverse of `f`. -/
 lemma normScale_symm_eq {E F : Type*}  [NormedAddCommGroup E] [T1Space E] [Module ℝ E]
-    [ContinuousSMul ℝ E] [IsBoundedSMul ℝ E] [NormedAddCommGroup F] [Module ℝ F] [T1Space F]
-    [ContinuousSMul ℝ F] [IsBoundedSMul ℝ F] (f : E ≃L[ℝ] F) :
+    [ContinuousSMul ℝ E] [NormSMulClass ℝ E] [NormedAddCommGroup F] [Module ℝ F] [T1Space F]
+    [ContinuousSMul ℝ F] [NormSMulClass ℝ F] (f : E ≃L[ℝ] F) :
     (normScale f).symm = normScale f.symm := by
   ext
   simp [normScale]
@@ -360,8 +360,8 @@ lemma normScale_symm_eq {E F : Type*}  [NormedAddCommGroup E] [T1Space E] [Modul
 /-- `normScale` preserves closed balls. -/
 @[simp]
 lemma normScale_image_closedBall {E F : Type*}  [NormedAddCommGroup E] [T1Space E] [Module ℝ E]
-    [ContinuousSMul ℝ E] [IsBoundedSMul ℝ E] [NormedAddCommGroup F] [Module ℝ F] [T1Space F]
-    [ContinuousSMul ℝ F] [IsBoundedSMul ℝ F] (f : E ≃L[ℝ] F) (r : ℝ) :
+    [ContinuousSMul ℝ E] [NormSMulClass ℝ E] [NormedAddCommGroup F] [Module ℝ F] [T1Space F]
+    [ContinuousSMul ℝ F] [NormSMulClass ℝ F] (f : E ≃L[ℝ] F) (r : ℝ) :
     normScale f '' closedBall 0 r = closedBall 0 r := by
   ext x
   simp only [mem_image, mem_closedBall, dist_zero_right]
@@ -378,8 +378,8 @@ lemma normScale_image_closedBall {E F : Type*}  [NormedAddCommGroup E] [T1Space 
 /-- `normScale` preserves balls. -/
 @[simp]
 lemma normScale_image_ball {E F : Type*}  [NormedAddCommGroup E] [T1Space E] [Module ℝ E]
-    [ContinuousSMul ℝ E] [IsBoundedSMul ℝ E] [NormedAddCommGroup F] [Module ℝ F] [T1Space F]
-    [ContinuousSMul ℝ F] [IsBoundedSMul ℝ F] (f : E ≃L[ℝ] F) (r : ℝ) :
+    [ContinuousSMul ℝ E] [NormSMulClass ℝ E] [NormedAddCommGroup F] [Module ℝ F] [T1Space F]
+    [ContinuousSMul ℝ F] [NormSMulClass ℝ F] (f : E ≃L[ℝ] F) (r : ℝ) :
     normScale f '' ball 0 r = ball 0 r := by
   ext x
   simp only [mem_image, mem_ball, dist_zero_right]
@@ -396,8 +396,8 @@ lemma normScale_image_ball {E F : Type*}  [NormedAddCommGroup E] [T1Space E] [Mo
 /-- `normScale` preserves spheres. -/
 @[simp]
 lemma normScale_image_sphere {E F : Type*}  [NormedAddCommGroup E] [T1Space E] [Module ℝ E]
-    [ContinuousSMul ℝ E] [IsBoundedSMul ℝ E] [NormedAddCommGroup F] [Module ℝ F] [T1Space F]
-    [ContinuousSMul ℝ F] [IsBoundedSMul ℝ F] (f : E ≃L[ℝ] F) (r : ℝ) :
+    [ContinuousSMul ℝ E] [NormSMulClass ℝ E] [NormedAddCommGroup F] [Module ℝ F] [T1Space F]
+    [ContinuousSMul ℝ F] [NormSMulClass ℝ F] (f : E ≃L[ℝ] F) (r : ℝ) :
     normScale f '' sphere 0 r = sphere 0 r := by
   ext x
   simp only [mem_image, mem_sphere, dist_zero_right]
@@ -489,8 +489,8 @@ lemma LinearIsometryEquiv.negLast_idempotent (n : ℕ) (x : EuclideanSpace ℝ (
   ext i
   unfold negLast Function.update
   by_cases h : i = Fin.last n
-  · simp only [eq_rec_constant, dite_eq_ite, coe_mk, LinearEquiv.coe_mk, h, ↓reduceIte, neg_neg]
-    rw [← h]
+  · subst h
+    simp
   · simp [h]
 
 /-! # Openness/Closedness of the plane and half-planes-/

@@ -444,7 +444,7 @@ lemma symm_eqOn_of_inter_eq_of_eqOn {e' : CellularEquiv C E} (h : e.IsImage s t)
 be taken out and PR'd later?
 -/
 
-/-- Restrict a `PartialHomeomorph` to a pair of corresponding open sets. -/
+/-- Restrict a `CellularEquiv` to a pair of corresponding open sets. -/
 @[simps toPartialEquiv]
 def restr [T2Space X] [T2Space Y] (C' : Subcomplex C) (E' : Subcomplex E) (h : e.IsImage C' E') :
     CellularEquiv C' (D := D) E' (F := F) where
@@ -530,7 +530,7 @@ lemma RelCWComplex.continuous_of_continuousOn_closedCell [T2Space X] [RelCWCompl
     Continuous f := by
   rw [continuous_iff_continuousOn_univ, ← compl_union_self  (s := C)]
   refine ContinuousOn.mono ?_ (union_subset_union_left C subset_closure)
-  apply ContinuousOn.union_isClosed isClosed_closure isClosed hfC
+  apply hfC.union_of_isClosed ?_ isClosed_closure isClosed
   exact continuousOn_of_continuousOn_closedCell f hf hfD
 
 lemma CWComplex.continuous_of_continuousOn_closedCell [T2Space X] [CWComplex C]

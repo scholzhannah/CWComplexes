@@ -81,10 +81,8 @@ instance instQuotient [Nonempty E] :
   continuousOn := sorry
   continuousOn_symm := sorry
   pairwiseDisjoint' := sorry
-  disjointBase' := sorry
-  mapsTo := sorry
+  mapsTo' := sorry
   closed' := sorry
-  isClosedBase := sorry
   union' := sorry
 
 

@@ -957,7 +957,7 @@ lemma spheremaps_image_sphere (n : ℕ) (i : Fin 2) :
     · intro ⟨h1, h2⟩
       use x
       simp only [h1, h2, and_self, LinearIsometryEquiv.negLast, LinearIsometryEquiv.coe_mk,
-        LinearEquiv.coe_mk, neg_zero, true_and]
+        LinearEquiv.coe_mk, LinearMap.coe_mk, AddHom.coe_mk, neg_zero, true_and]
       rw [← h2, Function.update_eq_self]
 
 /-- Both characterstic maps are continuous. -/
