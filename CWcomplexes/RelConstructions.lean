@@ -17,31 +17,74 @@ open Metric Set
 
 namespace Topology
 
-variable {X : Type*} [t : TopologicalSpace X] [T2Space X] {C D : Set X}
+variable {X : Type*} [t : TopologicalSpace X] {C D : Set X}
 
 section
 
-/-- The empty set is a CW-complex. -/
-@[simps!]
-instance CWComplex.instEmpty : CWComplex (∅ : Set X) := mkFinite ∅
-  (cell := fun _ ↦ PEmpty)
-  (map := fun _ i ↦ i.elim)
+/-- Every finite set is a CW complex. -/
+-- @[simps! -isSimp]
+instance CWComplex.instFiniteSet (C : Set X) [_root_.Finite C] : CWComplex C := mkFinite C
+  (cell := fun n ↦ match n with
+    | 0 => C
+    | (_ + 1) => PEmpty)
+  (map := fun n i ↦ match n with
+    | 0 => PartialEquiv.single ![] i
+    | (_ + 1) => i.elim)
   (eventually_isEmpty_cell := by
     rw [Filter.eventually_atTop]
-    use 0
-    exact fun b a ↦ PEmpty.instIsEmpty)
-  (finite_cell := fun n ↦ Finite.of_fintype ((fun _ ↦ PEmpty) n))
-  (source_eq := fun _ i ↦ i.elim)
-  (continuousOn := fun _ i ↦ i.elim)
-  (continuousOn_symm := fun _ i ↦ i.elim)
-  (pairwiseDisjoint' := by rw [PairwiseDisjoint, Set.Pairwise]; intro ⟨_, i⟩; exact i.elim)
-  (mapsto := fun _ i ↦ i.elim)
-  (union' := by simp [iUnion_of_empty, iUnion_empty])
+    use 1
+    intro b beq1
+    simp only
+    split
+    · contradiction
+    · infer_instance)
+  (finite_cell := fun n ↦ match n with
+    | 0 => inferInstance
+    | (_ + 1) => inferInstance)
+  (source_eq := fun n i ↦ match n with
+    | 0 => by
+      simp [PartialEquiv.single, ball, Matrix.empty_eq, eq_univ_iff_forall]
+    | (_ + 1) => i.elim)
+  (continuousOn := fun n i ↦ match n with
+    | 0 => continuousOn_const
+    | (m + 1) => i.elim)
+  (continuousOn_symm := fun n i ↦ match n with
+    | 0 => continuousOn_const
+    | (_ + 1) => i.elim)
+  (pairwiseDisjoint' := by
+    simp_rw [PairwiseDisjoint, Set.Pairwise, Function.onFun]
+    exact fun ⟨n, j⟩ _ ⟨m, i⟩ _ ne ↦  match n with
+      | 0 => match m with
+        | 0 => by simp_all [Subtype.coe_ne_coe]
+        | (_ + 1) => i.elim
+      | (_ + 1) => j.elim)
+  (mapsto := fun n i ↦ match n with
+    | 0 => by simp [Matrix.zero_empty, sphere_eq_empty_of_subsingleton]
+    | (_ + 1) => i.elim)
+  (union' := by
+    ext x
+    simp only [mem_iUnion]
+    constructor
+    · intro ⟨n, i, hi⟩
+      exact match n with
+        | 0 => by simp_all
+        | (_ + 1) => i.elim
+    · intro hx
+      use 0, ⟨x, hx⟩
+      simp)
 
-/-- The CW-complex on the empty set is finite. -/
-instance CWComplex.finite_instEmpty :
-    letI := instEmpty (X := X)
-    Finite (∅ : Set X) :=
+lemma CWComplex.instFiniteSet_cell (C : Set X) [_root_.Finite C] {n : ℕ} :
+    cell C n =  match n with | 0 => C | (_ + 1) => PEmpty :=
+  rfl
+
+lemma CWComplex.instFiniteSet_map (C : Set X) [_root_.Finite C] {n : ℕ}
+    {i : match n with | 0 => C | (_ + 1) => PEmpty} :
+    map (C := C) n i =
+      match n, i with | 0, i => PartialEquiv.single ![] i | (_ + 1), i => PEmpty.elim i :=
+  rfl
+
+/-- The CW-complex on a finite set is finite. -/
+instance CWComplex.finite_instFiniteSet (C : Set X) [_root_.Finite C] : Finite C :=
   finite_mkFinite ..
 
 @[simps -isSimp]
@@ -83,6 +126,8 @@ lemma RelCWComplex.finite_ofEq {X : Type*} [TopologicalSpace X] (C D : Set X)
   inferInstance
 
 -- make `CWComplex.ofEq`
+
+variable [T2Space X]
 
 /-- The union of two disjoint CW-complexes is again a CW-complex. -/
 @[simps -isSimp]
@@ -1147,6 +1192,8 @@ lemma CWComplex.finiteType_ofHomeomorph.{u} {X Y : Type u} [TopologicalSpace X]
     FiniteType E :=
   let _ := ofHomeomorph C E f hCE
   {finite_cell := FiniteType.finite_cell (C := C)}
+
+variable [T2Space X]
 
 lemma CWComplex.finite_ofHomeomorph.{u} {X Y : Type u} [TopologicalSpace X]
     [TopologicalSpace Y] [T2Space X] (C : Set X) (E : Set Y) [CWComplex C] (f : X ≃ₜ Y)
