@@ -163,7 +163,7 @@ protected lemma finite_instIccLT' {a b : ℝ} (hab : a < b) :
     Finite (mapLTPartial hab '' closedBall 0 1 ∪ {a, b}) :=
   finite_attachCellFiniteType ..
 
-/-- A (non-degenerate closed interval is a CW-complex. -/
+/-- A (non-degenerate) closed interval is a CW-complex. -/
 def instIccLT {a b : ℝ} (hab : a < b) : CWComplex (Icc a b : Set ℝ) :=
   letI := CWComplex.instIccLT' hab
   (ofEq (mapLTPartial hab '' closedBall 0 1 ∪ {a, b}) ∅
@@ -174,7 +174,7 @@ def instIccLT {a b : ℝ} (hab : a < b) : CWComplex (Icc a b : Set ℝ) :=
        exact hab.le)
      rfl).toCWComplex
 
-/-- The Cw-complex structure on a (non-degenerate) closed interval is finite. -/
+/-- The CW complex structure on a (non-degenerate) closed interval is finite. -/
 lemma finite_instIccLT {a b : ℝ} (hab : a < b) :
     letI := instIccLT hab
     Finite (Icc a b) :=
@@ -201,7 +201,7 @@ instance instIcc {a b : ℝ} : CWComplex (Icc a b : Set ℝ) :=
 /- **Commment**: This reuses the auxiliary definitions and lemmas of the interval. -/
 
 /-- The real numbers are a CW-complex. -/
-@[simps?]
+@[simps]
 instance instReal : CWComplex (univ : Set ℝ) where
   cell n := match n with
     | 0 => ℤ
@@ -391,16 +391,9 @@ lemma SphereOne_map {x ε : ℝ} {hε : ε ≥ 0}
 /-- The CW-complex structure on the sphere in dimension 1 in finite. -/
 lemma finite_SphereOne (x ε : ℝ) (hε : ε ≥ 0) :
     letI := SphereOne x ε hε
-    Finite (sphere x ε) :=
-  -- this was `finite_ofEq ..` before
-  finite_ofEq {x - ε, x + ε} ∅ (by
-    ext y
-    simp [abs_eq hε]
-    rw[or_comm]
-    congrm (?_ ∨ ?_)
-    · rw [sub_eq_iff_eq_add, add_comm]
-    · rw [eq_sub_iff_add_eq, eq_neg_iff_add_eq_zero, sub_add_eq_add_sub, sub_eq_iff_eq_add,
-        zero_add]) rfl
+    Finite (sphere x ε) := by
+  rw [RelCWComplex.toCWComplex_eq]
+  exact finite_ofEq ..
 
 /-- The sphere as a CW-complex in `ℝ` with the euclidean metric. -/
 @[simps! -isSimp]
