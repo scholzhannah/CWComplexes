@@ -129,7 +129,7 @@ class CWComplex.{u} {X : Type u} [TopologicalSpace X] (C : Set X) where
   /-- The union of all closed cells equals `C`. Use `CWComplex.union` instead. -/
   protected union' : ⋃ (n : ℕ) (j : cell n), map n j '' closedBall 0 1 = C
 
-@[simps]
+@[simps -isSimp]
 instance (priority := high) CWComplex.instRelCWComplex {X : Type*} [TopologicalSpace X] (C : Set X)
     [CWComplex C] : RelCWComplex C ∅ where
   cell := CWComplex.cell C
@@ -252,24 +252,18 @@ lemma RelCWComplex.map_zero_mem_closedCell [RelCWComplex C D] (n : ℕ) (i : cel
     map n i 0 ∈ closedCell n i :=
   openCell_subset_closedCell _ _ (map_zero_mem_openCell _ _)
 
-lemma RelCWComplex.subset_of_eq_union_iUnion [RelCWComplex C D] (I J : Π n, Set (cell C n))
+/-- This is an auxiliary lemma used to prove `RelCWComplex.eq_of_eq_union_iUnion`. -/
+private lemma RelCWComplex.subset_of_eq_union_iUnion [RelCWComplex C D] (I J : Π n, Set (cell C n))
     (hIJ : D ∪ ⋃ (n : ℕ) (j : I n), openCell (C := C) n j =
       D ∪ ⋃ (n : ℕ) (j : J n), openCell (C := C) n j) (n : ℕ) : I n ⊆ J n := by
-  intro i
-  intro hi
+  intro i hi
   by_contra hJ
-  have h : openCell n i ⊆ D ∪ ⋃ n, ⋃ (j : J n), openCell (C := C) n j := by
-    rw [← hIJ]
-    apply subset_union_of_subset_right
-    apply subset_iUnion_of_subset n
-    apply subset_iUnion_of_subset ⟨i, hi⟩
-    rfl
+  have h : openCell n i ⊆ D ∪ ⋃ n, ⋃ (j : J n), openCell (C := C) n j :=
+    hIJ.symm ▸ subset_union_of_subset_right
+      (subset_iUnion_of_subset n (subset_iUnion_of_subset ⟨i, hi⟩ (subset_refl (openCell n i)))) D
   have h' : Disjoint (openCell n i) (D ∪ ⋃ n, ⋃ (j : J n), openCell (C := C) n j) := by
     simp_rw [disjoint_union_right, disjoint_iUnion_right]
-    refine ⟨disjointBase n i, ?_⟩
-    intro m j
-    apply disjoint_openCell_of_ne
-    aesop
+    exact ⟨disjointBase n i, fun m j ↦ disjoint_openCell_of_ne (by aesop)⟩
   rw [disjoint_of_subset_iff_left_eq_empty h] at h'
   exact not_mem_empty _ (h' ▸ map_zero_mem_openCell n i)
 
@@ -279,6 +273,12 @@ lemma RelCWComplex.eq_of_eq_union_iUnion [RelCWComplex C D] (I J : Π n, Set (ce
   ext n x
   exact ⟨fun h ↦ subset_of_eq_union_iUnion I J hIJ n h,
     fun h ↦ subset_of_eq_union_iUnion J I hIJ.symm n h⟩
+
+lemma CWComplex.eq_of_eq_union_iUnion [CWComplex C] (I J : Π n, Set (cell C n))
+    (hIJ : ⋃ (n : ℕ) (j : I n), openCell (C := C) n j =
+      ⋃ (n : ℕ) (j : J n), openCell (C := C) n j) : I = J := by
+  apply RelCWComplex.eq_of_eq_union_iUnion
+  simp_rw [empty_union, hIJ]
 
 lemma RelCWComplex.isCompact_closedCell [RelCWComplex C D] {n : ℕ} {i : cell C n} :
     IsCompact (closedCell n i) :=
