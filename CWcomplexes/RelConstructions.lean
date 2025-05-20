@@ -22,8 +22,7 @@ variable {X : Type*} [t : TopologicalSpace X] {C D : Set X}
 section
 
 /-- Every finite set is a CW complex. -/
--- @[simps! -isSimp]
-instance CWComplex.instFiniteSet (C : Set X) [_root_.Finite C] : CWComplex C := mkFinite C
+instance CWComplex.ofFiniteSet {C : Set X} (h : C.Finite) : CWComplex C := mkFinite C
   (cell := fun n ↦ match n with
     | 0 => C
     | (_ + 1) => PEmpty)
@@ -39,7 +38,7 @@ instance CWComplex.instFiniteSet (C : Set X) [_root_.Finite C] : CWComplex C := 
     · contradiction
     · infer_instance)
   (finite_cell := fun n ↦ match n with
-    | 0 => inferInstance
+    | 0 => h
     | (_ + 1) => inferInstance)
   (source_eq := fun n i ↦ match n with
     | 0 => by
@@ -73,19 +72,36 @@ instance CWComplex.instFiniteSet (C : Set X) [_root_.Finite C] : CWComplex C := 
       use 0, ⟨x, hx⟩
       simp)
 
-lemma CWComplex.instFiniteSet_cell (C : Set X) [_root_.Finite C] {n : ℕ} :
+lemma CWComplex.ofFiniteSet_cell {C : Set X} (h : C.Finite) {n : ℕ} :
+    letI := ofFiniteSet h
     cell C n =  match n with | 0 => C | (_ + 1) => PEmpty :=
   rfl
 
-lemma CWComplex.instFiniteSet_map (C : Set X) [_root_.Finite C] {n : ℕ}
+lemma CWComplex.ofFiniteSet_map {C : Set X} (h : C.Finite) {n : ℕ}
     {i : match n with | 0 => C | (_ + 1) => PEmpty} :
+    letI := ofFiniteSet h
     map (C := C) n i =
       match n, i with | 0, i => PartialEquiv.single ![] i | (_ + 1), i => PEmpty.elim i :=
   rfl
 
 /-- The CW-complex on a finite set is finite. -/
-instance CWComplex.finite_instFiniteSet (C : Set X) [_root_.Finite C] : Finite C :=
+lemma CWComplex.finite_ofFiniteSet (C : Set X) (h : C.Finite) :
+    letI := ofFiniteSet h
+    Finite C :=
   finite_mkFinite ..
+
+instance CWComplex.instFiniteSet (C : Set X) [_root_.Finite C] : CWComplex C :=
+  ofFiniteSet (by assumption)
+
+@[simp]
+lemma CWComplex.instFiniteSet_eq_ofFiniteSet (C : Set X) [_root_.Finite C] :
+    instFiniteSet C = ofFiniteSet (by assumption) :=
+  rfl
+
+/-- The CW-complex on a finite set is finite. -/
+instance CWComplex.finite_instFiniteSet (C : Set X) [_root_.Finite C] :
+    Finite C :=
+  finite_ofFiniteSet C (by assumption)
 
 @[simps -isSimp]
 def RelCWComplex.ofEq {X : Type*} [TopologicalSpace X] (C D : Set X)

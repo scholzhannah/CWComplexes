@@ -83,16 +83,20 @@ protected def instIccLT' {a b : ℝ} (hab : a < b) :
         mapLTPartial_image, mapLT_image_ball]
       exact match m, i with
         | 0, ⟨i, hi⟩ => by
-          simp only [openCell_zero_eq_singleton, instFiniteSet_map, PartialEquiv.single_apply,
-            Function.const_apply, disjoint_singleton_right, mem_Ioo, not_and_or, not_lt]
+          simp only [instFiniteSet_eq_ofFiniteSet, openCell_zero_eq_singleton, ofFiniteSet_map,
+            PartialEquiv.single_apply, Function.const_apply, disjoint_singleton_right, mem_Ioo,
+            not_and, not_lt]
+          intro hai
+          apply le_of_eq
           have : i = a ∨ i = b := by simp_all
           rcases this with hi | hi
-          · exact .inl (le_of_eq hi)
-          · exact .inr (le_of_eq hi.symm)
+          · subst i
+            exact hai.false.elim
+          · exact hi.symm
         | (_ + 1), i => i.elim)
     (mapsTo := by
-      simp [closedCell_zero_eq_singleton, mapsTo', mapLT_image_sphere, instFiniteSet_map,
-        instFiniteSet_cell, subset_def, -instRelCWComplex_cell, -instRelCWComplex_map])
+      simp [closedCell_zero_eq_singleton, mapsTo', mapLT_image_sphere, subset_def, ofFiniteSet_map,
+        ofFiniteSet_cell])
 
 /-- A helper lemma for `Finite_IccLT`. -/
 protected lemma finite_instIccLT' {a b : ℝ} (hab : a < b) :
@@ -281,7 +285,7 @@ lemma SphereZero_cell {x : EuclideanSpace ℝ (Fin 0)} {ε : ℝ} {h : ε ≠ 0}
     letI := SphereZero x ε h
     IsEmpty (cell (sphere x ε) n) := by
   rw [SphereZero, instRelCWComplex_cell, RelCWComplex.toCWComplex_cell, ofEq_cell,
-    instFiniteSet_cell]
+    instFiniteSet_eq_ofFiniteSet, ofFiniteSet_cell]
   cases n <;> infer_instance
 
 /-- The CW-complex structure on the sphere in dimension zero  is finite. -/
@@ -590,7 +594,7 @@ def instSphereGT' (n : ℕ) (h : n > 0) :
       | 0, ⟨i, hi⟩ => by
         simp only [spheremap, Equiv.transPartialEquiv_apply, Homeomorph.coe_toEquiv, ← image_image,
           toEuclideanNormScale_image_ball, sphereToDisc_symm_image_ball, openCell_zero_eq_singleton,
-          instFiniteSet_map, PartialEquiv.single_apply, Function.const_apply,
+          ofFiniteSet_map, PartialEquiv.single_apply, Function.const_apply,
           disjoint_singleton_right]
         exact not_mem_diff_of_mem hi
       | (_ + 1), i => i.elim)
@@ -598,12 +602,12 @@ def instSphereGT' (n : ℕ) (h : n > 0) :
     rw [mapsTo']
     apply subset_iUnion_of_subset 0
     apply subset_iUnion_of_subset h
-    simp only [instFiniteSet_cell, closedCell_zero_eq_singleton]
+    simp only [ofFiniteSet_cell, closedCell_zero_eq_singleton]
     apply subset_iUnion_of_subset ⟨EuclideanSpace.single (Fin.last n) 1, rfl⟩
     simp only [spheremap, Equiv.transPartialEquiv_apply, ← image_image, Homeomorph.coe_toEquiv,
       toEuclideanNormScale_image_sphere, subset_singleton_iff]
     intro y hy
-    simp only [instFiniteSet_map, PartialEquiv.single_apply,
+    simp only [ofFiniteSet_map, PartialEquiv.single_apply,
       Function.const_apply]
     simp only [mem_image, sphereToDisc_symm_apply] at hy
     obtain ⟨x, hx, hxy⟩ := hy
