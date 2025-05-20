@@ -669,8 +669,8 @@ This allows the base case of induction to be about the base instead of being abo
 the base and some points.
 The standard `skeleton` is defined in terms of `skeletonLT`. `skeletonLT` is preferred
 in statements. You should then derive the statement about `skeleton`. -/
-@[simps!]
-abbrev skeletonLT (C : Set X) {D : Set X} [RelCWComplex C D] (n : ℕ∞) : Subcomplex C :=
+@[simps!, irreducible]
+def skeletonLT (C : Set X) {D : Set X} [RelCWComplex C D] (n : ℕ∞) : Subcomplex C :=
     Subcomplex.mk' _ (D ∪ ⋃ (m : ℕ) (_ : m < n) (j : cell C m), closedCell m j)
     (fun l ↦ {x : cell C l | l < n})
     (by
@@ -687,13 +687,12 @@ abbrev skeletonLT (C : Set X) {D : Set X} [RelCWComplex C D] (n : ℕ∞) : Subc
 
 /-- The `n`-skeleton of a CW complex, for `n ∈ ℕ ∪ {∞}`. For statements use `skeletonLT` instead
 and then derive the statement about `skeleton`. -/
-@[simps!]
 abbrev skeleton (C : Set X) {D : Set X} [RelCWComplex C D] (n : ℕ∞) : Subcomplex C :=
   skeletonLT C (n + 1)
 
 lemma skeletonLT_def {C D : Set X} [RelCWComplex C D] {n : ℕ∞} :
-    skeletonLT C n = D ∪ ⋃ (m : ℕ) (_ : m < n) (j : cell C m), closedCell m j :=
-  rfl
+    skeletonLT C n = D ∪ ⋃ (m : ℕ) (_ : m < n) (j : cell C m), closedCell m j := by
+  simp
 
 lemma skeleton_def {C D : Set X} [RelCWComplex C D] {n : ℕ∞} :
     skeleton C n = skeletonLT C (n + 1) :=
@@ -703,7 +702,7 @@ end RelCWComplex
 
 namespace CWComplex
 
-export RelCWComplex (skeletonLT skeletonLT_carrier skeletonLT_I skeleton skeleton_carrier skeleton_I
+export RelCWComplex (skeletonLT skeletonLT_carrier skeletonLT_I skeleton
   skeletonLT_def skeleton_def)
 
 end CWComplex
@@ -721,6 +720,7 @@ lemma CWComplex.skeletonLT_zero_eq_empty [CWComplex C] : (skeletonLT C 0 : Set X
 
 lemma RelCWComplex.skeletonLT_mono [RelCWComplex C D] {n m : ℕ∞} (h : m ≤ n) :
     (skeletonLT C m : Set X) ⊆ skeletonLT C n := by
+  simp_rw [skeletonLT_carrier]
   apply union_subset_union_right
   intro x xmem
   simp_rw [mem_iUnion, exists_prop] at xmem ⊢
@@ -749,6 +749,7 @@ lemma RelCWComplex.skeleton_subset_complex [RelCWComplex C D] {n : ℕ∞} :
 lemma RelCWComplex.closedCell_subset_skeletonLT [RelCWComplex C D] (n : ℕ) (j : cell C n) :
     closedCell n j ⊆ skeletonLT C (n + 1) := by
   intro x xmem
+  rw [skeletonLT_carrier]
   right
   simp_rw [mem_iUnion, exists_prop]
   refine ⟨n, (by norm_cast; exact lt_add_one n), ⟨j,xmem⟩⟩
@@ -769,6 +770,7 @@ lemma RelCWComplex.cellFrontier_subset_skeletonLT [RelCWComplex C D] (n : ℕ) (
     cellFrontier n j ⊆ skeletonLT C n := by
   obtain ⟨I, hI⟩ := cellFrontier_subset_base_union_finite_closedCell n j
   apply subset_trans hI
+  rw [skeletonLT_carrier]
   apply union_subset_union_right
   intro x xmem
   simp only [mem_iUnion, exists_prop] at xmem ⊢
@@ -787,8 +789,8 @@ lemma RelCWComplex.iUnion_cellFrontier_subset_skeleton [RelCWComplex C D] (l : �
     ⋃ (j : cell C l), cellFrontier l j ⊆ skeleton C l :=
   (iUnion_cellFrontier_subset_skeletonLT l).trans (skeletonLT_mono le_self_add)
 
-lemma RelCWComplex.base_subset_skeletonLT [RelCWComplex C D] (n : ℕ∞) : D ⊆ skeletonLT C n :=
-  subset_union_left
+lemma RelCWComplex.base_subset_skeletonLT [RelCWComplex C D] (n : ℕ∞) : D ⊆ skeletonLT C n := by
+  simp
 
 lemma RelCWComplex.base_subset_skeleton [RelCWComplex C D] (n : ℕ∞) : D ⊆ skeleton C n :=
   base_subset_skeletonLT (n + 1)
@@ -808,7 +810,7 @@ lemma RelCWComplex.skeleton_union_iUnion_closedCell_eq_skeleton_succ [RelCWCompl
 /-- A version of the definition of `skeletonLT` with open cells. -/
 lemma RelCWComplex.iUnion_openCell_eq_skeletonLT [RelCWComplex C D] (n : ℕ∞) :
     D ∪ ⋃ (m : ℕ) (_ : m < n) (j : cell C m), openCell m j = skeletonLT C n :=
-  RelCWComplex.iUnion_openCell_eq_iUnion_closedCell n
+  (skeletonLT_carrier C _).symm▸ RelCWComplex.iUnion_openCell_eq_iUnion_closedCell n
 
 lemma CWComplex.iUnion_openCell_eq_skeletonLT [CWComplex C] (n : ℕ∞) :
     ⋃ (m : ℕ) (_ : m < n) (j : cell C m), openCell m j = skeletonLT C n := by
