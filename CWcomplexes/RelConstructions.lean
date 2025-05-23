@@ -118,6 +118,11 @@ def RelCWComplex.ofEq {X : Type*} [TopologicalSpace X] (C D : Set X)
   isClosedBase := hDF ▸ isClosedBase C
   union' := hCE ▸ hDF ▸ union'
 
+@[simps! -isSimp]
+def CWComplex.ofEq {X : Type*} [TopologicalSpace X] (C : Set X)
+    {E : Set X} [CWComplex C] (hCE : C = E) : CWComplex E :=
+  (RelCWComplex.ofEq C ∅ hCE rfl).toCWComplex
+
 lemma RelCWComplex.finiteDimensional_ofEq {X : Type*} [TopologicalSpace X] (C D : Set X)
     {E F : Set X} [RelCWComplex C D] [FiniteDimensional C] (hCE : C = E) (hDF : D = F) :
     letI _ := ofEq C D hCE hDF
@@ -125,11 +130,25 @@ lemma RelCWComplex.finiteDimensional_ofEq {X : Type*} [TopologicalSpace X] (C D 
   let _ := ofEq C D hCE hDF
   {eventually_isEmpty_cell := FiniteDimensional.eventually_isEmpty_cell (C := C)}
 
+lemma CWComplex.finiteDimensional_ofEq {X : Type*} [TopologicalSpace X] (C : Set X)
+    {E : Set X} [CWComplex C] [FiniteDimensional C] (hCE : C = E) :
+    letI _ := ofEq C hCE
+    FiniteDimensional E :=
+  let _ := ofEq C hCE
+  {eventually_isEmpty_cell := FiniteDimensional.eventually_isEmpty_cell (C := C)}
+
 lemma RelCWComplex.finiteType_ofEq {X : Type*} [TopologicalSpace X] (C D : Set X)
     {E F : Set X} [RelCWComplex C D] [FiniteType C] (hCE : C = E) (hDF : D = F) :
     letI _ := ofEq C D hCE hDF
     FiniteType E :=
   let _ := ofEq C D hCE hDF
+  {finite_cell := FiniteType.finite_cell (C := C)}
+
+lemma CWComplex.finiteType_ofEq {X : Type*} [TopologicalSpace X] (C : Set X)
+    {E : Set X} [CWComplex C] [FiniteType C] (hCE : C = E) :
+    letI _ := ofEq C hCE
+    FiniteType E :=
+  let _ := ofEq C hCE
   {finite_cell := FiniteType.finite_cell (C := C)}
 
 lemma RelCWComplex.finite_ofEq {X : Type*} [TopologicalSpace X] (C D : Set X)
@@ -141,7 +160,14 @@ lemma RelCWComplex.finite_ofEq {X : Type*} [TopologicalSpace X] (C D : Set X)
   let _ := finiteType_ofEq C D hCE hDF
   inferInstance
 
--- make `CWComplex.ofEq`
+lemma CWComplex.finite_ofEq {X : Type*} [TopologicalSpace X] (C : Set X)
+    {E : Set X} [CWComplex C] [Finite C] (hCE : C = E) :
+    letI _ := ofEq C hCE
+    Finite E :=
+  let _ := ofEq C hCE
+  let _ := finiteDimensional_ofEq C hCE
+  let _ := finiteType_ofEq C hCE
+  inferInstance
 
 variable [T2Space X]
 
@@ -1487,8 +1513,7 @@ lemma RelCWComplex.finite_restrict [RelCWComplex C D] [Finite C]
 
 namespace CWComplex
 
-export RelCWComplex (ofEq ofEq_cell ofEq_map finiteDimensional_ofEq finiteType_ofEq finite_ofEq
-  restrictNonempty finiteDimensional_restrictNonempty finiteType_restrictNonempty
+export RelCWComplex (restrictNonempty finiteDimensional_restrictNonempty finiteType_restrictNonempty
   finite_restrictNonempty restrictNonempty_cell restrictNonempty_map_apply
   restrictNonempty_map_symm_apply restrictNonempty_map_source restrictNonempty_map_target restrict
   restrict_eq_restrictNonempty restrict_eq_empty finiteDimensional_restrict finiteType_restrict
@@ -1497,3 +1522,5 @@ export RelCWComplex (ofEq ofEq_cell ofEq_map finiteDimensional_ofEq finiteType_o
 end CWComplex
 
 end Topology
+
+set_option linter.style.longFile 1700
