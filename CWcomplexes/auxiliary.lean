@@ -1,5 +1,6 @@
 import Mathlib.Analysis.InnerProductSpace.EuclideanDist
 import Mathlib.Geometry.Manifold.Instances.Sphere
+import Mathlib.Analysis.Polynomial.Basic
 
 /-!
 # Auxiliary lemmas and definitions
@@ -150,6 +151,20 @@ lemma Homeomorph.tendsto_norm_comp_unitBall_symm {E : Type*} [NormedAddCommGroup
   exact continuous_norm.continuousWithinAt.tendsto_nhdsWithin_image
 
 -- use polynomials here
+
+open Set Filter Polynomial in
+theorem tendsto_add_mul_sq_div_add_mul_atTop_nhds' {𝕜 : Type*}
+  [Field 𝕜] [LinearOrder 𝕜] [IsStrictOrderedRing 𝕜] [TopologicalSpace 𝕜]
+  [OrderTopology 𝕜] (a b c d e : 𝕜) {f : 𝕜} (hf : f ≠ 0) :
+    Tendsto
+      (fun k : 𝕜 ↦ (a + c * k + e * k ^ 2) / (b + d * k +  f * k ^ 2)) atTop (nhds (e / f)) := by
+  suffices Tendsto (fun k ↦ ((C a + C c * X + C e * X ^ 2).eval k) /
+      ((C b + C d * X + C f * X ^ 2).eval k)) atTop (nhds (e / f)) by
+    simp_all
+  by_cases he : e = 0
+  · apply Polynomial.div_tendsto_zero_of_degree_lt
+    sorry
+  · sorry
 
 open Set Filter in
 theorem tendsto_add_mul_sq_div_add_mul_atTop_nhds {𝕜 : Type*}
