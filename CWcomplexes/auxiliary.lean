@@ -150,21 +150,32 @@ lemma Homeomorph.tendsto_norm_comp_unitBall_symm {E : Type*} [NormedAddCommGroup
   rw [← norm_image_ball_eq_ico (E := E), (by simp_all : 1 = ‖x‖)]
   exact continuous_norm.continuousWithinAt.tendsto_nhdsWithin_image
 
--- use polynomials here
-
+-- is this actually better?
 open Set Filter Polynomial in
-theorem tendsto_add_mul_sq_div_add_mul_atTop_nhds' {𝕜 : Type*}
-  [Field 𝕜] [LinearOrder 𝕜] [IsStrictOrderedRing 𝕜] [TopologicalSpace 𝕜]
-  [OrderTopology 𝕜] (a b c d e : 𝕜) {f : 𝕜} (hf : f ≠ 0) :
+theorem tendsto_add_mul_sq_div_add_mul_atTop_nhds' {𝕜 : Type*} [NormedField 𝕜] [LinearOrder 𝕜]
+  [IsStrictOrderedRing 𝕜] [OrderTopology 𝕜] (a b c d e : 𝕜) {f : 𝕜} (hf : f ≠ 0) :
     Tendsto
       (fun k : 𝕜 ↦ (a + c * k + e * k ^ 2) / (b + d * k +  f * k ^ 2)) atTop (nhds (e / f)) := by
   suffices Tendsto (fun k ↦ ((C a + C c * X + C e * X ^ 2).eval k) /
       ((C b + C d * X + C f * X ^ 2).eval k)) atTop (nhds (e / f)) by
     simp_all
   by_cases he : e = 0
-  · apply Polynomial.div_tendsto_zero_of_degree_lt
-    sorry
-  · sorry
+  · rw [he, zero_div, Polynomial.C_0, zero_mul, add_zero]
+    apply div_tendsto_zero_of_degree_lt
+    have h1 : (C a + C c * X).degree ≤ 1 := by compute_degree
+    have h2 :  (C b + C d * X + C f * X ^ 2).degree = 2 := by compute_degree!
+    exact h2 ▸  h1.trans_lt Nat.one_lt_ofNat
+  · have h1 : (C a + C c * X + C e * X ^ 2).degree = 2 := by compute_degree!
+    have h2 : (C a + C c * X + C e * X ^ 2).leadingCoeff = e := by
+      rw [← coeff_natDegree, natDegree_eq_of_degree_eq_some h1]
+      compute_degree!
+    have h3 : (C b + C d * X + C f * X ^ 2).degree = 2 := by compute_degree!
+    have h4 : (C b + C d * X + C f * X ^ 2).leadingCoeff = f := by
+      rw [← coeff_natDegree, natDegree_eq_of_degree_eq_some h3]
+      compute_degree!
+    nth_rw 2 [← h2, ← h4]
+    apply Polynomial.div_tendsto_leadingCoeff_div_of_degree_eq
+    rw [h1, h3]
 
 open Set Filter in
 theorem tendsto_add_mul_sq_div_add_mul_atTop_nhds {𝕜 : Type*}
