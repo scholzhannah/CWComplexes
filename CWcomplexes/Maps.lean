@@ -741,7 +741,21 @@ namespace CellularEquiv
 export RelCWComplex.CellularEquiv (toCellularMap symm continuousOn continuousOn_symm mk_coe
   mk_coe_symm toPartialEquiv_injective toFun_eq_coe invFun_eq_coe coe_coe coe_coe_symm
   map_source map_source'' map_target left_inv right_inv eq_symm_apply mapsTo symm_mapsTo
-  leftInvOn rightInvOn invOn injOn bijOn surjOn replaceEquiv replaceEquiv_eq_self)
+  leftInvOn rightInvOn invOn injOn bijOn surjOn replaceEquiv replaceEquiv_eq_self
+  source_preimage_target image_eq_target_inter_inv_preimage image_source_inter_eq'
+  image_source_inter_eq symm_image_eq_source_inter_preimage symm_image_target_inter_eq
+  source_inter_preimage_inv_preimage target_inter_inv_preimage_preimage
+  source_inter_preimage_target_inter image_source_eq_target symm_image_target_eq_source
+  ext symm_toPartialEquiv symm_source symm_target symm_symm symm_bijective IsImage)
+
+namespace IsImage
+
+export RelCWComplex.CellularEquiv.IsImage (toPartialEquiv apply_mem_iff symm symm_apply_mem_iff
+  symm_iff mapsTo symm_mapsTo image_eq symm_image_eq iff_preimage_eq iff_symm_preimage_eq
+  symm_preimage_eq of_symm_preimage_eq iff_symm_preimage_eq' symm_preimage_eq'
+  of_symm_preimage_eq' iff_preimage_eq' preimage_eq' of_preimage_eq')
+
+end IsImage
 
 end CellularEquiv
 
