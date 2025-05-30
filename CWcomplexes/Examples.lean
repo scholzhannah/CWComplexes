@@ -1,7 +1,7 @@
 import Mathlib.Analysis.NormedSpace.HomeomorphBall
 import Mathlib.Geometry.Manifold.Instances.Sphere
 import CWcomplexes.Auxiliary
-import CWcomplexes.RelProduct
+import CWcomplexes.RelConstructions
 
 /-!
 # Examples of CW-complexes
@@ -257,9 +257,6 @@ instance instReal : CWComplex (univ : Set ℝ) where
     use 1, ⌊x⌋
     simp only [mapLTPartial_image, mapLT_image_closedBall, mem_Icc]
     exact ⟨Int.floor_le x, (Int.le_ceil x).trans (by norm_cast; exact Int.ceil_le_floor_add_one x)⟩
-
-/- This works now. 🎉-/
-example : CWComplex (univ : Set (ℝ × ℝ)) := inferInstance
 
 /-- The CW-structure on the reals is finite dimensional. -/
 instance finiteDimensional_instReal : FiniteDimensional (univ : Set ℝ) where
