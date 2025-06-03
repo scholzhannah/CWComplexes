@@ -1,0 +1,118 @@
+\documentclass{article}
+
+
+\setcounter{secnumdepth}{3}     % numbering depth (chapter, section, subsection, ...).
+\setcounter{tocdepth}{3}        % numbering depth in table of contents
+
+\usepackage[left=4cm, right=4cm, top=4cm, bottom=4cm]{geometry}
+\usepackage{amsmath,amssymb,amsthm,amsfonts,amsbsy,latexsym, mathtools} 
+\usepackage[backend=biber, style=alphabetic]{biblatex}  % Extension for bibtex
+\bibliography{draft}                   % The bibliography file that is used
+\usepackage[nodayofweek]{datetime}      % To get \today
+\usepackage{enumitem}                   % Change \item symbol in enumerate
+\setlist[enumerate,1]{label=(\roman*)}  % Get roman numerals as items
+\usepackage[T1]{fontenc}                % Better fonts
+\usepackage{ifthen}                     % if then
+\usepackage{lmodern}                    % Better fonts
+\usepackage{listings}                   % Code Listings.
+\usepackage{stackrel}                   % write thing above relations
+\usepackage[dvipsnames]{xcolor}         % color text
+\usepackage{tikz}                       % commutative diagrams
+\usepackage{tikz-cd}                    % commutative diagrams
+\usepackage{bussproofs}                 % To write prooftrees
+\usepackage{stmaryrd}                   % To get double brackets
+\usepackage{environ}                    % better custom enviroments
+\usepackage{adjustbox}                  % to get custom alignment of diagrams
+\usepackage{xparse}                     % to define the claim environment
+\usepackage{xspace}                     % to get automatic space after commands
+\usepackage{todonotes}                  % todo notes
+
+
+% to get upright greek letters
+\usepackage{upgreek}
+
+% To break urls correctly in bibliography
+\setcounter{biburllcpenalty}{7000}
+\setcounter{biburlucpenalty}{8000}
+
+% to get rid of an error
+\usepackage{bookmark}
+
+%to get code in footnotes write \cprotect\footnote 
+\usepackage{cprotect}
+
+% to get the external link symbol
+\usepackage{fontawesome}
+
+% Last package!!!!
+\usepackage{hyperref}                   
+\hypersetup{                            % options
+    colorlinks=true,                    % colours
+    linkcolor=black,                     % colour for links
+    citecolor=black,                     % colour for refrences
+    urlcolor=black                       % colour for links
+}
+
+%Todo notes setting
+\todostyle{plan}{color=yellow, inline, caption={}}
+\todostyle{comment}{color=green}
+
+%colors for lean syntax
+\definecolor{keywordcolor}{rgb}{0.7, 0.1, 0.1}   % red
+\definecolor{tacticcolor}{rgb}{0.0, 0.1, 0.6}    % blue
+\definecolor{commentcolor}{rgb}{0.4, 0.4, 0.4}   % grey
+\definecolor{symbolcolor}{rgb}{0.0, 0.1, 0.6}    % blue
+\definecolor{sortcolor}{rgb}{0.1, 0.5, 0.1}      % green
+\definecolor{attributecolor}{rgb}{0.7, 0.1, 0.1} % red
+
+% To display lean code
+\def\lstlanguagefiles{lstlean.tex}
+% set default language
+\lstset{language=lean, extendedchars=true}
+
+
+% Environments
+\theoremstyle{definition}              
+\newtheorem{defi}{Definition}[section] 
+\newtheorem*{defi*}{Definition}
+\newtheorem{example}[defi]{Example}
+\newtheorem{notation}[defi]{Notation}
+\newtheorem{rem}[defi]{Remark}
+\newtheorem{defcor}[defi]{Definition/Corollary}
+\newtheorem{defprop}[defi]{Definition/Proposition}
+\newtheorem{defthm}[defi]{Definition/Theorem}
+
+\theoremstyle{plain}
+\newtheorem*{conj}{Conjecture}
+\newtheorem{cor}[defi]{Corollary}
+\newtheorem{lem}[defi]{Lemma}
+\newtheorem{prop}[defi]{Proposition}
+\newtheorem*{prop*}{Proposition}
+\newtheorem{thm}[defi]{Theorem}
+\newtheorem*{thm*}{Theorem}
+\newtheorem{exercise}[defi]{Exercise}
+
+
+%  macros
+\input{thesis_macros}
+\title{Blah Blah}
+\author{Blah Blah Blah\\ University of Bonn}
+
+\begin{document}
+
+\maketitle
+\tableofcontents        % table of contents
+
+%introduction
+\clearpage
+\input{sections/Introduction.tex}
+
+\input{sections/Preliminaries.tex}
+
+\input{sections/Definition.tex}
+
+\clearpage
+\nocite{*}              % display all references
+\printbibliography      % print bibliography
+
+\end{document}

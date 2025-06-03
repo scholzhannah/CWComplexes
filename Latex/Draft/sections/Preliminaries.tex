@@ -1,0 +1,16 @@
+\section{Preliminaries}
+
+\todo[plan]{I could also do a subsection here explaining what Lean and mathlib is.}
+
+\subsection{Basic Topology in Lean}
+
+\todo[plan]{
+There aren't really a lot of basics that I need. 
+I could write how to get a topological space, continuous maps, open sets\dots
+Not sure if I need anything else.}
+
+In \mathlib, a topological space is a type \lstinline|X| together with a topology \lstinline|TopologicalSpace X| on it.
+This then allows you to describe whether a set \lstinline|A : Set X| is open or closed by writing \lstinline|IsOpen A| and \lstinline|IsClosed A|. 
+A function \lstinline|f : X → Y| between two topological spaces \lstinline|X| and \lstinline|Y| can be described as being continuous and as being continuous on a set \lstinline|A : Set X| which is expressed by writing \lstinline|Continuous f| and \lstinline|ContinuousOn f A|. 
+\mathlib also implements various separation axioms: to specify that a topological space \lstinline|X| is Hausdorff one can write \lstinline|T2Space X|.
+\todo[comment]{I am not sure if this all isn't a bit too basic and whether I should even include how to write things in Lean}

@@ -1,0 +1,21 @@
+\section{Definition of CW complexes}
+
+\todo[plan]{
+In this section I should first describe mathematically what a CW complex is. 
+Then I show the Lean definition and explain why/how
+Maybe this can also have proofs of basic lemmas (e.g. a CW complex is closed in its ambient space)}
+
+A \emph{CW complex} is a topological space that can be constructed by glueing images of closed disc of different dimensions together along the images of their boundaries. 
+These images of closed discs in the CW complex are called \emph{cells}.
+To specify that a cell is the image of an $n$-dimensional disc, one can call it an $n$-cell.
+The cells up to dimension $n$ make up what is called the \emph{$n$-skeleton}.
+In a relative CW complex these discs can additionally be attached to a specified base set. 
+
+The different definitions of CW complexes present in the literature can be broadly categorized into to approaches: firstly there is the ``classical'' approach that sticks closely in style to Whitehead's original definition in \cite{Whitehead2018}.
+This definition assumes the cells to all lie in one topological space and then describes how the cells interact with each other and the space.
+Secondly, there is a popular approach that is more categorical in nature. 
+In this approach the skeletons are regarded as different spaces and the definition describes how to construct the $n+1$-skeleton from the $n$-skeleton. 
+The CW complex is then defined as the colimit of the skeletons. 
+
+At the start of this project neither of the approaches had been formalized in Lean. 
+The authors chose to proceed with the former approach for the following reasons: 
