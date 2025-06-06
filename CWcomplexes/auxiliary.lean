@@ -150,6 +150,17 @@ lemma Homeomorph.tendsto_norm_comp_unitBall_symm {E : Type*} [NormedAddCommGroup
   rw [← norm_image_ball_eq_ico (E := E), (by simp_all : 1 = ‖x‖)]
   exact continuous_norm.continuousWithinAt.tendsto_nhdsWithin_image
 
+open Polynomial Filter Topology
+
+variable {𝕜 : Type*} [NormedField 𝕜] [LinearOrder 𝕜]
+  [IsStrictOrderedRing 𝕜] (P Q : 𝕜[X]) [OrderTopology 𝕜]
+
+theorem div_tendsto_leadingCoeff_div_of_degree_eq (hdeg : P.degree ≤ Q.degree) :
+    Tendsto (fun x => eval x P / eval x Q) atTop (𝓝 <| P.coeff (natDegree Q) / Q.leadingCoeff) := by
+  sorry
+
+-- add lemma for polynomials ≤
+
 -- is this actually better?
 open Set Filter Polynomial in
 theorem tendsto_add_mul_sq_div_add_mul_atTop_nhds' {𝕜 : Type*} [NormedField 𝕜] [LinearOrder 𝕜]

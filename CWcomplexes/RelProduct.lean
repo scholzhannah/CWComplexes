@@ -24,15 +24,23 @@ section
 variable {X : Type*} {Y : Type*} [t1 : TopologicalSpace X] [t2 : TopologicalSpace Y]
   {C D : Set X} {E F : Set Y}
 
+-- make this a structure maybe?
+
 /-- The indexing types of cells of the product of two CW-complexes. -/
 def RelCWComplex.prodcell (C : Set X) {D : Set X} (E : Set Y) {F : Set Y} [RelCWComplex C D]
-    [RelCWComplex E F] (n : ℕ) :=
+    [RelCWComplex E F] (n : ℕ) : Type _ :=
   (Σ' (m : ℕ) (l : ℕ) (_ : m + l = n), cell C m × cell E l)
 
-/-- The natural `IsometryEquiv` `(Fin n → ℝ) ≃ᵢ (Fin m → ℝ) × (Fin l → ℝ)` when `n = m + n`. -/
+--explicit type
+
+/-- The natural `IsometryEquiv` `(Fin n → ℝ) ≃ᵢ (Fin m → ℝ) × (Fin l → ℝ)` when `n = m + l`. -/
 def RelCWComplex.prodisometryequiv {n m l : ℕ}  (hmln : m + l = n) :=
   (IsometryEquiv.piCongrLeft (Y := fun _ ↦ ℝ) (finCongr hmln.symm)).trans
   ((Fin.appendIsometry m l).symm)
+
+-- make this have one argument that is a prodcell
+
+--explicit type
 
 /-- The characterstic maps of the product of CW-complexes. -/
 def RelCWComplex.prodmap [RelCWComplex C D] [RelCWComplex E F] {n m l : ℕ} (hmln : m + l = n)

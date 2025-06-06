@@ -22,7 +22,7 @@ variable {X : Type*} [t : TopologicalSpace X] {C D : Set X}
 section
 
 /-- Every finite set is a CW complex. -/
-instance CWComplex.ofFiniteSet {C : Set X} (h : C.Finite) : CWComplex C := mkFinite C
+def CWComplex.ofFiniteSet {C : Set X} (h : C.Finite) : CWComplex C := mkFinite C
   (cell := fun n ↦ match n with
     | 0 => C
     | (_ + 1) => PEmpty)
@@ -72,11 +72,13 @@ instance CWComplex.ofFiniteSet {C : Set X} (h : C.Finite) : CWComplex C := mkFin
       use 0, ⟨x, hx⟩
       simp)
 
+--split this lemma into two
 lemma CWComplex.ofFiniteSet_cell {C : Set X} (h : C.Finite) {n : ℕ} :
     letI := ofFiniteSet h
     cell C n =  match n with | 0 => C | (_ + 1) => PEmpty :=
   rfl
 
+--only first case
 lemma CWComplex.ofFiniteSet_map {C : Set X} (h : C.Finite) {n : ℕ}
     {i : match n with | 0 => C | (_ + 1) => PEmpty} :
     letI := ofFiniteSet h
@@ -84,11 +86,20 @@ lemma CWComplex.ofFiniteSet_map {C : Set X} (h : C.Finite) {n : ℕ}
       match n, i with | 0, i => PartialEquiv.single ![] i | (_ + 1), i => PEmpty.elim i :=
   rfl
 
+lemma CWComplex.ofFiniteSet_map' {C : Set X} (h : C.Finite)
+    {i : C} :
+    letI := ofFiniteSet h
+    map (C := C) 0 i =
+      PartialEquiv.single (β := X) ![] i  := by
+  rfl
+
 /-- The CW-complex on a finite set is finite. -/
 lemma CWComplex.finite_ofFiniteSet (C : Set X) (h : C.Finite) :
     letI := ofFiniteSet h
     Finite C :=
   finite_mkFinite ..
+
+-- delete the next three
 
 instance CWComplex.instFiniteSet (C : Set X) [_root_.Finite C] : CWComplex C :=
   ofFiniteSet (by assumption)
