@@ -5,7 +5,7 @@ In this section I should first describe mathematically what a CW complex is.
 Then I show the Lean definition and explain why/how
 Maybe this can also have proofs of basic lemmas (e.g. a CW complex is closed in its ambient space)}
 
-A \emph{CW complex} is a topological space that can be constructed by glueing images of closed discs of different dimensions together along the images of their boundaries. 
+A \emph{(absolute) CW complex} is a topological space that can be constructed by glueing images of closed discs of different dimensions together along the images of their boundaries. 
 These images of closed discs in the CW complex are called \emph{cells}.
 To specify that a cell is the image of an $n$-dimensional disc, one can call it an $n$-cell.
 The cells up to dimension $n$ make up what is called the \emph{$n$-skeleton}.
@@ -14,12 +14,12 @@ In a relative CW complex these discs can additionally be attached to a specified
 The different definitions of CW complexes present in the literature can be broadly categorized into to approaches: firstly there is the ``classical'' approach that sticks closely in style to Whitehead's original definition in \cite{Whitehead2018}.
 This definition assumes the cells to all lie in one topological space and then describes how the cells interact with each other and the space.
 Secondly, there is a popular approach that is more categorical in nature. 
-In this approach the skeletons are regarded as different spaces and the definition describes how to construct the $n+1$-skeleton from the $n$-skeleton. 
+In this approach the skeletons are regarded as different spaces and the definition describes how to construct the ($n+1$)-skeleton from the $n$-skeleton. 
 The CW complex is then defined as the colimit of the skeletons. 
 
 At the start of this project neither of the approaches had been formalized in Lean. 
 The authors chose to proceed with the former approach because it avoids having to deal with different topological spaces and inclusions between them. 
-At the time of writing both approaches have been formalized and are part of \mathlib.
+At the time of writing both approaches have been formalized and are part of \mathlib. \todo{make it clear that the other one was done by someone else}
 
 The definition chosen for formalization is the following: 
 
@@ -41,6 +41,7 @@ It is important to notice that an open cell is not necessarily open and that the
 
 In \mathlib this definition translates to the following:
  
+\todo{do this as a figure maybe?}
 \begin{lstlisting}
     class RelCWComplex.{u} {X : Type u} [TopologicalSpace X] (C : Set X) 
         (D : outParam (Set X)) where
@@ -71,13 +72,15 @@ So while a closed interval in the real line can be considered as a CW complex in
 This approach is inspired by \cite{Gonthier2013}, where the authors notice that it is helpful to consider subsets of an ambient group to avoid having to work with different group operations and similar issues.
 
 Even though the behaviour of a CW complex depends strongly on its data and there can be different ``non-equivalent'' CW structures on the same space, we have chosen to make it a \lstinline|class|, effectively treating it more like a property than a structure. 
-This is to be able to make use of Lean's typeclass inference. 
+This is to be able to make use of Lean's typeclass inference. \todo{cite some paper on typeclass inference, in the preliminaries secction}
 \todo[comment]{Is this too basic?}
 
 We omit the requirement for $X$ to be a Hausdorff space and instead naturally require it for most of the lemmata. 
 
 The base $D$ is an \lstinline|outParam| which means that Lean will look for a defined instance of a CW complex even if just $C$ and not $D$ is provided. 
 Because of this option Lean automatically assumes that there is only one possible base for the specified set $C$ and only searches for the first instance that matches $C$ even if the base set does not match. \todo[comment]{Terrible explanation. Make this better}
+
+\todo[comment, inline]{Reason: The lemmas mainly refer to C}
 
 While we do not expect there to be instances on the same set with a different base, we have encountered instances where the base is provably equal but not definitionally so. 
 Lean's type theory only treats definitionally equal instances as truly equal which means that typeclass inference can fail in certain situations and the instances need to be provided manually. \todo[comment, inline]{Firstly: I can't really provide an example right now as I have neither absolute CW complexes or products at this point. Secondly: This sounds a bit pessemistic. How much should one talk about unsolved problems?}
@@ -89,8 +92,8 @@ The obvious way to define absolute CW complexes in Lean would be to extend the d
 However, this leads to two issues: 
 firstly, when defining a CW complex there are now trivial proofs that need to be provided and some simplifications that need to be performed for every new absolute CW complex that is defined. 
 This produces a lot of duplicate code. 
-Secondly, with absolute CW complexes one does encountered instances on the same set with probably but not definitionally equal sets more often. 
-Constructions for relative CW complexes, like for example products, produce instances where in which in the case of an absolute CW complex the base is provably equal to the empty set but not definitionally so. 
+Secondly, with absolute CW complexes one does encountered instances on the same set with probably but not definitionally equal base sets more often. 
+Constructions for relative CW complexes, e.g. products, produce instances for which in the case of an absolute CW complex the base is provably equal to the empty set but not definitionally so. 
 In that case we define an instance specifically for absolute CW complexes and want this to be inferred over the relative version. 
 But since $D$ is an \lstinline|outParam|, we cannot specify typeclass inference to be looking for a base that is definitionally equal to the empty set. 
 
@@ -110,9 +113,10 @@ The type of absolute CW complexes on the set $C$ in Lean in \lstinline|CWComplex
 \todo[plan]{Talk about: 
   \begin{enumerate}
     \item subcomplexes
-    \item disjoint unions? 
-    \item transporting along partial homeomorphisms?
-    \item product
+    \item attaching cells (briefly)
+    \item disjoint unions? (briefly)
+    \item transporting along partial homeomorphisms? (briefly maybe)
+    \item product (detailed mathematical proof)
   \end{enumerate}}
 
 \section{Examples}
