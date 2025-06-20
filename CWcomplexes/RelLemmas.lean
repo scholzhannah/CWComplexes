@@ -215,7 +215,7 @@ lemma RelCWComplex.compact_inter_finite [RelCWComplex C D] (A : Set X) (compact 
     · by_cases empty : Subtype.val '' s ∩ openCell n j = ∅
       · rw [empty]
         exact isClosed_empty
-      rw [eq_empty_iff_forall_not_mem, not_forall_not] at empty
+      rw [eq_empty_iff_forall_notMem, not_forall_not] at empty
       have hnj : ∃ x ∈ A, x ∈ openCell n j := by
         obtain ⟨x, xmem⟩ := empty
         use x
@@ -410,7 +410,7 @@ lemma RelCWComplex.Subcomplex.compact_subset_finite_subcomplex [RelCWComplex C D
 instance RelCWComplex.finiteDimensional_instskeletonLT_of_nat [RelCWComplex C D]
     [FiniteDimensional C] (n : ℕ) : FiniteDimensional (skeletonLT C n : Set X) where
   eventually_isEmpty_cell := by
-    simp only [Subcomplex.instRelCWComplex_cell, isEmpty_subtype, Filter.eventually_atTop,
+    simp only [Subcomplex.cell_def, isEmpty_subtype, Filter.eventually_atTop,
       ge_iff_le]
     use n
     intro b hnb

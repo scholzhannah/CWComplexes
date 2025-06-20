@@ -29,21 +29,21 @@ namespace Topology
 /-- A CW complex is finite dimensional if `cell C n` is empty for all but finitely many `n`. -/
 class RelCWComplex.FiniteDimensional.{u} {X : Type u} [TopologicalSpace X] (C : Set X) {D : Set X}
     [RelCWComplex C D] : Prop where
-  /-- For some natural number `n` the type `cell C m` is empty for all `m ≥ n`.-/
+  /-- For some natural number `n` the type `cell C m` is empty for all `m ≥ n`. -/
   eventually_isEmpty_cell : ∀ᶠ n in Filter.atTop, IsEmpty (cell C n)
 
 /-- A CW complex is of finite type if `cell C n` is finite for every `n`. -/
 class RelCWComplex.FiniteType.{u} {X : Type u} [TopologicalSpace X] (C : Set X) {D : Set X}
     [RelCWComplex C D] : Prop where
-  /-- `cell C n` is finite for every `n`.-/
+  /-- `cell C n` is finite for every `n`. -/
   finite_cell (n : ℕ) : Finite (cell C n)
 
 /-- A CW complex is finite if it is finite dimensional and of finite type. -/
 class RelCWComplex.Finite.{u} {X : Type u} [TopologicalSpace X] (C : Set X) {D : Set X}
     [RelCWComplex C D] : Prop where
-  /-- For some natural number `n` the type `cell C m` is empty for all `m ≥ n`.-/
+  /-- For some natural number `n` the type `cell C m` is empty for all `m ≥ n`. -/
   eventually_isEmpty_cell : ∀ᶠ n in Filter.atTop, IsEmpty (cell C n)
-  /-- `cell C n` is finite for every `n`.-/
+  /-- `cell C n` is finite for every `n`. -/
   finite_cell (n : ℕ) : _root_.Finite (cell C n)
 
 instance RelCWComplex.FiniteType.inst_finite_cell {X : Type*} [TopologicalSpace X] (C : Set X)

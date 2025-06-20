@@ -265,7 +265,7 @@ private lemma RelCWComplex.subset_of_eq_union_iUnion [RelCWComplex C D] (I J : �
     simp_rw [disjoint_union_right, disjoint_iUnion_right]
     exact ⟨disjointBase n i, fun m j ↦ disjoint_openCell_of_ne (by aesop)⟩
   rw [disjoint_of_subset_iff_left_eq_empty h] at h'
-  exact not_mem_empty _ (h' ▸ map_zero_mem_openCell n i)
+  exact notMem_empty _ (h' ▸ map_zero_mem_openCell n i)
 
 lemma RelCWComplex.eq_of_eq_union_iUnion [RelCWComplex C D] (I J : Π n, Set (cell C n))
     (hIJ : D ∪ ⋃ (n : ℕ) (j : I n), openCell (C := C) n j =
@@ -506,12 +506,13 @@ namespace RelCWComplex
 /-- A subcomplex is a closed subspace of a CW-complex that is the union of open cells of the
   CW complex. -/
 structure Subcomplex (C : Set X) {D : Set X} [RelCWComplex C D] where
+  /-- The underlying set of the -/
   carrier : Set X
-  /-- The indexing set of cells of the subcomplex.-/
+  /-- The indexing set of cells of the subcomplex. -/
   I : Π n, Set (cell C n)
-  /-- A subcomplex is closed.-/
+  /-- A subcomplex is closed. -/
   closed' : IsClosed carrier
-  /-- The union of all open cells of the subcomplex equals the subcomplex.-/
+  /-- The union of all open cells of the subcomplex equals the subcomplex. -/
   union' : D ∪ ⋃ (n : ℕ) (j : I n), openCell (C := C) n j = carrier
 
 namespace Subcomplex

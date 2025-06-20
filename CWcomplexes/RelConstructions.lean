@@ -72,21 +72,17 @@ def CWComplex.ofFiniteSet {C : Set X} (h : C.Finite) : CWComplex C := mkFinite C
       use 0, ⟨x, hx⟩
       simp)
 
---split this lemma into two
-lemma CWComplex.ofFiniteSet_cell {C : Set X} (h : C.Finite) {n : ℕ} :
+lemma CWComplex.ofFiniteSet_cell_zero {C : Set X} (h : C.Finite) :
     letI := ofFiniteSet h
-    cell C n =  match n with | 0 => C | (_ + 1) => PEmpty :=
+    cell C 0 =  C :=
   rfl
 
---only first case
-lemma CWComplex.ofFiniteSet_map {C : Set X} (h : C.Finite) {n : ℕ}
-    {i : match n with | 0 => C | (_ + 1) => PEmpty} :
+lemma CWComplex.ofFiniteSet_cell_of_gt_zero {C : Set X} (h : C.Finite) {n : ℕ} :
     letI := ofFiniteSet h
-    map (C := C) n i =
-      match n, i with | 0, i => PartialEquiv.single ![] i | (_ + 1), i => PEmpty.elim i :=
+    cell C (n + 1) =  PEmpty :=
   rfl
 
-lemma CWComplex.ofFiniteSet_map' {C : Set X} (h : C.Finite)
+lemma CWComplex.ofFiniteSet_map {C : Set X} (h : C.Finite)
     {i : C} :
     letI := ofFiniteSet h
     map (C := C) 0 i =
@@ -94,25 +90,10 @@ lemma CWComplex.ofFiniteSet_map' {C : Set X} (h : C.Finite)
   rfl
 
 /-- The CW-complex on a finite set is finite. -/
-lemma CWComplex.finite_ofFiniteSet (C : Set X) (h : C.Finite) :
+lemma CWComplex.finite_ofFiniteSet {C : Set X} (h : C.Finite) :
     letI := ofFiniteSet h
     Finite C :=
   finite_mkFinite ..
-
--- delete the next three
-
-instance CWComplex.instFiniteSet (C : Set X) [_root_.Finite C] : CWComplex C :=
-  ofFiniteSet (by assumption)
-
-@[simp]
-lemma CWComplex.instFiniteSet_eq_ofFiniteSet (C : Set X) [_root_.Finite C] :
-    instFiniteSet C = ofFiniteSet (by assumption) :=
-  rfl
-
-/-- The CW-complex on a finite set is finite. -/
-instance CWComplex.finite_instFiniteSet (C : Set X) [_root_.Finite C] :
-    Finite C :=
-  finite_ofFiniteSet C (by assumption)
 
 @[simps -isSimp]
 def RelCWComplex.ofEq {X : Type*} [TopologicalSpace X] (C D : Set X)
@@ -928,7 +909,7 @@ def CWComplex.attachCellsFiniteType.{u} {X : Type u} [TopologicalSpace X] [T2Spa
     (mapsTo := by
       intro i
       use fun m ↦ finite_univ.toFinset
-      simp only [instRelCWComplex_cell, Finite.mem_toFinset, mem_univ, iUnion_true]
+      simp only [cell_def, Finite.mem_toFinset, mem_univ, iUnion_true]
       exact mapsTo i)
 
 lemma CWComplex.finiteDimensional_attachCellsFiniteType.{u} {X : Type u} [TopologicalSpace X]
@@ -1336,6 +1317,7 @@ lemma CWComplex.finite_enlargeNonempty [CWComplex (X := C) univ]
 open Set.Notation Classical in
 def RelCWComplex.enlarge [RelCWComplex (X := C) univ (C ↓∩ D)] (hC : IsClosed C)
     (hDC : D ⊆ C) : RelCWComplex C D :=
+  letI := CWComplex.ofFiniteSet (X := X) finite_empty
   if h : C.Nonempty then enlargeNonempty hC h hDC else
     ofEq ∅ ∅ (not_nonempty_iff_eq_empty.1 h).symm
     (subset_eq_empty hDC (not_nonempty_iff_eq_empty.1 h)).symm
@@ -1359,12 +1341,14 @@ open Set.Notation in
 lemma RelCWComplex.enlarge_eq_empty [RelCWComplex (X := C) univ (C ↓∩ D)]
     (hC : IsClosed C)
     (hC2 : ¬ C.Nonempty) (hDC : D ⊆ C) :
+    letI := CWComplex.ofFiniteSet (X := X) finite_empty
     enlarge hC hDC = ofEq ∅ ∅ (not_nonempty_iff_eq_empty.1 hC2).symm
     (subset_eq_empty hDC (not_nonempty_iff_eq_empty.1 hC2)).symm := by
   simp [enlarge, hC2]
 
 lemma CWComplex.enlarge_eq_empty [h : CWComplex (X := C) univ]
     (hC : IsClosed C) (hC2 : ¬ C.Nonempty) :
+    letI := CWComplex.ofFiniteSet (X := X) finite_empty
     letI := RelCWComplex.ofEq ∅ ∅ (not_nonempty_iff_eq_empty.1 hC2).symm rfl
     enlarge hC = RelCWComplex.toCWComplex C :=
   congrArg _ (RelCWComplex.enlarge_eq_empty hC hC2 (empty_subset C))
@@ -1375,6 +1359,8 @@ lemma RelCWComplex.finiteDimensional_enlarge [RelCWComplex (X := C) univ (C ↓�
     letI := enlarge hC hDC
     FiniteDimensional C :=
   let _ := enlarge hC hDC
+  letI := CWComplex.ofFiniteSet (X := X) finite_empty
+  letI := CWComplex.finite_ofFiniteSet (X := X) finite_empty
   if hC2 : C.Nonempty then
     (enlarge_eq_enlargeNonempty hC hC2 hDC ▸ finiteDimensional_enlargeNonempty hC hC2 hDC)
     else (enlarge_eq_empty hC hC2 hDC ▸ finiteDimensional_ofEq ..)
@@ -1385,6 +1371,8 @@ lemma RelCWComplex.finiteType_enlarge [RelCWComplex (X := C) univ (C ↓∩ D)]
     letI := enlarge hC hDC
     FiniteType C :=
   let _ := enlarge hC
+  letI := CWComplex.ofFiniteSet (X := X) finite_empty
+  letI := CWComplex.finite_ofFiniteSet (X := X) finite_empty
   if hC2 : C.Nonempty then
     (enlarge_eq_enlargeNonempty hC hC2 hDC ▸ finiteType_enlargeNonempty hC hC2 hDC)
     else (enlarge_eq_empty hC hC2 hDC ▸ finiteType_ofEq ..)
@@ -1474,6 +1462,7 @@ lemma RelCWComplex.finite_restrictNonempty [RelCWComplex C D] [Finite C]
 open Notation Classical in
 def RelCWComplex.restrict [RelCWComplex C D] (Y : Set X) (hCY : C ⊆ Y) :
     RelCWComplex (X := Y) (Y ↓∩ C) (Y ↓∩ D) :=
+  letI := CWComplex.ofFiniteSet (X := Y) finite_empty
   if h : C.Nonempty then restrictNonempty Y hCY h else
     ofEq ∅ ∅ (by rw [not_nonempty_iff_eq_empty.1 h, preimage_empty])
     (by rw [subset_eq_empty base_subset_complex (not_nonempty_iff_eq_empty.1 h), preimage_empty])
@@ -1486,6 +1475,7 @@ lemma RelCWComplex.restrict_eq_restrictNonempty [RelCWComplex C D] (Y : Set X) (
 open Notation in
 lemma RelCWComplex.restrict_eq_empty [RelCWComplex C D] (Y : Set X) (hCY : C ⊆ Y)
     (hC : ¬ C.Nonempty) :
+    letI := CWComplex.ofFiniteSet (X := Y) finite_empty
     restrict Y hCY = ofEq (E := (Y ↓∩ C)) ∅ ∅
       (by rw [not_nonempty_iff_eq_empty.1 hC, preimage_empty])
       (by rw [subset_eq_empty base_subset_complex (not_nonempty_iff_eq_empty.1 hC),
@@ -1498,6 +1488,8 @@ lemma RelCWComplex.finiteDimensional_restrict [RelCWComplex C D] [FiniteDimensio
     letI := restrict Y hCY
     FiniteDimensional (Y ↓∩ C) :=
   let _ := restrict Y hCY
+  letI := CWComplex.ofFiniteSet (X := Y) finite_empty
+  letI := CWComplex.finite_ofFiniteSet (X := Y) finite_empty
   if hC : C.Nonempty then
     (restrict_eq_restrictNonempty Y hCY hC ▸ finiteDimensional_restrictNonempty Y hCY hC)
     else (restrict_eq_empty Y hCY hC ▸ finiteDimensional_ofEq ..)
@@ -1508,6 +1500,8 @@ lemma RelCWComplex.finiteType_restrict [RelCWComplex C D] [FiniteType C]
     letI := restrict Y hCY
     FiniteType (Y ↓∩ C) :=
   let _ := restrict Y hCY
+  letI := CWComplex.ofFiniteSet (X := Y) finite_empty
+  letI := CWComplex.finite_ofFiniteSet (X := Y) finite_empty
   if hC : C.Nonempty then
     (restrict_eq_restrictNonempty Y hCY hC ▸ finiteType_restrictNonempty Y hCY hC)
     else (restrict_eq_empty Y hCY hC ▸ finiteType_ofEq ..)
