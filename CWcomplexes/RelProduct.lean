@@ -24,29 +24,34 @@ section
 variable {X : Type*} {Y : Type*} [t1 : TopologicalSpace X] [t2 : TopologicalSpace Y]
   {C D : Set X} {E F : Set Y}
 
--- make this a structure maybe?
-
 /-- The indexing types of cells of the product of two CW-complexes. -/
-def RelCWComplex.prodcell (C : Set X) {D : Set X} (E : Set Y) {F : Set Y} [RelCWComplex C D]
-    [RelCWComplex E F] (n : ℕ) : Type _ :=
-  (Σ' (m : ℕ) (l : ℕ) (_ : m + l = n), cell C m × cell E l)
+structure RelCWComplex.prodCell (C : Set X) {D : Set X} (E : Set Y) {F : Set Y} [RelCWComplex C D]
+    [RelCWComplex E F] (n : ℕ) where
+    m : ℕ
+    l : ℕ
+    hml : m + l = n
+    j : cell C m
+    k : cell E l
 
---explicit type
+def RelCWComplex.prodCellEquiv (C : Set X) {D : Set X} (E : Set Y) {F : Set Y} [RelCWComplex C D]
+    [RelCWComplex E F] (n : ℕ) :
+    prodCell C E n ≃ (Σ' (m : ℕ) (l : ℕ) (_ : m + l = n), cell C m × cell E l) where
+  toFun e := ⟨e.m, e.l, e.hml, e.j, e.k⟩
+  invFun := fun ⟨m, l, hml, j, k⟩ ↦ ⟨m, l, hml, j, k⟩
+  left_inv _ := rfl
+  right_inv _ := rfl
 
 /-- The natural `IsometryEquiv` `(Fin n → ℝ) ≃ᵢ (Fin m → ℝ) × (Fin l → ℝ)` when `n = m + l`. -/
-def RelCWComplex.prodisometryequiv {n m l : ℕ}  (hmln : m + l = n) :=
+def RelCWComplex.prodisometryequiv {n m l : ℕ}  (hmln : m + l = n) :
+    (Fin n → ℝ) ≃ᵢ (Fin m → ℝ) × (Fin l → ℝ) :=
   (IsometryEquiv.piCongrLeft (Y := fun _ ↦ ℝ) (finCongr hmln.symm)).trans
   ((Fin.appendIsometry m l).symm)
 
--- make this have one argument that is a prodcell
-
---explicit type
-
 /-- The characterstic maps of the product of CW-complexes. -/
-def RelCWComplex.prodmap [RelCWComplex C D] [RelCWComplex E F] {n m l : ℕ} (hmln : m + l = n)
-    (j : cell C m) (k : cell E l) :=
-  (prodisometryequiv hmln).transPartialEquiv
-  (PartialEquiv.prod (map m j) (map l k))
+def RelCWComplex.prodmap [RelCWComplex C D] [RelCWComplex E F] {n : ℕ} (e : prodCell C E n) :
+    PartialEquiv (Fin n → ℝ) (X × Y) :=
+  (prodisometryequiv e.hml).transPartialEquiv
+  (PartialEquiv.prod (map e.m e.j) (map e.l e.k))
 
 lemma RelCWComplex.prodisometryequiv_image_closedBall {n m l : ℕ} {hmln : m + l = n} :
     prodisometryequiv hmln '' closedBall 0 1 = closedBall 0 1 ×ˢ closedBall 0 1 := by
@@ -64,43 +69,43 @@ lemma RelCWComplex.prodisometryequiv_image_sphere {n m l : ℕ} {hmln : m + l = 
   simp only [IsometryEquiv.image_sphere, sphere_prod]
   rfl
 
-lemma RelCWComplex.prodmap_image_ball [RelCWComplex C D] [RelCWComplex E F] {n m l : ℕ}
-    {hmln : m + l = n} {j : cell C m} {k : cell E l} :
-    prodmap hmln j k '' ball 0 1 = (openCell m j) ×ˢ (openCell l k) := by
+lemma RelCWComplex.prodmap_image_ball [RelCWComplex C D] [RelCWComplex E F] {n : ℕ}
+    (e : prodCell C E n) :
+    prodmap e '' ball 0 1 = (openCell e.m e.j) ×ˢ (openCell e.l e.k) := by
   simp_rw [prodmap, Equiv.transPartialEquiv_apply, ← image_image, IsometryEquiv.coe_toEquiv,
     prodisometryequiv_image_ball, PartialEquiv.prod_coe, ← prod_image_image_eq]
   rfl
 
-lemma RelCWComplex.prodmap_image_sphere [RelCWComplex C D] [RelCWComplex E F] {n m l : ℕ}
-    {hmln : m + l = n} {j : cell C m} {k : cell E l} :
-    prodmap hmln j k '' sphere 0 1 = (cellFrontier m j) ×ˢ (closedCell l k) ∪
-    (closedCell m j) ×ˢ (cellFrontier l k) := by
+lemma RelCWComplex.prodmap_image_sphere [RelCWComplex C D] [RelCWComplex E F] {n : ℕ}
+    {e : prodCell C E n} :
+    prodmap e '' sphere 0 1 = (cellFrontier e.m e.j) ×ˢ (closedCell e.l e.k) ∪
+    (closedCell e.m e.j) ×ˢ (cellFrontier e.l e.k) := by
   simp_rw [prodmap, Equiv.transPartialEquiv_apply, ← image_image , IsometryEquiv.coe_toEquiv,
     prodisometryequiv_image_sphere, image_union, PartialEquiv.prod_coe, ← prod_image_image_eq]
   rfl
 
-lemma RelCWComplex.prodmap_image_closedBall [RelCWComplex C D] [RelCWComplex E F] {n m l : ℕ}
-    {hmln : m + l = n} {j : cell C m} {k : cell E l} : prodmap hmln j k ''
-    closedBall 0 1 = (closedCell m j) ×ˢ (closedCell l k) := by
+lemma RelCWComplex.prodmap_image_closedBall [RelCWComplex C D] [RelCWComplex E F] {n : ℕ}
+    {e : prodCell C E n} :
+    prodmap e '' closedBall 0 1 = (closedCell e.m e.j) ×ˢ (closedCell e.l e.k) := by
   simp_rw [prodmap, Equiv.transPartialEquiv_apply, ← image_image , IsometryEquiv.coe_toEquiv,
     prodisometryequiv_image_closedBall, PartialEquiv.prod_coe, ← prod_image_image_eq]
   rfl
 
 lemma RelCWComplex.iUnion_prodcell [RelCWComplex C D] [RelCWComplex E F] :
-    ⋃ n, ⋃ (i : prodcell C E n), prodmap i.2.2.1 i.2.2.2.1 i.2.2.2.2 '' closedBall 0 1
+    ⋃ n, ⋃ (e : prodCell C E n), prodmap e '' closedBall 0 1
     = (⋃ m, ⋃ (i : cell C m), closedCell m i) ×ˢ ⋃ l, ⋃ (j : cell E l), closedCell l j := by
   ext x
-  simp only [prodcell, prodmap_image_closedBall, iUnion_psigma, iUnion_sigma, prod_iUnion,
+  simp only [prodmap_image_closedBall, iUnion_psigma, iUnion_sigma, prod_iUnion,
     iUnion_prod_const, iUnion_prod, mem_iUnion]
   constructor
-  · intro ⟨n, m, l, ⟨_, i, j⟩, h⟩
-    use l, j, m, i
+  · intro ⟨n, e, he⟩
+    use e.l, e.k, e.m, e.j
   · intro ⟨m, i, l, j, h⟩
-    use m + l, l, m, ⟨l.add_comm m, j, i⟩
+    use m + l, (⟨l, m, l.add_comm m, j, i⟩ : prodCell C E (m + l))
 
 namespace CWComplex
 
-export RelCWComplex (prodcell prodisometryequiv prodmap prodisometryequiv_image_closedBall
+export RelCWComplex (prodCell prodisometryequiv prodmap prodisometryequiv_image_closedBall
   prodisometryequiv_image_ball prodisometryequiv_image_sphere prodmap_image_ball
   prodmap_image_sphere prodmap_image_closedBall iUnion_prodcell)
 
@@ -113,8 +118,8 @@ variable [T2Space X] [T2Space Y]
 @[simps]
 instance RelCWComplex.Product [RelCWComplex C D] [RelCWComplex E F] [KSpace (X × Y)] :
     RelCWComplex (C ×ˢ E) (D ×ˢ E ∪ C ×ˢ F) where
-  cell n := prodcell C E n
-  map n i := prodmap i.2.2.1 i.2.2.2.1 i.2.2.2.2
+  cell n := prodCell C E n
+  map n i := prodmap i
   source_eq n i := by
     rcases i with  ⟨m, l, hmln, j, k⟩
     ext x
@@ -278,7 +283,8 @@ instance RelCWComplex.Product [RelCWComplex C D] [RelCWComplex E F] [KSpace (X �
     simp_rw [inter_iUnion]
     refine isClosed_iUnion_of_finite fun ⟨n, j, hnj⟩ ↦
       isClosed_iUnion_of_finite fun ⟨m, i, hmi⟩ ↦ ?_
-    replace hA : IsClosed (A ∩ prodmap rfl i j '' closedBall 0 1) := hA (m + n) ⟨m, n, rfl, i, j⟩
+    replace hA : IsClosed (A ∩ prodmap ⟨m, n, rfl, i, j⟩ '' closedBall 0 1) :=
+      hA (m + n) ⟨m, n, rfl, i, j⟩
     rw [prodmap_image_closedBall] at hA
     exact hA
   isClosedBase := ((isClosedBase C).prod isClosed).union (isClosed.prod (isClosedBase E))
@@ -287,7 +293,7 @@ instance RelCWComplex.Product [RelCWComplex C D] [RelCWComplex E F] [KSpace (X �
     · refine union_subset (union_subset (prod_mono base_subset_complex Subset.rfl)
           (prod_mono Subset.rfl base_subset_complex)) ?_
       intro x
-      simp only [mem_iUnion, mem_prod, prodcell]
+      simp only [mem_iUnion, mem_prod]
       intro ⟨n, ⟨m, l, eq, i, j⟩, h⟩
       rw [prodmap_image_closedBall] at h
       exact ⟨closedCell_subset_complex m i h.1, closedCell_subset_complex l j h.2⟩
@@ -323,13 +329,14 @@ instance RelCWComplex.finiteDimensional_product [KSpace (X × Y)] [RelCWComplex 
     obtain ⟨e, he⟩ := hE
     use c + e
     intro n hn
-    simp [prodcell]
-    intro m l hml
+    simp [prodCell]
+    rw [isEmpty_iff]
+    intro ⟨m, l, hml, j, k⟩
     rw [← hml] at hn
     suffices m ≥ c ∨ l ≥ e by
       rcases this with h | h
-      · exact .inl (hc m h)
-      · exact .inr (he l h)
+      · exact (hc m h).false j
+      · exact (he l h).false k
     by_contra h
     push_neg at h
     linarith
@@ -340,8 +347,8 @@ instance RelCWComplex.finiteType_product [KSpace (X × Y)] [RelCWComplex C D] [R
     have hC := FiniteType.finite_cell (C := C) (D := D)
     have hD := FiniteType.finite_cell (C := E) (D := F)
     intro n
-    simp [prodcell]
-    rw [← Equiv.finite_iff (Equiv.pSigmaAssoc _), ← Equiv.finite_iff (Equiv.pSigmaAssoc _)]
+    rw [Product_cell, Equiv.finite_iff (prodCellEquiv C E n),
+      ← Equiv.finite_iff (Equiv.pSigmaAssoc _), ← Equiv.finite_iff (Equiv.pSigmaAssoc _)]
     suffices _root_.Finite ((a : (_ : ℕ) ×' ℕ) ×' a.fst + a.snd = n) from inferInstance
     rw [Equiv.finite_iff (Equiv.psigmaEquivSubtype _)]
     let f : { a : (_ : ℕ) ×' ℕ // a.fst + a.snd = n } → {m // m ≤ n} × {m // m ≤ n} :=
@@ -366,8 +373,8 @@ instance CWComplex.finiteType_product [KSpace (X × Y)] [CWComplex C] [CWComplex
 @[simps]
 instance RelCWComplex.ProductKification [RelCWComplex C D] [RelCWComplex E F] :
     RelCWComplex (X := kification (X × Y)) (C ×ˢ E) (D ×ˢ E ∪ C ×ˢ F) where
-  cell n := prodcell C E n
-  map n i := prodmap i.2.2.1 i.2.2.2.1 i.2.2.2.2
+  cell n := prodCell C E n
+  map n i := prodmap i
   source_eq n i := by
     rcases i with  ⟨m, l, hmln, j, k⟩
     ext x
@@ -541,7 +548,8 @@ instance RelCWComplex.ProductKification [RelCWComplex C D] [RelCWComplex E F] :
     simp_rw [inter_iUnion]
     refine isClosed_iUnion_of_finite fun ⟨n, j, hnj⟩ ↦
       isClosed_iUnion_of_finite fun ⟨m, i, hmi⟩ ↦ ?_
-    replace hA : IsClosed (A ∩ prodmap rfl i j '' closedBall 0 1) := hA (m + n) ⟨m, n, rfl, i, j⟩
+    replace hA : IsClosed (A ∩ prodmap ⟨m, n, rfl, i, j⟩ '' closedBall 0 1) :=
+      hA (m + n) ⟨m, n, rfl, i, j⟩
     rw [prodmap_image_closedBall] at hA
     exact hA
   isClosedBase := (((isClosedBase C).prod isClosed).union (isClosed.prod (isClosedBase E))).mono
@@ -551,7 +559,7 @@ instance RelCWComplex.ProductKification [RelCWComplex C D] [RelCWComplex E F] :
     · refine union_subset (union_subset (prod_mono base_subset_complex Subset.rfl)
           (prod_mono Subset.rfl base_subset_complex)) ?_
       intro x
-      simp only [mem_iUnion, mem_prod, prodcell]
+      simp only [mem_iUnion, mem_prod]
       intro ⟨n, ⟨m, l, eq, i, j⟩, h⟩
       rw [prodmap_image_closedBall] at h
       exact ⟨closedCell_subset_complex m i h.1, closedCell_subset_complex l j h.2⟩
@@ -587,13 +595,13 @@ instance RelCWComplex.finiteDimensional_productKification [RelCWComplex C D]
     obtain ⟨e, he⟩ := hE
     use c + e
     intro n hn
-    simp [prodcell]
-    intro m l hml
+    simp [isEmpty_iff]
+    intro ⟨m, l, hml, j, k⟩
     rw [← hml] at hn
     suffices m ≥ c ∨ l ≥ e by
       rcases this with h | h
-      · exact .inl (hc m h)
-      · exact .inr (he l h)
+      · exact (hc m h).false j
+      · exact (he l h).false k
     by_contra h
     push_neg at h
     linarith
@@ -605,8 +613,8 @@ instance RelCWComplex.finiteType_productKification [RelCWComplex C D]
     have hC := FiniteType.finite_cell (C := C) (D := D)
     have hD := FiniteType.finite_cell (C := E) (D := F)
     intro n
-    simp [prodcell]
-    rw [← Equiv.finite_iff (Equiv.pSigmaAssoc _), ← Equiv.finite_iff (Equiv.pSigmaAssoc _)]
+    rw [ProductKification_cell, Equiv.finite_iff (prodCellEquiv C E n),
+      ← Equiv.finite_iff (Equiv.pSigmaAssoc _), ← Equiv.finite_iff (Equiv.pSigmaAssoc _)]
     suffices _root_.Finite ((a : (_ : ℕ) ×' ℕ) ×' a.fst + a.snd = n) from inferInstance
     rw [Equiv.finite_iff (Equiv.psigmaEquivSubtype _)]
     let f : { a : (_ : ℕ) ×' ℕ // a.fst + a.snd = n } → {m // m ≤ n} × {m // m ≤ n} :=
