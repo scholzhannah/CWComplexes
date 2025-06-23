@@ -9,7 +9,7 @@ An \emph{(absolute) CW complex} is a topological space that can be constructed b
 These images of closed discs in the CW complex are called \emph{cells}.
 To specify that a cell is the image of an $n$-dimensional disc, one can call it an $n$-cell.
 The cells up to and including dimension $n$ make up what is called the \emph{$n$-skeleton}.
-In a relative CW complex these discs can additionally be attached to a specified base set. 
+In a \emph{relative CW complex} these discs can additionally be attached to a specified base set. 
 
 The different definitions of CW complexes present in the literature can be broadly categorized into two approaches: firstly there is the ``classical'' approach that sticks closely in style to Whitehead's original definition in \cite{Whitehead2018}.
 This definition assumes the cells to all lie in one topological space and then describes how the cells interact with each other and the space.
@@ -25,7 +25,7 @@ The definition chosen for formalization is the following:
 
 \begin{defi}
     Let $X$ be a Hausdorff space and $D \subseteq X$ be a subset of $X$. 
-    A (relative) CW complex on $X$ consists of a family of indexing sets $(I_n)_{n \in \bN}$ and a family of continuous maps $(Q_i^n \colon D_i^n \to X)_{n \in \bN, i \in I_n}$ called \emph{characteristic maps} with the following properties: 
+    A \emph{(relative) CW complex} on $X$ consists of a family of indexing sets $(I_n)_{n \in \bN}$ and a family of continuous maps $(Q_i^n \colon D_i^n \to X)_{n \in \bN, i \in I_n}$ called \emph{characteristic maps} with the following properties: 
     \begin{enumerate}
         \item $\restrict{Q_i^n}{\interior{D_i^n}} \colon \interior{D_i^n} \to Q_i^n(\interior{D_i^n})$ is a homeomorphism for every $n \in \bN$ and $i \in I_n$. We call $\openCell{n}{i} \coloneq Q_i^n(\interior{D_i^n})$ an \emph{(open) $n$-cell} and $\closedCell{n}{i} \coloneq Q_i^n(D_i^n)$ a \emph{closed $n$-cell}.
         \item Two different open cells are disjoint.
@@ -76,33 +76,41 @@ So while a closed interval in the real line can be considered as a CW complex in
 This approach is inspired by \cite{Gonthier2013}, where the authors notice that it is helpful to consider subsets of an ambient group to avoid having to work with different group operations and similar issues.
 
 Even though the behaviour of a CW complex depends strongly on its data and there can be different ``non-equivalent'' CW structures on the same space, we have chosen to make it a \lstinline|class|, effectively treating it more like a property than a structure. 
-This is to be able to make use of Lean's typeclass inference. \todo{cite some paper on typeclass inference, in the preliminaries secction}
+This is to be able to make use of Lean's typeclass inference.
+A short explanation typeclass inference can be found in section \ref{sub:leanandmathlib}.
 \todo[comment]{Is this too basic?}
 
 We omit the requirement for $X$ to be a Hausdorff space and instead naturally require it for most of the lemmata. 
 
-The base $D$ is an \lstinline|outParam| which means that Lean will look for a defined instance of a CW complex even if just $C$ and not $D$ is provided. 
-Because of this option Lean automatically assumes that there is only one possible base for the specified set $C$ and only searches for the first instance that matches $C$ even if the base set does not match. \todo[comment]{Terrible explanation. Make this better}
-
-\todo[comment, inline]{Reason: The lemmas mainly refer to C}
+The base $D$ is an \lstinline|outParam|. 
+This is because lemma statements about CW complexes typically refer to just the underlying set \lstinline|C| without mentioning the base \lstinline|D|. 
+Typically, for typeclass inference to run the user would have to go out of their way to specify \lstinline|D|. 
+But this requirement of typeclass inference can be disabled by adding the \lstinline|outParam| specification.
+The purpose and consequences of using \lstinline|outParam| are discussed in more detail in Section \ref{sub:leanandmathlib}.
+In particular this eases using typeclass inference but it can have unfortunate consequences when there are two CW complexes with the same underlying set but different bases.
 
 While we do not expect there to be instances on the same set with a different base, we have encountered instances where the base is provably equal but not definitionally so. 
-Lean's type theory only treats definitionally equal instances as truly equal which means that typeclass inference can fail in certain situations and the instances need to be provided manually. \todo[comment, inline]{Firstly: I can't really provide an example right now as I have neither absolute CW complexes or products at this point. Secondly: This sounds a bit pessemistic. How much should one talk about unsolved problems?}
+Typeclass inference can fail in these situations and the instances need to be provided manually. 
+An example will be discussed later in ???. 
 
 In topology most CW complexes that are considered have empty base and often the term ``CW complex'' refers to this type of complex. 
-Those CW complexes are called absolute CW complexes. 
+Those CW complexes are called \emph{absolute CW complexes}. 
 
-The obvious way to define absolute CW complexes in Lean would be to extend the definition of a relative CW complex by the fact that the base $D$ is empty. 
+Most naturally one would simply define CW complexes in Lean in the same way: as a relative CW complex with empty base.
 However, this leads to two issues: 
-firstly, when defining a CW complex there are now trivial proofs that need to be provided and some simplifications that need to be performed for every new absolute CW complex that is defined. 
+firstly, when defining an absolute CW complex there are now trivial proofs that need to be provided and some simplifications that need to be performed for every new instance and definition. 
 This produces a lot of duplicate code. 
-Secondly, with absolute CW complexes one does encountered instances on the same set with probably but not definitionally equal base sets more often. 
+Secondly, absolute CW complexes are precisely where we have encountered instances on the same set with probably but not definitionally equal base sets. 
 Constructions for relative CW complexes, e.g. products, produce instances for which in the case of an absolute CW complex the base is provably equal to the empty set but not definitionally so. 
 In that case we define an instance specifically for absolute CW complexes and want this to be inferred over the relative version. 
 But since $D$ is an \lstinline|outParam|, we cannot specify typeclass inference to be looking for a base that is definitionally equal to the empty set. 
 
-The solution is to have absolute CW complexes be their own definitions that agrees with relative CW complexes except for the trivial proofs and simplifications. 
-The type of absolute CW complexes on the set $C$ in Lean in \lstinline|CWComplex C|. 
+The solution is to have absolute CW complexes be their own class that agrees with relative CW complexes except for the trivial proofs and simplifications. 
+The type of absolute CW complexes on the set $C$ in Lean is \lstinline|CWComplex C|. 
+We then provide an instance stating that absolute CW complexes are relative CW complexes and a definition in the other direction.
+The latter cannot be an instance as this would create an instance loop. \todo{I think there was another reason?}
+\todo[plan]{Talk about the priority of the instance? I think Floris said no}
+
 
 \todo[plan]{talk about the instance from CWComplex to RelCWComplex here.}
 
@@ -112,7 +120,7 @@ The type of absolute CW complexes on the set $C$ in Lean in \lstinline|CWComplex
 
 \todo[plan]{talk about finiteness notions here, subsection? next section?}
 
-\section{Constructions}
+\section{Basic constructions}
 
 \todo[plan]{Talk about: 
   \begin{enumerate}
@@ -122,6 +130,8 @@ The type of absolute CW complexes on the set $C$ in Lean in \lstinline|CWComplex
     \item transporting along partial homeomorphisms? (briefly maybe)
     \item product (detailed mathematical proof)
   \end{enumerate}}
+
+\section{Products}\label{sec:products}
 
 \section{Examples}
 \todo[plan]{Should I talk about examples? I think the spheres would be nice. But the code is far from being polished\dots}
