@@ -2,8 +2,6 @@
 
 \subsection{Lean and \mathlib}
 
-\todo[plan]{I could also do a subsection here explaining what Lean and mathlib is.}
-
 \todo[plan]{Talk about typeclass inference (cite paper), describe outParam, example (one from topology?) CharP}
 
 Lean and \mathlib make use of \emph{typeclasses} to provide definitions on various types with potentially different behaviour. 
@@ -11,20 +9,21 @@ This is called \emph{ad-hoc polymorphism}.
 For example, this means that there can be a general notion of a topological space on an arbitrary type.\todo[comment]{This isn't really a good example, should I do Addition instead?}
 One can then provide specific \emph{instances} of a typeclass, for example the metric topology on the reals, or assume that an instance exists for a declaration, for example assuming a topology on a type \lstinline|X| by writing \lstinline|[TopologicalSpace X]|. 
 Instances can then be combined into new ones: 
-\mathlib has an instance providing the subspace topology on a subtype of a type with a \lstinline|TopologicalSpace| instance and for two types with each a topology there is an instance providing the product topology on the product of the types. 
+\mathlib has an instance providing the subspace topology on a subtype of a type that has a \lstinline|TopologicalSpace| instance and for two types with each a topology there is an instance providing the product topology. 
 Additionally, instances can be used to construct another instance of a different typeclass:
 \mathlib for example provides an instance expressing that a uniform space is a topological space. 
-This creates a complicated graph of typeclass instances that can then be traversed by a search algorithm to automatically infer instances. 
+This creates a complicated graph of typeclass instances that can then be searched by an algorithm to automatically infer instances. 
 This \emph{typeclass inference} ensures, for example, that when a type is assumed to be a metric space, lemmas about topological spaces can be used even though \mathlib does not have a declaration stating explicitly that a metric space has an associated topology. 
-Instead, this fact is a combination of different instances that are automatically combined. 
-More about typeclasses in Lean can be found in \cite{Selsam2020}.\todo[comment]{This feels way too long.}
+Instead, this fact is comprised of different instances that are automatically combined. 
+More about typeclasses in Lean can be found in \cite{Selsam2020}.\todo[comment]{This feels way too long and clunky to read.}
 
 There are different ways to modify the behaviour of typeclass inference for specific typeclasses. 
 One such way, which we make use of in the definition of CW complexes, is ascribing the property \lstinline|outParam| to a parameter of the typeclass. 
 An instance of a typeclass depends on its input parameters: for \lstinline|TopologicalSpace X| there is one parameter \lstinline|X|; for \lstinline|Membership α γ|, a typeclass stating that objects of type \lstinline|α| can be considered as elements of objects of type \lstinline|γ|, there are the two parameters \lstinline|α| and \lstinline|γ|.
-Looking for an instance when some of the input parameters are not known would mean significant slowdowns and potentially unwanted results of the search which is why Leans typeclass inference requires all input parameters to run. 
+Looking for an instance when some of the input parameters are not known would mean significant slowdowns and potentially unwanted results of the search which is why Leans typeclass inference requires all input parameters. 
 But sometimes this behaviour is not desired. 
-As the typical examples for the membership instance include things like \lstinline|Membership α (List α)| and \lstinline|Membership α (Set α)|, it makes sense to assume that 
+As the typical examples for membership instances include things like \lstinline|Membership α (List α)| and \lstinline|Membership α (Set α)|, it makes sense to assume that the second parameter \lstinline|γ| can be inferred from the first or is at least uniquely determined by it. 
+\mathlib therefore marks the second parameter as \lstinline|outParam| enabling typeclass inference to run even when this parameter is not known.
 
 \subsection{Preliminary Mathematics in Lean}
 
@@ -32,10 +31,12 @@ As the typical examples for the membership instance include things like \lstinli
 There aren't really a lot of basics that I need. 
 I could write how to get a topological space, continuous maps, open sets\dots
 Not sure if I need anything else.}
-
-\todo{add PartialEquiv}
 In \mathlib, a topological space is a type \lstinline|X| together with a topology \lstinline|TopologicalSpace X| on it.
 This then allows you to describe whether a set \lstinline|A : Set X| is open or closed by writing \lstinline|IsOpen A| and \lstinline|IsClosed A|. 
 A function \lstinline|f : X → Y| between two topological spaces \lstinline|X| and \lstinline|Y| can be described as being continuous and as being continuous on a set \lstinline|A : Set X| which is expressed by writing \lstinline|Continuous f| and \lstinline|ContinuousOn f A|. 
 \mathlib also implements various separation axioms: to specify that a topological space \lstinline|X| is Hausdorff one can write \lstinline|T2Space X|.
-\todo[comment]{I am not sure if this all isn't a bit too basic and whether I should even include how to write things in Lean}
+
+A non-topological concept that we will need is \lstinline|PartialEquiv| which is \mathlib's version of a partial bijection. 
+To define a \lstinline|PartialEquiv X Y| for two types \lstinline|X| and \lstinline|Y| one needs to provide as data a total function on \lstinline|X|, another total function on \lstinline|Y| a set in \lstinline|X| called the \emph{source} and a set in \lstinline|Y| called the \emph{target}. 
+Additionally, one needs to prove that the target is mapped to the source and vice versa and that the two maps are inverse to each other on both the source and target. 
+\todo[comment]{Explanation of PartialEquiv too detailed?}

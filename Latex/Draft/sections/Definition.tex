@@ -5,21 +5,21 @@ In this section I should first describe mathematically what a CW complex is.
 Then I show the Lean definition and explain why/how
 Maybe this can also have proofs of basic lemmas (e.g. a CW complex is closed in its ambient space)}
 
-A \emph{(absolute) CW complex} is a topological space that can be constructed by glueing images of closed discs of different dimensions together along the images of their boundaries. 
+An \emph{(absolute) CW complex} is a topological space that can be constructed by glueing images of closed discs of different dimensions together along the images of their boundaries. 
 These images of closed discs in the CW complex are called \emph{cells}.
 To specify that a cell is the image of an $n$-dimensional disc, one can call it an $n$-cell.
-The cells up to dimension $n$ make up what is called the \emph{$n$-skeleton}.
+The cells up to and including dimension $n$ make up what is called the \emph{$n$-skeleton}.
 In a relative CW complex these discs can additionally be attached to a specified base set. 
 
-The different definitions of CW complexes present in the literature can be broadly categorized into to approaches: firstly there is the ``classical'' approach that sticks closely in style to Whitehead's original definition in \cite{Whitehead2018}.
+The different definitions of CW complexes present in the literature can be broadly categorized into two approaches: firstly there is the ``classical'' approach that sticks closely in style to Whitehead's original definition in \cite{Whitehead2018}.
 This definition assumes the cells to all lie in one topological space and then describes how the cells interact with each other and the space.
 Secondly, there is a popular approach that is more categorical in nature. 
-In this approach the skeletons are regarded as different spaces and the definition describes how to construct the ($n+1$)-skeleton from the $n$-skeleton. 
+In this version the skeletons are regarded as different spaces and the definition describes how to construct the ($n+1$)-skeleton from the $n$-skeleton. 
 The CW complex is then defined as the colimit of the skeletons. 
 
 At the start of this project neither of the approaches had been formalized in Lean. 
-The authors chose to proceed with the former approach because it avoids having to deal with different topological spaces and inclusions between them. 
-At the time of writing both approaches have been formalized and are part of \mathlib. \todo{make it clear that the other one was done by someone else}
+We chose to proceed with the former approach because it avoids having to deal with different topological spaces and inclusions between them. 
+As the other approach has been formalized by ??? \todo{Current authorship is unclear to me}, both are now formalized and part of \mathlib. 
 
 The definition chosen for formalization is the following: 
 
@@ -39,10 +39,12 @@ The definition chosen for formalization is the following:
 
 It is important to notice that an open cell is not necessarily open and that the cell frontier is not necessarily the frontier of the corresponding cell.
 
-In \mathlib this definition translates to the following:
- 
-\todo{do this as a figure maybe?}
-\begin{lstlisting}
+The translation of this definition in \mathlib can be found in Figure \ref{fig:def}.
+
+\begin{figure}
+\caption{Definition of relative CW complexes in \mathlib}
+\label{fig:def}
+\begin{lstlisting}[frame=single]
     class RelCWComplex.{u} {X : Type u} [TopologicalSpace X] (C : Set X) 
         (D : outParam (Set X)) where
   cell (n : ℕ) : Type u
@@ -62,7 +64,9 @@ In \mathlib this definition translates to the following:
     ((∀ n j, IsClosed (A ∩ map n j '' closedBall 0 1)) ∧ IsClosed (A ∩ D)) → IsClosed A
   isClosedBase : IsClosed D
   union' : D ∪ ⋃ (n : ℕ) (j : cell n), map n j '' closedBall 0 1 = C
-\end{lstlisting}\todo[comment]{I feel like the code is a bit much at once}
+\end{lstlisting}
+\end{figure}
+\todo[comment]{I am not sure if I like the code being a float}
 
 One obvious change in the Lean definition is that instead of talking about the topological space $X$ being a CW complex, it talks about the set $C$ being a CW complex in the ambient space $X$.
 This eases working with constructions and examples of CW complexes. 
