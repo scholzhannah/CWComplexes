@@ -23,7 +23,7 @@ As the other approach has been formalized by ??? \todo{Current authorship is unc
 
 The definition chosen for formalization is the following: 
 
-\begin{defi}
+\begin{defi}\label{def:cwcomplex}
     Let $X$ be a Hausdorff space and $D \subseteq X$ be a subset of $X$. 
     A \emph{(relative) CW complex} on $X$ consists of a family of indexing sets $(I_n)_{n \in \bN}$ and a family of continuous maps $(Q_i^n \colon D_i^n \to X)_{n \in \bN, i \in I_n}$ called \emph{characteristic maps} with the following properties: 
     \begin{enumerate}
@@ -109,33 +109,17 @@ The solution is to have absolute CW complexes be their own class that agrees wit
 The type of absolute CW complexes on the set $C$ in Lean is \lstinline|CWComplex C|. 
 We then provide an instance stating that absolute CW complexes are relative CW complexes and a definition in the other direction.
 The latter cannot be an instance as this would create an instance loop. \todo{I think there was another reason?}
+To avoid having duplicate notions \lstinline|CWComplex.cell| and \lstinline|RelCWComplex.cell| of the type of cells and \lstinline|CWComplex.map| and \lstinline|RelCWComplex.map| we mark the version for absolute CW complexes as \lstinline|protected| strongly encouraging the user to only use the version for relative CW complexes which is also available for absolute ones through the instance.\todo[comment]{Explain protected above?}
 \todo[plan]{Talk about the priority of the instance? I think Floris said no}
 
+As in Definition \ref{def:cwcomplex}, we define the notions of open cells, closed cells and cell frontiers.
+We define them only for relative CW complexes but, as for the indexing types and characteristic maps, these notions can be used for absolute ones because of the instance mentioned above. 
 
-\todo[plan]{talk about the instance from CWComplex to RelCWComplex here.}
+\todo[comment, inline]{Should subcomplexes and cellular maps go into a seperate section? They don't really fit here but  also think there isn't enough to say to put them in their own section.}
 
-\todo[plan]{talk about the definition of openCell, ... here and how they all go through RelCWComplex}
+\todo[plan]{Talk about subcomplexes and in particular skeletons here.}
 
-\todo[plan]{talk about cellular maps here}
+A natural notion of maps between CW complexes are \emph{cellular maps}. 
+A cellular map is a continuous map between two CW complexes $X$ and $Y$ that send the $n$-skeleton of $X$ to the $n$-skeleton of $Y$ for every $n$.
 
-\todo[plan]{talk about finiteness notions here, subsection? next section?}
-
-\section{Basic constructions}
-
-\todo[plan]{Talk about: 
-  \begin{enumerate}
-    \item subcomplexes
-    \item attaching cells (briefly)
-    \item disjoint unions? (briefly)
-    \item transporting along partial homeomorphisms? (briefly maybe)
-    \item product (detailed mathematical proof)
-  \end{enumerate}}
-
-\section{Products}\label{sec:products}
-
-\section{Examples}
-\todo[plan]{Should I talk about examples? I think the spheres would be nice. But the code is far from being polished\dots}
-
-\section{Conclusion}
-
-\todo[plan]{Write what an impact this has made (?). Describe further possible research.}
+\todo[plan]{Continue talking about cellular maps here}
