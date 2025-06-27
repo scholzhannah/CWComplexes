@@ -2,8 +2,6 @@
 
 \subsection{Lean and \mathlib}\label{sub:leanandmathlib}
 
-\todo[plan]{Talk about typeclass inference (cite paper), describe outParam, example (one from topology?) CharP}
-
 Lean and \mathlib make use of \emph{typeclasses} to provide definitions on various types with potentially different behaviour. 
 This is called \emph{ad-hoc polymorphism}.
 For example, this means that there can be a general notion of a topological space on an arbitrary type.\todo[comment]{This isn't really a good example, should I do Addition instead?}
@@ -30,12 +28,10 @@ It is important to know that ``matching a parameter'' in this case means being d
 So even when the parameters are provably but not definitionally equal, Lean will treat corresponding instances as different.
 \todo{Citation for this paragraph? Docs?}
 
-\subsection{Preliminary Mathematics in Lean}
+\todo[plan]{Explain what abbrev does}
 
-\todo[plan]{
-There aren't really a lot of basics that I need. 
-I could write how to get a topological space, continuous maps, open sets\dots
-Not sure if I need anything else.}
+\subsection{Preliminary Mathematics in Lean}\label{sub:mathinlean}
+
 In \mathlib, a topological space is a type \lstinline|X| together with a topology \lstinline|TopologicalSpace X| on it.
 This then allows you to describe whether a set \lstinline|A : Set X| is open or closed by writing \lstinline|IsOpen A| and \lstinline|IsClosed A|. 
 A function \lstinline|f : X → Y| between two topological spaces \lstinline|X| and \lstinline|Y| can be described as being continuous and as being continuous on a set \lstinline|A : Set X| which is expressed by writing \lstinline|Continuous f| and \lstinline|ContinuousOn f A|. 
@@ -45,3 +41,5 @@ A non-topological concept that we will need is \lstinline|PartialEquiv| which is
 To define a \lstinline|PartialEquiv X Y| for two types \lstinline|X| and \lstinline|Y| one needs to provide as data a total function on \lstinline|X|, another total function on \lstinline|Y| a set in \lstinline|X| called the \emph{source} and a set in \lstinline|Y| called the \emph{target}. 
 Additionally, one needs to prove that the target is mapped to the source and vice versa and that the two maps are inverse to each other on both the source and target. 
 \todo[comment]{Explanation of PartialEquiv too detailed?}
+
+\todo[plan]{Explain CompletelyDistribLattice and its difference to CompleteDistribLattice}.

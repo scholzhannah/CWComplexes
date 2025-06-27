@@ -1,10 +1,5 @@
 \section{Definition of CW complexes}
 
-\todo[plan]{
-In this section I should first describe mathematically what a CW complex is. 
-Then I show the Lean definition and explain why/how
-Maybe this can also have proofs of basic lemmas (e.g. a CW complex is closed in its ambient space)}
-
 An \emph{(absolute) CW complex} is a topological space that can be constructed by glueing images of closed discs of different dimensions together along the images of their boundaries. 
 These images of closed discs in the CW complex are called \emph{cells}.
 To specify that a cell is the image of an $n$-dimensional disc, one can call it an $n$-cell.
@@ -111,15 +106,93 @@ We then provide an instance stating that absolute CW complexes are relative CW c
 The latter cannot be an instance as this would create an instance loop. \todo{I think there was another reason?}
 To avoid having duplicate notions \lstinline|CWComplex.cell| and \lstinline|RelCWComplex.cell| of the type of cells and \lstinline|CWComplex.map| and \lstinline|RelCWComplex.map| we mark the version for absolute CW complexes as \lstinline|protected| strongly encouraging the user to only use the version for relative CW complexes which is also available for absolute ones through the instance.\todo[comment]{Explain protected above?}
 \todo[plan]{Talk about the priority of the instance? I think Floris said no}
+\todo[plan]{Talk about the whole export mess?}
 
 As in Definition \ref{def:cwcomplex}, we define the notions of open cells, closed cells and cell frontiers.
 We define them only for relative CW complexes but, as for the indexing types and characteristic maps, these notions can be used for absolute ones because of the instance mentioned above. 
 
+We then define subcomplexes as closed unions of open cells of the complex.
+
+\begin{lstlisting}[frame=single]
+structure Subcomplex (C : Set X) {D : Set X} [RelCWComplex C D] where
+  carrier : Set X
+  I : Π n, Set (cell C n)
+  closed' : IsClosed carrier
+  union' : D ∪ ⋃ (n : ℕ) (j : I n), openCell (C := C) n j = carrier
+\end{lstlisting}
+
+We provide additional definitions for other ways of describing them: firstly, as a union of open cells where the closure of every cell is already contained in the union and secondly, as union of open cells that is also a CW complex.
+
+\begin{lstlisting}[frame=single]
+def RelCWComplex.Subcomplex.mk' [T2Space X] (C : Set X) {D : Set X} 
+    [RelCWComplex C D] (E : Set X) (I : Π n, Set (cell C n))
+    (closedCell_subset : ∀ (n : ℕ) (i : I n), closedCell (C := C) n i ⊆ E)
+    (union : D ∪ ⋃ (n : ℕ) (j : I n), openCell (C := C) n j = E) : 
+    Subcomplex C where
+  carrier := E
+  I := I
+  closed' := /- Proof omitted-/
+  union' := union
+
+def RelCWComplex.Subcomplex.mk'' [T2Space X] (C : Set X) {D : Set X} 
+    [RelCWComplex C D] (E : Set X) (I : Π n, Set (cell C n)) [RelCWComplex E D]
+    (union : D ∪ ⋃ (n : ℕ) (j : I n), openCell (C := C) n j = E) : 
+    Subcomplex C where
+  carrier := E
+  I := I
+  closed' := isClosed
+  union' := union
+\end{lstlisting}\todo[comment]{Is this helpful? mk' is used for skeleton}
+
+We show that subcomplexes are again CW complexes and that the type of subcomplexes of a specific CW complex has the structure of a \lstinline|CompletelyDistribLattice|. 
+See Section \ref{sub:mathinlean} for an explanation of that structure.  
+
+Defining subcomplexes allows aus to talk about the skeletons of a CW complex. 
+The typical definition of the $n$-skeleton in the following: 
+
+\begin{defi}
+  The $n$-skeleton of a CW complex $C$ is defined as $C_n \coloneq \bigcup_{m < n + 1} \bigcup_{i \in I_m} \closedCell{m}{i}$ where $-1 \le n \le \infty$.
+\end{defi}
+
+Since proofs about CW complexes frequently employ induction, we want to make using that proof technique as easy as possible. 
+Starting an induction at $-1$ is unfortunately not that convenient in Lean. 
+For that reason we first define an auxiliary version of the skeletons where the dimensions are shifted by one: 
+
+\begin{lstlisting}[frame=single]
+def RelCWComplex.skeletonLT (C : Set X) {D : Set X} [RelCWComplex C D] (n : ℕ∞) : 
+    Subcomplex C :=
+  Subcomplex.mk' _ (D ∪ ⋃ (m : ℕ) (_ : m < n) (j : cell C m), closedCell m j)
+    (fun l ↦ {x : cell C l | l < n}) (/-Proof omitted-/) (/-Proof omitted-/)
+\end{lstlisting}
+
+then we can use this to define the usual skeleton: 
+
+\begin{lstlisting}[frame=single]
+abbrev RelCWComplex.skeleton (C : Set X) {D : Set X} [RelCWComplex C D] (n : ℕ∞) : Subcomplex C :=
+  skeletonLT C (n + 1)
+\end{lstlisting}
+
+For an explanation on \lstinline|abbrev| see Section \ref{sub:leanandmathlib}.
+\todo[plan]{Explain why abbrev was chosen here}
+The definition \lstinline|skeleton| exists mostly for completeness' sake. 
+Both lemmas and definition should use \lstinline|skeletonLT| to make proofs easier and then possibly derive a version for \lstinline|skeleton|
+
 \todo[comment, inline]{Should subcomplexes and cellular maps go into a seperate section? They don't really fit here but  also think there isn't enough to say to put them in their own section.}
 
-\todo[plan]{Talk about subcomplexes and in particular skeletons here.}
-
-A natural notion of maps between CW complexes are \emph{cellular maps}. 
+We also want to introduce a sensible notion of structure preserving maps between CW complexes.
+A natural notion are \emph{cellular maps}. 
 A cellular map is a continuous map between two CW complexes $X$ and $Y$ that send the $n$-skeleton of $X$ to the $n$-skeleton of $Y$ for every $n$.
+In Lean this definition translates to: 
 
+\begin{lstlisting}[frame=single]
+structure CellularMap (C : Set X) {D : Set X} [RelCWComplex C D] (E : Set Y) 
+    {F : Set Y} [RelCWComplex E F] where
+  protected toFun : X → Y
+  protected continuousOn_toFun : ContinuousOn toFun C
+  image_skeletonLT_subset' (n : ℕ) : toFun '' (skeletonLT C n) ⊆ skeletonLT E n
+\end{lstlisting}
+
+We also introduce the notion of \emph{cellular equivalences}: \todo{Is that the math name?}
 \todo[plan]{Continue talking about cellular maps here}
+
+\todo[plan]{Mention cellular approximation here}
