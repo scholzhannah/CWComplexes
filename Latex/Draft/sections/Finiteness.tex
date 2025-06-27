@@ -1,3 +1,24 @@
 \section{Finiteness notions}
 
 \todo[plan]{talk about finiteness notions here, subsection in definition section?}
+
+There are three important finiteness notions on CW complexes. 
+We say that a CW complex is \emph{of finite type} if there are only finitely many cells in each dimension. 
+We call it \emph{finite dimensional} if there is an $n$ such that the complex equals its $n$-skeleton.
+Finally, it is said to be \emph{finite} is it is both finite dimensional and of finite type. 
+In Lean these definitions take the following form: 
+
+\begin{lstlisting}[frame=single]
+class RelCWComplex.FiniteDimensional.{u} {X : Type u} [TopologicalSpace X] 
+    (C : Set X) {D : Set X} [RelCWComplex C D] : Prop where
+  eventually_isEmpty_cell : ∀ᶠ n in Filter.atTop, IsEmpty (cell C n)
+
+class RelCWComplex.FiniteType.{u} {X : Type u} [TopologicalSpace X] (C : Set X) 
+    {D : Set X} [RelCWComplex C D] : Prop where
+  finite_cell (n : ℕ) : Finite (cell C n)
+
+class RelCWComplex.Finite.{u} {X : Type u} [TopologicalSpace X] (C : Set X) 
+    {D : Set X} [RelCWComplex C D] : Prop where
+  eventually_isEmpty_cell : ∀ᶠ n in Filter.atTop, IsEmpty (cell C n)
+  finite_cell (n : ℕ) : _root_.Finite (cell C n)
+\end{lstlisting}

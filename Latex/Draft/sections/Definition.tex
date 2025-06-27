@@ -159,8 +159,8 @@ Starting an induction at $-1$ is unfortunately not that convenient in Lean.
 For that reason we first define an auxiliary version of the skeletons where the dimensions are shifted by one: 
 
 \begin{lstlisting}[frame=single]
-def RelCWComplex.skeletonLT (C : Set X) {D : Set X} [RelCWComplex C D] (n : ℕ∞) : 
-    Subcomplex C :=
+def RelCWComplex.skeletonLT (C : Set X) {D : Set X} [RelCWComplex C D] 
+    (n : ℕ∞) : Subcomplex C :=
   Subcomplex.mk' _ (D ∪ ⋃ (m : ℕ) (_ : m < n) (j : cell C m), closedCell m j)
     (fun l ↦ {x : cell C l | l < n}) (/-Proof omitted-/) (/-Proof omitted-/)
 \end{lstlisting}
@@ -168,14 +168,15 @@ def RelCWComplex.skeletonLT (C : Set X) {D : Set X} [RelCWComplex C D] (n : ℕ�
 then we can use this to define the usual skeleton: 
 
 \begin{lstlisting}[frame=single]
-abbrev RelCWComplex.skeleton (C : Set X) {D : Set X} [RelCWComplex C D] (n : ℕ∞) : Subcomplex C :=
+abbrev RelCWComplex.skeleton (C : Set X) {D : Set X} [RelCWComplex C D] 
+    (n : ℕ∞) : Subcomplex C :=
   skeletonLT C (n + 1)
 \end{lstlisting}
 
+Since we expect proofs about \lstinline|skeleton| to be short reductions of the claim to the corresponding statement about \lstinline|skeletonLT|, we spare the user the manual unfolding of \lstinline|skeleton| by marking it as an \lstinline|abbrev| instead of a \lstinline|def|.
 For an explanation on \lstinline|abbrev| see Section \ref{sub:leanandmathlib}.
-\todo[plan]{Explain why abbrev was chosen here}
 The definition \lstinline|skeleton| exists mostly for completeness' sake. 
-Both lemmas and definition should use \lstinline|skeletonLT| to make proofs easier and then possibly derive a version for \lstinline|skeleton|
+Both lemmas and definitions should use \lstinline|skeletonLT| to make proofs easier and then possibly derive a version for \lstinline|skeleton|
 
 \todo[comment, inline]{Should subcomplexes and cellular maps go into a seperate section? They don't really fit here but  also think there isn't enough to say to put them in their own section.}
 
@@ -193,6 +194,18 @@ structure CellularMap (C : Set X) {D : Set X} [RelCWComplex C D] (E : Set Y)
 \end{lstlisting}
 
 We also introduce the notion of \emph{cellular equivalences}: \todo{Is that the math name?}
-\todo[plan]{Continue talking about cellular maps here}
 
-\todo[plan]{Mention cellular approximation here}
+\begin{lstlisting}[frame=single]
+structure CellularEquiv (C : Set X) {D : Set X} [RelCWComplex C D] (E : Set Y) 
+    {F : Set Y} [RelCWComplex E F] extends PartialEquiv X Y where
+  continuousOn_toPartialEquiv : ContinuousOn toPartialEquiv C
+  image_toPartialEquiv_skeletonLT_subset' (n : ℕ) :
+    toPartialEquiv '' (skeletonLT C n) ⊆ skeletonLT E n
+  continuousOn_toPartialEquiv_symm : ContinuousOn toPartialEquiv.symm E
+  image_topPartialEquiv_symm_skeletonLT_subset' (n : ℕ) :
+    toPartialEquiv.symm '' (skeletonLT E n) ⊆ skeletonLT C n
+  source_eq : toPartialEquiv.source = C
+  target_eq : toPartialEquiv.target = E
+\end{lstlisting}
+
+\todo[plan]{Mention cellular approximation here?}

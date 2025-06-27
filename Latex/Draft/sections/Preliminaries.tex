@@ -16,19 +16,24 @@ Instead, this fact is comprised of different instances that are automatically co
 More about typeclasses in Lean can be found in \cite{Selsam2020}.\todo[comment]{This feels way too long and clunky to read.}
 
 There are different ways to modify the behaviour of typeclass inference for specific typeclasses. 
-One such way, which we make use of in the definition of CW complexes, is ascribing the property \lstinline|outParam| to an input parameter of the typeclass. 
-An instance of a typeclass depends on its input parameters: for \lstinline|TopologicalSpace X| there is one parameter \lstinline|X|; for \lstinline|Membership α γ|, a typeclass stating that objects of type \lstinline|α| can be considered as elements of objects of type \lstinline|γ|, there are the two parameters \lstinline|α| and \lstinline|γ|.
-Looking for an instance when some of the input parameters are not known would mean significant slowdowns and potentially unwanted results of the search which is why Leans typeclass inference requires all input parameters. 
-But sometimes this behaviour is not desired. 
+One such way, which we make use of in the definition of CW complexes, is ascribing the property \lstinline|outParam| to a parameter of the typeclass. 
+An instance of a typeclass depends on its parameters: for \lstinline|TopologicalSpace X| there is one parameter \lstinline|X|; for \lstinline|Membership α γ|, a typeclass stating that objects of type \lstinline|α| can be considered as elements of objects of type \lstinline|γ|, there are the two parameters \lstinline|α| and \lstinline|γ|.
+Looking for an instance when some of the parameters are not known would mean significant slowdowns and potentially unwanted results of the search, which is why Leans typeclass inference requires all parameters. 
+However, sometimes this behaviour is not desired. 
 As the typical examples for membership instances include things like \lstinline|Membership α (List α)| and \lstinline|Membership α (Set α)|, it makes sense to assume that the first parameter \lstinline|α| can be inferred from the second or is at least uniquely determined by it. 
 \mathlib therefore marks the first parameter as \lstinline|outParam| enabling typeclass inference to run even when this parameter is not known.
-Labeling a parameter as \lstinline|outParam| is an assurance to typeclass inference that for every combination of the input parameters not marked as \lstinline|outParam| there is at most one instance. 
+Labeling a parameter as \lstinline|outParam| is an assurance to typeclass inference that for every combination of the parameters not marked as \lstinline|outParam| there is at most one instance. 
 That means that typeclass inference stops searching for further matches when it finds one that matches the non-\lstinline|outParam| parameters, even if it does not match the \lstinline|outParam| parameter specified by the user. 
 It is important to know that ``matching a parameter'' in this case means being definitionally equal. 
-So even when the parameters are provably but not definitionally equal, Lean will treat corresponding instances as different.
-\todo{Citation for this paragraph? Docs?}
+So even when the parameters are provably but not definitionally equal, Lean will treat corresponding instances as different. 
 
-\todo[plan]{Explain what abbrev does}
+Another technical detail of Lean that we will want to manipulate is reducibility.
+Definitions are not generally unfolded in Lean, meaning that Lean cannot use information about the components that make up an object. 
+However, sometimes this behaviour would be desirable especially for processes like typeclass inference and definitional equality checks. 
+To achieve this behaviour one can use the keyword \lstinline|abbrev| instead of \lstinline|def|. \todo{Example?}
+
+More on \lstinline|outParam| and \lstinline|abbrev| can be found in \cite{LeanReference2025}.
+
 
 \subsection{Preliminary Mathematics in Lean}\label{sub:mathinlean}
 
