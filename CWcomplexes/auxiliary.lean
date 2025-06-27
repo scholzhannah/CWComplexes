@@ -155,64 +155,31 @@ open Polynomial Filter Topology
 variable {𝕜 : Type*} [NormedField 𝕜] [LinearOrder 𝕜]
   [IsStrictOrderedRing 𝕜] (P Q : 𝕜[X]) [OrderTopology 𝕜]
 
-theorem div_tendsto_leadingCoeff_div_of_degree_eq (hdeg : P.degree ≤ Q.degree) :
+theorem div_tendsto_leadingCoeff_div_of_degree_le (hdeg : P.degree ≤ Q.degree) :
     Tendsto (fun x => eval x P / eval x Q) atTop (𝓝 <| P.coeff (natDegree Q) / Q.leadingCoeff) := by
-  sorry
+  rw [le_iff_lt_or_eq] at hdeg
+  rcases hdeg with hdeg | hdeg
+  · suffices P.coeff (natDegree Q) = 0 by
+      rw [this, zero_div]
+      exact div_tendsto_zero_of_degree_lt _ _ hdeg
+    exact coeff_natDegree_eq_zero_of_degree_lt hdeg
+  · rw [← natDegree_eq_of_degree_eq hdeg, coeff_natDegree]
+    exact Polynomial.div_tendsto_leadingCoeff_div_of_degree_eq _ _ hdeg
 
--- add lemma for polynomials ≤
-
--- is this actually better?
-open Set Filter Polynomial in
-theorem tendsto_add_mul_sq_div_add_mul_atTop_nhds' {𝕜 : Type*} [NormedField 𝕜] [LinearOrder 𝕜]
+theorem tendsto_add_mul_sq_div_add_mul_atTop_nhds {𝕜 : Type*} [NormedField 𝕜] [LinearOrder 𝕜]
   [IsStrictOrderedRing 𝕜] [OrderTopology 𝕜] (a b c d e : 𝕜) {f : 𝕜} (hf : f ≠ 0) :
     Tendsto
       (fun k : 𝕜 ↦ (a + c * k + e * k ^ 2) / (b + d * k +  f * k ^ 2)) atTop (nhds (e / f)) := by
-  suffices Tendsto (fun k ↦ ((C a + C c * X + C e * X ^ 2).eval k) /
-      ((C b + C d * X + C f * X ^ 2).eval k)) atTop (nhds (e / f)) by
-    simp_all
-  by_cases he : e = 0
-  · rw [he, zero_div, Polynomial.C_0, zero_mul, add_zero]
-    apply div_tendsto_zero_of_degree_lt
-    have h1 : (C a + C c * X).degree ≤ 1 := by compute_degree
-    have h2 :  (C b + C d * X + C f * X ^ 2).degree = 2 := by compute_degree!
-    exact h2 ▸  h1.trans_lt Nat.one_lt_ofNat
-  · have h1 : (C a + C c * X + C e * X ^ 2).degree = 2 := by compute_degree!
-    have h2 : (C a + C c * X + C e * X ^ 2).leadingCoeff = e := by
-      rw [← coeff_natDegree, natDegree_eq_of_degree_eq_some h1]
-      compute_degree!
-    have h3 : (C b + C d * X + C f * X ^ 2).degree = 2 := by compute_degree!
-    have h4 : (C b + C d * X + C f * X ^ 2).leadingCoeff = f := by
-      rw [← coeff_natDegree, natDegree_eq_of_degree_eq_some h3]
-      compute_degree!
-    nth_rw 2 [← h2, ← h4]
-    apply Polynomial.div_tendsto_leadingCoeff_div_of_degree_eq
-    rw [h1, h3]
-
-open Set Filter in
-theorem tendsto_add_mul_sq_div_add_mul_atTop_nhds {𝕜 : Type*}
-  [Field 𝕜] [LinearOrder 𝕜] [IsStrictOrderedRing 𝕜] [TopologicalSpace 𝕜]
-  [OrderTopology 𝕜] (a b c d e : 𝕜) {f : 𝕜} (hf : f ≠ 0) :
-    Tendsto
-      (fun k : 𝕜 ↦ (a + c * k + e * k ^ 2) / (b + d * k +  f * k ^ 2)) atTop (nhds (e / f)) := by
-  apply Filter.Tendsto.congr'
-  case f₁ => exact fun k ↦ (a * (↑k ^ 2)⁻¹ + c * ↑k⁻¹ + e) / (b * (↑k ^ 2)⁻¹ + d * ↑k⁻¹ + f)
-  · refine (eventually_ne_atTop 0).mp (Eventually.of_forall ?_)
-    intro x hx
-    simp only
-    rw [← mul_div_mul_left _ _ (pow_ne_zero 2 hx)]
-    congrm ?_ / ?_
-    · field_simp
-      ring
-    · field_simp
-      ring
-  · apply Filter.Tendsto.div _ _ hf
-    all_goals
-      apply zero_add (_ : 𝕜) ▸ Filter.Tendsto.add_const  _ _
-      apply zero_add (_ : 𝕜) ▸ Filter.Tendsto.add _ _
-      · apply mul_zero (_ : 𝕜) ▸ Filter.Tendsto.const_mul _ _
-        exact (Filter.tendsto_pow_atTop two_ne_zero).inv_tendsto_atTop
-      · apply mul_zero (_ : 𝕜) ▸ Filter.Tendsto.const_mul _ _
-        exact tendsto_inv_atTop_zero
+  let P := C a + C c * X + C e * X ^ 2
+  let Q := C b + C d * X + C f * X ^ 2
+  suffices Tendsto (fun k ↦ (P.eval k) / (Q.eval k)) atTop (nhds (e / f)) by simp_all [P, Q]
+  have hQ : Q.degree = 2 := by unfold Q; compute_degree!
+  have he : e = P.coeff (natDegree Q) := by simp [natDegree_eq_of_degree_eq_some hQ, P]
+  have hf : f = Q.leadingCoeff := by simp [← coeff_natDegree, natDegree_eq_of_degree_eq_some hQ, Q]
+  rw [he, hf]
+  apply div_tendsto_leadingCoeff_div_of_degree_le
+  simp_rw [hQ, P]
+  compute_degree
 
 /-- As we approach infinite norm the inverse of hte stereographic projection `stereographic`
   approaches the center of the projection. -/
