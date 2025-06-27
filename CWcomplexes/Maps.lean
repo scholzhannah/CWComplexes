@@ -591,7 +591,7 @@ lemma RelCWComplex.piecewise_apply_of_mem_base [RelCWComplex C D]
     {f : ∀ n (_ : cell C n), X → Y} {fD : X → Y} {fX : X → Y} {x : X}
     (hx : x ∈ D) : piecewise f fD fX x = fD x := by
   have : ¬ ∃ (n : ℕ) (j : cell C n), x ∈ openCell n j :=
-    fun ⟨n, j, h⟩ ↦ (disjointBase n j).not_mem_of_mem_left h hx
+    fun ⟨n, j, h⟩ ↦ (disjointBase n j).notMem_of_mem_left h hx
   simp_all [piecewise]
 
 lemma RelCWComplex.piecewise_apply_of_not_mem_complex [RelCWComplex C D]
