@@ -146,7 +146,7 @@ structure CellularEquiv (C : Set X) {D : Set X} [RelCWComplex C D] (E : Set Y) {
   continuousOn_toPartialEquiv : ContinuousOn toPartialEquiv C
   /-- `toPartialEquiv` sends the `n`-skeleton of the CW complex `C` to the `n`-skeleton of the CW
   complex`E`. -/
-  image_topPartialEquiv_skeletonLT_subset' (n : ℕ) :
+  image_toPartialEquiv_skeletonLT_subset' (n : ℕ) :
     toPartialEquiv '' (skeletonLT C n) ⊆ skeletonLT E n
   /-- `toPartialEquiv.symm` is continuous on the domain of the CW complex `E`.
   Use `CellularEquiv.continuousOn_symm` instead. -/
@@ -171,7 +171,7 @@ instance : CoeFun (CellularEquiv C E) fun _ => X → Y :=
 def toCellularMap (e : CellularEquiv C E) : CellularMap C E where
   toFun := e
   continuousOn_toFun := e.continuousOn_toPartialEquiv
-  image_skeletonLT_subset' := e.image_topPartialEquiv_skeletonLT_subset'
+  image_skeletonLT_subset' := e.image_toPartialEquiv_skeletonLT_subset'
 
 /-- Coercion of a cellular equivalence to a cellular map. -/
 instance : Coe (CellularEquiv C E) (CellularMap C E) := ⟨fun e => e.toCellularMap⟩
@@ -181,9 +181,9 @@ instance : Coe (CellularEquiv C E) (CellularMap C E) := ⟨fun e => e.toCellular
 protected def symm : CellularEquiv E C where
   toPartialEquiv := e.toPartialEquiv.symm
   continuousOn_toPartialEquiv := e.continuousOn_toPartialEquiv_symm
-  image_topPartialEquiv_skeletonLT_subset' n := e.image_topPartialEquiv_symm_skeletonLT_subset' n
+  image_toPartialEquiv_skeletonLT_subset' n := e.image_topPartialEquiv_symm_skeletonLT_subset' n
   continuousOn_toPartialEquiv_symm := e.continuousOn_toPartialEquiv
-  image_topPartialEquiv_symm_skeletonLT_subset' n := e.image_topPartialEquiv_skeletonLT_subset' n
+  image_topPartialEquiv_symm_skeletonLT_subset' n := e.image_toPartialEquiv_skeletonLT_subset' n
   source_eq := e.target_eq
   target_eq := e.source_eq
 
@@ -259,7 +259,7 @@ def replaceEquiv (e : CellularEquiv C E) (e' : PartialEquiv X Y) (h : e.toPartia
     CellularEquiv C E where
   toPartialEquiv := e'
   continuousOn_toPartialEquiv := h ▸ e.continuousOn_toPartialEquiv
-  image_topPartialEquiv_skeletonLT_subset' := h ▸ e.image_topPartialEquiv_skeletonLT_subset'
+  image_toPartialEquiv_skeletonLT_subset' := h ▸ e.image_toPartialEquiv_skeletonLT_subset'
   continuousOn_toPartialEquiv_symm := h ▸ e.continuousOn_toPartialEquiv_symm
   image_topPartialEquiv_symm_skeletonLT_subset' :=
     h ▸ e.image_topPartialEquiv_symm_skeletonLT_subset'
@@ -450,13 +450,13 @@ def restr [T2Space X] [T2Space Y] (C' : Subcomplex C) (E' : Subcomplex E) (h : e
     CellularEquiv C' (D := D) E' (F := F) where
   toPartialEquiv := h.toPartialEquiv.restr
   continuousOn_toPartialEquiv := e.continuousOn.mono C'.subset_complex
-  image_topPartialEquiv_skeletonLT_subset' n := by
+  image_toPartialEquiv_skeletonLT_subset' n := by
     simp_rw [PartialEquiv.IsImage.restr_apply, Subcomplex.skeletonLT_eq]
     apply (image_inter_subset _ _ _).trans
     rw [← inter_eq_right.2 C'.subset_complex]
     simp_rw [← e.source_eq, h.image_eq, e.target_eq, inter_eq_right.2 E'.subset_complex]
     apply inter_subset_inter_right
-    exact e.image_topPartialEquiv_skeletonLT_subset' n
+    exact e.image_toPartialEquiv_skeletonLT_subset' n
   continuousOn_toPartialEquiv_symm := e.continuousOn_symm.mono E'.subset_complex
   image_topPartialEquiv_symm_skeletonLT_subset' n := by
     simp only [PartialEquiv.IsImage.restr_symm_apply, coe_coe_symm, symm_toPartialEquiv,
@@ -466,7 +466,7 @@ def restr [T2Space X] [T2Space Y] (C' : Subcomplex C) (E' : Subcomplex E) (h : e
     simp_rw [← e.symm.source_eq, h.symm.image_eq, e.symm.target_eq,
       inter_eq_right.2 C'.subset_complex]
     apply inter_subset_inter_right
-    exact e.symm.image_topPartialEquiv_skeletonLT_subset' n
+    exact e.symm.image_toPartialEquiv_skeletonLT_subset' n
   source_eq := by simp [e.source_eq, C'.subset_complex]
   target_eq := by simp [e.target_eq, E'.subset_complex]
 
