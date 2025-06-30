@@ -21,14 +21,18 @@ class RelCWComplex.Finite {X : Type*} [TopologicalSpace X] (C : Set X)
     {D : Set X} [RelCWComplex C D] extends FiniteDimensional C, FiniteType C
 \end{lstlisting}
 
-When defining a CW complex of finite type, we can add a condition stating that the type of cells in each dimension is finite and relax the condition \lstinline|mapsTo| of Figure \ref{def:cwcomplex} to be
+Here, ``\lstinline|∀ᶠ n in Filter.atTop, IsEmpty (cell C n)|'' uses \emph{filters} to state that, eventually, for large enough \lstinline|n| all types \lstinline|cell C n| are empty. 
+Filters are used extensively throughout \mathlib. 
+More on filters and their use in \mathlib can be found in ???\todo{Cite something}. 
+
+When defining a CW complex of finite type, we can add a condition stating that the type of cells in each dimension is finite and relax the condition \lstinline|mapsTo| of Figure \ref{fig:def} to be
 
 \begin{lstlisting}[frame=single]
 mapsTo : ∀ (n : ℕ) (i : cell n), MapsTo (map n i) (sphere 0 1) (D ∪ ⋃ (m < n) (j : cell m), map m j '' closedBall 0 1)
 \end{lstlisting}
 
 When constructing a finite CW complex, we can again add conditions stating that the type of cells in each dimension is finite and that starting at a large enough dimension it is empty.
-In exchange, we can drop the condition \lstinline|closed'| of Figure \ref{def:cwcomplex} and modify the condition \lstinline|mapsTo| in the way described above. 
+In exchange, we can drop the condition \lstinline|closed'| of Figure \ref{fig:def} and modify the condition \lstinline|mapsTo| in the way described above. 
 We provide constructors for both of these situations.
 
 We then show that a CW complex is finite iff it is compact and that a compact subset of a CW complex is contained in a finite subcomplex.

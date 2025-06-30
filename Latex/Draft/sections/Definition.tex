@@ -79,7 +79,7 @@ We omit the requirement for $X$ to be a Hausdorff space and instead naturally re
 
 The base $D$ is an \lstinline|outParam|. 
 This is because lemma statements about CW complexes typically refer to just the underlying set \lstinline|C| without mentioning the base \lstinline|D|. 
-Typically, for typeclass inference to run the user would have to go out of their way to specify \lstinline|D|. 
+Normally, for typeclass inference to run the user would have to go out of their way to specify \lstinline|D|. 
 But this requirement of typeclass inference can be disabled by adding the \lstinline|outParam| specification.
 The purpose and consequences of using \lstinline|outParam| are discussed in more detail in Section \ref{sub:leanandmathlib}.
 In particular this eases using typeclass inference but it can have unfortunate consequences when there are two CW complexes with the same underlying set but different bases.
@@ -88,23 +88,23 @@ While we do not expect there to be instances on the same set with a different ba
 Typeclass inference can fail in these situations and the instances need to be provided manually. 
 An example will be discussed later in ???. 
 
-In topology most CW complexes that are considered have empty base and often the term ``CW complex'' refers to this type of complex. 
+In topology, most CW complexes that are considered have empty base and often the term ``CW complex'' refers to this type of complex. 
 Those CW complexes are called \emph{absolute CW complexes}. 
 
-Most naturally one would simply define CW complexes in Lean in the same way: as a relative CW complex with empty base.
+Most naturally one would simply define absolute CW complexes in Lean in the same way: as a relative CW complex with empty base. \todo[comment]{Code example of what I mean?}
 However, this leads to two issues: 
 firstly, when defining an absolute CW complex there are now trivial proofs that need to be provided and some simplifications that need to be performed for every new instance and definition. 
-This produces a lot of duplicate code. 
+This produces a lot of duplicate code or requires a separate definition that is used as a replacement constructor. 
 Secondly, absolute CW complexes are precisely where we have encountered instances on the same set with probably but not definitionally equal base sets. 
-Constructions for relative CW complexes, e.g. products, produce instances for which in the case of an absolute CW complex the base is provably equal to the empty set but not definitionally so. 
-In that case we define an instance specifically for absolute CW complexes and want this to be inferred over the relative version. 
+Constructions for relative CW complexes, e.g.\ products, produce instances for which, in the case of an absolute CW complex, the base is provably equal to the empty set but not definitionally so. 
+In that case, we define an instance specifically for absolute CW complexes and want this to be inferred over the relative version. 
 But since $D$ is an \lstinline|outParam|, we cannot specify typeclass inference to be looking for a base that is definitionally equal to the empty set. 
 
-The solution is to have absolute CW complexes be their own class that agrees with relative CW complexes except for the trivial proofs and simplifications. 
+The solution is to have absolute CW complexes be their own class that agrees with relative CW complexes except for the empty base, trivial proofs and simplifications. 
 The type of absolute CW complexes on the set $C$ in Lean is \lstinline|CWComplex C|. 
-We then provide an instance stating that absolute CW complexes are relative CW complexes and a definition in the other direction.
+We then provide an instance stating that absolute CW complexes are relative CW complexes and a definition in the other direction for relative CW complexes with empty base.
 The latter cannot be an instance as this would create an instance loop. \todo{I think there was another reason?}
-To avoid having duplicate notions \lstinline|CWComplex.cell| and \lstinline|RelCWComplex.cell| of the type of cells and \lstinline|CWComplex.map| and \lstinline|RelCWComplex.map| we mark the version for absolute CW complexes as \lstinline|protected| strongly encouraging the user to only use the version for relative CW complexes which is also available for absolute ones through the instance.\todo[comment]{Explain protected above?}
+To avoid having duplicate notions \lstinline|CWComplex.cell| and \lstinline|RelCWComplex.cell| and \lstinline|CWComplex.map| and \lstinline|RelCWComplex.map|, we mark the version for absolute CW complexes as \lstinline|protected| strongly encouraging the user to only use the version for relative CW complexes which is also available for absolute ones through the instance.\todo[comment]{Explain protected above?}
 \todo[plan]{Talk about the priority of the instance? I think Floris said no}
 \todo[plan]{Talk about the whole export mess?}
 
@@ -147,16 +147,16 @@ def RelCWComplex.Subcomplex.mk'' [T2Space X] (C : Set X) {D : Set X}
 We show that subcomplexes are again CW complexes and that the type of subcomplexes of a specific CW complex has the structure of a \lstinline|CompletelyDistribLattice|. 
 See Section \ref{sub:mathinlean} for an explanation of that structure.  
 
-Defining subcomplexes allows aus to talk about the skeletons of a CW complex. 
+Defining subcomplexes allows us to talk about the skeletons of a CW complex. 
 The typical definition of the $n$-skeleton in the following: 
 
 \begin{defi}
   The $n$-skeleton of a CW complex $C$ is defined as $C_n \coloneq \bigcup_{m < n + 1} \bigcup_{i \in I_m} \closedCell{m}{i}$ where $-1 \le n \le \infty$.
 \end{defi}
 
-Since proofs about CW complexes frequently employ induction, we want to make using that proof technique as easy as possible. 
+Since proofs about CW complexes frequently employ induction, we want to make using this proof technique as easy as possible. 
 Starting an induction at $-1$ is unfortunately not that convenient in Lean. 
-For that reason we first define an auxiliary version of the skeletons where the dimensions are shifted by one: 
+For that reason, we first define an auxiliary version of the skeletons where the dimensions are shifted by one: 
 
 \begin{lstlisting}[frame=single]
 def RelCWComplex.skeletonLT (C : Set X) {D : Set X} [RelCWComplex C D] 
@@ -176,13 +176,13 @@ abbrev RelCWComplex.skeleton (C : Set X) {D : Set X} [RelCWComplex C D]
 Since we expect proofs about \lstinline|skeleton| to be short reductions of the claim to the corresponding statement about \lstinline|skeletonLT|, we spare the user the manual unfolding of \lstinline|skeleton| by marking it as an \lstinline|abbrev| instead of a \lstinline|def|.
 For an explanation on \lstinline|abbrev| see Section \ref{sub:leanandmathlib}.
 The definition \lstinline|skeleton| exists mostly for completeness' sake. 
-Both lemmas and definitions should use \lstinline|skeletonLT| to make proofs easier and then possibly derive a version for \lstinline|skeleton|
+Both lemmata and definitions should use \lstinline|skeletonLT| to make proofs easier and then possibly derive a version for \lstinline|skeleton|.
 
 \todo[comment, inline]{Should subcomplexes and cellular maps go into a seperate section? They don't really fit here but  also think there isn't enough to say to put them in their own section.}
 
 We also want to introduce a sensible notion of structure preserving maps between CW complexes.
-A natural notion are \emph{cellular maps}. 
-A cellular map is a continuous map between two CW complexes $X$ and $Y$ that send the $n$-skeleton of $X$ to the $n$-skeleton of $Y$ for every $n$.
+A natural notion is a \emph{cellular map}. 
+A cellular map is a continuous map between two CW complexes $X$ and $Y$ that sends the $n$-skeleton of $X$ to the $n$-skeleton of $Y$ for every $n$.
 In Lean this definition translates to: 
 
 \begin{lstlisting}[frame=single]

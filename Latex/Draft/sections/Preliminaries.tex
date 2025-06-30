@@ -29,7 +29,7 @@ So even when the parameters are provably but not definitionally equal, Lean will
 
 Another technical detail of Lean that we will want to manipulate is reducibility.
 Definitions are not generally unfolded in Lean, meaning that Lean cannot use information about the components that make up an object. 
-However, sometimes this behaviour would be desirable especially for processes like typeclass inference and definitional equality checks. 
+However, sometimes this behaviour would be desirable, especially, for processes like typeclass inference and definitional equality checks. 
 To achieve this behaviour one can use the keyword \lstinline|abbrev| instead of \lstinline|def|. \todo{Example?}
 
 More on \lstinline|outParam| and \lstinline|abbrev| can be found in \cite{LeanReference2025}.
@@ -43,7 +43,7 @@ A function \lstinline|f : X → Y| between two topological spaces \lstinline|X| 
 \mathlib also implements various separation axioms: to specify that a topological space \lstinline|X| is Hausdorff one can write \lstinline|T2Space X|.
 
 A non-topological concept that we will need is \lstinline|PartialEquiv| which is \mathlib's version of a partial bijection. 
-To define a \lstinline|PartialEquiv X Y| for two types \lstinline|X| and \lstinline|Y| one needs to provide as data a total function on \lstinline|X|, another total function on \lstinline|Y| a set in \lstinline|X| called the \emph{source} and a set in \lstinline|Y| called the \emph{target}. 
+To define a \lstinline|PartialEquiv X Y| for two types \lstinline|X| and \lstinline|Y| one needs to provide as data a total function on \lstinline|X|, another total function on \lstinline|Y|, a set in \lstinline|X| called the \emph{source} and a set in \lstinline|Y| called the \emph{target}. 
 Additionally, one needs to prove that the target is mapped to the source and vice versa and that the two maps are inverse to each other on both the source and target. 
 \todo[comment]{Explanation of PartialEquiv too detailed?}
 
