@@ -6,8 +6,8 @@ To specify that a cell is the image of an $n$-dimensional disc, one can call it 
 The cells up to and including dimension $n$ make up what is called the \emph{$n$-skeleton}.
 In a \emph{relative CW complex} these discs can additionally be attached to a specified base set. 
 
-The different definitions of CW complexes present in the literature can be broadly categorized into two approaches: firstly there is the ``classical'' approach that sticks closely in style to Whitehead's original definition in \cite{Whitehead2018}.
-This definition assumes the cells to all lie in one topological space and then describes how the cells interact with each other and the space.
+The different definitions of CW complexes present in the literature can be broadly categorized into two approaches: firstly, there is the ``classical'' approach that sticks closely in style to \citeauthor{Whitehead2018}s original definition in \cite{Whitehead2018}.
+This definition assumes the cells to all lie in one topological space and then describes how they interact with each other and the space.
 Secondly, there is a popular approach that is more categorical in nature. 
 In this version the skeletons are regarded as different spaces and the definition describes how to construct the ($n+1$)-skeleton from the $n$-skeleton. 
 The CW complex is then defined as the colimit of the skeletons. 
@@ -15,6 +15,7 @@ The CW complex is then defined as the colimit of the skeletons.
 At the start of this project neither of the approaches had been formalized in Lean. 
 We chose to proceed with the former approach because it avoids having to deal with different topological spaces and inclusions between them. 
 As the other approach has been formalized by ??? \todo{Current authorship is unclear to me}, both are now formalized and part of \mathlib. 
+Our version can be found as \lstinline|Topology.RelCWComplex|, while the other one is \lstinline|TopCat.RelativeCWComplex|.
 
 The definition chosen for formalization is the following: 
 
@@ -72,7 +73,7 @@ This approach is inspired by \cite{Gonthier2013}, where the authors notice that 
 
 Even though the behaviour of a CW complex depends strongly on its data and there can be different ``non-equivalent'' CW structures on the same space, we have chosen to make it a \lstinline|class|, effectively treating it more like a property than a structure. 
 This is to be able to make use of Lean's typeclass inference.
-A short explanation typeclass inference can be found in Section \ref{sub:leanandmathlib}.
+A short explanation of typeclass inference can be found in Section \ref{sub:leanandmathlib}.
 \todo[comment]{Is this too basic?}
 
 We omit the requirement for $X$ to be a Hausdorff space and instead naturally require it for most of the lemmata. 
@@ -80,9 +81,9 @@ We omit the requirement for $X$ to be a Hausdorff space and instead naturally re
 The base $D$ is an \lstinline|outParam|. 
 This is because lemma statements about CW complexes typically refer to just the underlying set \lstinline|C| without mentioning the base \lstinline|D|. 
 Normally, for typeclass inference to run the user would have to go out of their way to specify \lstinline|D|. 
-But this requirement of typeclass inference can be disabled by adding the \lstinline|outParam| specification.
+But this requirement can be disabled by adding the \lstinline|outParam| specification.
 The purpose and consequences of using \lstinline|outParam| are discussed in more detail in Section \ref{sub:leanandmathlib}.
-In particular this eases using typeclass inference but it can have unfortunate consequences when there are two CW complexes with the same underlying set but different bases.
+In particular, this eases using typeclass inference but it can have unfortunate consequences when there are two CW complexes with the same underlying set but different bases.
 
 While we do not expect there to be instances on the same set with a different base, we have encountered instances where the base is provably equal but not definitionally so. 
 Typeclass inference can fail in these situations and the instances need to be provided manually. 
@@ -121,7 +122,7 @@ structure Subcomplex (C : Set X) {D : Set X} [RelCWComplex C D] where
   union' : D ∪ ⋃ (n : ℕ) (j : I n), openCell (C := C) n j = carrier
 \end{lstlisting}
 
-We provide additional definitions for other ways of describing them: firstly, as a union of open cells where the closure of every cell is already contained in the union and secondly, as union of open cells that is also a CW complex.
+We provide additional definitions for other ways of describing them: firstly, as a union of open cells where the closure of every cell is already contained in the union and secondly, as a union of open cells that is also a CW complex.
 
 \begin{lstlisting}[frame=single]
 def RelCWComplex.Subcomplex.mk' [T2Space X] (C : Set X) {D : Set X} 
@@ -156,7 +157,7 @@ The typical definition of the $n$-skeleton in the following:
 
 Since proofs about CW complexes frequently employ induction, we want to make using this proof technique as easy as possible. 
 Starting an induction at $-1$ is unfortunately not that convenient in Lean. 
-For that reason, we first define an auxiliary version of the skeletons where the dimensions are shifted by one: 
+For this reason, we first define an auxiliary version of the skeletons where the dimensions are shifted by one: 
 
 \begin{lstlisting}[frame=single]
 def RelCWComplex.skeletonLT (C : Set X) {D : Set X} [RelCWComplex C D] 
@@ -165,7 +166,7 @@ def RelCWComplex.skeletonLT (C : Set X) {D : Set X} [RelCWComplex C D]
     (fun l ↦ {x : cell C l | l < n}) (/-Proof omitted-/) (/-Proof omitted-/)
 \end{lstlisting}
 
-then we can use this to define the usual skeleton: 
+Then we can use this to define the usual skeleton: 
 
 \begin{lstlisting}[frame=single]
 abbrev RelCWComplex.skeleton (C : Set X) {D : Set X} [RelCWComplex C D] 

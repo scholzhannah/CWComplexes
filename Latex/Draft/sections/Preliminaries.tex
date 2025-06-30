@@ -18,7 +18,7 @@ More about typeclasses in Lean can be found in \cite{Selsam2020}.\todo[comment]{
 There are different ways to modify the behaviour of typeclass inference for specific typeclasses. 
 One such way, which we make use of in the definition of CW complexes, is ascribing the property \lstinline|outParam| to a parameter of the typeclass. 
 An instance of a typeclass depends on its parameters: for \lstinline|TopologicalSpace X| there is one parameter \lstinline|X|; for \lstinline|Membership α γ|, a typeclass stating that objects of type \lstinline|α| can be considered as elements of objects of type \lstinline|γ|, there are the two parameters \lstinline|α| and \lstinline|γ|.
-Looking for an instance when some of the parameters are not known would mean significant slowdowns and potentially unwanted results of the search, which is why Leans typeclass inference requires all parameters. 
+Looking for an instance when some of the parameters are not known would mean slowdowns and potentially unwanted search results, which is why Leans typeclass inference requires all parameters. 
 However, sometimes this behaviour is not desired. 
 As the typical examples for membership instances include things like \lstinline|Membership α (List α)| and \lstinline|Membership α (Set α)|, it makes sense to assume that the first parameter \lstinline|α| can be inferred from the second or is at least uniquely determined by it. 
 \mathlib therefore marks the first parameter as \lstinline|outParam| enabling typeclass inference to run even when this parameter is not known.
