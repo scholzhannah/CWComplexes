@@ -709,13 +709,13 @@ export RelCWComplex (skeletonLT skeletonLT_carrier skeletonLT_I skeleton
 end CWComplex
 
 lemma RelCWComplex.skeletonLT_zero_eq_base [RelCWComplex C D] : skeletonLT C 0 = D := by
-  simp only [skeletonLT_def, ENat.not_lt_zero, iUnion_of_empty, iUnion_empty, union_empty]
+  simp
 
 lemma CWComplex.skeletonLT_zero_eq_empty [CWComplex C] : (skeletonLT C 0 : Set X) = ∅ :=
     RelCWComplex.skeletonLT_zero_eq_base
 
 @[simp] lemma RelCWComplex.skeletonLT_top [RelCWComplex C D] : skeletonLT C ⊤ = C := by
-  simp [skeletonLT_def, union]
+  simp [union]
 
 @[simp] lemma RelCWComplex.skeleton_top [RelCWComplex C D] : skeleton C ⊤ = C := skeletonLT_top
 
@@ -845,7 +845,7 @@ lemma RelCWComplex.mem_skeletonLT_iff [RelCWComplex C D] {n : ℕ∞} {x : X} :
 
 lemma CWComplex.mem_skeletonLT_iff [CWComplex C] {n : ℕ∞} {x : X} :
     x ∈ skeletonLT C n ↔ ∃ (m : ℕ) (_ : m < n) (j : cell C m), x ∈ openCell m j := by
-  simp only [Subcomplex.mem, ← iUnion_openCell_eq_skeletonLT, mem_union, mem_iUnion, exists_prop]
+  simp only [Subcomplex.mem, ← iUnion_openCell_eq_skeletonLT, mem_iUnion, exists_prop]
 
 lemma RelCWComplex.mem_skeleton_iff [RelCWComplex C D] {n : ℕ∞} {x : X} :
     x ∈ skeleton C n ↔ x ∈ D ∨ ∃ (m : ℕ) (_ : m ≤ n) (j : cell C m), x ∈ openCell m j := by

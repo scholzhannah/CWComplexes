@@ -157,8 +157,7 @@ lemma RelCWComplex.compact_inter_finite [RelCWComplex C D] (A : Set X) (compact 
   -- Since it is a closed subset of a compact set it is also compact.
   -- But a compact set with discrete topology must be finite. Contradiction.
   by_contra h
-  simp only [TopologicalSpace.Compacts.carrier_eq_coe, not_disjoint_iff, SetLike.mem_coe,
-    not_finite_iff_infinite] at h
+  simp only [not_disjoint_iff, not_finite_iff_infinite] at h
   let p (m : Σ (m : ℕ), { j : cell C m // ∃ x ∈ A, x ∈ openCell m j}) :=
     Classical.choose (m.2).2
   let hp m : p m ∈ A ∧ p m ∈ openCell m.1 m.2 := by
@@ -178,7 +177,7 @@ lemma RelCWComplex.compact_inter_finite [RelCWComplex C D] (A : Set X) (compact 
     use p ⟨m, j, hj⟩
   have subsetA : P ⊆ A := by
     intro x xmem
-    simp only [mem_image, image_univ, mem_range, P] at xmem
+    simp only [image_univ, mem_range, P] at xmem
     obtain ⟨n, rfl⟩ := xmem
     exact (hp n).1
   -- `P` has discrete topology:
@@ -279,7 +278,7 @@ lemma RelCWComplex.compact_inter_finite_subset [RelCWComplex C D] (A : Set X)
     (⟨x.1, ⟨x.2.1, x.2.2⟩⟩ : Σ (m : ℕ), {j : cell C m // ¬ Disjoint A (openCell m j)})
   apply @Finite.of_injective _ _ (compact_inter_finite A compact) f
   intro ⟨x1, x2, x3⟩ ⟨y1, y2, y3⟩ eq
-  simp only [TopologicalSpace.Compacts.carrier_eq_coe, Sigma.mk.inj_iff, f] at eq
+  simp only [Sigma.mk.inj_iff, f] at eq
   rcases eq with ⟨rfl, eq⟩
   simp only [heq_eq_eq, Subtype.mk.injEq, Subtype.val_inj] at eq
   simp_rw [eq]
@@ -302,9 +301,9 @@ lemma RelCWComplex.compact_inter_finite_subset' [RelCWComplex C D] (A : Set X)
     {x : Σ (n : ℕ), cell C n // ¬Disjoint A (openCell (D := D) x.fst x.snd)})
   apply @Finite.of_injective _ _ (compact_inter_finite' A compact) f
   intro ⟨⟨x1, x2⟩, x3⟩ ⟨⟨y1, y2⟩, y3⟩ eq
-  simp only [TopologicalSpace.Compacts.carrier_eq_coe, Subtype.mk.injEq, Sigma.mk.inj_iff, f] at eq
+  simp only [Subtype.mk.injEq, Sigma.mk.inj_iff, f] at eq
   rcases eq with ⟨rfl, eq⟩
-  simp only [heq_eq_eq, Subtype.mk.injEq, Subtype.val_inj] at eq
+  simp only [heq_eq_eq, Subtype.val_inj] at eq
   simp_rw [eq]
 
 -- I will probably need a relative version of this someday but right now I don't know what.

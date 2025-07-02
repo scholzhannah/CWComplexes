@@ -95,8 +95,7 @@ lemma RelCWComplex.iUnion_prodcell [RelCWComplex C D] [RelCWComplex E F] :
     ⋃ n, ⋃ (e : prodCell C E n), prodmap e '' closedBall 0 1
     = (⋃ m, ⋃ (i : cell C m), closedCell m i) ×ˢ ⋃ l, ⋃ (j : cell E l), closedCell l j := by
   ext x
-  simp only [prodmap_image_closedBall, iUnion_psigma, iUnion_sigma, prod_iUnion,
-    iUnion_prod_const, iUnion_prod, mem_iUnion]
+  simp only [prodmap_image_closedBall, prod_iUnion, iUnion_prod_const, mem_iUnion]
   constructor
   · intro ⟨n, e, he⟩
     use e.l, e.k, e.m, e.j
@@ -186,9 +185,9 @@ instance RelCWComplex.Product [RelCWComplex C D] [RelCWComplex E F] [KSpace (X �
         (J1 o ×ˢ {k}).image fun (x, y) ↦ ⟨o, l, by rw [← h']; simpa using h, x, y⟩ else ∅)
       intro ⟨x1, x2⟩ ⟨x1mem, x2mem⟩
       specialize hJ1 x1mem
-      simp only [mem_union, mem_iUnion, exists_prop, Prod.mk.eta, Finset.product_singleton,
-        Finset.mem_biUnion, Finset.mem_attach, true_and, Subtype.exists, Finset.mem_antidiagonal,
-        Prod.exists, iUnion_exists, id_eq, eq_mp_eq_cast, eq_mpr_eq_cast, exists_and_right] at hJ1 ⊢
+      simp only [mem_union, mem_iUnion, exists_prop, Finset.product_singleton, Finset.mem_biUnion,
+        Finset.mem_attach, true_and, Subtype.exists, Finset.mem_antidiagonal, Prod.exists,
+        iUnion_exists, exists_and_right] at hJ1 ⊢
       rcases hJ1 with hx1D | hJ1
       · left; left
         rw [mem_prod]
@@ -206,9 +205,9 @@ instance RelCWComplex.Product [RelCWComplex C D] [RelCWComplex E F] [KSpace (X �
         ({j} ×ˢ J2 p).image fun (x, y) ↦ ⟨m, p, by rw [← h']; simpa using h, x, y⟩ else ∅)
       intro ⟨x1, x2⟩ ⟨x1mem, x2mem⟩
       replace hJ2 := hJ2 x2mem
-      simp only [mem_union, mem_iUnion, exists_prop, Prod.mk.eta, Finset.mem_biUnion,
-        Finset.mem_attach, true_and, Subtype.exists, Finset.mem_antidiagonal, Prod.exists,
-        iUnion_exists, id_eq, eq_mp_eq_cast, eq_mpr_eq_cast, exists_and_right] at hJ2 ⊢
+      simp only [mem_union, mem_iUnion, exists_prop, Finset.mem_biUnion, Finset.mem_attach,
+        true_and, Subtype.exists, Finset.mem_antidiagonal, Prod.exists, iUnion_exists,
+        exists_and_right] at hJ2 ⊢
       rcases hJ2 with hx2F | hJ2
       · left; right
         rw [mem_prod]
@@ -329,7 +328,7 @@ instance RelCWComplex.finiteDimensional_product [KSpace (X × Y)] [RelCWComplex 
     obtain ⟨e, he⟩ := hE
     use c + e
     intro n hn
-    simp [prodCell]
+    simp only [Product_cell]
     rw [isEmpty_iff]
     intro ⟨m, l, hml, j, k⟩
     rw [← hml] at hn
@@ -448,9 +447,9 @@ instance RelCWComplex.ProductKification [RelCWComplex C D] [RelCWComplex E F] :
         (J1 o ×ˢ {k}).image fun (x, y) ↦ ⟨o, l, by rw [← h']; simpa using h, x, y⟩ else ∅)
       intro ⟨x1, x2⟩ ⟨x1mem, x2mem⟩
       replace hJ1 := hJ1 x1mem
-      simp only [mem_union, mem_iUnion, exists_prop, Prod.mk.eta, Finset.product_singleton,
-        Finset.mem_biUnion, Finset.mem_attach, true_and, Subtype.exists, Finset.mem_antidiagonal,
-        Prod.exists, iUnion_exists, id_eq, eq_mp_eq_cast, eq_mpr_eq_cast, exists_and_right] at hJ1 ⊢
+      simp only [mem_union, mem_iUnion, exists_prop, Finset.product_singleton, Finset.mem_biUnion,
+        Finset.mem_attach, true_and, Subtype.exists, Finset.mem_antidiagonal, Prod.exists,
+        iUnion_exists, exists_and_right] at hJ1 ⊢
       rcases hJ1 with hx1D | hJ1
       · left; left
         rw [mem_prod]
@@ -468,9 +467,9 @@ instance RelCWComplex.ProductKification [RelCWComplex C D] [RelCWComplex E F] :
         ({j} ×ˢ J2 p).image fun (x, y) ↦ ⟨m, p, by rw [← h']; simpa using h, x, y⟩ else ∅)
       intro ⟨x1, x2⟩ ⟨x1mem, x2mem⟩
       replace hJ2 := hJ2 x2mem
-      simp only [mem_union, mem_iUnion, exists_prop, Prod.mk.eta, Finset.mem_biUnion,
-        Finset.mem_attach, true_and, Subtype.exists, Finset.mem_antidiagonal, Prod.exists,
-        iUnion_exists, id_eq, eq_mp_eq_cast, eq_mpr_eq_cast, exists_and_right] at hJ2 ⊢
+      simp only [mem_union, mem_iUnion, exists_prop, Finset.mem_biUnion, Finset.mem_attach,
+        true_and, Subtype.exists, Finset.mem_antidiagonal, Prod.exists, iUnion_exists,
+        exists_and_right] at hJ2 ⊢
       rcases hJ2 with hx2F | hJ2
       · left; right
         rw [mem_prod]
@@ -559,7 +558,7 @@ instance RelCWComplex.ProductKification [RelCWComplex C D] [RelCWComplex E F] :
     · refine union_subset (union_subset (prod_mono base_subset_complex Subset.rfl)
           (prod_mono Subset.rfl base_subset_complex)) ?_
       intro x
-      simp only [mem_iUnion, mem_prod]
+      simp only [mem_iUnion]
       intro ⟨n, ⟨m, l, eq, i, j⟩, h⟩
       rw [prodmap_image_closedBall] at h
       exact ⟨closedCell_subset_complex m i h.1, closedCell_subset_complex l j h.2⟩

@@ -75,8 +75,7 @@ instance RelCWComplex.Subcomplex.instRelCWComplex [T2Space X] [RelCWComplex C D]
   continuousOn_symm n i := continuousOn_symm (C := C) n i
   pairwiseDisjoint' := by
     simp only [PairwiseDisjoint, Set.Pairwise, mem_univ, ne_eq, Function.onFun,
-      disjoint_iff_inter_eq_empty, true_implies, Sigma.forall, Subtype.forall,
-      not_and]
+      disjoint_iff_inter_eq_empty, true_implies, Sigma.forall, Subtype.forall]
     intro n j _ m i _ eq
     refine (disjoint_openCell_of_ne ?_).inter_eq
     simp_all only [Sigma.mk.inj_iff, not_and, ne_eq]
@@ -230,8 +229,7 @@ protected def RelCWComplex.Subcomplex.inf [RelCWComplex C D] (E F : Subcomplex C
       simp only [subset_inter_iff, iUnion_subset_iff, subset_refl, implies_true, and_true]
       exact fun hi hi' ↦ subset_iUnion_of_subset hi Subset.rfl
     · intro x
-      simp only [mem_inter_iff, mem_iUnion, exists_prop, exists_and_left, and_imp,
-        forall_exists_index]
+      simp only [mem_inter_iff, mem_iUnion, exists_prop, and_imp, forall_exists_index]
       intro n i hi hxi m j hj hxj
       use n, i, hi
       refine ⟨?_, hxi⟩
@@ -313,9 +311,7 @@ protected def RelCWComplex.Subcomplex.sSup' [T2Space X] [RelCWComplex C D]
         rw [iUnion_comm]
         apply iUnion_congr fun E ↦ ?_
         rw [iUnion_comm]
-      · simp_all only [nonempty_subtype, not_exists, iUnion_of_empty, iUnion_empty,
-        isEmpty_coe_sort, union_empty, mk''_I, iUnion_coe_set, eq_mp_eq_cast, id_eq,
-        not_isEmpty_of_nonempty])
+      · simp_all)
 
 /-- Auxiliary definition used to define `sInf` in `Subcomplex C`. -/
 @[simps -isSimp]
@@ -332,7 +328,7 @@ protected def RelCWComplex.Subcomplex.sInf' [T2Space X] [RelCWComplex C D]
       congrm D ∪ ?_
       simp_rw [iUnion_subtype, mem_iInter]
       ext x
-      simp only [mem_iUnion, exists_prop, mk''_I, iInter_coe_set, mem_iInter]
+      simp only [mem_iUnion, exists_prop, iInter_coe_set, mem_iInter]
       constructor
       · intro ⟨n, i, hi, hx⟩ E hE
         exact ⟨n, i, hi E hE, hx⟩
@@ -348,8 +344,7 @@ protected def RelCWComplex.Subcomplex.sInf' [T2Space X] [RelCWComplex C D]
         rw [not_disjoint_iff]
         exact ⟨x, hx, hx'⟩
     · simp_all only [nonempty_subtype, not_exists, iUnion_coe_set, iInter_of_empty, iInter_univ,
-      mem_univ, iUnion_true, mk''_I, iInter_coe_set, eq_mp_eq_cast, id_eq,
-      not_isEmpty_of_nonempty, iUnion_of_empty, union_empty, inter_univ]
+      mem_univ, iUnion_true, iInter_coe_set, inter_univ]
       exact union_iUnion_openCell_eq_complex
 
 protected def RelCWComplex.Subcomplex.CompletelyDistribLattice.MinimalAxioms [T2Space X]
@@ -375,8 +370,8 @@ protected def RelCWComplex.Subcomplex.CompletelyDistribLattice.MinimalAxioms [T2
       simp_rw [eq_iff, iSup, sSup'_carrier, iInf, sInf'_carrier]
       by_cases h : Nonempty ι
       · simp only [mem_range, iInter_exists, iInter_iInter_eq', sSup'_carrier, iUnion_exists,
-          iUnion_iUnion_eq', sInf'_carrier, inter_iInter, inter_union_distrib_left, inter_iUnion,
-          union_iUnion, inter_eq_right.2 (base_subset_complex (C := C))]
+          iUnion_iUnion_eq', inter_iInter, inter_union_distrib_left,
+          inter_eq_right.2 (base_subset_complex (C := C)), inter_iUnion, sInf'_carrier]
         by_cases h' : ∀ a, Nonempty (f a)
         · simp only [union_iUnion, union_iInter]
           ext x
@@ -446,8 +441,7 @@ lemma RelCWComplex.Subcomplex.iSup_carrier [T2Space X] [RelCWComplex C D]
     ((⨆ (j : J), sub j) : Subcomplex C) = D ∪ ⋃ j, sub j := by
   simp [iSup, CompleteLattice.toConditionallyCompleteLattice,
     CompletelyDistribLattice.toCompleteLattice, instCompletelyDistribLattice,
-    CompletelyDistribLattice.MinimalAxioms, CompleteDistribLattice.MinimalAxioms,
-    sSup'_carrier]
+    CompletelyDistribLattice.MinimalAxioms, sSup'_carrier]
 
 @[simp] lemma RelCWComplex.Subcomplex.iSup_coe_eq_of_nonempty [T2Space X] [RelCWComplex C D]
     {J : Type*} [Nonempty J] (sub : J → Subcomplex C) :
@@ -687,8 +681,7 @@ instance CWComplex.Subcomplex.finite_cellZero [T2Space X] [CWComplex C] (i : cel
     simp_rw [instCWComplex_cell, cellZero_I]
     by_cases h : n = 0
     · subst n
-      simp only [instCWComplex_cell, cellZero_I, heq_eq_eq, Sigma.mk.injEq, true_and,
-        setOf_eq_eq_singleton]
+      simp only [heq_eq_eq, Sigma.mk.injEq, true_and, setOf_eq_eq_singleton]
       exact Finite.of_fintype _
     · rw [finite_coe_iff]
       suffices {x | HEq (⟨n, x⟩ : Σ n, cell C n) (⟨0, i⟩ : Σ n, cell C n)} = ∅ by
@@ -901,8 +894,7 @@ lemma RelCWComplex.Subcomplex.cell_mem_finite_subcomplex [T2Space X] [RelCWCompl
     use fun m ↦ I m
     refine ⟨?_, hI⟩
     intro m mltn x xmem
-    simp only [sub', iSup_I]
-    simp only [mem_iUnion, Sigma.exists, Subtype.exists, sub']
+    simp only [sub', iSup_I, mem_iUnion, Sigma.exists, Subtype.exists]
     use m, Nat.lt_succ_iff.1 mltn, x, xmem
     exact hsub m (Nat.lt_succ_iff.1 mltn) x
   use attachCell n.succ i sub' this

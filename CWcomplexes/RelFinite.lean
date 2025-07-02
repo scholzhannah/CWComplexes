@@ -155,7 +155,7 @@ def CWComplex.mkFiniteType.{u} {X : Type u} [TopologicalSpace X] (C : Set X)
   mapsTo' := by
     intro n i
     use fun m ↦ finite_univ.toFinset (s := (univ : Set (cell m)))
-    simp only [Finite.mem_toFinset, mem_univ, iUnion_true, empty_union]
+    simp only [Finite.mem_toFinset, mem_univ, iUnion_true]
     exact mapsTo n i
   closed' := by simpa only [inter_empty, isClosed_empty, and_true]
   union' := union'

@@ -75,7 +75,7 @@ open Metric Set
 
 lemma sqrt_one_sub_sq_image_ico : (fun x ↦ √(1 - x ^ 2)) '' (Ico 0 1) = Ioc 0 1 := by
   ext y
-  simp only [mem_Ioc, mem_image, mem_Ioo]
+  simp only [mem_image, mem_Ioc]
   constructor
   · intro ⟨z, ⟨hz1, hz2⟩, hz3⟩
     rw [← hz3]
@@ -117,7 +117,7 @@ lemma Filter.Tendsto.inv_sqrt_one_sub_sq_mul :
 lemma norm_image_ball_eq_ico {E : Type*} [NormedAddCommGroup E]
     [NormedSpace ℝ E] [Nontrivial E] : norm '' ball (0 : E) 1 = Ico 0 1 := by
   ext y
-  simp only [mem_Ioo, mem_image, mem_ball, dist_zero_right]
+  simp only [mem_image, mem_ball, dist_zero_right]
   refine ⟨fun ⟨z, hz1, hz2⟩ ↦ by simp [← hz2, hz1], ?_⟩
   intro ⟨hy1, hy2⟩
   obtain ⟨r, hr⟩ := NormedSpace.exists_lt_norm ℝ E 0
@@ -228,9 +228,8 @@ lemma stereographic'_symm_tendsto {n : ℕ} (α : Filter (EuclideanSpace ℝ (Fi
     Filter.Tendsto (stereographic' (E := EuclideanSpace ℝ (Fin (n + 1))) n
     ⟨EuclideanSpace.single (Fin.last n) 1, by simp⟩).symm α
     (nhds ⟨EuclideanSpace.single (Fin.last n) 1, by simp⟩) := by
-  simp only [stereographic', Real.norm_eq_abs, PartialHomeomorph.coe_trans_symm,
-    Homeomorph.toPartialHomeomorph_symm_apply, LinearIsometryEquiv.toHomeomorph_symm,
-    LinearIsometryEquiv.coe_toHomeomorph, ← Filter.tendsto_map'_iff]
+  simp only [stereographic', PartialHomeomorph.coe_trans_symm,
+    Homeomorph.toPartialHomeomorph_symm_apply, ← tendsto_map'_iff]
   apply stereographic_symm_tendsto
   rw [Filter.tendsto_map'_iff]
   convert h
@@ -343,8 +342,8 @@ lemma normScale_zero {E F : Type*}  [NormedAddCommGroup E] [T1Space E] [Module �
 lemma norm_normScale {E F : Type*}  [NormedAddCommGroup E] [T1Space E] [Module ℝ E]
     [ContinuousSMul ℝ E] [NormSMulClass ℝ E] [NormedAddCommGroup F] [Module ℝ F] [T1Space F]
     [ContinuousSMul ℝ F] [NormSMulClass ℝ F] (f : E ≃L[ℝ] F) {x : E} : ‖normScale f x‖ = ‖x‖ := by
-  simp [normScale, Homeomorph.homeomorph_mk_coe, Equiv.coe_fn_mk, norm_smul, norm_mul,
-    Real.norm_eq_abs, abs_norm, norm_inv, mul_assoc]
+  simp only [normScale, Homeomorph.homeomorph_mk_coe, Equiv.coe_fn_mk, norm_smul, norm_mul,
+    norm_norm, norm_inv, mul_assoc]
   by_cases h : x = 0
   · simp [h]
   · have hfx : ‖f x‖ ≠ 0 := by
@@ -477,7 +476,7 @@ def LinearIsometryEquiv.negLast (n : ℕ) :
     ext i
     by_cases h : i = Fin.last n
     · subst i
-      simp [add_comm]
+      simp
     · unfold Function.update
       simp [h]
   invFun y := Function.update y (Fin.last n) (-(y (Fin.last n)))
@@ -525,7 +524,7 @@ lemma isOpen_LowerHalfPlane (n : ℕ) :
     IsOpen {(x : EuclideanSpace ℝ (Fin (n + 1)) )| x (Fin.last n) < 0} := by
   rw [isOpen_iff_forall_mem_open]
   intro x hx
-  simp_all only [gt_iff_lt, mem_setOf_eq]
+  simp_all only [mem_setOf_eq]
   use ball x |(x (Fin.last n))|
   refine ⟨?_, isOpen_ball, mem_ball_self (abs_pos_of_neg hx)⟩
   intro y hy

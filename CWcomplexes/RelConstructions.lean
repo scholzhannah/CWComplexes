@@ -406,12 +406,12 @@ def RelCWComplex.attachCell.{u} {X : Type u} [TopologicalSpace X] [T2Space X] (C
       exact h1 n (.inl j)
     · rw [inter_assoc, inter_eq_right.2 (base_subset_complex (C := C))]
       exact h2
-  isClosedBase := isClosedBase (C := C) (D := D)
+  isClosedBase := isClosedBase (C := C)
   union' := by
-    simp_rw [← union (C := C) (D := D), ← union_assoc, union_comm _ D, union_assoc]
+    simp_rw [← union (C := C) , ← union_assoc, union_comm _ D, union_assoc]
     congrm D ∪ ?_
     ext
-    simp only [mem_iUnion, Sum.exists, Subtype.exists, mem_union]
+    simp only [mem_iUnion, mem_union]
     constructor
     · intro ⟨m, i, h⟩
       rcases i with j | h'
