@@ -3,37 +3,38 @@
 \subsection{Lean and \mathlib}\label{sub:leanandmathlib}
 
 Lean and \mathlib make use of \emph{typeclasses} to provide definitions on various types with potentially different behaviour.
-For example, \mathlib has a general notion of a topological space on an arbitrary type.One can then provide specific \emph{instances} of a typeclass, for example the metric topology on the reals, or the subspace topology on a subtype of \lstinline|X|, assuming that \lstinline|X| has a topology. We write \lstinline|[TopologicalSpace X]| to assume that a space \lstinline|X| has a topology.
+For example, \mathlib has a general notion of a topological space on an arbitrary type.
+One can then provide specific \emph{instances} of a typeclass, for example the metric topology on the reals, or the subspace topology on a subtype of \lstinline|X|, assuming that \lstinline|X| has a topology. 
+We write \lstinline|[TopologicalSpace X]| to assume that a space \lstinline|X| has a topology.
 Additionally, there are forgetful instances, e.g. every metric space is a topological space. % it doesn't matter that this is probably a composition of instances in Mathlib.
 Lean uses \emph{typeclass inference} to search the graph of instances to find the required instances.
-More about typeclasses in Lean can be found in \cite{Selsam2020}.\todo[comment]{Also cite \url{https://link.springer.com/article/10.1007/s10817-024-09712-7}.}
+More about typeclasses in Lean can be found in \cite{Selsam2020} and \cite{Baanen2025}.
 
 % There are different ways to modify the behaviour of typeclass inference for specific typeclasses.
 % In the definition of CW complexes, we tag certain parameters of a class with \lstinline|outParam|.
-By default, Lean's typeclass inference algorithm requires all parameters to be known before it searches for an instance. This behavior can be modified by marking certain parameters with \lstinline|outParam|, which means that typeclass inference will search for an instance even if the out-parameters are not yet known.
+By default, Lean's typeclass inference algorithm requires all parameters to be known before it searches for an instance. This behaviour can be modified by marking certain parameters with \lstinline|outParam|, which means that typeclass inference will search for an instance even if the out-parameters are not yet known.
 Furthermore, typeclass inference will not consider the values of \lstinline|outParam| parameters, and will search for the first instance where all parameters that are not marked as \lstinline|outParam| unify (up to definitional equality).
 Therefore, an argument should only be marked as an \lstinline|outParam| if for every combination of the parameters not marked as \lstinline|outParam| there is at most one instance.
-For example, the class \lstinline|Membership α β| specifies that for \lstinline|a : α| and \lstinline|b : β| we have specified the notation \lstinline|a ∈ b|. The first parameter is marked as an \lstinline|outParam|, since it is uniquely determined by the second parameter. Typical instances include \lstinline|Membership α (List α)| and \lstinline|Membership α (Set α)|
+For example, the class \lstinline|Membership α β| specifies that for \lstinline|a : α| and \lstinline|b : β| we have specified the notation \lstinline|a ∈ b|. 
+The first parameter is marked as an \lstinline|outParam|, since it is uniquely determined by the second parameter. Typical instances include \lstinline|Membership α (List α)| and \lstinline|Membership α (Set α)|.
 \mathlib therefore marks the first parameter as \lstinline|outParam| enabling typeclass inference to run even when this parameter is not known.
 
-Another technical detail of Lean that we will want to manipulate is reducibility.
-Definitions are not generally unfolded in Lean, meaning that Lean cannot use information about the components that make up an object.
-However, sometimes this behaviour would be desirable, especially, for processes like typeclass inference and definitional equality checks.
-To achieve this behaviour one can use the keyword \lstinline|abbrev| instead of \lstinline|def|. \todo{Example?}
+Another technical detail of Lean that we will manipulate is reducibility.
+The reducibility of a definition describes what processes are allowed to unfold it. 
+Definitions in \mathlib are by default \lstinline|semireducible|, meaning they are unfolded for basic checks like definitional equality but not for more time intensive operations like typeclass inference.
+However, sometimes we do want definitions to be unfolded in typeclass inference. 
+To achieve this behaviour, we need to change the reducibility setting to \lstinline|reducible| which is done by writing \lstinline|abbrev| instead of \lstinline|def|. \todo{Example?}
 
 More on \lstinline|outParam| and \lstinline|abbrev| can be found in \cite{LeanReference2025}.
 
 
 \subsection{Preliminary Mathematics in Lean}\label{sub:mathinlean}
 
-In \mathlib, a topological space is a type \lstinline|X| together with a topology \lstinline|TopologicalSpace X| on it.
-This then allows you to describe whether a set \lstinline|A : Set X| is open or closed by writing \lstinline|IsOpen A| and \lstinline|IsClosed A|.
-A function \lstinline|f : X → Y| between two topological spaces \lstinline|X| and \lstinline|Y| can be described as being continuous and as being continuous on a set \lstinline|A : Set X| which is expressed by writing \lstinline|Continuous f| and \lstinline|ContinuousOn f A|.
-\mathlib also implements various separation axioms: to specify that a topological space \lstinline|X| is Hausdorff one can write \lstinline|T2Space X|.
+In \mathlib, we write \lstinline|TopologicalSpace X| to say that a type \lstinline|X| has a topology. 
+\lstinline|IsOpen A| and \lstinline|IsClosed A| for a set \lstinline|A| in \lstinline|X| assert openness and closedness. 
+For a map \lstinline|f : X → Y| between topological spaces continuity is described as \lstinline|Continuous f| or \lstinline|ContinuousOn A| for continuity on a set. 
+To specify that a topological space \lstinline|X| is Hausdorff one writes \lstinline|T2Space X|.
 
-A non-topological concept that we will need is \lstinline|PartialEquiv| which is \mathlib's version of a partial bijection.
-To define a \lstinline|PartialEquiv X Y| for two types \lstinline|X| and \lstinline|Y| one needs to provide as data a total function on \lstinline|X|, another total function on \lstinline|Y|, a set in \lstinline|X| called the \emph{source} and a set in \lstinline|Y| called the \emph{target}.
-Additionally, one needs to prove that the target is mapped to the source and vice versa and that the two maps are inverse to each other on both the source and target.
-\todo[comment]{Explanation of PartialEquiv too detailed?}
+In \mathlib a partial bijection between two types \lstinline|X| and \lstinline|Y| has type \lstinline|PartialEquiv X Y| and is made up of two total functions \lstinline|X → Y| and \lstinline|Y → X|, a set in \lstinline|X| called the \emph{source}, a set in \lstinline|Y| called the \emph{target} and proofs that that the target is mapped to the source and vice versa and that the two maps are inverse to each other on both the source and target.
 
 \todo[plan]{Explain CompletelyDistribLattice and its difference to CompleteDistribLattice}.

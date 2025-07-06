@@ -1,32 +1,31 @@
 \section{Definition of CW complexes}
 
 An \emph{(absolute) CW complex} is a topological space that can be constructed by glueing images of closed discs of different dimensions together along the images of their boundaries. 
-These images of closed discs in the CW complex are called \emph{cells}.
-To specify that a cell is the image of an $n$-dimensional disc, one can call it an $n$-cell.
+The image of an n-dimensional closed disc in the CW complex is called an \emph{$n$-cell}.
 The cells up to and including dimension $n$ make up what is called the \emph{$n$-skeleton}.
 In a \emph{relative CW complex} these discs can additionally be attached to a specified base set. 
 
-The different definitions of CW complexes present in the literature can be broadly categorized into two approaches: firstly, there is the ``classical'' approach that sticks closely in style to \citeauthor{Whitehead2018}s original definition in \cite{Whitehead2018}.
-This definition assumes the cells to all lie in one topological space and then describes how they interact with each other and the space.
-Secondly, there is a popular approach that is more categorical in nature. 
-In this version the skeletons are regarded as different spaces and the definition describes how to construct the ($n+1$)-skeleton from the $n$-skeleton. 
+Definitions of CW complexes present in the literature can be broadly categorized into two approaches: firstly, there is the ``classical'' approach that sticks closely in style to \citeauthor{Whitehead2018}s original definition in \cite{Whitehead2018}.
+This definition assumes that the cells all lie in one topological space and describes how they interact with each other and the topology.
+The second approach is more categorical in nature. 
+In this version, the $(n + 1)$-skeleton is defined as a pushout involving the $n$-skeleton. 
 The CW complex is then defined as the colimit of the skeletons. 
 
 At the start of this project neither of the approaches had been formalized in Lean. 
 We chose to proceed with the former approach because it avoids having to deal with different topological spaces and inclusions between them. 
-As the other approach has been formalized by ??? \todo{Current authorship is unclear to me}, both are now formalized and part of \mathlib. 
-Our version can be found as \lstinline|Topology.RelCWComplex|, while the other one is \lstinline|TopCat.RelativeCWComplex|.
+As the other approach has been formalized by Jiazhen Xia and Elliot Dean Young and refactored by Joël Riou, both are now formalized and part of \mathlib. 
+Our version is called \lstinline|Topology.RelCWComplex|, while the other one is \lstinline|TopCat.RelativeCWComplex|.
 
-The definition chosen for formalization is the following: 
+The definition chosen for formalization is the following, where $D^n$ is the closed unit $n$-disc:
 
 \begin{defi}\label{def:cwcomplex}
     Let $X$ be a Hausdorff space and $D \subseteq X$ be a subset of $X$. 
-    A \emph{(relative) CW complex} on $X$ consists of a family of indexing sets $(I_n)_{n \in \bN}$ and a family of continuous maps $(Q_i^n \colon D_i^n \to X)_{n \in \bN, i \in I_n}$ called \emph{characteristic maps} with the following properties: 
+    A \emph{(relative) CW complex} on $X$ with \emph{base} $D$ consists of a family of indexing sets $(I_n)_{n \in \bN}$ and a family of continuous maps $(Q_i^n \colon D^n \to X)_{n \in \bN, i \in I_n}$ called \emph{characteristic maps} with the following properties: 
     \begin{enumerate}
-        \item $\restrict{Q_i^n}{\interior{D_i^n}} \colon \interior{D_i^n} \to Q_i^n(\interior{D_i^n})$ is a homeomorphism for every $n \in \bN$ and $i \in I_n$. We call $\openCell{n}{i} \coloneq Q_i^n(\interior{D_i^n})$ an \emph{(open) $n$-cell} and $\closedCell{n}{i} \coloneq Q_i^n(D_i^n)$ a \emph{closed $n$-cell}.
+        \item $\restrict{Q_i^n}{\interior{D^n}} \colon \interior{D^n} \to Q_i^n(\interior{D^n})$ is a homeomorphism for every $n \in \bN$ and $i \in I_n$. We call $\openCell{n}{i} \coloneq Q_i^n(\interior{D^n})$ an \emph{(open) $n$-cell} and $\closedCell{n}{i} \coloneq Q_i^n(D^n)$ a \emph{closed $n$-cell}.
         \item Two different open cells are disjoint.
         \item Every open cell is disjoint with $D$.
-        \item For each $n \in \bN$ and $i \in I_n$ the \emph{cell frontier} $\cellFrontier{n}{i} \coloneq Q_i^n(\boundary D_i^n)$ is contained in the union of $D$ with a finite number of closed cells of a lower dimension.
+        \item For each $n \in \bN$ and $i \in I_n$ the \emph{cell frontier} $\cellFrontier{n}{i} \coloneq Q_i^n(\boundary D^n)$ is contained in the union of $D$ with a finite number of closed cells of a lower dimension.
         \item A set $A \subseteq X$ is closed if $A \cap D$ and the intersections $A \cap \closedCell{n}{i}$ are closed for all $n \in \bN$ and $i \in I_n$.
         \item $D$ is closed. 
         \item The union of $D$ and all closed cells is $X$.
@@ -62,57 +61,49 @@ class RelCWComplex.{u} {X : Type u} [TopologicalSpace X] (C : Set X)
   union' : D ∪ ⋃ (n : ℕ) (j : cell n), map n j '' closedBall 0 1 = C
 \end{lstlisting}
 \end{figure}
-\todo[comment]{I am not sure if I like the code being a float}
 
-One obvious change in the Lean definition is that instead of talking about the topological space $X$ being a CW complex, it talks about the set $C$ being a CW complex in the ambient space $X$.
-This eases working with constructions and examples of CW complexes. 
-For constructions it allows you to avoid dealing with constructed topologies, for example the disjoint union topology, and for examples it allows you to use the possibly nicer topology of the ambient space that is often already naturally present. 
+One obvious change in the Lean definition is that instead of talking about the topological space $X$ being a CW complex, it talks about a set $C$ being a CW complex in the ambient space $X$.
+This allows us to treat spaces that are naturally defined as subspaces of a given space as a CW-complex without taking subtypes. 
+Additionally, for constructions such as the disjoint union of two CW complexes, it avoids dealing with constructed topologies.
 It is however derivable from the definition that $C$ is closed in $X$. 
 So while a closed interval in the real line can be considered as a CW complex in its natural ambient space, the open interval cannot and needs to be considered as a CW complex in itself. 
 This approach is inspired by \cite{Gonthier2013}, where the authors notice that it is helpful to consider subsets of an ambient group to avoid having to work with different group operations and similar issues.
 
 Even though the behaviour of a CW complex depends strongly on its data and there can be different ``non-equivalent'' CW structures on the same space, we have chosen to make it a \lstinline|class|, effectively treating it more like a property than a structure. 
-This is to be able to make use of Lean's typeclass inference.
-A short explanation of typeclass inference can be found in Section \ref{sub:leanandmathlib}.
-\todo[comment]{Is this too basic?}
+This is to be able to make use of Lean's typeclass inference (see Section \ref{sub:leanandmathlib}).
 
-We omit the requirement for $X$ to be a Hausdorff space and instead naturally require it for most of the lemmata. 
+We don't require $X$ to be a Hausdorff space, so to properly state that $C$ is a CW complex with base $D$, we write \lstinline|[RelCWComplex C D] [T2Space X]|.
 
-The base $D$ is an \lstinline|outParam|. 
+The base $D$ is an \lstinline|outParam| (see Section \ref{sub:leanandmathlib}). 
 This is because lemma statements about CW complexes typically refer to just the underlying set \lstinline|C| without mentioning the base \lstinline|D|. 
 Normally, for typeclass inference to run the user would have to go out of their way to specify \lstinline|D|. 
-But this requirement can be disabled by adding the \lstinline|outParam| specification.
-The purpose and consequences of using \lstinline|outParam| are discussed in more detail in Section \ref{sub:leanandmathlib}.
-In particular, this eases using typeclass inference but it can have unfortunate consequences when there are two CW complexes with the same underlying set but different bases.
-
-While we do not expect there to be instances on the same set with a different base, we have encountered instances where the base is provably equal but not definitionally so. 
-Typeclass inference can fail in these situations and the instances need to be provided manually. 
-An example will be discussed later in ???. 
+We disable this requirement by adding the \lstinline|outParam| specification.
 
 In topology, most CW complexes that are considered have empty base and often the term ``CW complex'' refers to this type of complex. 
 Those CW complexes are called \emph{absolute CW complexes}. 
 
-Most naturally one would simply define absolute CW complexes in Lean in the same way: as a relative CW complex with empty base. \todo[comment]{Code example of what I mean?}
+Most naturally one would simply define absolute CW complexes in Lean in the same way: as a relative CW complex with empty base.
 However, this leads to two issues: 
 firstly, when defining an absolute CW complex there are now trivial proofs that need to be provided and some simplifications that need to be performed for every new instance and definition. 
 This produces a lot of duplicate code or requires a separate definition that is used as a replacement constructor. 
-Secondly, absolute CW complexes are precisely where we have encountered instances on the same set with probably but not definitionally equal base sets. 
-Constructions for relative CW complexes, e.g.\ products, produce instances for which, in the case of an absolute CW complex, the base is provably equal to the empty set but not definitionally so. 
-In that case, we define an instance specifically for absolute CW complexes and want this to be inferred over the relative version. 
+Secondly, with absolute CW complexes we have encountered instances on the same set with provably but not definitionally equal base sets. 
+The product of two CW complexes \lstinline|RelCWComplex C D| and \lstinline|RelCWComplex E F| is of type \lstinline|RelCWComplex (C ×ˢ E) (D ×ˢ E ∪ C ×ˢ F)|. 
+For absolute CW complexes we get \lstinline|RelCWComplex (C ×ˢ E) (∅ ×ˢ E ∪ C ×ˢ ∅)| which is not definitionally equal to \lstinline|RelCWComplex (C ×ˢ E) ∅|.
+For this reason, we define an instance specifically for absolute CW complexes and want this to be inferred over the relative version. 
 But since $D$ is an \lstinline|outParam|, we cannot specify typeclass inference to be looking for a base that is definitionally equal to the empty set. 
 
 The solution is to have absolute CW complexes be their own class that agrees with relative CW complexes except for the empty base, trivial proofs and simplifications. 
 The type of absolute CW complexes on the set $C$ in Lean is \lstinline|CWComplex C|. 
 We then provide an instance stating that absolute CW complexes are relative CW complexes and a definition in the other direction for relative CW complexes with empty base.
-The latter cannot be an instance as this would create an instance loop. \todo{I think there was another reason?}
-To avoid having duplicate notions \lstinline|CWComplex.cell| and \lstinline|RelCWComplex.cell| and \lstinline|CWComplex.map| and \lstinline|RelCWComplex.map|, we mark the version for absolute CW complexes as \lstinline|protected| strongly encouraging the user to only use the version for relative CW complexes which is also available for absolute ones through the instance.\todo[comment]{Explain protected above?}
-\todo[plan]{Talk about the priority of the instance? I think Floris said no}
-\todo[plan]{Talk about the whole export mess?}
+The latter cannot be an instance as this would create an instance loop.
+Additionally, it would enable typeclass inference to also consider \lstinline|RelCWComplex| instances when looking for a \lstinline|CWComplex| instance, which is exactly what we wanted to avoid.
+To avoid having duplicate notions \lstinline|CWComplex.cell| and \lstinline|RelCWComplex.cell| and \lstinline|CWComplex.map| and \lstinline|RelCWComplex.map|, we mark the version for absolute CW complexes as \lstinline|protected| strongly encouraging the user to only use the version for relative CW complexes which is also available for absolute ones through the instance.\todo{Explain protected above}
+\todo[plan]{Talk about attribute when it is done}
 
 As in Definition \ref{def:cwcomplex}, we define the notions of open cells, closed cells and cell frontiers.
 We define them only for relative CW complexes but, as for the indexing types and characteristic maps, these notions can be used for absolute ones because of the instance mentioned above. 
 
-We then define subcomplexes as closed unions of open cells of the complex.
+We then define subcomplexes as closed sets that are unions of open cells of the complex.
 
 \begin{lstlisting}[frame=single]
 structure Subcomplex (C : Set X) {D : Set X} [RelCWComplex C D] where
@@ -123,6 +114,7 @@ structure Subcomplex (C : Set X) {D : Set X} [RelCWComplex C D] where
 \end{lstlisting}
 
 We provide additional definitions for other ways of describing them: firstly, as a union of open cells where the closure of every cell is already contained in the union and secondly, as a union of open cells that is also a CW complex.
+Here is the former as we will need it below:
 
 \begin{lstlisting}[frame=single]
 def RelCWComplex.Subcomplex.mk' [T2Space X] (C : Set X) {D : Set X} 
@@ -134,19 +126,10 @@ def RelCWComplex.Subcomplex.mk' [T2Space X] (C : Set X) {D : Set X}
   I := I
   closed' := /- Proof omitted-/
   union' := union
-
-def RelCWComplex.Subcomplex.mk'' [T2Space X] (C : Set X) {D : Set X} 
-    [RelCWComplex C D] (E : Set X) (I : Π n, Set (cell C n)) [RelCWComplex E D]
-    (union : D ∪ ⋃ (n : ℕ) (j : I n), openCell (C := C) n j = E) : 
-    Subcomplex C where
-  carrier := E
-  I := I
-  closed' := isClosed
   union' := union
-\end{lstlisting}\todo[comment]{Is this helpful? mk' is used for skeleton}
+\end{lstlisting}
 
-We show that subcomplexes are again CW complexes and that the type of subcomplexes of a specific CW complex has the structure of a \lstinline|CompletelyDistribLattice|. 
-See Section \ref{sub:mathinlean} for an explanation of that structure.  
+We show that subcomplexes are again CW complexes and that the type of subcomplexes of a specific CW complex has the structure of a \lstinline|CompletelyDistribLattice| (see section  \ref{sub:mathinlean}).  
 
 Defining subcomplexes allows us to talk about the skeletons of a CW complex. 
 The typical definition of the $n$-skeleton in the following: 
@@ -166,7 +149,7 @@ def RelCWComplex.skeletonLT (C : Set X) {D : Set X} [RelCWComplex C D]
     (fun l ↦ {x : cell C l | l < n}) (/-Proof omitted-/) (/-Proof omitted-/)
 \end{lstlisting}
 
-Then we can use this to define the usual skeleton: 
+We use this to define the usual skeleton: 
 
 \begin{lstlisting}[frame=single]
 abbrev RelCWComplex.skeleton (C : Set X) {D : Set X} [RelCWComplex C D] 
@@ -174,8 +157,7 @@ abbrev RelCWComplex.skeleton (C : Set X) {D : Set X} [RelCWComplex C D]
   skeletonLT C (n + 1)
 \end{lstlisting}
 
-Since we expect proofs about \lstinline|skeleton| to be short reductions of the claim to the corresponding statement about \lstinline|skeletonLT|, we spare the user the manual unfolding of \lstinline|skeleton| by marking it as an \lstinline|abbrev| instead of a \lstinline|def|.
-For an explanation on \lstinline|abbrev| see Section \ref{sub:leanandmathlib}.
+Since we expect proofs about \lstinline|skeleton| to be short reductions of the claim to the corresponding statement about \lstinline|skeletonLT|, we spare the user the manual unfolding of \lstinline|skeleton| by marking it as an \lstinline|abbrev| instead of a \lstinline|def| (see Section \ref{sub:leanandmathlib}).
 The definition \lstinline|skeleton| exists mostly for completeness' sake. 
 Both lemmata and definitions should use \lstinline|skeletonLT| to make proofs easier and then possibly derive a version for \lstinline|skeleton|.
 
