@@ -41,7 +41,7 @@ The translation of this definition in \mathlib can be found in Figure \ref{fig:d
 \caption{Definition of relative CW complexes in \mathlib}
 \label{fig:def}
 \begin{lstlisting}[frame=single]
-    class RelCWComplex.{u} {X : Type u} [TopologicalSpace X] (C : Set X) 
+class RelCWComplex.{u} {X : Type u} [TopologicalSpace X] (C : Set X) 
         (D : outParam (Set X)) where
   cell (n : ℕ) : Type u
   map (n : ℕ) (i : cell n) : PartialEquiv (Fin n → ℝ) X
