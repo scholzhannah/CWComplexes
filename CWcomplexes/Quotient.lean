@@ -33,24 +33,53 @@ def Set.Quotient.mk_collapse {α : Type*} {s : Set α} : α → α ⧸ s := Quot
   rw [Quotient.eq_iff_equiv]
   rfl
 
-lemma Set.Quotient.injOn_mk {α : Type*} {s : Set α} :
-    (univ \ s).InjOn (Set.Quotient.mk_collapse (s := s)) := by
-  intro x ⟨_, hx⟩ y ⟨_, hy⟩ hxy
+lemma Set.Quotient.injOn_mk {α : Type*} {s t : Set α} (hst : Disjoint s t) :
+    t.InjOn (mk_collapse (s := s)) := by
+  intro x hx y hy hxy
   rw [collapse_equiv_iff] at hxy
-  simp_all
+  exact hxy.casesOn (fun hxy ↦ (hst.notMem_of_mem_left hxy.1 hx).elim) id
 
-def PartialEquiv.SetQuotient {α : Type*} {s : Set α} : PartialEquiv α (α ⧸ s) where
+lemma Set.Quotient.of_mem {α : Type*} {s : Set α} {x : α} :
+    mk_collapse (s := s) x ∈ mk_collapse '' s ↔ x ∈ s := by
+  refine ⟨?_, fun h ↦ mem_image_of_mem mk_collapse h⟩
+  intro h
+  simp_rw [mem_image, collapse_equiv_iff] at h
+  obtain ⟨y, hy, hxy⟩ := h
+  exact hxy.casesOn (fun hxy ↦ hxy.2) (fun hxy ↦ hxy ▸ hy)
+
+def PartialEquiv.SetQuotient {α : Type*} {s : Set α} {t : Set α}  : PartialEquiv α (α ⧸ s) where
   toFun := Set.Quotient.mk_collapse
   invFun y := Classical.choose (Quotient.exists_rep y)
   source := univ \ s
   target := univ \ (Set.Quotient.mk_collapse '' s)
-  map_source' x hy := by
+  map_source' x hx := by
     refine ⟨mem_univ _ , ?_⟩
-    intro hx
-    obtain ⟨_, hy⟩ := hy
-    apply hy
-    exact Set.Quotient.injOn_mk.mem_of_mem_image sorry sorry hx --no
-  map_target' y := sorry
+    intro hx'
+    rw [Set.Quotient.of_mem] at hx'
+    exact hx.2 hx'
+  map_target' y := by
+    intro ⟨_, h⟩
+    refine ⟨mem_univ _, ?_⟩
+    intro hs
+    apply h
+    use Classical.choose (Quotient.exists_rep y)
+    refine ⟨hs, ?_ ⟩
+    exact Classical.choose_spec (Quotient.exists_rep y)
+  left_inv' x hx := by
+    have hx' := Classical.choose_spec (Quotient.exists_rep (Quotient.mk_collapse (s := s) x))
+    have : Classical.choose (Quotient.exists_rep (Quotient.mk_collapse (s := s) x)) ∈ univ \ s := by
+      sorry
+    apply Set.Quotient.injOn_mk (disjoint_sdiff_self_right (x := s) (y := univ)) this hx hx'
+  right_inv' := sorry
+
+def PertialEquiv.test {α β :Type*} {s : Set β} (f : PartialEquiv α β) (hf : Disjoint f.target s) :
+    PartialEquiv α (β ⧸ s) where
+  toFun := Set.Quotient.mk_collapse.comp f
+  invFun y := sorry
+  source := sorry
+  target := sorry
+  map_source' := sorry
+  map_target' := sorry
   left_inv' := sorry
   right_inv' := sorry
 
