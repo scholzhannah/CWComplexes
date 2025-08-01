@@ -1,13 +1,13 @@
 \section{Products}\label{sec:products}
 
-In general, the product of two CW complexes is not necessarily a CW complex because the weak topology of the CW complex might not match the product topology. \todo{mention term ``weak topology'' already somewhere in definition section (or even introduction?)}
+In general, the product of two CW complexes is not necessarily a CW complex because the weak topology of the CW complex might not match the product topology.
 A counterexample was first provided by \citeauthor{Dowker1952} in \cite{Dowker1952}.
 
-In order to achieve the correct topology on the product space we need to turn it into a compactly generated space which we will discuss in the next subsection.
+In order to achieve the correct topology on the product we need to turn it into a compactly generated space which we will discuss in the next subsection.
 
 \subsection{Compactly generated spaces}
 
-The name ``compactly generated space'' is used for different notions in the literature.
+The name ``\emph{compactly generated space}'' (or sometimes ``\emph{k-space}'') is used for different notions in the literature.
 Firstly, it can refer to a space with a topology that is coherent with its compact subsets, i.e.\ a set is closed iff its intersection with every compact subset is closed in that subset. 
 Secondly, it can refer to a space with a topology determined by continuous maps from compact Hausdorff spaces, i.e.\ a set is closed iff its preimage under every continuous map from a compact Hausdorff map is closed. 
 Thirdly, it can refer to a space with a topology coherent with its compact Hausdorff subspaces, i.e.\ a set is closed iff its intersection with every compact Hausdorff subspace is closed in that subspace. \todo[comment]{Cite wikipedia?}
@@ -16,9 +16,11 @@ While these three notions agree for Hausdorff spaces, in the general case, the f
 When starting this formalization, the second version was already in \mathlib as \lstinline|CompactlyGeneratedSpace|; the two other versions had not been formalized. 
 We intended to follow the construction of the product presented in \cite{Hatcher2002} which uses the first version of compactly generated spaces. 
 Since we assume our ambient space to be Hausdorff, we could have just translated the proof to use the version already in \mathlib. 
-Instead, we decided to formalize the first version and named it \lstinline|CompactlyCoherentSpace|.\todo[comment]{Credit person that came up with name?}
+Instead, we decided to formalize the first version and named it \lstinline|CompactlyCoherentSpace|.
+This name was suggested by Steven Clontz. 
+We will also refer to the mathematical notion as a \emph{compactly coherent space} going forward.
 
-In \mathlib the definition is the following: 
+In \mathlib, the definition is the following: 
 
 \begin{lstlisting}[frame=single]
 class CompactlyCoherentSpace (X : Type*) [TopologicalSpace X] : Prop where
@@ -32,9 +34,36 @@ structure IsCoherentWith (S : Set (Set X)) : Prop where
   isOpen_of_forall_induced (u : Set X) : 
     (∀ s ∈ S, IsOpen ((↑) ⁻¹' u : Set s)) → IsOpen u
 \end{lstlisting}\todo[comment]{Credit author?}
-\todo[plan]{Explain this definition in more detail. Explain the arrow. Explain equivalence of openness and closedness condition (use open above?)}
 
-\todo[plan]{Talk about results formalized}
+Here, \lstinline|↑ : Set s → Set X| is the natural inclusion from \lstinline|Set s| into \lstinline|Set X| where \lstinline|s : Set X|. 
+Thus the condition \lstinline|isOpen_of_forall_induced| states that for all subsets \lstinline|u| of \lstinline|X| and all elements \lstinline|s| of the collections of subsets \lstinline|S|, if the preimage of \lstinline|u| under \lstinline|↑ : Set s → Set X|, i.e.\ the intersection of \lstinline|u| with \lstinline|s|, is open in \lstinline|s|, then \lstinline|u| is open in \lstinline|X|.
+
+We first show that this definition is equivalent to the one characterizing closedness which we stated at the beginning of the subsection. 
+\mathlib already had the proofs for two examples of compactly coherent spaces: sequential spaces (which include metric spaces for example) and weakly locally compact spaces. 
+Lastly, we show that \lstinline|CompactlyCoherentSpace| is a weaker notion of \lstinline|CompactlyGeneratedSpace| but that the two agree assuming the space is Hausdorff.
+
+\todo[inline]{Anatole Dedecker refactored a lot of this section for me in the review process. How do I credit that?}
+Next, we want to provide a way to turn any topological space into a compactly coherent space. 
+This operation is typically referred to as \emph{k-ification}. 
+We will call it \emph{compact coherentification} corresponding to our naming of compactly coherent spaces. 
+Since we will be considering two different topologies on the same type, we need to define a type synonym in order for Lean to recognize which topology we are talking about. 
+We set \lstinline|def CompactCoherentification (X : Type*) := X| and abbreviate it to \lstinline|k X|. 
+This means that \lstinline|X| and \lstinline|k X| are definitionally equivalent but one should not abuse this equality. \todo{Write why above? Link something?}
+Instead one should move between these topologies using a bijection: 
+\begin{lstlisting}[frame=single]
+protected def mk (X : Type*) : X ≃ CompactCoherentification X := Equiv.refl _
+\end{lstlisting}
+Now, we can finally provide a topology on \lstinline|k X| in the following way: 
+
+\begin{lstlisting}[frame=single]
+instance instTopologicalSpace : TopologicalSpace (k X) :=
+  .coinduced (.mk X) (⨆ (K : Set X) (_ : IsCompact K), .coinduced (↑) (inferInstanceAs <| TopologicalSpace K))
+\end{lstlisting}
+
+Where we set our new topology two be coinduced by the disjoint union topology of all the compact subsets \lstinline|K| of \lstinline|X|. \todo[comment]{I don't actually understand myself what is going on in this definition.}
+We prove that this definition implies that a set in our new topology is open iff its intersection with every compact set is open in the subspace topology of that compact set induced by the original topology. 
+We show the equivalent statement for closed sets, prove that the new topology is finer than the original one and formalize conditions under which maps to, from and between compact coherentifications are continuous. 
+Lastly, we show that the compact coherentification does indeed make an arbitrary topological space into a compactly coherent space. 
 
 \subsection{Product of CW complexes}
 \todo{What does one name this subsection?}

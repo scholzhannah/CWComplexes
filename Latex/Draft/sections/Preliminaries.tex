@@ -27,6 +27,7 @@ To achieve this behaviour, we need to change the reducibility setting to \lstinl
 
 More on \lstinline|outParam| and \lstinline|abbrev| can be found in \cite{LeanReference2025}.
 
+\todo[inline]{Describe protected}
 
 \subsection{Preliminary Mathematics in Lean}\label{sub:mathinlean}
 
@@ -37,4 +38,7 @@ To specify that a topological space \lstinline|X| is Hausdorff one writes \lstin
 
 In \mathlib a partial bijection between two types \lstinline|X| and \lstinline|Y| has type \lstinline|PartialEquiv X Y| and is made up of two total functions \lstinline|X → Y| and \lstinline|Y → X|, a set in \lstinline|X| called the \emph{source}, a set in \lstinline|Y| called the \emph{target} and proofs that that the target is mapped to the source and vice versa and that the two maps are inverse to each other on both the source and target.
 
-\todo[plan]{Explain CompletelyDistribLattice and its difference to CompleteDistribLattice}.
+A \emph{completely distributive lattice} is a complete lattice in which even infinite joins and meets distribute over each other. 
+This differentiates it from complete distributive lattices. 
+In \mathlib, one writes \lstinline|CompletelyDistribLattice α| to provide a completely distributive lattice structure on \lstinline|α|. 
+We furthermore write \lstinline|x ⊔ y| for the binary and \lstinline|⨆ (i : ι), x i| for the indexed join, and \lstinline|x ⊓ y| for the binary and \lstinline|⨅ (i : ι), x | for the indexed meet.\todo[comment]{Explain the definition in more detail? Here or below?}
