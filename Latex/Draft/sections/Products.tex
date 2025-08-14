@@ -48,12 +48,12 @@ This operation is typically referred to as \emph{k-ification}.
 We will call it \emph{compact coherentification} corresponding to our naming of compactly coherent spaces. 
 Since we will be considering two different topologies on the same type, we need to define a type synonym in order for Lean to recognize which topology we are talking about. 
 We set \lstinline|def CompactCoherentification (X : Type*) := X| and abbreviate it to \lstinline|k X|. 
-This means that \lstinline|X| and \lstinline|k X| are definitionally equivalent but one should not abuse this equality. \todo{Write why above? Link something?}
+This means that \lstinline|X| and \lstinline|k X| are definitionally equivalent but this equality should not be abused. \todo{Write why above? Link something?}
 Instead one should move between these topologies using a bijection: 
 \begin{lstlisting}[frame=single]
 protected def mk (X : Type*) : X ≃ CompactCoherentification X := Equiv.refl _
 \end{lstlisting}
-Now, we can finally provide a topology on \lstinline|k X| in the following way: 
+Now, we can provide a topology on \lstinline|k X| in the following way: 
 
 \begin{lstlisting}[frame=single]
 instance instTopologicalSpace : TopologicalSpace (k X) :=
@@ -65,7 +65,80 @@ We prove that this definition implies that a set in our new topology is open iff
 We show the equivalent statement for closed sets, prove that the new topology is finer than the original one and formalize conditions under which maps to, from and between compact coherentifications are continuous. 
 Lastly, we show that the compact coherentification does indeed make an arbitrary topological space into a compactly coherent space. 
 
-\subsection{Product of CW complexes}
-\todo{What does one name this subsection?}
+\subsection{Constructing the product}
 
 \todo[plan]{Give a fairly detailed mathematical proof of the product here (a little less detailed than in my thesis).}
+
+We want to use this subsection to not only discuss the implementations but also give a fairly detailed proof. 
+For the rest of the section let $C$ be a CW complex with base $D$ and $E$ be a CW complex with base $F$.
+The respective families of characteristic maps are $(Q_i^n \colon D^n \to C)_{n \in \bN, i \in I_n}$ and $(P_j^m \colon D^m \to E)_{m \in \bN, j \in J_n}$. 
+We will write the cells of $C$ as $\openCell{n}{i}$ and the cells of $E$ as $\openCellf{m}{j}$.
+The theorem we aim to prove it the following:
+
+\begin{thm}
+  There is a CW structure on $\kif (C \times E)$ with base $(D \times E) \cup (C \times F)$ and characteristic maps $(Q_i^n \times P_j^m \colon D^n \times D^m \to \kif(C \times E))_{n,m \in \bN,i \in I_n,j \in J_m}$.
+  The indexing sets $(K_l)_{l \in \bN}$ are given by $K_l = \bigcup_{n + m = l}I_n \times J_m$ for every $l \in \bN$ and the cells are therefore of the form $\openCell{n}{i} \times \openCellf{m}{j}$ for $n, m \in \bN$, $i \in I_n$ and $j \in J_m$.
+\end{thm}
+
+In Lean we make the following assumptions for the entire section: 
+
+\begin{lstlisting}[frame=single]
+variable {X : Type*} {Y : Type*} [TopologicalSpace X] [TopologicalSpace Y] 
+  {C D : Set X} {E F : Set Y}
+\end{lstlisting}
+
+The above theorem then translates to
+
+\begin{lstlisting}[frame=single]
+instance RelCWComplex.ProductCompactCoherentification [RelCWComplex C D] 
+    [RelCWComplex E F] : 
+    RelCWComplex (X := k (X × Y)) (C ×ˢ E) (D ×ˢ E ∪ C ×ˢ F) := 
+  sorry
+\end{lstlisting}
+
+where \lstinline|sorry| is a way to state that we do not know the proof yet. 
+We define the indexing type of the product as 
+
+\begin{lstlisting}[frame=single]
+structure RelCWComplex.prodCell (C : Set X) {D : Set X} (E : Set Y) {F : Set Y} 
+    [RelCWComplex C D] [RelCWComplex E F] (n : ℕ) where
+  m : ℕ
+  l : ℕ
+  hml : m + l = n
+  j : cell C m
+  k : cell E l
+\end{lstlisting}
+
+and the characteristic maps as
+
+\begin{lstlisting}[frame=single]
+def RelCWComplex.prodMap [RelCWComplex C D] [RelCWComplex E F] {n : ℕ} 
+    (e : prodCell C E n) : PartialEquiv (Fin n → ℝ) (X × Y) :=
+  (prodIsometryEquiv e.hml).transPartialEquiv
+  (PartialEquiv.prod (map e.m e.j) (map e.l e.k))
+\end{lstlisting}
+
+where \lstinline|PartialEquiv.prod (map e.m e.j) (map e.l e.k)| is the product of the two relevant characteristic maps of \lstinline|C| and \lstinline|D| and \lstinline|prodIsometryEquiv| is the natural isometric isomorphism between \lstinline|Fin n → ℝ| and \lstinline|(Fin m → ℝ) × (Fin l → ℝ)| when \lstinline|m + l = n|.
+
+We will split up the proof into several lemmas. 
+First let us show that in the compact coherentification, the weak topology and the product topology agree. 
+
+\begin{lem}\label{lem:weaktopologyproduct}
+    $\kif (C \times E)$ has weak topology,
+    i.e. $A \subseteq \kif (C \times E)$ is closed if $((D \times E) \cup (C \times F)) \cap A$ and $\closedCell{n}{i} \times \closedCellf{m}{j} \cap A$ are closed for all $n, m \in \bN$, $i \in I_n$ and $j \in J_m$. 
+\end{lem}
+\begin{proof}
+    We know that the compact coherentification is a compactly coherent space and that $A$ is closed if for every compact set $K \subseteq \kif (C \times E)$, $A \cap K$ is closed in $K$.
+    Take such a compact set $K$.
+    The projections $\pr{1}{K}$ and $\pr{2}{K}$ are compact as images of a compact set. 
+    Thus there are finite sets $G \subseteq \{e_i^n \mid n \in \bN, i \in I_n \}$ and $H \subseteq \{f_j^m \mid m \in \bN, j \in J_m \}$ s.t $\pr{1}{K} \subseteq D \cup \bigcup_{e \in G} e$ and $\pr{2}{K} \subseteq E \cup \bigcup_{f \in H} f$.
+    
+    -- from here on this needs to be adapted -- 
+    
+    Thus 
+    \[K \subseteq \pr{1}{K} \times \pr{2}{K} \subseteq \bigcup_{e \in G} e \times \bigcup_{f \in H} f = \bigcup_{e \in G} \bigcup_{f \in H} e \times f.\] 
+    So $K$ is included in a finite union of cells of $\kif (C \times E)$. 
+    Therefore 
+    \[A \cap K = A \cap \left (\bigcup_{e \in G} \bigcup_{f \in H} e \times f \right )\cap K = \left (\bigcup_{e \in G} \bigcup_{f \in H} A \cap (e \times f)\right ) \cap K\] 
+    is closed since by assumption $A \cap (e \times f)$ is closed for every $e$ and $f$ and the union is finite. Thus $A \cap K$ is in particular closed in $K$.
+\end{proof}

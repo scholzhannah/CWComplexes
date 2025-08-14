@@ -21,17 +21,17 @@ namespace Topology
 
 section
 
-variable {X : Type*} {Y : Type*} [t1 : TopologicalSpace X] [t2 : TopologicalSpace Y]
-  {C D : Set X} {E F : Set Y}
+variable {X : Type*} {Y : Type*} [TopologicalSpace X] [TopologicalSpace Y] {C D : Set X}
+  {E F : Set Y}
 
 /-- The indexing types of cells of the product of two CW-complexes. -/
 structure RelCWComplex.prodCell (C : Set X) {D : Set X} (E : Set Y) {F : Set Y} [RelCWComplex C D]
     [RelCWComplex E F] (n : ℕ) where
-    m : ℕ
-    l : ℕ
-    hml : m + l = n
-    j : cell C m
-    k : cell E l
+  m : ℕ
+  l : ℕ
+  hml : m + l = n
+  j : cell C m
+  k : cell E l
 
 def RelCWComplex.prodCellEquiv (C : Set X) {D : Set X} (E : Set Y) {F : Set Y} [RelCWComplex C D]
     [RelCWComplex E F] (n : ℕ) :
@@ -42,60 +42,60 @@ def RelCWComplex.prodCellEquiv (C : Set X) {D : Set X} (E : Set Y) {F : Set Y} [
   right_inv _ := rfl
 
 /-- The natural `IsometryEquiv` `(Fin n → ℝ) ≃ᵢ (Fin m → ℝ) × (Fin l → ℝ)` when `n = m + l`. -/
-def RelCWComplex.prodisometryequiv {n m l : ℕ}  (hmln : m + l = n) :
+def RelCWComplex.prodIsometryEquiv {n m l : ℕ}  (hmln : m + l = n) :
     (Fin n → ℝ) ≃ᵢ (Fin m → ℝ) × (Fin l → ℝ) :=
   (IsometryEquiv.piCongrLeft (Y := fun _ ↦ ℝ) (finCongr hmln.symm)).trans
   ((Fin.appendIsometry m l).symm)
 
 /-- The characterstic maps of the product of CW-complexes. -/
-def RelCWComplex.prodmap [RelCWComplex C D] [RelCWComplex E F] {n : ℕ} (e : prodCell C E n) :
+def RelCWComplex.prodMap [RelCWComplex C D] [RelCWComplex E F] {n : ℕ} (e : prodCell C E n) :
     PartialEquiv (Fin n → ℝ) (X × Y) :=
-  (prodisometryequiv e.hml).transPartialEquiv
+  (prodIsometryEquiv e.hml).transPartialEquiv
   (PartialEquiv.prod (map e.m e.j) (map e.l e.k))
 
-lemma RelCWComplex.prodisometryequiv_image_closedBall {n m l : ℕ} {hmln : m + l = n} :
-    prodisometryequiv hmln '' closedBall 0 1 = closedBall 0 1 ×ˢ closedBall 0 1 := by
+lemma RelCWComplex.prodIsometryEquiv_image_closedBall {n m l : ℕ} {hmln : m + l = n} :
+    prodIsometryEquiv hmln '' closedBall 0 1 = closedBall 0 1 ×ˢ closedBall 0 1 := by
   rw [IsometryEquiv.image_closedBall, closedBall_prod_same]
   rfl
 
-lemma RelCWComplex.prodisometryequiv_image_ball {n m l : ℕ} {hmln : m + l = n} :
-    prodisometryequiv hmln '' ball 0 1 =  ball 0 1 ×ˢ ball 0 1 := by
+lemma RelCWComplex.prodIsometryEquiv_image_ball {n m l : ℕ} {hmln : m + l = n} :
+    prodIsometryEquiv hmln '' ball 0 1 =  ball 0 1 ×ˢ ball 0 1 := by
   simp only [IsometryEquiv.image_ball, ball_prod_same]
   rfl
 
-lemma RelCWComplex.prodisometryequiv_image_sphere {n m l : ℕ} {hmln : m + l = n} :
-    prodisometryequiv hmln '' sphere 0 1 =
+lemma RelCWComplex.prodIsometryEquiv_image_sphere {n m l : ℕ} {hmln : m + l = n} :
+    prodIsometryEquiv hmln '' sphere 0 1 =
     sphere 0 1 ×ˢ closedBall 0 1 ∪ closedBall 0 1 ×ˢ sphere 0 1 := by
   simp only [IsometryEquiv.image_sphere, sphere_prod]
   rfl
 
-lemma RelCWComplex.prodmap_image_ball [RelCWComplex C D] [RelCWComplex E F] {n : ℕ}
+lemma RelCWComplex.prodMap_image_ball [RelCWComplex C D] [RelCWComplex E F] {n : ℕ}
     (e : prodCell C E n) :
-    prodmap e '' ball 0 1 = (openCell e.m e.j) ×ˢ (openCell e.l e.k) := by
-  simp_rw [prodmap, Equiv.transPartialEquiv_apply, ← image_image, IsometryEquiv.coe_toEquiv,
-    prodisometryequiv_image_ball, PartialEquiv.prod_coe, ← prod_image_image_eq]
+    prodMap e '' ball 0 1 = (openCell e.m e.j) ×ˢ (openCell e.l e.k) := by
+  simp_rw [prodMap, Equiv.transPartialEquiv_apply, ← image_image, IsometryEquiv.coe_toEquiv,
+    prodIsometryEquiv_image_ball, PartialEquiv.prod_coe, ← prod_image_image_eq]
   rfl
 
-lemma RelCWComplex.prodmap_image_sphere [RelCWComplex C D] [RelCWComplex E F] {n : ℕ}
+lemma RelCWComplex.prodMap_image_sphere [RelCWComplex C D] [RelCWComplex E F] {n : ℕ}
     {e : prodCell C E n} :
-    prodmap e '' sphere 0 1 = (cellFrontier e.m e.j) ×ˢ (closedCell e.l e.k) ∪
+    prodMap e '' sphere 0 1 = (cellFrontier e.m e.j) ×ˢ (closedCell e.l e.k) ∪
     (closedCell e.m e.j) ×ˢ (cellFrontier e.l e.k) := by
-  simp_rw [prodmap, Equiv.transPartialEquiv_apply, ← image_image , IsometryEquiv.coe_toEquiv,
-    prodisometryequiv_image_sphere, image_union, PartialEquiv.prod_coe, ← prod_image_image_eq]
+  simp_rw [prodMap, Equiv.transPartialEquiv_apply, ← image_image , IsometryEquiv.coe_toEquiv,
+    prodIsometryEquiv_image_sphere, image_union, PartialEquiv.prod_coe, ← prod_image_image_eq]
   rfl
 
-lemma RelCWComplex.prodmap_image_closedBall [RelCWComplex C D] [RelCWComplex E F] {n : ℕ}
+lemma RelCWComplex.prodMap_image_closedBall [RelCWComplex C D] [RelCWComplex E F] {n : ℕ}
     {e : prodCell C E n} :
-    prodmap e '' closedBall 0 1 = (closedCell e.m e.j) ×ˢ (closedCell e.l e.k) := by
-  simp_rw [prodmap, Equiv.transPartialEquiv_apply, ← image_image , IsometryEquiv.coe_toEquiv,
-    prodisometryequiv_image_closedBall, PartialEquiv.prod_coe, ← prod_image_image_eq]
+    prodMap e '' closedBall 0 1 = (closedCell e.m e.j) ×ˢ (closedCell e.l e.k) := by
+  simp_rw [prodMap, Equiv.transPartialEquiv_apply, ← image_image , IsometryEquiv.coe_toEquiv,
+    prodIsometryEquiv_image_closedBall, PartialEquiv.prod_coe, ← prod_image_image_eq]
   rfl
 
 lemma RelCWComplex.iUnion_prodcell [RelCWComplex C D] [RelCWComplex E F] :
-    ⋃ n, ⋃ (e : prodCell C E n), prodmap e '' closedBall 0 1
+    ⋃ n, ⋃ (e : prodCell C E n), prodMap e '' closedBall 0 1
     = (⋃ m, ⋃ (i : cell C m), closedCell m i) ×ˢ ⋃ l, ⋃ (j : cell E l), closedCell l j := by
   ext x
-  simp only [prodmap_image_closedBall, prod_iUnion, iUnion_prod_const, mem_iUnion]
+  simp only [prodMap_image_closedBall, prod_iUnion, iUnion_prod_const, mem_iUnion]
   constructor
   · intro ⟨n, e, he⟩
     use e.l, e.k, e.m, e.j
@@ -104,9 +104,9 @@ lemma RelCWComplex.iUnion_prodcell [RelCWComplex C D] [RelCWComplex E F] :
 
 namespace CWComplex
 
-export RelCWComplex (prodCell prodisometryequiv prodmap prodisometryequiv_image_closedBall
-  prodisometryequiv_image_ball prodisometryequiv_image_sphere prodmap_image_ball
-  prodmap_image_sphere prodmap_image_closedBall iUnion_prodcell)
+export RelCWComplex (prodCell prodIsometryEquiv prodMap prodIsometryEquiv_image_closedBall
+  prodIsometryEquiv_image_ball prodIsometryEquiv_image_sphere prodMap_image_ball
+  prodMap_image_sphere prodMap_image_closedBall iUnion_prodcell)
 
 end CWComplex
 
@@ -118,36 +118,36 @@ variable [T2Space X] [T2Space Y]
 instance RelCWComplex.Product [RelCWComplex C D] [RelCWComplex E F] [KSpace (X × Y)] :
     RelCWComplex (C ×ˢ E) (D ×ˢ E ∪ C ×ˢ F) where
   cell n := prodCell C E n
-  map n i := prodmap i
+  map n i := prodMap i
   source_eq n i := by
     rcases i with  ⟨m, l, hmln, j, k⟩
     ext x
-    simp only [prodmap, Equiv.transPartialEquiv_source, IsometryEquiv.coe_toEquiv,
+    simp only [prodMap, Equiv.transPartialEquiv_source, IsometryEquiv.coe_toEquiv,
       PartialEquiv.prod_source, source_eq m j, source_eq, ball_prod_same, ← Prod.zero_eq_mk,
       mem_preimage, mem_ball, dist_zero_right]
-    rw [Isometry.norm_map_of_map_zero (by exact (prodisometryequiv hmln).isometry_toFun)]
+    rw [Isometry.norm_map_of_map_zero (by exact (prodIsometryEquiv hmln).isometry_toFun)]
     rfl
   continuousOn n i := by
     rcases i with  ⟨m, l, hmln, j, k⟩
-    simp only [Equiv.transPartialEquiv_eq_trans, PartialEquiv.coe_trans, prodmap]
+    simp only [Equiv.transPartialEquiv_eq_trans, PartialEquiv.coe_trans, prodMap]
     apply ContinuousOn.image_comp_continuous
-    · rw [Equiv.toPartialEquiv_apply, IsometryEquiv.coe_toEquiv, prodisometryequiv_image_closedBall]
+    · rw [Equiv.toPartialEquiv_apply, IsometryEquiv.coe_toEquiv, prodIsometryEquiv_image_closedBall]
       simp only [PartialEquiv.prod_coe]
       exact ContinuousOn.prodMap (continuousOn _ _) (continuousOn _ _)
     · rw [Equiv.toPartialEquiv_apply, IsometryEquiv.coe_toEquiv]
-      exact (prodisometryequiv hmln).continuous
+      exact (prodIsometryEquiv hmln).continuous
   continuousOn_symm n i := by
     rcases i with ⟨m, l, hmln, j, k⟩
     simp only [Equiv.transPartialEquiv_eq_trans, PartialEquiv.coe_trans_symm,
       Equiv.toPartialEquiv_symm_apply, PartialEquiv.trans_target, PartialEquiv.prod_target,
-      Equiv.toPartialEquiv_target, preimage_univ, inter_univ, prodmap]
-    apply (prodisometryequiv hmln).symm.continuous.comp_continuousOn
+      Equiv.toPartialEquiv_target, preimage_univ, inter_univ, prodMap]
+    apply (prodIsometryEquiv hmln).symm.continuous.comp_continuousOn
     rw [PartialEquiv.prod_symm]
     exact ((continuousOn_symm m j).prodMap (continuousOn_symm l k))
   pairwiseDisjoint' := by
     intro ⟨n1, m, l, hmln1, j, k⟩ _ ⟨n2, p, q, hpqn2, i, o⟩ _ ne
     simp only [Function.onFun, disjoint_iff_inter_eq_empty]
-    rw [prodmap_image_ball, prodmap_image_ball, prod_inter_prod, prod_eq_empty_iff]
+    rw [prodMap_image_ball, prodMap_image_ball, prod_inter_prod, prod_eq_empty_iff]
     suffices (⟨m, j⟩ : Σ n, cell C n) ≠ ⟨p, i⟩ ∨  (⟨l, k⟩ : Σ n, cell E n) ≠ ⟨q, o⟩ by
       rcases this with ne1 | ne2
       · exact Or.intro_left _ (disjoint_openCell_of_ne ne1).inter_eq
@@ -158,16 +158,16 @@ instance RelCWComplex.Product [RelCWComplex C D] [RelCWComplex E F] [KSpace (X �
     aesop
   disjointBase' n := by
     intro ⟨m, l, hml, i, j⟩
-    simp [prodmap_image_ball, disjoint_iff_inter_eq_empty, inter_union_distrib_left,
+    simp [prodMap_image_ball, disjoint_iff_inter_eq_empty, inter_union_distrib_left,
       prod_inter_prod, (disjointBase _ _).inter_eq]
   mapsTo n i := by
-    -- We first use `prodmap_image_sphere` to write the edge of the cell as a union.
+    -- We first use `prodMap_image_sphere` to write the edge of the cell as a union.
     -- We then use `exists_and_iff_of_monotone` to show that we can verify the
     -- statement seperately for the two parts of the union.
     -- We then do two completely symmetric proofs.
     classical
     rcases i with ⟨m, l, hmln, j, k⟩
-    simp_rw [Set.mapsTo', prodmap_image_sphere, union_subset_iff]
+    simp_rw [Set.mapsTo', prodMap_image_sphere, union_subset_iff]
     rw [← exists_and_iff_of_monotone]
     swap
     · refine fun J K JleK sub ↦ sub.trans ?_
@@ -195,7 +195,7 @@ instance RelCWComplex.Product [RelCWComplex C D] [RelCWComplex E F] [KSpace (X �
       right
       obtain ⟨o, oltm, i, imem, x1mem'⟩ := hJ1
       use o + l, (by rw [← hmln]; exact Nat.add_lt_add_right oltm l), ⟨o, l, rfl, i,  k⟩
-      refine ⟨?_, by rw [prodmap_image_closedBall]; exact ⟨x1mem', x2mem⟩⟩
+      refine ⟨?_, by rw [prodMap_image_closedBall]; exact ⟨x1mem', x2mem⟩⟩
       use o, l, rfl
       simp only [↓reduceDIte, Finset.mem_image, Finset.mem_map, Function.Embedding.coeFn_mk,
         exists_exists_and_eq_and]
@@ -215,7 +215,7 @@ instance RelCWComplex.Product [RelCWComplex C D] [RelCWComplex E F] [KSpace (X �
       right
       obtain ⟨o, oltm, i, imem, x2mem'⟩ := hJ2
       use m + o, (by rw [← hmln]; exact Nat.add_lt_add_left oltm m), ⟨m, o, rfl, j, i⟩
-      refine ⟨?_, by rw [prodmap_image_closedBall]; exact ⟨x1mem, x2mem'⟩⟩
+      refine ⟨?_, by rw [prodMap_image_closedBall]; exact ⟨x1mem, x2mem'⟩⟩
       use m, o, rfl
       simp only [↓reduceDIte, Finset.singleton_product, Finset.mem_image, Finset.mem_map,
         Function.Embedding.coeFn_mk, exists_exists_and_eq_and]
@@ -282,9 +282,9 @@ instance RelCWComplex.Product [RelCWComplex C D] [RelCWComplex E F] [KSpace (X �
     simp_rw [inter_iUnion]
     refine isClosed_iUnion_of_finite fun ⟨n, j, hnj⟩ ↦
       isClosed_iUnion_of_finite fun ⟨m, i, hmi⟩ ↦ ?_
-    replace hA : IsClosed (A ∩ prodmap ⟨m, n, rfl, i, j⟩ '' closedBall 0 1) :=
+    replace hA : IsClosed (A ∩ prodMap ⟨m, n, rfl, i, j⟩ '' closedBall 0 1) :=
       hA (m + n) ⟨m, n, rfl, i, j⟩
-    rw [prodmap_image_closedBall] at hA
+    rw [prodMap_image_closedBall] at hA
     exact hA
   isClosedBase := ((isClosedBase C).prod isClosed).union (isClosed.prod (isClosedBase E))
   union' := by
@@ -294,7 +294,7 @@ instance RelCWComplex.Product [RelCWComplex C D] [RelCWComplex E F] [KSpace (X �
       intro x
       simp only [mem_iUnion, mem_prod]
       intro ⟨n, ⟨m, l, eq, i, j⟩, h⟩
-      rw [prodmap_image_closedBall] at h
+      rw [prodMap_image_closedBall] at h
       exact ⟨closedCell_subset_complex m i h.1, closedCell_subset_complex l j h.2⟩
     · simp_rw [iUnion_prodcell]
       intro ⟨x1, x2⟩ ⟨hx1, hx2⟩
@@ -373,32 +373,32 @@ instance CWComplex.finiteType_product [KSpace (X × Y)] [CWComplex C] [CWComplex
 instance RelCWComplex.ProductKification [RelCWComplex C D] [RelCWComplex E F] :
     RelCWComplex (X := kification (X × Y)) (C ×ˢ E) (D ×ˢ E ∪ C ×ˢ F) where
   cell n := prodCell C E n
-  map n i := prodmap i
+  map n i := prodMap i
   source_eq n i := by
     rcases i with  ⟨m, l, hmln, j, k⟩
     ext x
-    simp only [prodmap, Equiv.transPartialEquiv_source, IsometryEquiv.coe_toEquiv,
+    simp only [prodMap, Equiv.transPartialEquiv_source, IsometryEquiv.coe_toEquiv,
       PartialEquiv.prod_source, source_eq m j, source_eq, ball_prod_same, ← Prod.zero_eq_mk,
       mem_preimage, mem_ball, dist_zero_right]
-    rw [Isometry.norm_map_of_map_zero (by exact (prodisometryequiv hmln).isometry_toFun)]
+    rw [Isometry.norm_map_of_map_zero (by exact (prodIsometryEquiv hmln).isometry_toFun)]
     rfl
   continuousOn n i := by
     rcases i with  ⟨m, l, hmln, j, k⟩
-    simp only [Equiv.transPartialEquiv_eq_trans, PartialEquiv.coe_trans, prodmap]
+    simp only [Equiv.transPartialEquiv_eq_trans, PartialEquiv.coe_trans, prodMap]
     apply ContinuousOn.image_comp_continuous
-    · rw [Equiv.toPartialEquiv_apply, IsometryEquiv.coe_toEquiv, prodisometryequiv_image_closedBall]
+    · rw [Equiv.toPartialEquiv_apply, IsometryEquiv.coe_toEquiv, prodIsometryEquiv_image_closedBall]
       simp only [PartialEquiv.prod_coe]
       apply continuousOn_compact_to_kification
         (by rw [closedBall_prod_same]; exact isCompact_closedBall _ _)
       exact ContinuousOn.prodMap (continuousOn _ _) (continuousOn _ _)
     · rw [Equiv.toPartialEquiv_apply, IsometryEquiv.coe_toEquiv]
-      exact (prodisometryequiv hmln).continuous
+      exact (prodIsometryEquiv hmln).continuous
   continuousOn_symm n i := by
     rcases i with ⟨m, l, hmln, j, k⟩
     simp only [Equiv.transPartialEquiv_eq_trans, PartialEquiv.coe_trans_symm,
       Equiv.toPartialEquiv_symm_apply, PartialEquiv.trans_target, PartialEquiv.prod_target,
-      Equiv.toPartialEquiv_target, preimage_univ, inter_univ, prodmap]
-    apply (prodisometryequiv hmln).symm.continuous.comp_continuousOn
+      Equiv.toPartialEquiv_target, preimage_univ, inter_univ, prodMap]
+    apply (prodIsometryEquiv hmln).symm.continuous.comp_continuousOn
     rw [PartialEquiv.prod_symm]
     exact from_kification_continuousOn_of_continuousOn ((map m j).symm.prod (map l k).symm)
       ((map m j).target ×ˢ (map l k).target) ((continuousOn_symm m j).prodMap
@@ -406,7 +406,7 @@ instance RelCWComplex.ProductKification [RelCWComplex C D] [RelCWComplex E F] :
   pairwiseDisjoint' := by
     intro ⟨n1, m, l, hmln1, j, k⟩ _ ⟨n2, p, q, hpqn2, i, o⟩ _ ne
     simp only [Function.onFun, disjoint_iff_inter_eq_empty]
-    rw [prodmap_image_ball, prodmap_image_ball, prod_inter_prod, prod_eq_empty_iff]
+    rw [prodMap_image_ball, prodMap_image_ball, prod_inter_prod, prod_eq_empty_iff]
     suffices (⟨m, j⟩ : Σ n, cell C n) ≠ ⟨p, i⟩ ∨  (⟨l, k⟩ : Σ n, cell E n) ≠ ⟨q, o⟩ by
       rcases this with ne1 | ne2
       · exact Or.intro_left _ (disjoint_openCell_of_ne ne1).inter_eq
@@ -417,18 +417,18 @@ instance RelCWComplex.ProductKification [RelCWComplex C D] [RelCWComplex E F] :
     aesop
   disjointBase' n := by
     intro ⟨m, l, hml, i, j⟩
-    rw [prodmap_image_ball]
+    rw [prodMap_image_ball]
     simp [disjoint_iff_inter_eq_empty, inter_union_distrib_left,
       prod_inter_prod, (disjointBase _ _).inter_eq]
   mapsTo n i := by
-    -- We first use `prodmap_image_sphere` to write the edge of the cell as a union.
+    -- We first use `prodMap_image_sphere` to write the edge of the cell as a union.
     -- We then use `exists_and_iff_of_monotone` to show that we can verify the
     -- statement seperately for the two parts of the union.
     -- We then do two completely symmetric proofs.
     classical
     rcases i with ⟨m, l, hmln, j, k⟩
     simp_rw [Set.mapsTo']
-    rw [prodmap_image_sphere]
+    rw [prodMap_image_sphere]
     simp_rw [union_subset_iff]
     rw [← exists_and_iff_of_monotone]
     swap
@@ -457,7 +457,7 @@ instance RelCWComplex.ProductKification [RelCWComplex C D] [RelCWComplex E F] :
       right
       obtain ⟨o, oltm, i, imem, x1mem'⟩ := hJ1
       use o + l, (by rw [← hmln]; exact Nat.add_lt_add_right oltm l), ⟨o, l, rfl, i,  k⟩
-      refine ⟨?_, by rw [prodmap_image_closedBall]; exact ⟨x1mem', x2mem⟩⟩
+      refine ⟨?_, by rw [prodMap_image_closedBall]; exact ⟨x1mem', x2mem⟩⟩
       use o, l, rfl
       simp only [↓reduceDIte, Finset.mem_image, Finset.mem_map, Function.Embedding.coeFn_mk,
         exists_exists_and_eq_and]
@@ -477,7 +477,7 @@ instance RelCWComplex.ProductKification [RelCWComplex C D] [RelCWComplex E F] :
       right
       obtain ⟨o, oltm, i, imem, x2mem'⟩ := hJ2
       use m + o, (by rw [← hmln]; exact Nat.add_lt_add_left oltm m), ⟨m, o, rfl, j, i⟩
-      refine ⟨?_, by rw [prodmap_image_closedBall]; exact ⟨x1mem, x2mem'⟩⟩
+      refine ⟨?_, by rw [prodMap_image_closedBall]; exact ⟨x1mem, x2mem'⟩⟩
       use m, o, rfl
       simp only [↓reduceDIte, Finset.singleton_product, Finset.mem_image, Finset.mem_map,
         Function.Embedding.coeFn_mk, exists_exists_and_eq_and]
@@ -547,9 +547,9 @@ instance RelCWComplex.ProductKification [RelCWComplex C D] [RelCWComplex E F] :
     simp_rw [inter_iUnion]
     refine isClosed_iUnion_of_finite fun ⟨n, j, hnj⟩ ↦
       isClosed_iUnion_of_finite fun ⟨m, i, hmi⟩ ↦ ?_
-    replace hA : IsClosed (A ∩ prodmap ⟨m, n, rfl, i, j⟩ '' closedBall 0 1) :=
+    replace hA : IsClosed (A ∩ prodMap ⟨m, n, rfl, i, j⟩ '' closedBall 0 1) :=
       hA (m + n) ⟨m, n, rfl, i, j⟩
-    rw [prodmap_image_closedBall] at hA
+    rw [prodMap_image_closedBall] at hA
     exact hA
   isClosedBase := (((isClosedBase C).prod isClosed).union (isClosed.prod (isClosedBase E))).mono
     kification_le
@@ -560,7 +560,7 @@ instance RelCWComplex.ProductKification [RelCWComplex C D] [RelCWComplex E F] :
       intro x
       simp only [mem_iUnion]
       intro ⟨n, ⟨m, l, eq, i, j⟩, h⟩
-      rw [prodmap_image_closedBall] at h
+      rw [prodMap_image_closedBall] at h
       exact ⟨closedCell_subset_complex m i h.1, closedCell_subset_complex l j h.2⟩
     · rw [iUnion_prodcell]
       intro ⟨x1, x2⟩ ⟨hx1, hx2⟩
