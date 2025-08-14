@@ -253,7 +253,7 @@ lemma continuous_normScale {E F : Type*}  [SeminormedAddCommGroup E] [T1Space E]
     {f : E → F} (hf : Continuous f) [ContinuousSMul ℝ F] [NormSMulClass ℝ F]
     (hf0 : ∀ x, f x = 0 ↔ x = 0) :
     Continuous fun x ↦ (‖x‖ * ‖f x‖⁻¹) • (f x) := by
-  rw [continuous_iff_continuousOn_univ, ← diff_union_of_subset (subset_univ {0})]
+  rw [← continuousOn_univ, ← diff_union_of_subset (subset_univ {0})]
   rw [(compl_eq_univ_diff {0}).symm]
   apply ContinuousOn.union_continuousAt
   · rw [isOpen_compl_iff]

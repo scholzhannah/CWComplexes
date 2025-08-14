@@ -528,7 +528,7 @@ lemma RelCWComplex.continuous_of_continuousOn_closedCell [T2Space X] [RelCWCompl
     (hf : ∀ n (i : cell C n), ContinuousOn f (closedCell n i))
     (hfD : ContinuousOn f D) (hfC : ContinuousOn f (closure Cᶜ)) :
     Continuous f := by
-  rw [continuous_iff_continuousOn_univ, ← compl_union_self  (s := C)]
+  rw [← continuousOn_univ, ← compl_union_self  (s := C)]
   refine ContinuousOn.mono ?_ (union_subset_union_left C subset_closure)
   apply hfC.union_of_isClosed ?_ isClosed_closure isClosed
   exact continuousOn_of_continuousOn_closedCell f hf hfD

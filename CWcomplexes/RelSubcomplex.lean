@@ -407,26 +407,26 @@ instance RelCWComplex.Subcomplex.instCompletelyDistribLattice [T2Space X]
 @[simp]
 lemma RelCWComplex.Subcomplex.top_carrier [T2Space X] [RelCWComplex C D] :
     (⊤ : Subcomplex C) = C := by
-  simp [instCompletelyDistribLattice, CompletelyDistribLattice.toCompleteLattice,
-    CompletelyDistribLattice.MinimalAxioms, top'_carrier]
+  simp [instCompletelyDistribLattice, CompletelyDistribLattice.MinimalAxioms]
+  rfl
 
 @[simp]
 lemma RelCWComplex.Subcomplex.top_I [T2Space X] [RelCWComplex C D] (n : ℕ) :
     (⊤ : Subcomplex C).I n = univ := by
-  simp [instCompletelyDistribLattice, CompletelyDistribLattice.toCompleteLattice,
-    CompletelyDistribLattice.MinimalAxioms, top'_I]
+  simp [instCompletelyDistribLattice, CompletelyDistribLattice.MinimalAxioms]
+  rfl
 
 @[simp]
 lemma RelCWComplex.Subcomplex.bot_carrier [T2Space X] [RelCWComplex C D] :
     (⊥ : Subcomplex C) = D := by
-  simp [instCompletelyDistribLattice, CompletelyDistribLattice.toCompleteLattice,
-    CompletelyDistribLattice.MinimalAxioms, bot'_carrier]
+  simp [instCompletelyDistribLattice, CompletelyDistribLattice.MinimalAxioms]
+  rfl
 
 @[simp]
 lemma RelCWComplex.Subcomplex.bot_I [T2Space X] [RelCWComplex C D] (n : ℕ) :
     (⊥ : Subcomplex C).I n = ∅ := by
-  simp [instCompletelyDistribLattice, CompletelyDistribLattice.toCompleteLattice,
-    CompletelyDistribLattice.MinimalAxioms, bot'_I]
+  simp [instCompletelyDistribLattice, CompletelyDistribLattice.MinimalAxioms]
+  rfl
 
 instance RelCWComplex.Subcomplex.finite_bot [T2Space X] [RelCWComplex C D] :
     Finite ((⊥ : Subcomplex C) : Set X) where
