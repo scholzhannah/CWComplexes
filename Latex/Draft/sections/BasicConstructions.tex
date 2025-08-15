@@ -8,3 +8,46 @@ But I could briefly talk about:
     \item disjoint unions?
     \item transporting along partial homeomorphisms?
   \end{enumerate}}
+
+We have formalized a handful of miscellaneous constructions that we present in this section.
+
+Firstly, we provide a way to get CW complex instances for non-definitional equalities. 
+In Lean, this is 
+
+\begin{lstlisting}[frame=single]
+def RelCWComplex.ofEq {X : Type*} [TopologicalSpace X] (C D : Set X)
+    {E F : Set X} [RelCWComplex C D] (hCE : C = E) (hDF : D = F) : 
+    RelCWComplex E F :=
+  /- Proof omitted-/
+\end{lstlisting}
+
+We also want to be able to transport CW-structures along homeomorphisms. 
+Because of our local approach, the more general statement features ``local homeomorphisms'': 
+
+\begin{lstlisting}[frame=single]
+def RelCWComplex.ofPartialEquiv.{u} {X Y : Type u} [TopologicalSpace X] 
+    [T2Space X] [TopologicalSpace Y] (C : Set X) {D : Set X} (E : Set Y) 
+    {F : Set Y} [RelCWComplex C D] (hE : IsClosed E) (f : PartialEquiv X Y) (hfC1 : f.source = C) (hfE1 : f.target = E) (hDF : f '' D = F) 
+    (hfC2 : ContinuousOn f C) (hfE2 : ContinuousOn f.symm E) :
+    RelCWComplex E F := 
+  /- Proof omitted-/
+\end{lstlisting}
+
+We can then easily derive a version for the general ``total'' homeomorphisms.
+
+Next, we show that the disjoint union of two CW complexes is again a CW complex. 
+Here, we again simplify the problem by considering both CW complexes as subsets of the same topological space. 
+The sufficient conditions for this to work are that the complexes are disjoint and their bases are separated by neighbourhoods. 
+This translates to: 
+
+\begin{lstlisting}[frame=single]
+def RelCWComplex.disjointUnion [RelCWComplex C D] {E F : Set X} 
+    [RelCWComplex E F] (hCE : Disjoint C E) (hDF : SeparatedNhds D F) : RelCWComplex (C ∪ E) (D ∪ F) :=
+  /- Proof omitted-/
+\end{lstlisting}
+
+\todo[plan]{Here, I would like to say something about this not being an instance and us therefore providing one but I have not managed to define this instance :(}
+
+We provide definitions that allow you to attach one cell at a time or attach a collection of cells of the same dimension at once.
+These are in convenient when constructing examples of CW complexes. 
+Lastly, we make it possible to restrict and enlarge the ambient type around a CW complex.

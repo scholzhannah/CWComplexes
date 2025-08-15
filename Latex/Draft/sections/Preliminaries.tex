@@ -22,11 +22,16 @@ Another technical detail of Lean that we will manipulate is reducibility.
 The reducibility of a definition describes what processes are allowed to unfold it. 
 Definitions in \mathlib are by default \lstinline|semireducible|, meaning they are unfolded for basic checks like definitional equality but not for more time intensive operations like typeclass inference.
 However, sometimes we do want definitions to be unfolded in typeclass inference. 
-To achieve this behaviour, we need to change the reducibility setting to \lstinline|reducible| which is done by writing \lstinline|abbrev| instead of \lstinline|def|. \todo{Example?}
+To achieve this behaviour, we need to change the reducibility setting to \lstinline|reducible| which is done by writing \lstinline|abbrev| instead of \lstinline|def|. 
+\mathlib, for example has the abbreviation \lstinline|unitInterval| for the interval \lstinline|Set.Icc 0 1 : Set ℝ|.
+\todo[inline]{Better example? I think this one only exists to be able to provide notation? Would Path.Homotopy be better?}
 
 More on \lstinline|outParam| and \lstinline|abbrev| can be found in \cite{LeanReference2025}.
 
-\todo[inline]{Describe protected}
+Like a lot of programming languages, Lean makes use of namespaces to sort its declarations and reduce the length of names when namespaces are opened. 
+One can prevent this shortening of names by specifying a declaration to be \lstinline|protected|. 
+This ensures that the declaration is still available but makes using it less convenient. 
+The modifier is frequently used to prevent naming conflicts in namespaces that might be opened together and do discourage the use of certain declarations in favour of more idiomatic ones. 
 
 \subsection{Preliminary Mathematics in Lean}\label{sub:mathinlean}
 

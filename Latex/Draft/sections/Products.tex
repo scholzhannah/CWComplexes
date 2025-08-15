@@ -49,7 +49,7 @@ This operation is typically referred to as \emph{k-ification}.
 We will call it \emph{compact coherentification} corresponding to our naming of compactly coherent spaces. 
 Since we will be considering two different topologies on the same type, we need to define a type synonym in order for Lean to recognize which topology we are talking about. 
 We set \lstinline|def CompactCoherentification (X : Type*) := X| and abbreviate it to \lstinline|k X|. 
-This means that \lstinline|X| and \lstinline|k X| are definitionally equivalent but this equality should not be abused. \todo{Write why above? Link something?}
+This means that \lstinline|X| and \lstinline|k X| are definitionally equivalent but this equality should not be abused. \todo{Write why above? Cite something?}
 Instead one should move between these topologies using a bijection: 
 \begin{lstlisting}[frame=single]
 protected def mk (X : Type*) : X ≃ CompactCoherentification X := Equiv.refl _

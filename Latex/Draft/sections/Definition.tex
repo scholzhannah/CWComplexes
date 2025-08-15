@@ -97,7 +97,7 @@ The type of absolute CW complexes on the set $C$ in Lean is \lstinline|CWComplex
 We then provide an instance stating that absolute CW complexes are relative CW complexes and a definition in the other direction for relative CW complexes with empty base.
 The latter cannot be an instance as this would create an instance loop.
 Additionally, it would enable typeclass inference to also consider \lstinline|RelCWComplex| instances when looking for a \lstinline|CWComplex| instance, which is exactly what we wanted to avoid.
-To avoid having duplicate notions \lstinline|CWComplex.cell| and \lstinline|RelCWComplex.cell| and \lstinline|CWComplex.map| and \lstinline|RelCWComplex.map|, we mark the version for absolute CW complexes as \lstinline|protected| strongly encouraging the user to only use the version for relative CW complexes which is also available for absolute ones through the instance.\todo{Explain protected above}
+To avoid having duplicate notions \lstinline|CWComplex.cell| and \lstinline|RelCWComplex.cell| and \lstinline|CWComplex.map| and \lstinline|RelCWComplex.map|, we mark the version for absolute CW complexes as \lstinline|protected| strongly encouraging the user to only use the version for relative CW complexes which is also available for absolute ones through the instance (see Section \ref{sub:leanandmathlib}).
 \todo[plan]{Talk about attribute when it is done}
 
 As in Definition \ref{def:cwcomplex}, we define the notions of open cells, closed cells and cell frontiers.
@@ -160,7 +160,7 @@ Since we expect proofs about \lstinline|skeleton| to be short reductions of the 
 The definition \lstinline|skeleton| exists mostly for completeness' sake. 
 Both lemmata and definitions should use \lstinline|skeletonLT| to make proofs easier and then possibly derive a version for \lstinline|skeleton|.
 
-\todo[comment, inline]{Should subcomplexes and cellular maps go into a seperate section? They don't really fit here but  also think there isn't enough to say to put them in their own section.}
+\todo[comment, inline]{Should subcomplexes and cellular maps go into a separate section? They don't really fit here but  also think there isn't enough to say to put them in their own section.}
 
 We also want to introduce a sensible notion of structure preserving maps between CW complexes.
 A natural notion is a \emph{cellular map}. 
