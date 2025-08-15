@@ -15,9 +15,8 @@ More about typeclasses in Lean can be found in \cite{Selsam2020} and \cite{Baane
 By default, Lean's typeclass inference algorithm requires all parameters to be known before it searches for an instance. This behaviour can be modified by marking certain parameters with \lstinline|outParam|, which means that typeclass inference will search for an instance even if the out-parameters are not yet known.
 Furthermore, typeclass inference will not consider the values of \lstinline|outParam| parameters, and will search for the first instance where all parameters that are not marked as \lstinline|outParam| unify (up to definitional equality).
 Therefore, an argument should only be marked as an \lstinline|outParam| if for every combination of the parameters not marked as \lstinline|outParam| there is at most one instance.
-For example, the class \lstinline|Membership α β| specifies that for \lstinline|a : α| and \lstinline|b : β| we have specified the notation \lstinline|a ∈ b|. 
+For example, the class \lstinline|Membership α β| states that for \lstinline|a : α| and \lstinline|b : β| we have specified the notation \lstinline|a ∈ b|. 
 The first parameter is marked as an \lstinline|outParam|, since it is uniquely determined by the second parameter. Typical instances include \lstinline|Membership α (List α)| and \lstinline|Membership α (Set α)|.
-\mathlib therefore marks the first parameter as \lstinline|outParam| enabling typeclass inference to run even when this parameter is not known.
 
 Another technical detail of Lean that we will manipulate is reducibility.
 The reducibility of a definition describes what processes are allowed to unfold it. 
@@ -36,7 +35,7 @@ In \mathlib, we write \lstinline|TopologicalSpace X| to say that a type \lstinli
 For a map \lstinline|f : X → Y| between topological spaces continuity is described as \lstinline|Continuous f| or \lstinline|ContinuousOn A| for continuity on a set. 
 To specify that a topological space \lstinline|X| is Hausdorff one writes \lstinline|T2Space X|.
 
-In \mathlib a partial bijection between two types \lstinline|X| and \lstinline|Y| has type \lstinline|PartialEquiv X Y| and is made up of two total functions \lstinline|X → Y| and \lstinline|Y → X|, a set in \lstinline|X| called the \emph{source}, a set in \lstinline|Y| called the \emph{target} and proofs that that the target is mapped to the source and vice versa and that the two maps are inverse to each other on both the source and target.
+A partial bijection between two types \lstinline|X| and \lstinline|Y| has type \lstinline|PartialEquiv X Y| and is made up of two total functions \lstinline|X → Y| and \lstinline|Y → X|, a set in \lstinline|X| called the \emph{source}, a set in \lstinline|Y| called the \emph{target} and proofs that that the target is mapped to the source and vice versa and that the two maps are inverse to each other on both the source and target.
 
 A \emph{completely distributive lattice} is a complete lattice in which even infinite joins and meets distribute over each other. 
 This differentiates it from complete distributive lattices. 

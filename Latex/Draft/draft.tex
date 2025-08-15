@@ -26,7 +26,8 @@
 \usepackage{xparse}                     % to define the claim environment
 \usepackage{xspace}                     % to get automatic space after commands
 \usepackage{todonotes}                  % todo notes
-
+\usepackage{xparse}                     % to define the claim environment
+\usepackage{verbatim}                   % multiline comments
 
 % to get upright greek letters
 \usepackage{upgreek}
@@ -87,6 +88,39 @@
 \newtheorem{thm}[defi]{Theorem}
 \newtheorem*{thm*}{Theorem}
 \newtheorem{exercise}[defi]{Exercise}
+
+% Claim environment (nestable once)
+\begin{comment}
+    The syntax is: 
+    \begin{claim}
+        Claim statement
+        \begin{proof}
+            Proof of claim.
+        \end{proof}
+    \end{claim}
+\end{comment}
+
+\newlist{Claim}{description}{2}
+\setlist[Claim]{labelindent=2em,leftmargin=*}
+\newif\ifInsideClaim
+\newcounter{claim}[defi]
+\newcounter{cclaim}[claim]
+\renewcommand\theclaim{\arabic{claim}}
+\renewcommand\thecclaim{\arabic{claim}.\arabic{cclaim}}
+\let\originalqedsymbol\qedsymbol
+\newenvironment{claim}{%
+  % disable qed symbol if there is no star
+  \let\qedsymbol\relax%
+  \ifInsideClaim% we have a nested environment
+    \refstepcounter{cclaim}%
+    \let\theclaimcounter\thecclaim%
+  \else%
+    \refstepcounter{claim}%
+    \let\theclaimcounter\theclaim%
+    \InsideClaimtrue%
+  \fi%
+  \Claim\item[\textbf{Claim \theclaimcounter:}]%
+}{\endClaim\InsideClaimfalse\let\qedsymbol\originalqedsymbol}
 
 
 %  macros
