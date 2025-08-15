@@ -513,7 +513,7 @@ lemma sphereToDisc_symm_continuousOn {n : ℕ} (hn : n > 0) :
         have := (sphereToDisc' n).continuousOn_invFun
         simp only [PartialEquiv.invFun_as_coe, PartialHomeomorph.coe_coe_symm,
           sphereToDisc'_target] at this
-        exact continuous_iff_continuousOn_univ.mpr this
+        exact continuousOn_univ.mp this
       · simp only [sphereToDisc]
         intro ⟨y, hy⟩
         simp only [Function.comp_apply, restrict_apply, hy, ↓reduceDIte]
@@ -930,7 +930,7 @@ lemma continuous_spheremaps_symm (n : ℕ) (i : Fin 2) : Continuous (spheremaps 
 def sphereEmbed (n : ℕ) [CWComplex (sphere (0 : EuclideanSpace ℝ (Fin n)) 1)] :
     CWComplex (sphere 0 1 ∩ {x | x (Fin.last n) = 0} : Set (EuclideanSpace ℝ (Fin (n + 1)))) :=
   ofPartialEquiv (X := EuclideanSpace ℝ (Fin n)) (Y := EuclideanSpace ℝ (Fin (n + 1)))
-    (sphere 0 1) (sphere 0 1 ∩ {x | x (Fin.last n) = 0}) isClosed_sphere
+    (sphere 0 1) (sphere 0 1 ∩ {x | x (Fin.last n) = 0})
     (isClosed_sphere.inter (isClosed_plane n))
     ((PartialEquiv.EuclideanSpaceSucc n).restr (sphere 0 1))
     (by simp)

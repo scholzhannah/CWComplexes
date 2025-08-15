@@ -161,12 +161,274 @@ lemma CWComplex.finite_ofEq {X : Type*} [TopologicalSpace X] (C : Set X)
   let _ := finiteType_ofEq C hCE
   inferInstance
 
+/-- A partial bijection with closed source and target that is continuous on both source and target
+preserves CW-structures. -/
+@[simps -isSimp]
+def RelCWComplex.ofPartialEquiv.{u} {X Y : Type u} [TopologicalSpace X] [T2Space X]
+    [TopologicalSpace Y] (C : Set X) {D : Set X} (E : Set Y) {F : Set Y} [RelCWComplex C D]
+    (hE : IsClosed E) (f : PartialEquiv X Y) (hfC1 : f.source = C) (hfE1 : f.target = E)
+    (hDF : f '' D = F) (hfC2 : ContinuousOn f C) (hfE2 : ContinuousOn f.symm E) :
+    RelCWComplex E F where
+  cell := cell C
+  map n i := (map n i).trans' (f.restr (map n i).target) (by
+    simp only [← PartialEquiv.image_source_eq_target, PartialEquiv.restr_source, right_eq_inter,
+    source_eq n i, hfC1]
+    exact openCell_subset_complex n i)
+  source_eq n i := by simp [source_eq n i]
+  continuousOn n i := by
+    simp only [PartialEquiv.trans', PartialEquiv.restr_coe, PartialEquiv.restr_coe_symm,
+      PartialEquiv.restr_target]
+    apply hfC2.comp (continuousOn n i)
+    rw [mapsTo']
+    exact closedCell_subset_complex n i
+  continuousOn_symm n i := by
+    simp only [PartialEquiv.trans', PartialEquiv.restr_coe, PartialEquiv.restr_coe_symm,
+      PartialEquiv.restr_target, PartialEquiv.coe_symm_mk]
+    apply (continuousOn_symm n i).comp
+    · apply hfE2.mono
+      simp [hfE1]
+    · simp [mapsTo']
+  pairwiseDisjoint' := by
+    have := pairwiseDisjoint' (C := C)
+    simp only [PairwiseDisjoint, Set.Pairwise, mem_univ, ne_eq, Function.onFun, forall_const,
+      PartialEquiv.trans'_apply, PartialEquiv.restr_coe, Function.comp_apply] at this ⊢
+    intro x y hxy
+    simp_rw [← image_image]
+    apply (this hxy).image (u := C)
+    · rw [← hfC1]
+      exact f.injOn
+    · exact openCell_subset_complex _ _
+    · exact openCell_subset_complex _ _
+  disjointBase' n i := by
+    simp only [PartialEquiv.trans'_apply, PartialEquiv.restr_coe, Function.comp_apply]
+    simp_rw [← image_image, ← hDF]
+    apply (disjointBase' n i).image (u := C)
+    · rw [← hfC1]
+      exact f.injOn
+    · exact openCell_subset_complex _ _
+    · exact base_subset_complex
+  mapsTo n i := by
+    obtain ⟨I, hI⟩ := mapsTo n i
+    use I
+    rw [Set.mapsTo'] at hI ⊢
+    simp only [PartialEquiv.trans'_apply, PartialEquiv.restr_coe, Function.comp_apply,
+      ← image_image, ← image_iUnion (f := f), ← hDF, ← image_union]
+    apply image_mono
+    exact hI
+  closed' A hA := by
+    intro ⟨hA1, hA2⟩
+    apply f.isClosed_of_isClosed_preimage (hfC1 ▸ hfC2) (hfE1 ▸ hfE2) (hfE1 ▸ hE) (hfC1 ▸ isClosed)
+    · exact hfE1 ▸ hA
+    rw [closed (C := C) _ (hfC1 ▸ inter_subset_left)]
+    constructor
+    · intro n i
+      specialize hA1 n i
+      simp only [PartialEquiv.trans'_apply, PartialEquiv.restr_coe, Function.comp_apply,
+        ← image_image] at hA1
+      rw [hfC1, inter_assoc, inter_comm, inter_assoc]
+      have : closedCell n i ∩ C = f ⁻¹' (f '' closedCell n i) ∩ C := by
+        simp_rw [← hfC1]
+        rw [inter_comm, inter_comm _ f.source]
+        symm
+        apply PartialEquiv.IsImage.preimage_eq
+        apply PartialEquiv.IsImage.of_image_eq
+        rw [hfC1, inter_eq_right.2 (closedCell_subset_complex n i), hfE1, ← hfE1,
+          ← f.image_source_eq_target, hfC1, ← f.injOn.image_inter (by rw [hfC1])
+          (by rw [hfC1]; exact closedCell_subset_complex n i),
+          inter_eq_right.2 (closedCell_subset_complex n i)]
+      rw [this, ← inter_assoc, ← preimage_inter, inter_comm]
+      exact hfC2.preimage_isClosed_of_isClosed isClosed hA1
+    · rw [hfC1, inter_assoc, inter_comm, inter_assoc]
+      have : D ∩ C = f ⁻¹' F ∩ C := by
+        rw [← hfC1, inter_comm, inter_comm (↑f ⁻¹' F)]
+        symm
+        apply PartialEquiv.IsImage.preimage_eq
+        apply PartialEquiv.IsImage.of_image_eq
+        rw [hfC1, inter_eq_right.2 base_subset_complex, hfE1, ← hDF, ← hfE1,
+          ← f.image_source_eq_target, hfC1, ← f.injOn.image_inter (by rw [hfC1])
+          (by rw [hfC1]; exact base_subset_complex), inter_eq_right.2 base_subset_complex]
+      rw [this, ← inter_assoc, ← preimage_inter, inter_comm]
+      exact hfC2.preimage_isClosed_of_isClosed isClosed hA2
+  isClosedBase := by
+    rw [← hDF]
+    apply f.isClosed_of_isClosed_preimage (hfC1 ▸ hfC2) (hfE1 ▸ hfE2) (hfE1 ▸ hE) (hfC1 ▸ isClosed)
+    · rw [← PartialEquiv.image_source_eq_target]
+      apply image_mono
+      rw [hfC1]
+      exact base_subset_complex
+    rw [hfC1]
+    have : C ∩ ↑f ⁻¹' (↑f '' D) = C ∩ D := by
+      rw [← hfC1, hDF]
+      apply PartialEquiv.IsImage.preimage_eq
+      apply PartialEquiv.IsImage.of_image_eq
+      rw [hfC1, inter_eq_right.2 base_subset_complex, hfE1, ← hDF, ← hfE1,
+        ← f.image_source_eq_target, hfC1, ← f.injOn.image_inter (by rw [hfC1])
+        (by rw [hfC1]; exact base_subset_complex), inter_eq_right.2 base_subset_complex]
+    rw [this, inter_eq_right.2 base_subset_complex]
+    exact isClosedBase C
+  union' := by
+    simp only [PartialEquiv.trans'_apply, PartialEquiv.restr_coe, Function.comp_apply,
+      ← image_image, ← image_iUnion (f := f), ← hDF, ← image_union, ← hfE1,
+      ← f.image_source_eq_target, hfC1, union']
+
+/-- `RelCWComplex.ofPartialEquiv` preserves finite dimensionality. -/
+lemma RelCWComplex.finiteDimensional_ofPartialEquiv.{u} {X Y : Type u} [TopologicalSpace X]
+    [T2Space X] [TopologicalSpace Y] (C : Set X) {D : Set X} (E : Set Y) {F : Set Y}
+    [RelCWComplex C D] [FiniteDimensional C] (hE : IsClosed E)
+    (f : PartialEquiv X Y) (hfC1 : f.source = C) (hfE1 : f.target = E) (hDF : f '' D = F)
+    (hfC2 : ContinuousOn f C) (hfE2 : ContinuousOn f.symm E) :
+    letI := ofPartialEquiv C E hE f hfC1 hfE1 hDF hfC2 hfE2
+    FiniteDimensional E :=
+  let _ := ofPartialEquiv C E hE f hfC1 hfE1 hDF hfC2 hfE2
+  {eventually_isEmpty_cell := FiniteDimensional.eventually_isEmpty_cell (C := C)}
+
+/-- `RelCWComplex.ofPartialEquiv` preserves finite type. -/
+lemma RelCWComplex.finiteType_ofPartialEquiv.{u} {X Y : Type u} [TopologicalSpace X]
+    [T2Space X] [TopologicalSpace Y] (C : Set X) {D : Set X} (E : Set Y) {F : Set Y}
+    [RelCWComplex C D] [FiniteType C] (hE : IsClosed E)
+    (f : PartialEquiv X Y) (hfC1 : f.source = C) (hfE1 : f.target = E) (hDF : f '' D = F)
+    (hfC2 : ContinuousOn f C) (hfE2 : ContinuousOn f.symm E) :
+    letI := ofPartialEquiv C E hE f hfC1 hfE1 hDF hfC2 hfE2
+    FiniteType E :=
+  let _ := ofPartialEquiv C E hE f hfC1 hfE1 hDF hfC2 hfE2
+  {finite_cell := FiniteType.finite_cell (C := C)}
+
+/-- `RelCWComplex.ofPartialEquiv` preserves finiteness. -/
+lemma RelCWComplex.finite_ofPartialEquiv.{u} {X Y : Type u} [TopologicalSpace X]
+    [T2Space X] [TopologicalSpace Y] (C : Set X) {D : Set X} (E : Set Y) {F : Set Y}
+    [RelCWComplex C D] [Finite C] (hE : IsClosed E)
+    (f : PartialEquiv X Y) (hfC1 : f.source = C) (hfE1 : f.target = E) (hDF : f '' D = F)
+    (hfC2 : ContinuousOn f C) (hfE2 : ContinuousOn f.symm E) :
+    letI := ofPartialEquiv C E hE f hfC1 hfE1 hDF hfC2 hfE2
+    Finite E :=
+  let _ := ofPartialEquiv C E hE f hfC1 hfE1 hDF hfC2 hfE2
+  let _ := finiteDimensional_ofPartialEquiv C E hE f hfC1 hfE1 hDF hfC2 hfE2
+  let _ := finiteType_ofPartialEquiv C E hE f hfC1 hfE1 hDF hfC2 hfE2
+  inferInstance
+
+/-- A version of `RelCWComplex.ofPartialEquiv` for absolute CW-complexes. -/
+@[simps! -isSimp]
+def CWComplex.ofPartialEquiv.{u} {X Y : Type u} [TopologicalSpace X] [T2Space X]
+    [TopologicalSpace Y] (C : Set X) (E : Set Y) [CWComplex C]
+    (hE : IsClosed E) (f : PartialEquiv X Y) (hfC1 : f.source = C) (hfE1 : f.target = E)
+    (hfC2 : ContinuousOn f C) (hfE2 : ContinuousOn f.symm E)  :
+    CWComplex E :=
+  (RelCWComplex.ofPartialEquiv C E hE f hfC1 hfE1 (image_empty f)  hfC2 hfE2).toCWComplex
+
+/-- `CWComplex.ofPartialEquiv` preserves finite dimensionality. -/
+lemma CWComplex.finiteDimensional_ofPartialEquiv .{u} {X Y : Type u} [TopologicalSpace X]
+    [T2Space X] [TopologicalSpace Y] (C : Set X) (E : Set Y) [CWComplex C] [FiniteDimensional C]
+    (hE : IsClosed E) (f : PartialEquiv X Y) (hfC1 : f.source = C)
+    (hfE1 : f.target = E) (hfC2 : ContinuousOn f C) (hfE2 : ContinuousOn f.symm E)  :
+    letI := ofPartialEquiv C E hE f hfC1 hfE1 hfC2 hfE2
+    FiniteDimensional E :=
+  let _ := ofPartialEquiv C E hE f hfC1 hfE1 hfC2 hfE2
+  { eventually_isEmpty_cell := FiniteDimensional.eventually_isEmpty_cell (C := C) }
+
+/-- `CWComplex.ofPartialEquiv` preserves finite type. -/
+lemma CWComplex.finiteType_ofPartialEquiv .{u} {X Y : Type u} [TopologicalSpace X]
+    [T2Space X] [TopologicalSpace Y] (C : Set X) (E : Set Y) [CWComplex C] [FiniteType C]
+    (hE : IsClosed E) (f : PartialEquiv X Y) (hfC1 : f.source = C)
+    (hfE1 : f.target = E) (hfC2 : ContinuousOn f C) (hfE2 : ContinuousOn f.symm E)  :
+    letI := ofPartialEquiv C E hE f hfC1 hfE1 hfC2 hfE2
+    FiniteType E :=
+  let _ := ofPartialEquiv C E hE f hfC1 hfE1 hfC2 hfE2
+  { finite_cell := FiniteType.finite_cell (C := C) }
+
+/-- `CWComplex.ofPartialEquiv` preserves finiteness. -/
+lemma CWComplex.finite_ofPartialEquiv .{u} {X Y : Type u} [TopologicalSpace X]
+    [T2Space X] [TopologicalSpace Y] (C : Set X) (E : Set Y) [CWComplex C] [Finite C]
+    (hE : IsClosed E) (f : PartialEquiv X Y) (hfC1 : f.source = C)
+    (hfE1 : f.target = E) (hfC2 : ContinuousOn f C) (hfE2 : ContinuousOn f.symm E)  :
+    letI := ofPartialEquiv C E hE f hfC1 hfE1 hfC2 hfE2
+    Finite E :=
+  let _ := ofPartialEquiv C E hE f hfC1 hfE1 hfC2 hfE2
+  let _ := finiteDimensional_ofPartialEquiv C E hE f hfC1 hfE1 hfC2 hfE2
+  let _ := finiteType_ofPartialEquiv C E hE f hfC1 hfE1 hfC2 hfE2
+  inferInstance
+
+/-- The image of a CW-complex under a homeomorphisms is again a CW-complex. -/
+@[simps! -isSimp]
+def RelCWComplex.ofHomeomorph.{u} {X Y : Type u} [TopologicalSpace X] [TopologicalSpace Y]
+    [T2Space X]
+    (C : Set X) {D : Set X} (E : Set Y) {F : Set Y} [RelCWComplex C D] (f : X ≃ₜ Y)
+    (hCE : f '' C = E) (hDF : f '' D = F) :
+    RelCWComplex E F :=
+  have : f.toPartialEquiv.IsImage C E := by
+    rw [← hCE]
+    intro
+    simp
+  ofPartialEquiv C E (by rw [← hCE, Homeomorph.isClosed_image]; exact isClosed) this.restr
+    (by simp) (by simp) (by simp [hDF]) f.continuous.continuousOn f.symm.continuous.continuousOn
+
+lemma RelCWComplex.finiteDimensional_ofHomeomorph.{u} {X Y : Type u} [TopologicalSpace X]
+    [TopologicalSpace Y] [T2Space X] (C : Set X) {D : Set X} (E : Set Y) {F : Set Y}
+    [RelCWComplex C D] (f : X ≃ₜ Y) (hCE : f '' C = E) (hDF : f '' D = F)
+    [FiniteDimensional C] :
+    letI := ofHomeomorph C E f hCE hDF
+    FiniteDimensional E :=
+  let _ := ofHomeomorph C E f hCE hDF
+  {eventually_isEmpty_cell := FiniteDimensional.eventually_isEmpty_cell (C := C)}
+
+lemma RelCWComplex.finiteType_ofHomeomorph.{u} {X Y : Type u} [TopologicalSpace X]
+    [TopologicalSpace Y] [T2Space X] (C : Set X) {D : Set X} (E : Set Y) {F : Set Y}
+    [RelCWComplex C D] (f : X ≃ₜ Y) (hCE : f '' C = E) (hDF : f '' D = F)
+    [FiniteType C] :
+    letI := ofHomeomorph C E f hCE hDF
+    FiniteType E :=
+  let _ := ofHomeomorph C E f hCE hDF
+  {finite_cell := FiniteType.finite_cell (C := C)}
+
+lemma RelCWComplex.finite_ofHomeomorph.{u} {X Y : Type u} [TopologicalSpace X]
+    [TopologicalSpace Y] [T2Space X] (C : Set X) {D : Set X} (E : Set Y) {F : Set Y}
+    [RelCWComplex C D] (f : X ≃ₜ Y) (hCE : f '' C = E) (hDF : f '' D = F)
+    [Finite C] :
+    letI := ofHomeomorph C E f hCE hDF
+    Finite E :=
+  let _ := ofHomeomorph C E f hCE hDF
+  let _ := finiteDimensional_ofHomeomorph C E f hCE hDF
+  let _ := finiteType_ofHomeomorph C E f hCE hDF
+  inferInstance
+
+/-- The image of a CW-complex under a homeomorphisms is again a CW-complex. -/
+@[simps! -isSimp]
+def CWComplex.ofHomeomorph.{u} {X Y : Type u} [TopologicalSpace X] [TopologicalSpace Y]
+    [T2Space X] (C : Set X) (E : Set Y) [CWComplex C] (f : X ≃ₜ Y)
+    (hCE : f '' C = E) : CWComplex E :=
+  (RelCWComplex.ofHomeomorph C E f hCE (image_empty ⇑f)).toCWComplex
+
+lemma CWComplex.finiteDimensional_ofHomeomorph.{u} {X Y : Type u} [TopologicalSpace X]
+    [TopologicalSpace Y] [T2Space X] (C : Set X) (E : Set Y) [CWComplex C] (f : X ≃ₜ Y)
+    (hCE : f '' C = E) [FiniteDimensional C] :
+    letI := ofHomeomorph C E f hCE
+    FiniteDimensional E :=
+  let _ := ofHomeomorph C E f hCE
+  {eventually_isEmpty_cell := FiniteDimensional.eventually_isEmpty_cell (C := C)}
+
+lemma CWComplex.finiteType_ofHomeomorph.{u} {X Y : Type u} [TopologicalSpace X]
+    [TopologicalSpace Y] [T2Space X] (C : Set X) (E : Set Y) [CWComplex C] (f : X ≃ₜ Y)
+    (hCE : f '' C = E) [FiniteType C] :
+    letI := ofHomeomorph C E f hCE
+    FiniteType E :=
+  let _ := ofHomeomorph C E f hCE
+  {finite_cell := FiniteType.finite_cell (C := C)}
+
 variable [T2Space X]
+
+lemma CWComplex.finite_ofHomeomorph.{u} {X Y : Type u} [TopologicalSpace X]
+    [TopologicalSpace Y] [T2Space X] (C : Set X) (E : Set Y) [CWComplex C] (f : X ≃ₜ Y)
+    (hCE : f '' C = E) [Finite C] :
+    letI := ofHomeomorph C E f hCE
+    Finite E :=
+  let _ := ofHomeomorph C E f hCE
+  let _ := finiteDimensional_ofHomeomorph C E f hCE
+  let _ := finiteType_ofHomeomorph C E f hCE
+  inferInstance
 
 /-- The union of two disjoint CW-complexes is again a CW-complex. -/
 @[simps -isSimp]
 def RelCWComplex.disjointUnion [RelCWComplex C D] {E F : Set X} [RelCWComplex E F]
-    (disjoint : Disjoint C E) (hDF : SeparatedNhds D F) : RelCWComplex (C ∪ E) (D ∪ F) where
+    (hCE : Disjoint C E) (hDF : SeparatedNhds D F) : RelCWComplex (C ∪ E) (D ∪ F) where
   cell n := Sum (cell C n) (cell E n)
   map n := Sum.elim (map (C := C) n) (map (C := E) n)
   source_eq n i := match i with
@@ -185,17 +447,17 @@ def RelCWComplex.disjointUnion [RelCWComplex C D] {E F : Set X} [RelCWComplex E 
     · rcases cm with cm | cm
       · exact (disjoint_openCell_of_ne (by aesop)).inter_eq
       · exact subset_eq_empty (inter_subset_inter (openCell_subset_complex n cn)
-          (openCell_subset_complex m cm)) (disjoint_iff_inter_eq_empty.1 disjoint)
+          (openCell_subset_complex m cm)) (disjoint_iff_inter_eq_empty.1 hCE)
     rcases cm with cm | cm
     · exact subset_eq_empty (inter_subset_inter (openCell_subset_complex n cn)
-        (openCell_subset_complex m cm)) (disjoint_iff_inter_eq_empty.1 (disjoint_comm.1 disjoint))
+        (openCell_subset_complex m cm)) (disjoint_iff_inter_eq_empty.1 (disjoint_comm.1 hCE))
     · exact (disjoint_openCell_of_ne (by aesop)).inter_eq
   disjointBase' := by
     intro n cn
     rcases cn with cn | cn
     · exact (disjointBase (C := C) (D := D) _ _).union_right
-       (disjoint.mono (openCell_subset_complex _ _) base_subset_complex)
-    · exact (disjoint.symm.mono (openCell_subset_complex n cn) base_subset_complex).union_right
+       (hCE.mono (openCell_subset_complex _ _) base_subset_complex)
+    · exact (hCE.symm.mono (openCell_subset_complex n cn) base_subset_complex).union_right
         (disjointBase (C := E) (D := F) _ _)
   mapsTo n i := by
     classical
@@ -328,10 +590,24 @@ lemma CWComplex.finite_disjointUnion [CWComplex C] {E : Set X}
   let _finiteType := finiteType_disjointUnion disjoint
   inferInstance
 
+lemma separatedNhds_image_inl_image_inr {X Y : Type*} [TopologicalSpace X]
+    [TopologicalSpace Y] {u : Set X} {v : Set Y} : SeparatedNhds (Sum.inl '' u) (Sum.inr '' v) :=
+  ⟨range Sum.inl, range Sum.inr, isOpen_range_inl, isOpen_range_inr, image_subset_range Sum.inl u,
+    image_subset_range Sum.inr v, image_univ ▸ disjoint_image_inl_range_inr⟩
+
+def RelCWComplex.disjointUnion' [RelCWComplex C D] {Y : Type*} [TopologicalSpace Y]
+    [T2Space Y] {E F : Set Y} [RelCWComplex E F] :
+    RelCWComplex (Sum.inl '' C ∪ Sum.inr '' E) (Sum.inl '' D ∪ Sum.inr '' F) :=
+  letI h1 : RelCWComplex (Sum.inl (β := Y) '' C) (Sum.inl '' D) :=
+    -- I want to use ofPartialEquiv but that requires the universe to be constant
+    sorry
+  letI h2 : RelCWComplex (Sum.inr (α := X) '' E) (Sum.inr '' F) := sorry
+  RelCWComplex.disjointUnion disjoint_image_inl_image_inr (separatedNhds_image_inl_image_inr)
+
 end
 
 @[simps -isSimp]
-def RelCWComplex.attachCell.{u} {X : Type u} [TopologicalSpace X] [T2Space X] (C : Set X)
+def RelCWComplex.attachCell {X : Type*} [TopologicalSpace X] [T2Space X] (C : Set X)
     {D : Set X} [RelCWComplex C D]
     {n : ℕ} (map' : PartialEquiv (Fin n → ℝ) X) (source_eq' : map'.source = ball 0 1)
     (continuousOn' : ContinuousOn map' (closedBall 0 1))
@@ -974,270 +1250,7 @@ lemma CWComplex.finite_attachCellsFiniteType.{u} {X : Type u} [TopologicalSpace 
     continuousOn_symm' disjoint' disjoint'' mapsTo
   inferInstance
 
-/-- A partial bijection with closed source and target that is continuous on both source and target
-preserves CW-structures. -/
-@[simps -isSimp]
-def RelCWComplex.ofPartialEquiv.{u} {X Y : Type u} [TopologicalSpace X] [T2Space X]
-    [TopologicalSpace Y] (C : Set X) {D : Set X} (E : Set Y) {F : Set Y} [RelCWComplex C D]
-    (hC : IsClosed C) (hE : IsClosed E)
-    (f : PartialEquiv X Y) (hfC1 : f.source = C) (hfE1 : f.target = E) (hDF : f '' D = F)
-    (hfC2 : ContinuousOn f C) (hfE2 : ContinuousOn f.symm E)  :
-    RelCWComplex E F where
-  cell := cell C
-  map n i := (map n i).trans' (f.restr (map n i).target) (by
-    simp only [← PartialEquiv.image_source_eq_target, PartialEquiv.restr_source, right_eq_inter,
-    source_eq n i, hfC1]
-    exact openCell_subset_complex n i)
-  source_eq n i := by simp [source_eq n i]
-  continuousOn n i := by
-    simp only [PartialEquiv.trans', PartialEquiv.restr_coe, PartialEquiv.restr_coe_symm,
-      PartialEquiv.restr_target]
-    apply hfC2.comp (continuousOn n i)
-    rw [mapsTo']
-    exact closedCell_subset_complex n i
-  continuousOn_symm n i := by
-    simp only [PartialEquiv.trans', PartialEquiv.restr_coe, PartialEquiv.restr_coe_symm,
-      PartialEquiv.restr_target, PartialEquiv.coe_symm_mk]
-    apply (continuousOn_symm n i).comp
-    · apply hfE2.mono
-      simp [hfE1]
-    · simp [mapsTo']
-  pairwiseDisjoint' := by
-    have := pairwiseDisjoint' (C := C)
-    simp only [PairwiseDisjoint, Set.Pairwise, mem_univ, ne_eq, Function.onFun, forall_const,
-      PartialEquiv.trans'_apply, PartialEquiv.restr_coe, Function.comp_apply] at this ⊢
-    intro x y hxy
-    simp_rw [← image_image]
-    apply (this hxy).image (u := C)
-    · rw [← hfC1]
-      exact f.injOn
-    · exact openCell_subset_complex _ _
-    · exact openCell_subset_complex _ _
-  disjointBase' n i := by
-    simp only [PartialEquiv.trans'_apply, PartialEquiv.restr_coe, Function.comp_apply]
-    simp_rw [← image_image, ← hDF]
-    apply (disjointBase' n i).image (u := C)
-    · rw [← hfC1]
-      exact f.injOn
-    · exact openCell_subset_complex _ _
-    · exact base_subset_complex
-  mapsTo n i := by
-    obtain ⟨I, hI⟩ := mapsTo n i
-    use I
-    rw [Set.mapsTo'] at hI ⊢
-    simp only [PartialEquiv.trans'_apply, PartialEquiv.restr_coe, Function.comp_apply,
-      ← image_image, ← image_iUnion (f := f), ← hDF, ← image_union]
-    apply image_mono
-    exact hI
-  closed' A hA := by
-    intro ⟨hA1, hA2⟩
-    apply f.isClosed_of_isClosed_preimage (hfC1 ▸ hfC2) (hfE1 ▸ hfE2) (hfE1 ▸ hE) (hfC1 ▸ hC)
-    · exact hfE1 ▸ hA
-    rw [closed (C := C) _ (hfC1 ▸ inter_subset_left)]
-    constructor
-    · intro n i
-      specialize hA1 n i
-      simp only [PartialEquiv.trans'_apply, PartialEquiv.restr_coe, Function.comp_apply,
-        ← image_image] at hA1
-      rw [hfC1, inter_assoc, inter_comm, inter_assoc]
-      have : closedCell n i ∩ C = f ⁻¹' (f '' closedCell n i) ∩ C := by
-        simp_rw [← hfC1]
-        rw [inter_comm, inter_comm _ f.source]
-        symm
-        apply PartialEquiv.IsImage.preimage_eq
-        apply PartialEquiv.IsImage.of_image_eq
-        rw [hfC1, inter_eq_right.2 (closedCell_subset_complex n i), hfE1, ← hfE1,
-          ← f.image_source_eq_target, hfC1, ← f.injOn.image_inter (by rw [hfC1])
-          (by rw [hfC1]; exact closedCell_subset_complex n i),
-          inter_eq_right.2 (closedCell_subset_complex n i)]
-      rw [this, ← inter_assoc, ← preimage_inter, inter_comm]
-      exact hfC2.preimage_isClosed_of_isClosed hC hA1
-    · rw [hfC1, inter_assoc, inter_comm, inter_assoc]
-      have : D ∩ C = f ⁻¹' F ∩ C := by
-        rw [← hfC1, inter_comm, inter_comm (↑f ⁻¹' F)]
-        symm
-        apply PartialEquiv.IsImage.preimage_eq
-        apply PartialEquiv.IsImage.of_image_eq
-        rw [hfC1, inter_eq_right.2 base_subset_complex, hfE1, ← hDF, ← hfE1,
-          ← f.image_source_eq_target, hfC1, ← f.injOn.image_inter (by rw [hfC1])
-          (by rw [hfC1]; exact base_subset_complex), inter_eq_right.2 base_subset_complex]
-      rw [this, ← inter_assoc, ← preimage_inter, inter_comm]
-      exact hfC2.preimage_isClosed_of_isClosed hC hA2
-  isClosedBase := by
-    rw [← hDF]
-    apply f.isClosed_of_isClosed_preimage (hfC1 ▸ hfC2) (hfE1 ▸ hfE2) (hfE1 ▸ hE) (hfC1 ▸ hC)
-    · rw [← PartialEquiv.image_source_eq_target]
-      apply image_mono
-      rw [hfC1]
-      exact base_subset_complex
-    rw [hfC1]
-    have : C ∩ ↑f ⁻¹' (↑f '' D) = C ∩ D := by
-      rw [← hfC1, hDF]
-      apply PartialEquiv.IsImage.preimage_eq
-      apply PartialEquiv.IsImage.of_image_eq
-      rw [hfC1, inter_eq_right.2 base_subset_complex, hfE1, ← hDF, ← hfE1,
-        ← f.image_source_eq_target, hfC1, ← f.injOn.image_inter (by rw [hfC1])
-        (by rw [hfC1]; exact base_subset_complex), inter_eq_right.2 base_subset_complex]
-    rw [this, inter_eq_right.2 base_subset_complex]
-    exact isClosedBase C
-  union' := by
-    simp only [PartialEquiv.trans'_apply, PartialEquiv.restr_coe, Function.comp_apply,
-      ← image_image, ← image_iUnion (f := f), ← hDF, ← image_union, ← hfE1,
-      ← f.image_source_eq_target, hfC1, union']
-
-/-- `RelCWComplex.ofPartialEquiv` preserves finite dimensionality. -/
-lemma RelCWComplex.finiteDimensional_ofPartialEquiv.{u} {X Y : Type u} [TopologicalSpace X]
-    [T2Space X] [TopologicalSpace Y] (C : Set X) {D : Set X} (E : Set Y) {F : Set Y}
-    [RelCWComplex C D] [FiniteDimensional C] (hC : IsClosed C) (hE : IsClosed E)
-    (f : PartialEquiv X Y) (hfC1 : f.source = C) (hfE1 : f.target = E) (hDF : f '' D = F)
-    (hfC2 : ContinuousOn f C) (hfE2 : ContinuousOn f.symm E) :
-    letI := ofPartialEquiv C E hC hE f hfC1 hfE1 hDF hfC2 hfE2
-    FiniteDimensional E :=
-  let _ := ofPartialEquiv C E hC hE f hfC1 hfE1 hDF hfC2 hfE2
-  {eventually_isEmpty_cell := FiniteDimensional.eventually_isEmpty_cell (C := C)}
-
-/-- `RelCWComplex.ofPartialEquiv` preserves finite type. -/
-lemma RelCWComplex.finiteType_ofPartialEquiv.{u} {X Y : Type u} [TopologicalSpace X]
-    [T2Space X] [TopologicalSpace Y] (C : Set X) {D : Set X} (E : Set Y) {F : Set Y}
-    [RelCWComplex C D] [FiniteType C] (hC : IsClosed C) (hE : IsClosed E)
-    (f : PartialEquiv X Y) (hfC1 : f.source = C) (hfE1 : f.target = E) (hDF : f '' D = F)
-    (hfC2 : ContinuousOn f C) (hfE2 : ContinuousOn f.symm E) :
-    letI := ofPartialEquiv C E hC hE f hfC1 hfE1 hDF hfC2 hfE2
-    FiniteType E :=
-  let _ := ofPartialEquiv C E hC hE f hfC1 hfE1 hDF hfC2 hfE2
-  {finite_cell := FiniteType.finite_cell (C := C)}
-
-/-- `RelCWComplex.ofPartialEquiv` preserves finiteness. -/
-lemma RelCWComplex.finite_ofPartialEquiv.{u} {X Y : Type u} [TopologicalSpace X]
-    [T2Space X] [TopologicalSpace Y] (C : Set X) {D : Set X} (E : Set Y) {F : Set Y}
-    [RelCWComplex C D] [Finite C] (hC : IsClosed C) (hE : IsClosed E)
-    (f : PartialEquiv X Y) (hfC1 : f.source = C) (hfE1 : f.target = E) (hDF : f '' D = F)
-    (hfC2 : ContinuousOn f C) (hfE2 : ContinuousOn f.symm E) :
-    letI := ofPartialEquiv C E hC hE f hfC1 hfE1 hDF hfC2 hfE2
-    Finite E :=
-  let _ := ofPartialEquiv C E hC hE f hfC1 hfE1 hDF hfC2 hfE2
-  let _ := finiteDimensional_ofPartialEquiv C E hC hE f hfC1 hfE1 hDF hfC2 hfE2
-  let _ := finiteType_ofPartialEquiv C E hC hE f hfC1 hfE1 hDF hfC2 hfE2
-  inferInstance
-
-/-- A version of `RelCWComplex.ofPartialEquiv` for absolute CW-complexes. -/
-@[simps! -isSimp]
-def CWComplex.ofPartialEquiv.{u} {X Y : Type u} [TopologicalSpace X] [T2Space X]
-    [TopologicalSpace Y] (C : Set X) (E : Set Y) [CWComplex C] (hC : IsClosed C)
-    (hE : IsClosed E) (f : PartialEquiv X Y) (hfC1 : f.source = C) (hfE1 : f.target = E)
-    (hfC2 : ContinuousOn f C) (hfE2 : ContinuousOn f.symm E)  :
-    CWComplex E :=
-  (RelCWComplex.ofPartialEquiv C E hC hE f hfC1 hfE1 (image_empty f)  hfC2 hfE2).toCWComplex
-
-/-- `CWComplex.ofPartialEquiv` preserves finite dimensionality. -/
-lemma CWComplex.finiteDimensional_ofPartialEquiv .{u} {X Y : Type u} [TopologicalSpace X]
-    [T2Space X] [TopologicalSpace Y] (C : Set X) (E : Set Y) [CWComplex C] [FiniteDimensional C]
-    (hC : IsClosed C) (hE : IsClosed E) (f : PartialEquiv X Y) (hfC1 : f.source = C)
-    (hfE1 : f.target = E) (hfC2 : ContinuousOn f C) (hfE2 : ContinuousOn f.symm E)  :
-    letI := ofPartialEquiv C E hC hE f hfC1 hfE1 hfC2 hfE2
-    FiniteDimensional E :=
-  let _ := ofPartialEquiv C E hC hE f hfC1 hfE1 hfC2 hfE2
-  { eventually_isEmpty_cell := FiniteDimensional.eventually_isEmpty_cell (C := C) }
-
-/-- `CWComplex.ofPartialEquiv` preserves finite type. -/
-lemma CWComplex.finiteType_ofPartialEquiv .{u} {X Y : Type u} [TopologicalSpace X]
-    [T2Space X] [TopologicalSpace Y] (C : Set X) (E : Set Y) [CWComplex C] [FiniteType C]
-    (hC : IsClosed C) (hE : IsClosed E) (f : PartialEquiv X Y) (hfC1 : f.source = C)
-    (hfE1 : f.target = E) (hfC2 : ContinuousOn f C) (hfE2 : ContinuousOn f.symm E)  :
-    letI := ofPartialEquiv C E hC hE f hfC1 hfE1 hfC2 hfE2
-    FiniteType E :=
-  let _ := ofPartialEquiv C E hC hE f hfC1 hfE1 hfC2 hfE2
-  { finite_cell := FiniteType.finite_cell (C := C) }
-
-/-- `CWComplex.ofPartialEquiv` preserves finiteness. -/
-lemma CWComplex.finite_ofPartialEquiv .{u} {X Y : Type u} [TopologicalSpace X]
-    [T2Space X] [TopologicalSpace Y] (C : Set X) (E : Set Y) [CWComplex C] [Finite C]
-    (hC : IsClosed C) (hE : IsClosed E) (f : PartialEquiv X Y) (hfC1 : f.source = C)
-    (hfE1 : f.target = E) (hfC2 : ContinuousOn f C) (hfE2 : ContinuousOn f.symm E)  :
-    letI := ofPartialEquiv C E hC hE f hfC1 hfE1 hfC2 hfE2
-    Finite E :=
-  let _ := ofPartialEquiv C E hC hE f hfC1 hfE1 hfC2 hfE2
-  let _ := finiteDimensional_ofPartialEquiv C E hC hE f hfC1 hfE1 hfC2 hfE2
-  let _ := finiteType_ofPartialEquiv C E hC hE f hfC1 hfE1 hfC2 hfE2
-  inferInstance
-
-/-- The image of a CW-complex under a homeomorphisms is again a CW-complex. -/
-@[simps! -isSimp]
-def RelCWComplex.ofHomeomorph.{u} {X Y : Type u} [TopologicalSpace X] [TopologicalSpace Y]
-    [T2Space X]
-    (C : Set X) {D : Set X} (E : Set Y) {F : Set Y} [RelCWComplex C D] (f : X ≃ₜ Y)
-    (hCE : f '' C = E) (hDF : f '' D = F) :
-    RelCWComplex E F :=
-  have : f.toPartialEquiv.IsImage C E := by
-    rw [← hCE]
-    intro
-    simp
-  ofPartialEquiv C E isClosed (by rw [← hCE, Homeomorph.isClosed_image]; exact isClosed) this.restr
-    (by simp) (by simp) (by simp [hDF]) f.continuous.continuousOn f.symm.continuous.continuousOn
-
-lemma RelCWComplex.finiteDimensional_ofHomeomorph.{u} {X Y : Type u} [TopologicalSpace X]
-    [TopologicalSpace Y] [T2Space X] (C : Set X) {D : Set X} (E : Set Y) {F : Set Y}
-    [RelCWComplex C D] (f : X ≃ₜ Y) (hCE : f '' C = E) (hDF : f '' D = F)
-    [FiniteDimensional C] :
-    letI := ofHomeomorph C E f hCE hDF
-    FiniteDimensional E :=
-  let _ := ofHomeomorph C E f hCE hDF
-  {eventually_isEmpty_cell := FiniteDimensional.eventually_isEmpty_cell (C := C)}
-
-lemma RelCWComplex.finiteType_ofHomeomorph.{u} {X Y : Type u} [TopologicalSpace X]
-    [TopologicalSpace Y] [T2Space X] (C : Set X) {D : Set X} (E : Set Y) {F : Set Y}
-    [RelCWComplex C D] (f : X ≃ₜ Y) (hCE : f '' C = E) (hDF : f '' D = F)
-    [FiniteType C] :
-    letI := ofHomeomorph C E f hCE hDF
-    FiniteType E :=
-  let _ := ofHomeomorph C E f hCE hDF
-  {finite_cell := FiniteType.finite_cell (C := C)}
-
-lemma RelCWComplex.finite_ofHomeomorph.{u} {X Y : Type u} [TopologicalSpace X]
-    [TopologicalSpace Y] [T2Space X] (C : Set X) {D : Set X} (E : Set Y) {F : Set Y}
-    [RelCWComplex C D] (f : X ≃ₜ Y) (hCE : f '' C = E) (hDF : f '' D = F)
-    [Finite C] :
-    letI := ofHomeomorph C E f hCE hDF
-    Finite E :=
-  let _ := ofHomeomorph C E f hCE hDF
-  let _ := finiteDimensional_ofHomeomorph C E f hCE hDF
-  let _ := finiteType_ofHomeomorph C E f hCE hDF
-  inferInstance
-
-/-- The image of a CW-complex under a homeomorphisms is again a CW-complex. -/
-@[simps! -isSimp]
-def CWComplex.ofHomeomorph.{u} {X Y : Type u} [TopologicalSpace X] [TopologicalSpace Y]
-    [T2Space X] (C : Set X) (E : Set Y) [CWComplex C] (f : X ≃ₜ Y)
-    (hCE : f '' C = E) : CWComplex E :=
-  (RelCWComplex.ofHomeomorph C E f hCE (image_empty ⇑f)).toCWComplex
-
-lemma CWComplex.finiteDimensional_ofHomeomorph.{u} {X Y : Type u} [TopologicalSpace X]
-    [TopologicalSpace Y] [T2Space X] (C : Set X) (E : Set Y) [CWComplex C] (f : X ≃ₜ Y)
-    (hCE : f '' C = E) [FiniteDimensional C] :
-    letI := ofHomeomorph C E f hCE
-    FiniteDimensional E :=
-  let _ := ofHomeomorph C E f hCE
-  {eventually_isEmpty_cell := FiniteDimensional.eventually_isEmpty_cell (C := C)}
-
-lemma CWComplex.finiteType_ofHomeomorph.{u} {X Y : Type u} [TopologicalSpace X]
-    [TopologicalSpace Y] [T2Space X] (C : Set X) (E : Set Y) [CWComplex C] (f : X ≃ₜ Y)
-    (hCE : f '' C = E) [FiniteType C] :
-    letI := ofHomeomorph C E f hCE
-    FiniteType E :=
-  let _ := ofHomeomorph C E f hCE
-  {finite_cell := FiniteType.finite_cell (C := C)}
-
 variable [T2Space X]
-
-lemma CWComplex.finite_ofHomeomorph.{u} {X Y : Type u} [TopologicalSpace X]
-    [TopologicalSpace Y] [T2Space X] (C : Set X) (E : Set Y) [CWComplex C] (f : X ≃ₜ Y)
-    (hCE : f '' C = E) [Finite C] :
-    letI := ofHomeomorph C E f hCE
-    Finite E :=
-  let _ := ofHomeomorph C E f hCE
-  let _ := finiteDimensional_ofHomeomorph C E f hCE
-  let _ := finiteType_ofHomeomorph C E f hCE
-  inferInstance
 
 open Set.Notation in
 @[simps! -isSimp]
@@ -1246,7 +1259,7 @@ def RelCWComplex.enlargeNonempty [RelCWComplex (X := C) univ (C ↓∩ D)] (hC :
     RelCWComplex C D :=
   letI : Nonempty C := Nonempty.to_subtype hC2
   letI : Inhabited C := Classical.inhabited_of_nonempty this
-  ofPartialEquiv univ (D := (C ↓∩ D)) C (F := D) isClosed_univ hC
+  ofPartialEquiv univ (D := (C ↓∩ D)) C (F := D) hC
     (Subtype.val_injective.injOn.toPartialEquiv _ (univ : Set C))
     (by simp)
     (by simp)
@@ -1410,7 +1423,7 @@ open Notation in
 def RelCWComplex.restrictNonempty [RelCWComplex C D] (Y : Set X) (hCY : C ⊆ Y)
     (hC : C.Nonempty) : RelCWComplex (X := Y) (Y ↓∩ C) (Y ↓∩ D) :=
   letI : Nonempty Y := Nonempty.to_subtype (hC.mono hCY)
-  ofPartialEquiv C (Y ↓∩ C) isClosed (isClosed.preimage continuous_subtype_val)
+  ofPartialEquiv C (Y ↓∩ C) (isClosed.preimage continuous_subtype_val)
     (Subtype.val_injective.injOn.toPartialEquiv _ (Y ↓∩ C)).symm
     (by simp [hCY])
     (by simp)
