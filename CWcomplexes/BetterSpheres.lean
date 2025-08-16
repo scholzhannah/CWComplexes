@@ -1,8 +1,4 @@
-import Mathlib.Analysis.NormedSpace.HomeomorphBall
-import Mathlib.Geometry.Manifold.Instances.Sphere
-import CWcomplexes.Auxiliary
-import CWcomplexes.RelConstructions
-import Mathlib.Data.Fin.Tuple.Take
+import CWcomplexes.SpheresAux
 
 noncomputable section
 
@@ -185,32 +181,17 @@ lemma embedHyperplane_image (n m : ℕ) (u : Set (EuclideanSpace ℝ (Fin n)))
 @[simp]
 def discToSphereEmbed (n m : ℕ) :
     PartialEquiv (EuclideanSpace ℝ (Fin n)) (EuclideanSpace ℝ (Fin ((n + 1) + m))) :=
-  PartialEquiv.trans (discToSphereUp n) (embedHyperplane (n + 1) m)
+  (discToSphereUp n).transEmbedding (Fin.castAddEmb m).euclidean
 
 @[simp]
 lemma discToSphereEmbed_image_sphere (n m : ℕ) :
     (discToSphereEmbed n m) '' sphere 0 1 = (sphere 0 1) ∩ Hyperplane ((n + 1) + m) n  := by
-  rw [discToSphereEmbed, PartialEquiv.coe_trans, Set.image_comp, discToSphereUp_image_sphere,
-    embedHyperplane]
-  ext x
-  simp [mem_image, mem_inter_iff]
-  constructor
-  · intro ⟨y, ⟨hy1, hy2⟩, hy3⟩
-    constructor
-    · simp_all [← hy3, EuclideanSpace.norm_eq, Fin.append, Fin.addCases, Fin.sum_univ_add]
-    · intro i hi1 hi2
-      simp only [← hy3, Fin.append, Fin.addCases, Fin.castLT_mk, Fin.cast_mk, Fin.subNat_mk,
-        Fin.natAdd_mk, eq_rec_constant, dite_eq_right_iff]
-      intro h
-      have : i = n := le_antisymm (Nat.le_of_lt_add_one h) hi1
-      subst this
-      exact hy2
-  · intro ⟨h1, h2⟩
-    use Fin.take (n + 1) ((n + 1).le_add_right m) x
-    refine ⟨⟨?_, ?_⟩, ?_ ⟩
-    · sorry
-    · sorry
-    · sorry
+  rw [discToSphereEmbed, PartialEquiv.coe_transEmbedding, Set.image_comp,
+    discToSphereUp_image_sphere]
+  apply subset_antisymm
+  · apply subset_inter _
+    sorry
+  · sorry
 
 
 /-This is an attempt to already go up all the dimensions at once. This seems too complicated to me.
