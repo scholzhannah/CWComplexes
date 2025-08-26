@@ -31,13 +31,13 @@ More on \lstinline|outParam| and \lstinline|abbrev| can be found in \cite{LeanRe
 Like a lot of programming languages, Lean makes use of namespaces to sort its declarations and reduce the length of names when namespaces are opened. 
 One can prevent this shortening of names by specifying a declaration to be \lstinline|protected|. 
 This ensures that the declaration is still available but makes using it less convenient. 
-The modifier is frequently used to prevent naming conflicts in namespaces that might be opened together and do discourage the use of certain declarations in favour of more idiomatic ones. 
+The modifier is frequently used to prevent naming conflicts in namespaces that might be opened together and to discourage the use of certain declarations in favour of more idiomatic ones. 
 
 \subsection{Preliminary Mathematics in Lean}\label{sub:mathinlean}
 
 In \mathlib, we write \lstinline|TopologicalSpace X| to say that a type \lstinline|X| has a topology. 
 \lstinline|IsOpen A| and \lstinline|IsClosed A| for a set \lstinline|A| in \lstinline|X| assert openness and closedness. 
-For a map \lstinline|f : X → Y| between topological spaces continuity is described as \lstinline|Continuous f| or \lstinline|ContinuousOn A| for continuity on a set. 
+For a map \lstinline|f : X → Y| between topological spaces continuity is described as \lstinline|Continuous f| or \lstinline|ContinuousOn f A| for continuity on a set. 
 To specify that a topological space \lstinline|X| is Hausdorff one writes \lstinline|T2Space X|.
 
 A partial bijection between two types \lstinline|X| and \lstinline|Y| has type \lstinline|PartialEquiv X Y| and is made up of two total functions \lstinline|X → Y| and \lstinline|Y → X|, a set in \lstinline|X| called the \emph{source}, a set in \lstinline|Y| called the \emph{target} and proofs that that the target is mapped to the source and vice versa and that the two maps are inverse to each other on both the source and target.

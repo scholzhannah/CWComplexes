@@ -9,7 +9,7 @@ In order to achieve the correct topology on the product we need to turn it into 
 
 The name ``\emph{compactly generated space}'' (or sometimes ``\emph{k-space}'') is used for different notions in the literature.
 Firstly, it can refer to a space with a topology that is coherent with its compact subsets, i.e.\ a set is closed if and only if its intersection with every compact subset is closed in that subset. 
-Secondly, it can refer to a space with a topology determined by continuous maps from compact Hausdorff spaces, i.e.\ a set is closed if and only if its preimage under every continuous map from a compact Hausdorff map is closed. 
+Secondly, it can refer to a space with a topology determined by continuous maps from compact Hausdorff spaces, i.e.\ a set is closed if and only if its preimage under every continuous map from a compact Hausdorff space is closed. 
 Thirdly, it can refer to a space with a topology coherent with its compact Hausdorff subspaces, i.e.\ a set is closed if and only if its intersection with every compact Hausdorff subspace is closed in that subspace. 
 We believe that the classification into these three notions was first done by \citeauthor{Wikipedia2025} in \cite{Wikipedia2025}.
 
@@ -40,7 +40,7 @@ Here, \lstinline|↑ : Set s → Set X| is the natural inclusion from \lstinline
 Thus the condition \lstinline|isOpen_of_forall_induced| states that for all subsets \lstinline|u| of \lstinline|X| and all elements \lstinline|s| of the collections of subsets \lstinline|S|, if the preimage of \lstinline|u| under \lstinline|↑ : Set s → Set X|, i.e.\ the intersection of \lstinline|u| with \lstinline|s|, is open in \lstinline|s|, then \lstinline|u| is open in \lstinline|X|.
 
 We first show that this definition is equivalent to the one characterizing closedness which we stated at the beginning of the subsection. 
-\mathlib already had the proofs for two examples of compactly coherent spaces: sequential spaces (which for example include metric spaces) and weakly locally compact spaces. 
+\mathlib already had the proofs for two examples of compactly coherent spaces: sequential spaces (which include metric spaces) and weakly locally compact spaces. 
 Lastly, we show that \lstinline|CompactlyCoherentSpace| is a weaker notion of \lstinline|CompactlyGeneratedSpace| but that the two agree assuming the space is Hausdorff.
 
 \todo[inline, color=green]{Anatole Dedecker refactored a lot of this section (k-ification) for me in the review process. How do I credit that?}
@@ -72,7 +72,7 @@ Lastly, we show that the compact coherentification does indeed make an arbitrary
 
 We want to use this subsection to not only discuss the implementations but also give a fairly detailed adaptation of the proof in \cite{Hatcher2002} to relative CW complexes. 
 For the rest of the section let $C$ be a CW complex with base $D$ and $E$ be a CW complex with base $F$.
-The respective families of characteristic maps are $(Q_i^n \colon D^n \to C)_{n \in \bN, i \in I_n}$ and $(P_j^m \colon D^m \to E)_{m \in \bN, j \in J_n}$. 
+The respective families of characteristic maps are $(Q_i^n \colon D^n \to C)_{n \in \bN, i \in I_n}$ and $(P_j^m \colon D^m \to E)_{m \in \bN, j \in J_m}$. 
 We will write the cells of $C$ as $\openCell{n}{i}$ and the cells of $E$ as $\openCellf{m}{j}$.
 The theorem we aim to prove is the following:
 
@@ -196,7 +196,7 @@ Now let us move onto closure finiteness:
   First observe that its frontier is $\cellFrontier{n}{i} \times \closedCellf{m}{j} \cup \closedCell{n}{i} \times \cellFrontierf{m}{j}$.
   We can verify the claim separately for $\cellFrontier{n}{i} \times \closedCellf{m}{j}$ and $\closedCell{n}{i} \times \cellFrontierf{m}{j}$. 
   As both proofs are analogous, we will only do the former.
-  Since $C$ fulfils closure finiteness, there is a finite set $G$ of cells of $C$ of dimension less than $n$ such that $\cellFrontier{n}{i} \subset D \cup \bigcup_{e \in G}\closure{e}$. 
+  Since $C$ fulfils closure finiteness, there is a finite set $G$ of cells of $C$ of dimension less than $n$ such that $\cellFrontier{n}{i} \subseteq D \cup \bigcup_{e \in G}\closure{e}$. 
   This gives us 
   \begin{equation*}
     \cellFrontier{n}{i} \times \closedCellf{m}{j} \subseteq \left( D \cup \bigcup_{e \in G}\closure{e} \right) \times \closedCellf{m}{j} = D \times \closedCellf{m}{j} \cup \bigcup_{e \in G} \closure{e} \times \closedCellf{m}{j} \subseteq ((D \times E) \cup (C \times F)) \cup \bigcup_{e \in G} \closure{e} \times \closedCellf{m}{j},
