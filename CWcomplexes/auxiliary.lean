@@ -247,6 +247,8 @@ lemma stereographic'_symm_tendsto {n : ℕ} (α : Filter (EuclideanSpace ℝ (Fi
   We define this map in a little more generality. -/
 
 
+-- there is already a map doing this
+
 /-- This is just a preliminary lemma showing the continuity of the map we are about to define. -/
 lemma continuous_normScale {E F : Type*}  [SeminormedAddCommGroup E] [T1Space E]
     [NormedAddCommGroup F] [MulActionWithZero ℝ F]

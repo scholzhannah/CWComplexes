@@ -41,8 +41,10 @@ def RelCWComplex.prodCellEquiv (C : Set X) {D : Set X} (E : Set Y) {F : Set Y} [
   left_inv _ := rfl
   right_inv _ := rfl
 
+-- PR this more generally
+
 /-- The natural `IsometryEquiv` `(Fin n → ℝ) ≃ᵢ (Fin m → ℝ) × (Fin l → ℝ)` when `n = m + l`. -/
-def RelCWComplex.prodIsometryEquiv {n m l : ℕ}  (hmln : m + l = n) :
+def RelCWComplex.prodIsometryEquiv {n m l : ℕ} (hmln : m + l = n) :
     (Fin n → ℝ) ≃ᵢ (Fin m → ℝ) × (Fin l → ℝ) :=
   (IsometryEquiv.piCongrLeft (Y := fun _ ↦ ℝ) (finCongr hmln.symm)).trans
   ((Fin.appendIsometry m l).symm)

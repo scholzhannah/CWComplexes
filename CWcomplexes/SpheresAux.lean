@@ -8,12 +8,17 @@ noncomputable section
 
 open Metric Set
 
+/-
+Do this for Lp-spaces in general (maybe it exists there?)
+-/
+
 open Classical in
 @[simps]
 def Function.Embedding.toPartialEquiv {α β : Type*} [Inhabited α] (f : α ↪ β) :
     PartialEquiv α β where
   toFun := f
   invFun y := if h : y ∈ range f then choose (mem_range.1 h) else default
+      -- replace by Function.invFun
   source := univ
   target := range f
   map_source' x _ := mem_range_self x
@@ -30,6 +35,10 @@ def PartialEquiv.transEmbedding {α β γ : Type*} [Inhabited β] (e : PartialEq
 theorem PartialEquiv.coe_transEmbedding {α β γ : Type*} [Inhabited β] (e : PartialEquiv α β)
     (f : β ↪ γ) : (e.transEmbedding f : α → γ) = f ∘ e :=
   rfl
+
+-- Pi.compRightL
+-- compose that with PiLp to get ContinuousLinearMap
+-- PiLp.proj
 
 open Classical in
 @[simps]
@@ -49,12 +58,14 @@ def Function.Embedding.euclidean (𝕜 : Type*) {n m : Type*} [Inhabited 𝕜] (
 
 lemma h {𝕜 n m : Type*} [Inhabited 𝕜] {f : n ↪ m} {i : n} {s : EuclideanSpace 𝕜 n} :
     f.euclidean 𝕜 s (f i) = s i := by
-  sorry
+  simp only [f.euclidean_apply 𝕜, mem_range_self i, ↓reduceDIte]
+  have := Classical.choose_spec (p := fun x ↦ f x = f i) (mem_range.1 (mem_range_self i))
+  rw [f.injective.eq_iff.1 this]
 
 abbrev Hyperplane (n m : ℕ) : Set (EuclideanSpace ℝ (Fin n)) :=
   {x | ∀ i (h1 : i ≥  m) (h2 : i < n), x ⟨i, by simp [h2]⟩ = 0}
 
-example (n m : ℕ) : range ((Fin.castAddEmb m).euclidean ℝ)= Hyperplane (n + m) n := by
+example (n m : ℕ) : range ((Fin.castAddEmb m).euclidean ℝ) = Hyperplane (n + m) n := by
   apply subset_antisymm
   · intro x
     simp only [mem_range, mem_setOf_eq, ge_iff_le, forall_exists_index]
@@ -62,8 +73,11 @@ example (n m : ℕ) : range ((Fin.castAddEmb m).euclidean ℝ)= Hyperplane (n + 
     rw [← hyx]
     have : (⟨i, hi2⟩ : Fin (n + m)) ∉ range (Fin.castAddEmb m) := sorry
     simp only [Function.Embedding.euclidean, Function.Embedding.coeFn_mk, this,↓reduceDIte]
+    rfl
+  · intro x hx
+    simp only [mem_setOf_eq, ge_iff_le] at hx
+
     sorry
-  · sorry
 
 example (n m : ℕ) :  EuclideanSpace ℝ (Fin n) ↪ EuclideanSpace ℝ (Fin (n + m)) :=
   (Fin.castAddEmb m).euclidean ℝ

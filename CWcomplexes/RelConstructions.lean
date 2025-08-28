@@ -161,6 +161,8 @@ lemma CWComplex.finite_ofEq {X : Type*} [TopologicalSpace X] (C : Set X)
   let _ := finiteType_ofEq C hCE
   inferInstance
 
+-- map the indexing set along f by choosing points in C
+
 /-- A partial bijection with closed source and target that is continuous on both source and target
 preserves CW-structures. -/
 @[simps -isSimp]
