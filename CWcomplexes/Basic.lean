@@ -5,6 +5,7 @@ Authors: Floris van Doorn, Hannah Scholz
 -/
 
 import Mathlib.Analysis.NormedSpace.Real
+import Mathlib.Data.ENat.Basic
 import Mathlib.Logic.Equiv.PartialEquiv
 import Mathlib.Topology.MetricSpace.ProperSpace.Real
 
@@ -213,14 +214,14 @@ lemma RelCWComplex.cellFrontier_subset_base_union_finite_closedCell [RelCWComple
     D ∪ ⋃ (m < n) (j ∈ I m), closedCell m j := by
   rcases mapsTo n i with ⟨I, hI⟩
   use I
-  rw [Set.mapsTo'] at hI
+  rw [mapsTo_iff_image_subset] at hI
   exact hI
 
 lemma CWComplex.cellFrontier_subset_finite_closedCell [CWComplex C] (n : ℕ) (i : cell C n) :
     ∃ I : Π m, Finset (cell C m), cellFrontier n i ⊆ ⋃ (m < n) (j ∈ I m), closedCell m j := by
   rcases RelCWComplex.mapsTo n i with ⟨I, hI⟩
   use I
-  rw [mapsTo', empty_union] at hI
+  rw [mapsTo_iff_image_subset, empty_union] at hI
   exact hI
 
 lemma RelCWComplex.union [RelCWComplex C D] : D ∪ ⋃ (n : ℕ) (j : cell C n), closedCell n j = C :=
@@ -681,7 +682,7 @@ def skeletonLT (C : Set X) {D : Set X} [RelCWComplex C D] (n : ℕ∞) : Subcomp
       exact subset_iUnion _ _)
     (by
       rw [← RelCWComplex.iUnion_openCell_eq_iUnion_closedCell]
-      congr
+      congrm D ∪ ?_
       apply iUnion_congr fun m ↦ ?_
       rw [iUnion_subtype, iUnion_comm]
       rfl)

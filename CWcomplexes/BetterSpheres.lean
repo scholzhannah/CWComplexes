@@ -181,7 +181,7 @@ lemma embedHyperplane_image (n m : ℕ) (u : Set (EuclideanSpace ℝ (Fin n)))
 @[simp]
 def discToSphereEmbed (n m : ℕ) :
     PartialEquiv (EuclideanSpace ℝ (Fin n)) (EuclideanSpace ℝ (Fin ((n + 1) + m))) :=
-  (discToSphereUp n).transEmbedding (Fin.castAddEmb m).euclidean
+  (discToSphereUp n).transEmbedding ((Fin.castAddEmb m).euclidean (𝕜 := ℝ))
 
 @[simp]
 lemma discToSphereEmbed_image_sphere (n m : ℕ) :
@@ -190,7 +190,8 @@ lemma discToSphereEmbed_image_sphere (n m : ℕ) :
     discToSphereUp_image_sphere]
   apply subset_antisymm
   · apply subset_inter _
-    sorry
+    · sorry
+    · sorry
   · sorry
 
 

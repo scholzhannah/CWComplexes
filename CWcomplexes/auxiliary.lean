@@ -247,8 +247,6 @@ lemma stereographic'_symm_tendsto {n : ℕ} (α : Filter (EuclideanSpace ℝ (Fi
   We define this map in a little more generality. -/
 
 
--- there is already a map doing this
-
 /-- This is just a preliminary lemma showing the continuity of the map we are about to define. -/
 lemma continuous_normScale {E F : Type*}  [SeminormedAddCommGroup E] [T1Space E]
     [NormedAddCommGroup F] [MulActionWithZero ℝ F]
@@ -309,7 +307,6 @@ def normScale {E F : Type*}  [NormedAddCommGroup E] [T1Space E] [Module ℝ E]
         apply h
         simp_all only [ne_eq, norm_eq_zero, not_false_eq_true, EmbeddingLike.map_eq_zero_iff]
       field_simp [h1, h2]
-      ring
   right_inv y := by
     by_cases h : y = 0
     · simp only [h, norm_zero, map_zero, inv_zero, mul_zero, smul_zero]
@@ -327,7 +324,6 @@ def normScale {E F : Type*}  [NormedAddCommGroup E] [T1Space E] [Module ℝ E]
         apply h
         simp_all only [ne_eq, norm_eq_zero, not_false_eq_true, EmbeddingLike.map_eq_zero_iff]
       field_simp [h1, h2]
-      ring
   continuous_toFun := continuous_normScale f.continuous (fun _ ↦ f.map_eq_zero_iff)
   continuous_invFun := continuous_normScale f.symm.continuous (fun _ ↦ f.symm.map_eq_zero_iff)
 

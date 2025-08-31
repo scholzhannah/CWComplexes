@@ -222,15 +222,12 @@ def RelCWComplex.mkFinite.{u} {X : Type u} [TopologicalSpace X] (C : Set X)
     suffices IsClosed (A ∩ (D ∪ ⋃ (n : {n : ℕ // n < N}), ⋃ j, ↑(map n j) '' closedBall 0 1)) by
       convert this using 2
       rw [← union', iUnion_subtype]
-      congr
-      apply iUnion_congr
-      intro n
-      ext x
-      nth_rw 2 [mem_iUnion]
-      refine ⟨fun hx ↦ ⟨?_, hx⟩, fun ⟨_, h⟩ ↦ h⟩
-      by_contra h
-      push_neg at h
-      simp only [hN n h, iUnion_of_empty, mem_empty_iff_false] at hx
+      congrm D ∪ ⋃ n, ?_
+      refine subset_antisymm ?_ (iUnion_subset (fun i ↦ by rfl))
+      apply iUnion_subset
+      intro i
+      have : n < N := Decidable.byContradiction fun h ↦ (hN n (Nat.ge_of_not_lt h)).false i
+      exact subset_iUnion₂ (s := fun _ i ↦ (map n i) '' closedBall 0 1) this i
     simp_rw [inter_union_distrib_left, inter_iUnion]
     exact h.2.union (isClosed_iUnion_of_finite (fun n ↦ isClosed_iUnion_of_finite (h.1 n.1)))
   isClosedBase := isClosedBase

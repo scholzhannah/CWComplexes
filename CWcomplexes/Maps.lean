@@ -87,7 +87,7 @@ def comp {Z : Type*} [TopologicalSpace Z] [T2Space Z] {G H : Set Z} [RelCWComple
   toFun := f ∘ g
   continuousOn_toFun := by
     apply f.continuousOn.comp g.continuousOn
-    exact mapsTo'.mpr (image_complex_subset g)
+    exact mapsTo_iff_image_subset.mpr (image_complex_subset g)
   image_skeletonLT_subset' n := by
     rw [image_comp]
     exact (image_mono (image_skeletonLT_subset g n)).trans (image_skeletonLT_subset f n)

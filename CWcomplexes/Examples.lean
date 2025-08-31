@@ -93,8 +93,8 @@ protected def instIccLT' {a b : ℝ} (hab : a < b) :
           · exact hi.symm
         | (_ + 1), i => i.elim)
     (mapsTo := by
-      simp [closedCell_zero_eq_singleton, mapsTo', mapLT_image_sphere, subset_def, ofFiniteSet_map,
-        ofFiniteSet_cell_zero])
+      simp [closedCell_zero_eq_singleton, mapsTo_iff_image_subset, mapLT_image_sphere, subset_def,
+        ofFiniteSet_map, ofFiniteSet_cell_zero])
 
 /-- A helper lemma for `Finite_IccLT`. -/
 protected lemma finite_instIccLT' {a b : ℝ} (hab : a < b) :
@@ -201,7 +201,7 @@ instance instReal : CWComplex (univ : Set ℝ) where
       simp only [Nat.lt_one_iff, iUnion_iUnion_eq_left, Finset.mem_insert, Finset.mem_singleton,
         PartialEquiv.single_apply, Function.const_apply, Matrix.zero_empty, nonempty_closedBall,
         zero_le_one, Nonempty.image_const, iUnion_iUnion_eq_or_left, Int.cast_add, Int.cast_one,
-        union_singleton, mapsTo', mapLTPartial_image, mapLT_image_sphere, pair_comm]
+        union_singleton, mapsTo_iff_image_subset, mapLTPartial_image, mapLT_image_sphere, pair_comm]
       exact Subset.rfl
     | (_ + 2) => i.elim
   closed' := by
@@ -588,7 +588,7 @@ def instSphereGT' (n : ℕ) (h : n > 0) :
       PartialEquiv.symm_source, sphereToDisc_target, PartialEquiv.symm_target, sphereToDisc_source,
       PartialEquiv.copy_apply]
     apply (sphereToDisc_symm_continuousOn h).comp (toEuclideanNormScale n).continuous.continuousOn
-    rw [mapsTo', toEuclideanNormScale_image_closedBall])
+    rw [mapsTo_iff_image_subset, toEuclideanNormScale_image_closedBall])
   (continuousOn_symm' := by
     simp [spheremap, Equiv.transPartialEquiv, sphereToDisc_continuousOn, sphereToDisc_source])
   (disjoint' := by
@@ -602,7 +602,7 @@ def instSphereGT' (n : ℕ) (h : n > 0) :
         exact notMem_diff_of_mem hi
       | (_ + 1), i => i.elim)
   (mapsTo := by
-    rw [mapsTo']
+    rw [mapsTo_iff_image_subset]
     apply subset_iUnion_of_subset 0
     apply subset_iUnion_of_subset h
     simp only [ofFiniteSet_cell_zero, closedCell_zero_eq_singleton]
@@ -1051,7 +1051,7 @@ def SphereInductStep' (n : ℕ) [CWComplex (sphere (0 : EuclideanSpace ℝ (Fin 
       | 1, 1 => fun h ↦ (h rfl).elim)
     (by
       intro i
-      simp_rw [mapsTo', spheremaps_image_sphere n i,
+      simp_rw [mapsTo_iff_image_subset, spheremaps_image_sphere n i,
         ← union (C := (sphere 0 1 ∩ {x : EuclideanSpace ℝ (Fin (n + 1)) | x (Fin.last n) = 0}))]
       apply iUnion_subset fun l ↦ ?_
       apply iUnion_subset fun j ↦ ?_

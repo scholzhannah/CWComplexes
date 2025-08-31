@@ -87,7 +87,7 @@ instance RelCWComplex.Subcomplex.instRelCWComplex [T2Space X] [RelCWComplex C D]
     intro n i
     rcases cellFrontier_subset_finite_openCell (C := C) (D := D) n i with ⟨J, hJ⟩
     use fun m ↦ Finset.preimage (J m) (fun (x : E.I m) ↦ ↑x) (by simp [InjOn])
-    rw [Set.mapsTo']
+    rw [mapsTo_iff_image_subset]
     intro x xmem
     simp_rw [iUnion_coe_set, mem_union, mem_iUnion, exists_prop, exists_and_right]
     replace hJ := hJ xmem

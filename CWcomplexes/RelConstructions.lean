@@ -181,7 +181,7 @@ def RelCWComplex.ofPartialEquiv.{u} {X Y : Type u} [TopologicalSpace X] [T2Space
     simp only [PartialEquiv.trans', PartialEquiv.restr_coe, PartialEquiv.restr_coe_symm,
       PartialEquiv.restr_target]
     apply hfC2.comp (continuousOn n i)
-    rw [mapsTo']
+    rw [mapsTo_iff_image_subset]
     exact closedCell_subset_complex n i
   continuousOn_symm n i := by
     simp only [PartialEquiv.trans', PartialEquiv.restr_coe, PartialEquiv.restr_coe_symm,
@@ -189,7 +189,7 @@ def RelCWComplex.ofPartialEquiv.{u} {X Y : Type u} [TopologicalSpace X] [T2Space
     apply (continuousOn_symm n i).comp
     · apply hfE2.mono
       simp [hfE1]
-    · simp [mapsTo']
+    · simp [mapsTo_iff_image_subset]
   pairwiseDisjoint' := by
     have := pairwiseDisjoint' (C := C)
     simp only [PairwiseDisjoint, Set.Pairwise, mem_univ, ne_eq, Function.onFun, forall_const,
@@ -212,7 +212,7 @@ def RelCWComplex.ofPartialEquiv.{u} {X Y : Type u} [TopologicalSpace X] [T2Space
   mapsTo n i := by
     obtain ⟨I, hI⟩ := mapsTo n i
     use I
-    rw [Set.mapsTo'] at hI ⊢
+    rw [mapsTo_iff_image_subset] at hI ⊢
     simp only [PartialEquiv.trans'_apply, PartialEquiv.restr_coe, Function.comp_apply,
       ← image_image, ← image_iUnion (f := f), ← hDF, ← image_union]
     apply image_mono
@@ -466,7 +466,7 @@ def RelCWComplex.disjointUnion [RelCWComplex C D] {E F : Set X} [RelCWComplex E 
     rcases i with ic | id
     · obtain ⟨I, hI⟩ := cellFrontier_subset_base_union_finite_closedCell n ic
       use fun m ↦ (I m).image Sum.inl
-      rw [Set.mapsTo', union_assoc]
+      rw [mapsTo_iff_image_subset, union_assoc]
       apply hI.trans
       apply union_subset_union_right
       apply subset_union_of_subset_right
@@ -474,7 +474,7 @@ def RelCWComplex.disjointUnion [RelCWComplex C D] {E F : Set X} [RelCWComplex E 
       rfl
     · obtain ⟨I, hI⟩ := cellFrontier_subset_base_union_finite_closedCell n id
       use fun m ↦ (I m).image Sum.inr
-      rw [Set.mapsTo', union_comm D, union_assoc]
+      rw [mapsTo_iff_image_subset, union_comm D, union_assoc]
       apply hI.trans
       apply union_subset_union_right
       apply subset_union_of_subset_right
