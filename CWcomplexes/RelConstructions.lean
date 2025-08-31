@@ -1,4 +1,4 @@
-import CWcomplexes.RelFinite
+import Mathlib.Topology.CWComplex.Classical.Finite
 import Mathlib.Analysis.NormedSpace.Real
 import CWcomplexes.Auxiliary
 import Mathlib.Data.ENat.Basic
@@ -57,7 +57,7 @@ def CWComplex.ofFiniteSet {C : Set X} (h : C.Finite) : CWComplex C := mkFinite C
         | 0 => by simp_all [Subtype.coe_ne_coe]
         | (_ + 1) => i.elim
       | (_ + 1) => j.elim)
-  (mapsto := fun n i ↦ match n with
+  (mapsTo_iff_image_subset := fun n i ↦ match n with
     | 0 => by simp [Matrix.zero_empty, sphere_eq_empty_of_subsingleton]
     | (_ + 1) => i.elim)
   (union' := by
@@ -150,7 +150,7 @@ lemma RelCWComplex.finite_ofEq {X : Type*} [TopologicalSpace X] (C D : Set X)
   let _ := ofEq C D hCE hDF
   let _ := finiteDimensional_ofEq C D hCE hDF
   let _ := finiteType_ofEq C D hCE hDF
-  inferInstance
+  finite_of_finiteDimensional_finiteType _
 
 lemma CWComplex.finite_ofEq {X : Type*} [TopologicalSpace X] (C : Set X)
     {E : Set X} [CWComplex C] [Finite C] (hCE : C = E) :
@@ -159,7 +159,7 @@ lemma CWComplex.finite_ofEq {X : Type*} [TopologicalSpace X] (C : Set X)
   let _ := ofEq C hCE
   let _ := finiteDimensional_ofEq C hCE
   let _ := finiteType_ofEq C hCE
-  inferInstance
+  finite_of_finiteDimensional_finiteType _
 
 -- map the indexing set along f by choosing points in C
 
@@ -306,7 +306,7 @@ lemma RelCWComplex.finite_ofPartialEquiv.{u} {X Y : Type u} [TopologicalSpace X]
   let _ := ofPartialEquiv C E hE f hfC1 hfE1 hDF hfC2 hfE2
   let _ := finiteDimensional_ofPartialEquiv C E hE f hfC1 hfE1 hDF hfC2 hfE2
   let _ := finiteType_ofPartialEquiv C E hE f hfC1 hfE1 hDF hfC2 hfE2
-  inferInstance
+  finite_of_finiteDimensional_finiteType _
 
 /-- A version of `RelCWComplex.ofPartialEquiv` for absolute CW-complexes. -/
 @[simps! -isSimp]
@@ -347,7 +347,7 @@ lemma CWComplex.finite_ofPartialEquiv .{u} {X Y : Type u} [TopologicalSpace X]
   let _ := ofPartialEquiv C E hE f hfC1 hfE1 hfC2 hfE2
   let _ := finiteDimensional_ofPartialEquiv C E hE f hfC1 hfE1 hfC2 hfE2
   let _ := finiteType_ofPartialEquiv C E hE f hfC1 hfE1 hfC2 hfE2
-  inferInstance
+  finite_of_finiteDimensional_finiteType _
 
 /-- The image of a CW-complex under a homeomorphisms is again a CW-complex. -/
 @[simps! -isSimp]
@@ -390,7 +390,7 @@ lemma RelCWComplex.finite_ofHomeomorph.{u} {X Y : Type u} [TopologicalSpace X]
   let _ := ofHomeomorph C E f hCE hDF
   let _ := finiteDimensional_ofHomeomorph C E f hCE hDF
   let _ := finiteType_ofHomeomorph C E f hCE hDF
-  inferInstance
+  finite_of_finiteDimensional_finiteType _
 
 /-- The image of a CW-complex under a homeomorphisms is again a CW-complex. -/
 @[simps! -isSimp]
@@ -425,7 +425,7 @@ lemma CWComplex.finite_ofHomeomorph.{u} {X Y : Type u} [TopologicalSpace X]
   let _ := ofHomeomorph C E f hCE
   let _ := finiteDimensional_ofHomeomorph C E f hCE
   let _ := finiteType_ofHomeomorph C E f hCE
-  inferInstance
+  finite_of_finiteDimensional_finiteType _
 
 /-- The union of two disjoint CW-complexes is again a CW-complex. -/
 @[simps -isSimp]
@@ -561,6 +561,8 @@ lemma RelCWComplex.finiteType_disjointUnion [RelCWComplex C D] {E F : Set X}
   let _complex := RelCWComplex.disjointUnion disjoint hDF
   {finite_cell := fun n ↦ by
     simp only [RelCWComplex.disjointUnion_cell]
+    have := FiniteType.finite_cell (C := C) (D := D) n
+    have := FiniteType.finite_cell (C := E) (D := F) n
     infer_instance}
 
 lemma CWComplex.finiteType_disjointUnion [CWComplex C] {E : Set X} [CWComplex E]
@@ -571,6 +573,8 @@ lemma CWComplex.finiteType_disjointUnion [CWComplex C] {E : Set X} [CWComplex E]
   let _complex := disjointUnion disjoint
   {finite_cell := fun n ↦ by
     simp only [RelCWComplex.ofEq_cell, RelCWComplex.disjointUnion_cell]
+    have := FiniteType.finite_cell (C := C) (D := ∅) n
+    have := FiniteType.finite_cell (C := E) (D := ∅) n
     infer_instance}
 
 lemma RelCWComplex.finite_disjointUnion [RelCWComplex C D] {E F : Set X}
@@ -581,7 +585,7 @@ lemma RelCWComplex.finite_disjointUnion [RelCWComplex C D] {E F : Set X}
   let _complex := RelCWComplex.disjointUnion disjoint hDF
   let _finiteDimensional := finiteDimensional_disjointUnion disjoint hDF
   let _finiteType := finiteType_disjointUnion disjoint hDF
-  inferInstance
+  finite_of_finiteDimensional_finiteType _
 
 lemma CWComplex.finite_disjointUnion [CWComplex C] {E : Set X}
     [CWComplex E] [Finite C] [Finite E] (disjoint : Disjoint C E) :
@@ -590,7 +594,7 @@ lemma CWComplex.finite_disjointUnion [CWComplex C] {E : Set X}
   let _complex := disjointUnion disjoint
   let _finiteDimensional := finiteDimensional_disjointUnion disjoint
   let _finiteType := finiteType_disjointUnion disjoint
-  inferInstance
+  finite_of_finiteDimensional_finiteType _
 
 lemma separatedNhds_image_inl_image_inr {X Y : Type*} [TopologicalSpace X]
     [TopologicalSpace Y] {u : Set X} {v : Set Y} : SeparatedNhds (Sum.inl '' u) (Sum.inr '' v) :=
@@ -745,6 +749,7 @@ def RelCWComplex.attachCellFiniteType.{u} {X : Type u} [TopologicalSpace X] [T2S
   (disjoint' := disjoint')
   (disjointBase' := disjointBase')
   (mapsTo := by
+    have := FiniteType.finite_cell (C := C) (D := D)
     use fun m ↦ finite_univ.toFinset
     simpa)
 
@@ -786,6 +791,7 @@ lemma RelCWComplex.finiteType_attachCellFiniteType {X : Type*} [TopologicalSpace
   {finite_cell := by
     intro m
     simp only [attachCell_cell]
+    have := FiniteType.finite_cell (C := C) (D := D) m
     infer_instance}
 
 lemma RelCWComplex.finite_attachCellFiniteType {X : Type*} [TopologicalSpace X]
@@ -805,7 +811,7 @@ lemma RelCWComplex.finite_attachCellFiniteType {X : Type*} [TopologicalSpace X]
       source_eq' cont' cont_symm' disjoint' disjointBase' mapsTo
   let _finiteType := finiteType_attachCellFiniteType C map'
       source_eq' cont' cont_symm' disjoint' disjointBase' mapsTo
-  inferInstance
+  finite_of_finiteDimensional_finiteType _
 
 @[simps! -isSimp]
 def CWComplex.attachCell.{u} {X : Type u} [TopologicalSpace X] [T2Space X] (C : Set X)
@@ -861,6 +867,7 @@ def CWComplex.attachCellFiniteType.{u} {X : Type u} [TopologicalSpace X] [T2Spac
   (continuousOn_symm' := continuousOn_symm')
   (disjoint' := disjoint')
   (mapsTo := by
+    have := FiniteType.finite_cell (C := C) (D := ∅)
     use fun m ↦ finite_univ.toFinset
     simpa)
 
@@ -879,6 +886,7 @@ lemma CWComplex.finiteType_attachCellFiniteType {X : Type*} [TopologicalSpace X]
   {finite_cell := by
     intro m
     simp only [RelCWComplex.ofEq_cell, RelCWComplex.attachCell_cell]
+    have := FiniteType.finite_cell (C := C) (D := ∅) m
     infer_instance}
 
 lemma CWComplex.finiteDimensional_attachCellFiniteType {X : Type*} [TopologicalSpace X]
@@ -918,7 +926,7 @@ lemma CWComplex.finite_attachCellFiniteType {X : Type*} [TopologicalSpace X] [T2
     continuousOn' continuousOn_symm' disjoint' mapsTo
   let _finiteType := finiteType_attachCellFiniteType C map' source_eq' continuousOn'
     continuousOn_symm' disjoint' mapsTo
-  inferInstance
+  finite_of_finiteDimensional_finiteType _
 
 @[simps -isSimp]
 def RelCWComplex.attachCells.{u} {X : Type u} [TopologicalSpace X] [T2Space X] (C D : Set X)
@@ -1063,6 +1071,7 @@ def RelCWComplex.attachCellsFiniteType.{u} {X : Type u} [TopologicalSpace X] [T2
     disjointBase'
     (mapsTo := by
       intro i
+      have := FiniteType.finite_cell (C := C) (D := D)
       use fun m ↦ finite_univ.toFinset
       simp [mapsTo i])
 
@@ -1108,6 +1117,7 @@ lemma RelCWComplex.finiteType_attachCellsFiniteType.{u} {X : Type u} [Topologica
   {finite_cell := by
     intro m
     simp only [attachCells_cell]
+    have := FiniteType.finite_cell (C := C) (D := D)
     infer_instance}
 
 lemma RelCWComplex.finite_attachCellsFiniteType.{u} {X : Type u} [TopologicalSpace X]
@@ -1129,7 +1139,7 @@ lemma RelCWComplex.finite_attachCellsFiniteType.{u} {X : Type u} [TopologicalSpa
     continuousOn_symm' disjoint' disjoint'' disjointBase' mapsTo
   let _ := finiteType_attachCellsFiniteType C D map' source_eq' continuousOn' continuousOn_symm'
       disjoint' disjoint'' disjointBase' mapsTo
-  inferInstance
+  finite_of_finiteDimensional_finiteType _
 
 @[simps! -isSimp]
 def CWComplex.attachCells.{u} {X : Type u} [TopologicalSpace X] [T2Space X] (C : Set X)
@@ -1186,6 +1196,7 @@ def CWComplex.attachCellsFiniteType.{u} {X : Type u} [TopologicalSpace X] [T2Spa
   attachCells C map' source_eq' continuousOn' continuousOn_symm' disjoint' disjoint''
     (mapsTo := by
       intro i
+      have := FiniteType.finite_cell (C := C) (D := ∅)
       use fun m ↦ finite_univ.toFinset
       simp only [cell_def, Finite.mem_toFinset, mem_univ, iUnion_true]
       exact mapsTo i)
@@ -1230,6 +1241,7 @@ lemma CWComplex.finiteType_attachCellsFiniteType.{u} {X : Type u} [TopologicalSp
   {finite_cell := by
     intro m
     simp only [RelCWComplex.ofEq_cell, RelCWComplex.attachCells_cell]
+    have := FiniteType.finite_cell (C := C) (D := ∅)
     infer_instance}
 
 lemma CWComplex.finite_attachCellsFiniteType.{u} {X : Type u} [TopologicalSpace X]
@@ -1250,7 +1262,7 @@ lemma CWComplex.finite_attachCellsFiniteType.{u} {X : Type u} [TopologicalSpace 
     continuousOn_symm' disjoint' disjoint'' mapsTo
   let _ := finiteType_attachCellsFiniteType C map' source_eq' continuousOn'
     continuousOn_symm' disjoint' disjoint'' mapsTo
-  inferInstance
+  finite_of_finiteDimensional_finiteType _
 
 variable [T2Space X]
 
@@ -1400,7 +1412,7 @@ lemma RelCWComplex.finite_enlarge [RelCWComplex (X := C) univ (C ↓∩ D)]
   let _ := enlarge hC hDC
   let _ := finiteDimensional_enlarge hC hDC
   let _ := finiteType_enlarge hC hDC
-  inferInstance
+  finite_of_finiteDimensional_finiteType _
 
 lemma CWComplex.finiteDimensional_enlarge [CWComplex (X := C) univ]
     [h : FiniteDimensional (X := C) univ] (hC : IsClosed C) :

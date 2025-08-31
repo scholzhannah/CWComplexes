@@ -72,7 +72,7 @@ lemma image_skeletonLT_subset (f : CellularMap C E) (n : ℕ∞) :
       simp_rw [← iUnion_skeletonLT_eq_complex (C := C), mem_iUnion] at hx
       rw [mem_preimage]
       obtain ⟨n, hxn⟩ := hx
-      apply skeletonLT_subset_complex
+      apply Subcomplex.subset_complex
       exact f.image_skeletonLT_subset' n (mem_image_of_mem f hxn)
 
 lemma image_skeleton_subset (f : CellularMap C E) (n : ℕ∞) : f '' skeleton C n ⊆ skeleton E n :=
@@ -620,7 +620,7 @@ lemma RelCWComplex.piecewise_apply_of_mem_closedCell [T2Space X] [RelCWComplex C
     {n : ℕ} {i : cell C n} {x : X} (hx : x ∈ closedCell n i) :
     piecewise f fD fX x = f n i x := by
   have hx' := closedCell_subset_skeleton n i hx
-  simp_rw [← Subcomplex.mem, mem_skeleton_iff] at hx'
+  simp_rw [SetLike.mem_coe, mem_skeleton_iff] at hx'
   rcases hx' with hx' | ⟨m, _, j, hx'⟩
   · rw [piecewise_apply_of_mem_base hx']
     exact (hfD1 n i ⟨hx, hx'⟩).symm

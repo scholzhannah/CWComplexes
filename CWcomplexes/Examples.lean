@@ -192,7 +192,7 @@ instance instReal : CWComplex (univ : Set ℝ) where
           exact Int.lt_or_gt_of_ne ne
         | (_ +  2) => i.elim
       | (_ + 2) => j.elim
-  mapsTo' n i := match n with
+  mapsTo_iff_image_subset n i := match n with
     | 0 => by simp [Matrix.zero_empty, sphere_eq_empty_of_subsingleton]
     | 1 => by
       use fun n ↦  match n with
@@ -298,7 +298,7 @@ lemma isEmpty_cell_SphereZero (x : EuclideanSpace ℝ (Fin 0)) (ε : ℝ) (h : �
     ∀ m, IsEmpty (cell (sphere x ε) m) := by
   intro m
   simp only [RelCWComplex.ofEq_cell]
-  cases m <;> (rw [RelCWComplex.mkFinite_cell]; infer_instance)
+  cases m <;> (simp [RelCWComplex.mkFinite, PEmpty.instIsEmpty])
 
 /-- The sphere in dimension 1 is a CW-complex. -/
 def SphereOne (x ε : ℝ) (hε : ε ≥ 0) : CWComplex (sphere x ε) :=
