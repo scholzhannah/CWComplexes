@@ -273,6 +273,123 @@ def RelCWComplex.ofPartialEquiv.{u} {X Y : Type u} [TopologicalSpace X] [T2Space
       ← image_image, ← image_iUnion (f := f), ← hDF, ← image_union, ← hfE1,
       ← f.image_source_eq_target, hfC1, union']
 
+set_option linter.unusedVariables false in
+def RelCWComplex.ofPartialEquivCell.{u} {X : Type*} {Y : Type u} [TopologicalSpace X] [T2Space X]
+    [TopologicalSpace Y] (C : Set X) {D : Set X} [RelCWComplex C D]
+    (f : PartialEquiv X Y) (hfC1 : f.source = C) (n : ℕ) : Type u :=
+  {x : Y // ∃ i, (f : X → Y) (map (C := C) n i 0) = x}
+
+def RelCWComplex.ofPartialEquivCellEquiv {X Y : Type*} [TopologicalSpace X]
+    [T2Space X] [TopologicalSpace Y] (C : Set X) {D : Set X} [RelCWComplex C D]
+    (f : PartialEquiv X Y) (hfC1 : f.source = C) (n : ℕ) :
+    cell C n ≃ ofPartialEquivCell C f hfC1 n :=
+  Equiv.ofBijective (fun i ↦ ⟨(f : X → Y) (map (C := C) n i 0), ⟨i, rfl⟩⟩) (by
+    refine ⟨?_, fun ⟨x, ⟨i, hx⟩⟩ ↦ ⟨i, by simp [hx]⟩⟩
+    intro i j hij
+    suffices (⟨n, i⟩ : Σ n, cell C n) = ⟨n, j⟩ by simp_all
+    apply eq_of_not_disjoint_openCell
+    rw [not_disjoint_iff]
+    use map n i 0, map_zero_mem_openCell n i
+    suffices map n i 0 = map n j 0 by rw [this]; exact map_zero_mem_openCell n j
+    exact f.injOn
+      (hfC1.symm ▸ mem_of_mem_of_subset (map_zero_mem_openCell n i) (openCell_subset_complex n i))
+      (hfC1.symm ▸ mem_of_mem_of_subset (map_zero_mem_openCell n j) (openCell_subset_complex n j))
+      (Subtype.mk.injEq _ _ _ _ ▸ hij))
+
+abbrev RelCWComplex.ofPartialEquivCell.preimage {X Y : Type*} [TopologicalSpace X]
+    [T2Space X] [TopologicalSpace Y] (C : Set X) {D : Set X} [RelCWComplex C D]
+    {f : PartialEquiv X Y} {hfC1 : f.source = C} {n : ℕ} (i : ofPartialEquivCell C f hfC1 n) :=
+  (ofPartialEquivCellEquiv C f hfC1 n).symm i
+
+@[simp]
+lemma RelCWComplex.ofPartialEquiv.preimage_ofPartialEquivCellEquiv {X Y : Type*} [TopologicalSpace X]
+    [T2Space X] [TopologicalSpace Y] (C : Set X) {D : Set X} [RelCWComplex C D]
+    {f : PartialEquiv X Y} {hfC1 : f.source = C} {n : ℕ} (i : cell C n) :
+    (ofPartialEquivCellEquiv C f hfC1 n i).preimage = i := by
+  simp
+
+@[simp]
+lemma RelCWComplex.ofPartialEquiv.ofPartialEquivCellEquiv_preimage {X Y : Type*} [TopologicalSpace X]
+    [T2Space X] [TopologicalSpace Y] (C : Set X) {D : Set X} [RelCWComplex C D]
+    {f : PartialEquiv X Y} {hfC1 : f.source = C} {n : ℕ} (i : ofPartialEquivCell C f hfC1 n) :
+    (ofPartialEquivCellEquiv C f hfC1 n i.preimage) = i := by
+  simp
+
+@[simps -isSimp]
+def RelCWComplex.ofPartialEquiv' {X Y : Type*} [TopologicalSpace X] [T2Space X]
+    [TopologicalSpace Y] (C : Set X) {D : Set X} (E : Set Y) {F : Set Y} [RelCWComplex C D]
+    (hE : IsClosed E) (f : PartialEquiv X Y) (hfC1 : f.source = C) (hfE1 : f.target = E)
+    (hDF : f '' D = F) (hfC2 : ContinuousOn f C) (hfE2 : ContinuousOn f.symm E) :
+    RelCWComplex E F where
+  cell := ofPartialEquivCell C f hfC1
+  map n i := (map n i.preimage).trans' (f.restr (map n i.preimage).target) (by
+    simp only [← PartialEquiv.image_source_eq_target, PartialEquiv.restr_source, right_eq_inter,
+    source_eq n i.preimage, hfC1]
+    exact openCell_subset_complex n i.preimage)
+  source_eq n i := by simp [source_eq n i.preimage]
+  continuousOn n i := by
+    simp only [PartialEquiv.trans', PartialEquiv.restr_coe, PartialEquiv.restr_coe_symm,
+      PartialEquiv.restr_target]
+    apply hfC2.comp (continuousOn n i.preimage)
+    rw [mapsTo_iff_image_subset]
+    exact closedCell_subset_complex n i.preimage
+  continuousOn_symm n i := by
+    simp only [PartialEquiv.trans', PartialEquiv.restr_coe, PartialEquiv.restr_coe_symm,
+      PartialEquiv.restr_target, PartialEquiv.coe_symm_mk]
+    apply (continuousOn_symm n i.preimage).comp
+    · apply hfE2.mono
+      simp [hfE1]
+    · simp [mapsTo_iff_image_subset]
+  pairwiseDisjoint' := by
+    have := pairwiseDisjoint' (C := C)
+    simp only [PairwiseDisjoint, Set.Pairwise, mem_univ, ne_eq, Function.onFun, forall_const,
+      PartialEquiv.trans'_apply, PartialEquiv.restr_coe, Function.comp_apply] at this ⊢
+    intro ⟨n, i⟩ ⟨m, j⟩ hij
+    simp_rw [← image_image]
+    have hxy2 : ¬ (⟨n, i.preimage⟩ : Σ n, cell C n) = ⟨m, j.preimage⟩ := by
+      intro h
+      apply hij
+      rw [Sigma.ext_iff] at h ⊢
+      refine ⟨h.1, ?_⟩
+      obtain ⟨h1, h2⟩ := h
+      subst h1
+      simp_all
+    apply (this hxy2).image (u := C)
+    · rw [← hfC1]
+      exact f.injOn
+    · exact openCell_subset_complex _ _
+    · exact openCell_subset_complex _ _
+  disjointBase' n i := by
+    simp only [PartialEquiv.trans'_apply, PartialEquiv.restr_coe, Function.comp_apply]
+    simp_rw [← image_image, ← hDF]
+    apply (disjointBase' n i.preimage).image (u := C)
+    · rw [← hfC1]
+      exact f.injOn
+    · exact openCell_subset_complex _ _
+    · exact base_subset_complex
+  mapsTo n i := by
+    classical
+    obtain ⟨I, hI⟩ := mapsTo n i.preimage
+    use fun m ↦ (I m).image (ofPartialEquivCellEquiv C f hfC1 m)
+    rw [mapsTo_iff_image_subset] at hI ⊢
+    simp only [PartialEquiv.trans'_apply, PartialEquiv.restr_coe, Function.comp_apply,
+      ← image_image, ← image_iUnion (f := f), ← hDF, ← image_union]
+    apply image_mono
+    apply subset_of_subset_of_eq hI
+    congrm D ∪ ⋃ (m : ℕ) (hm : m < n), ?_
+    apply subset_antisymm
+    · apply iUnion₂_subset (fun j hj ↦ ?_)
+      exact subset_iUnion₂_of_subset (i := ofPartialEquivCellEquiv C f hfC1 m j)
+        (Finset.mem_image_of_mem _ hj) (by simp)
+    · apply iUnion₂_subset (fun j hj ↦ ?_)
+      refine subset_iUnion₂_of_subset (i := j.preimage) ?_ (Subset.refl _)
+      rw [← (ofPartialEquivCellEquiv C f hfC1 m).injective.mem_finset_image,
+        ofPartialEquiv.ofPartialEquivCellEquiv_preimage]
+      exact hj
+  closed' := sorry
+  isClosedBase := sorry
+  union' := sorry
+
 /-- `RelCWComplex.ofPartialEquiv` preserves finite dimensionality. -/
 lemma RelCWComplex.finiteDimensional_ofPartialEquiv.{u} {X Y : Type u} [TopologicalSpace X]
     [T2Space X] [TopologicalSpace Y] (C : Set X) {D : Set X} (E : Set Y) {F : Set Y}

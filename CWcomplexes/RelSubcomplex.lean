@@ -28,7 +28,7 @@ namespace Topology
 variable {X : Type*} [t : TopologicalSpace X] {C D : Set X}
 
 
-/-- A subcomplex is the union of its closed cells. -/
+/-- A subcomplex is the union of its closed cells and its base. -/
 lemma RelCWComplex.Subcomplex.union_closedCell [T2Space X] [RelCWComplex C D] (E : Subcomplex C):
     D ∪ ⋃ (n : ℕ) (j : E.I n), closedCell (C := C) n j = E := by
   apply subset_antisymm
@@ -58,8 +58,7 @@ lemma CWComplex.Subcomplex.union_closedCell [T2Space X] [CWComplex C] (E : Subco
     apply iUnion_mono fun n ↦ iUnion_mono fun (i : ↑(E.I n)) ↦ ?_
     exact openCell_subset_closedCell (C := C) (D := ∅) n i
 
-open RelCWComplex.Subcomplex in
-/-- A subcomplex is again a CW-complex. -/
+/-- A subcomplex is again a CW complex. -/
 @[simps]
 instance RelCWComplex.Subcomplex.instRelCWComplex [T2Space X] [RelCWComplex C D]
     (E : Subcomplex C) : RelCWComplex E D where
@@ -133,7 +132,7 @@ instance RelCWComplex.Subcomplex.instRelCWComplex [T2Space X] [RelCWComplex C D]
   isClosedBase := RelCWComplex.isClosedBase (C := C) (D := D)
   union' := Subcomplex.union_closedCell E (D := D)
 
-/-- A subcomplex is again a CW-complex. -/
+/-- A subcomplex is again a CW complex. -/
 instance CWComplex.Subcomplex.instCWComplex [T2Space X] [CWComplex C] (E : Subcomplex C) :
     CWComplex (E : Set X) :=
   RelCWComplex.toCWComplex (E : Set X)
@@ -151,17 +150,17 @@ lemma CWComplex.Subcomplex.instSubcomplex_map [T2Space X] [CWComplex C] (E : Sub
 @[simp]
 lemma RelCWComplex.Subcomplex.openCell_eq [T2Space X] [RelCWComplex C D] (E : Subcomplex C) (n : ℕ)
     (i : E.I n) : openCell (C := E) n i = openCell n (i : cell C n) := by
-  simp [openCell]
+  rfl
 
 @[simp]
 lemma RelCWComplex.Subcomplex.closedCell_eq [T2Space X] [RelCWComplex C D] (E : Subcomplex C)
     (n : ℕ) (i : E.I n) : closedCell (C := E) n i = closedCell n (i : cell C n) := by
-  simp [closedCell]
+  rfl
 
 @[simp]
 lemma RelCWComplex.Subcomplex.cellFrontier_eq [T2Space X] [RelCWComplex C D] (E : Subcomplex C)
     (n : ℕ) (i : E.I n) : cellFrontier (C := E) n i = cellFrontier n (i : cell C n) := by
-  simp [cellFrontier]
+  rfl
 
 lemma RelCWComplex.Subcomplex.disjoint_openCell_subcomplex_of_not_mem [T2Space X] [RelCWComplex C D]
     (E : Subcomplex C) {n : ℕ} {i : cell C n} (h : i ∉ E.I n) : Disjoint (openCell n i) E := by
