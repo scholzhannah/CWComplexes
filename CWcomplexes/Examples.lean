@@ -926,7 +926,7 @@ lemma continuous_spheremaps_symm (n : ℕ) (i : Fin 2) : Continuous (spheremaps 
 
 /-- The 'equator' of the sphere in dimension `n + 1` receives a natural CW-complex structure from
   a CW-complex structure on the sphere in dimension `n`. -/
---@[simps!]
+--@[simps!? -isSimp]
 def sphereEmbed (n : ℕ) [CWComplex (sphere (0 : EuclideanSpace ℝ (Fin n)) 1)] :
     CWComplex (sphere 0 1 ∩ {x | x (Fin.last n) = 0} : Set (EuclideanSpace ℝ (Fin (n + 1)))) :=
   ofPartialEquiv (X := EuclideanSpace ℝ (Fin n)) (Y := EuclideanSpace ℝ (Fin (n + 1)))
@@ -939,6 +939,13 @@ def sphereEmbed (n : ℕ) [CWComplex (sphere (0 : EuclideanSpace ℝ (Fin n)) 1)
     (PartialEquiv.continuous_EuclideanSpaceSucc n).continuousOn
     (PartialEquiv.continuous_EuclideanSpaceSucc_symm n).continuousOn
 
+lemma sphereEmbed_cell (n : ℕ) [CWComplex (sphere (0 : EuclideanSpace ℝ (Fin n)) 1)] :
+    letI := sphereEmbed n
+    cell (sphere 0 1 ∩ {x | x (Fin.last n) = 0} :  Set (EuclideanSpace ℝ (Fin (n + 1)))) =
+      ofPartialEquivCell (sphere (0 : EuclideanSpace ℝ (Fin n)) 1)
+        ((PartialEquiv.EuclideanSpaceSucc n).restr (sphere 0 1)) (by simp) := by
+  rfl
+
 /-- If the CW-complex structure on the sphere in dimension `n` is fintite than so is the
   the CW-complex structure on the 'equator' of the sphere in dimension `n + 1`. -/
 lemma finite_sphereEmbed (n : ℕ) [CWComplex (sphere (0 : EuclideanSpace ℝ (Fin n)) 1)]
@@ -948,6 +955,13 @@ lemma finite_sphereEmbed (n : ℕ) [CWComplex (sphere (0 : EuclideanSpace ℝ (F
   let _ := sphereEmbed n
   finite_ofPartialEquiv ..
 
+def sphereEmbedCellEquiv (n m : ℕ) [CWComplex (sphere (0 : EuclideanSpace ℝ (Fin n)) 1)] :
+    letI := sphereEmbed n
+    cell (sphere 0 1 ∩ {x | x (Fin.last n) = 0} :  Set (EuclideanSpace ℝ (Fin (n + 1)))) m ≃
+      cell (sphere (0 : EuclideanSpace ℝ (Fin n)) 1) m :=
+  (ofPartialEquivCellEquiv (sphere (0 : EuclideanSpace ℝ (Fin n)) 1)
+    ((PartialEquiv.EuclideanSpaceSucc n).restr (sphere 0 1)) (by simp) m).symm
+
 /-- If the Cw-complex structure on the sphere in dimension `n` has no cells in dimension
   `n` or higher then the CW-complex structure on the 'equator' of the sphere in dimension
   `n + 1` does not either. -/
@@ -956,8 +970,9 @@ lemma isEmpty_cell_sphereEmbed (n : ℕ) [CWComplex (sphere (0 : EuclideanSpace 
     letI := sphereEmbed n
     ∀ m ≥ n, IsEmpty
       (cell (sphere 0 1 ∩ {x | x (Fin.last n) = 0} : Set (EuclideanSpace ℝ (Fin (n + 1)))) m) := by
-  simp only [ge_iff_le, sphereEmbed]
-  exact h
+  intro m hm
+  specialize h m hm
+  exact (sphereEmbedCellEquiv n m).isEmpty
 
 /-**Comment**: We can now show that the actual induction step works. -/
 
@@ -1089,7 +1104,8 @@ lemma isEmpty_cell_SphereInductStep' (n : ℕ)
   simp only [attachCellsFiniteType_cell, RelCWComplex.attachCells_cell,
     (Nat.lt_of_succ_le hm).ne.symm, isEmpty_sum, isEmpty_pprod, not_isEmpty_of_nonempty,
     isEmpty_Prop, not_false_eq_true, false_or, and_true]
-  exact h m (Nat.le_of_succ_le hm)
+  specialize h m (Nat.le_of_succ_le hm)
+  exact (sphereEmbedCellEquiv n m).isEmpty
 
 /-- If the sphere in dimension `n` is a finite CW-complex that has no cells in dimension
   `n` or higher, then the sphere in dimension `n + 1` is a CW-complex. -/
