@@ -1,4 +1,6 @@
+-- need `skeletonLT_eq`
 import CWcomplexes.RelSubcomplex
+--import Mathlib.Topology.CWComplex.Classical.Subcomplex
 import Mathlib.Topology.PartialHomeomorph
 import Mathlib.Data.Setoid.Partition
 
