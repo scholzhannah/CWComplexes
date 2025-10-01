@@ -1,4 +1,4 @@
-import Mathlib.Analysis.NormedSpace.HomeomorphBall
+import Mathlib.Analysis.Normed.Module.Ball.Homeomorph
 import Mathlib.Geometry.Manifold.Instances.Sphere
 import CWcomplexes.Auxiliary
 import CWcomplexes.RelConstructions
@@ -192,7 +192,7 @@ instance instReal : CWComplex (univ : Set ℝ) where
           exact Int.lt_or_gt_of_ne ne
         | (_ +  2) => i.elim
       | (_ + 2) => j.elim
-  mapsTo_iff_image_subset n i := match n with
+  mapsTo' n i := match n with
     | 0 => by simp [Matrix.zero_empty, sphere_eq_empty_of_subsingleton]
     | 1 => by
       use fun n ↦  match n with

@@ -1,5 +1,5 @@
 import Mathlib.Topology.CWComplex.Classical.Finite
-import Mathlib.Analysis.NormedSpace.Real
+import Mathlib.Analysis.Normed.Module.RCLike.Real
 
 /-!
 # Subcomplexes
@@ -375,8 +375,7 @@ protected def RelCWComplex.Subcomplex.CompletelyDistribLattice.MinimalAxioms [T2
             use (fun i ↦ (hE i).choose)
             intro i
             exact (hE i).choose_spec
-          · intro ⟨g, hg⟩
-            intro i
+          · intro ⟨g, hg⟩ i
             use g i, hg i
         · simp_all only [not_forall, not_nonempty_iff, isEmpty_pi, iUnion_of_empty, union_empty]
           apply subset_antisymm
@@ -856,9 +855,8 @@ lemma CWComplex.Subcomplex.finite_attachCell [T2Space X] [CWComplex C] (n : ℕ)
 lemma RelCWComplex.Subcomplex.cell_mem_finite_subcomplex [T2Space X] [RelCWComplex C D]
     (n : ℕ) (i : cell C n) :
     ∃ (E : Subcomplex C), Finite (E : Set X) ∧ i ∈ E.I n := by
-  induction' n using Nat.case_strong_induction_on with n hn
-  · use (Subcomplex.cellZero i)
-    exact ⟨finite_cellZero i, by rfl⟩
+  induction n using Nat.case_strong_induction_on with
+  | hz => exact ⟨(Subcomplex.cellZero i), ⟨finite_cellZero i, by rfl⟩⟩ | hi n hn => ?_
   by_cases h : cellFrontier (n + 1) i ⊆ D
   · use (attachBase (n + 1) i h)
     refine ⟨finite_attachBase (n + 1) i h, ?_⟩
@@ -868,7 +866,8 @@ lemma RelCWComplex.Subcomplex.cell_mem_finite_subcomplex [T2Space X] [RelCWCompl
   let sub' := ⨆ (x : Σ (m : {m : ℕ // m ≤ n}), I m), sub x.1.1 x.1.2 ↑x.2.1
   have : Nonempty ((m : { m // m ≤ n }) × { x // x ∈ I ↑m }) := by
     simp only [nonempty_sigma, nonempty_subtype, Subtype.exists, exists_prop]
-    have : ∃ x, x ∈ cellFrontier n.succ i ∩ ⋃ m, ⋃ (_ : m < n.succ), ⋃ j ∈ I m, closedCell m j := by
+    have :
+        ∃ x, x ∈ cellFrontier n.succ i ∩ ⋃ m, ⋃ (_ : m < n.succ), ⋃ j ∈ I m, closedCell m j := by
       by_contra h'
       push_neg at h'
       apply h

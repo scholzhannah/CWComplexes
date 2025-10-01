@@ -111,10 +111,11 @@ lemma RelCWComplex.induction_isClosed_skeletonLT [RelCWComplex C D] {A : Set X} 
     IsClosed A := by
   rw [isClosed_iff_inter_skeletonLT_isClosed (D := D) asub]
   intro n
-  induction' n using Nat.case_strong_induction_on with n hn
-  · simpa only [CharP.cast_eq_zero, skeletonLT_zero_eq_base (C := C) (D := D)]
-  rw [inter_skeletonLT_succ_isClosed_iff]
-  exact ⟨hn n n.le_refl, step n hn⟩
+  induction n using Nat.case_strong_induction_on with
+  | hz =>  simpa only [CharP.cast_eq_zero, skeletonLT_zero_eq_base (C := C)]
+  | hi n hn =>
+    rw [inter_skeletonLT_succ_isClosed_iff]
+    exact ⟨hn n n.le_refl, step n hn⟩
 
 /-- A set `A` in a CW-complex is closed if assuming that the intersection `A ∩ levelaux C m` is
   closed for all `m ≤ n` implies that `A ∩ closedCell n j` is closed for every `j : cell C n`. -/
@@ -124,10 +125,11 @@ lemma CWComplex.induction_isClosed_skeletonLT [CWComplex C] {A : Set X} (asub : 
     IsClosed A := by
   rw [RelCWComplex.isClosed_iff_inter_skeletonLT_isClosed (D := ∅) asub]
   intro n
-  induction' n using Nat.case_strong_induction_on with n hn
-  · simp only [CharP.cast_eq_zero, skeletonLT_zero_eq_empty, inter_empty, isClosed_empty]
-  rw [RelCWComplex.inter_skeletonLT_succ_isClosed_iff]
-  exact ⟨hn n n.le_refl, step n hn⟩
+  induction n using Nat.case_strong_induction_on with
+  | hz => simp only [CharP.cast_eq_zero, skeletonLT_zero_eq_empty, inter_empty, isClosed_empty]
+  | hi n hn =>
+    rw [RelCWComplex.inter_skeletonLT_succ_isClosed_iff]
+    exact ⟨hn n n.le_refl, step n hn⟩
 
 /-- `levelaux C 1` is discrete. -/
 lemma CWComplex.isDiscrete_levelaux_one [CWComplex C] {A : Set X} :

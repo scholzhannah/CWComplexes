@@ -1,5 +1,6 @@
 import Mathlib.Topology.CWComplex.Classical.Finite
-import Mathlib.Analysis.NormedSpace.Real
+import Mathlib.Analysis.Normed.Module.RCLike.Real
+-- requires introduction of ClosedPartialHomeomorph
 import CWcomplexes.Auxiliary
 import Mathlib.Data.ENat.Basic
 

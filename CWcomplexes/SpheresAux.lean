@@ -40,6 +40,26 @@ theorem PartialEquiv.coe_transEmbedding {α β γ : Type*} [Inhabited β] (e : P
 -- compose that with PiLp to get ContinuousLinearMap
 -- PiLp.proj
 
+variable (𝕜 : Type*) {n m : Type*} [TopologicalSpace 𝕜]  [SeminormedAddCommGroup 𝕜]
+
+/-
+#synth Module 𝕜 (EuclideanSpace 𝕜 n)
+
+def test (𝕜 : Type*) {n m : Type*} [TopologicalSpace 𝕜] [SeminormedAddCommGroup 𝕜]  (f : m → n) :
+    EuclideanSpace 𝕜 n →L[𝕜] EuclideanSpace 𝕜 m :=
+  (PiLp.continuousLinearEquiv 2 ℝ (fun (_ : m) ↦ ℝ)).symm.toContinuousLinearMap.comp
+    ((Pi.compRightL ℝ (fun _ ↦ ℝ) f).comp
+      (PiLp.continuousLinearEquiv 2 ℝ (fun (_ : n) ↦ ℝ)).toContinuousLinearMap)
+
+def test' (𝕜 : Type*) {n m : Type*} [Semiring 𝕜] [TopologicalSpace 𝕜] (f : m → n) :
+    EuclideanSpace ℝ n →L[ℝ] EuclideanSpace ℝ m :=
+  (PiLp.continuousLinearEquiv 2 ℝ (fun (_ : m) ↦ ℝ)).symm.toContinuousLinearMap.comp
+    ((Pi.compRightL ℝ (fun _ ↦ ℝ) f).comp
+      (PiLp.continuousLinearEquiv 2 ℝ (fun (_ : n) ↦ ℝ)).toContinuousLinearMap)
+
+  --(PiLp.continuousLinearEquiv _ _ _).trans ((Pi.compRightL ℝ _ _ _ f).trans
+-- (PiLp.continuousLinearEquiv _ _ _).symm)
+-/
 open Classical in
 @[simps]
 def Function.Embedding.euclidean (𝕜 : Type*) {n m : Type*} [Inhabited 𝕜] (f : n ↪ m) :
