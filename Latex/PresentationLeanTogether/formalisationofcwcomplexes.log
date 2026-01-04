@@ -1,4 +1,4 @@
-This is pdfTeX, Version 3.141592653-2.6-1.40.26 (TeX Live 2024) (preloaded format=pdflatex 2024.4.20)  4 JAN 2026 16:01
+This is pdfTeX, Version 3.141592653-2.6-1.40.26 (TeX Live 2024) (preloaded format=pdflatex 2024.4.20)  4 JAN 2026 16:45
 entering extended mode
  restricted \write18 enabled.
  file:line:error style messages enabled.
@@ -978,51 +978,37 @@ Package pdftex.def Info: images/sphere.png  used on input line 137.
 
 ] [11
 
-] [12
-
 ]
-Overfull \vbox (39.44118pt too high) detected at line 179
+<images/CWComplexinLean.png, id=372, 524.71031pt x 187.45032pt>
+File: images/CWComplexinLean.png Graphic file (type png)
+<use images/CWComplexinLean.png>
+Package pdftex.def Info: images/CWComplexinLean.png  used on input line 157.
+(pdftex.def)             Requested size: 322.65529pt x 115.27124pt.
+
+Overfull \hbox (15.36542pt too wide) in paragraph at lines 157--157
+[][]  
+ []
+
+[12
+
+ <./images/CWComplexinLean.png>]
+\openout4 = `formalisationofcwcomplexes.vrb'.
+
+ (./formalisationofcwcomplexes.vrb
+LaTeX Font Info:    Trying to load font information for TS1+cmss on input line 4.
+ (c:/texlive/2024/texmf-dist/tex/latex/base/ts1cmss.fd
+File: ts1cmss.fd 2023/04/13 v2.5m Standard LaTeX font definitions
+)
+LaTeX Font Info:    Trying to load font information for T1+cmtt on input line 4.
+ (c:/texlive/2024/texmf-dist/tex/latex/base/t1cmtt.fd
+File: t1cmtt.fd 2023/04/13 v2.5m Standard LaTeX font definitions
+))
+Overfull \vbox (39.52019pt too high) detected at line 179
  []
 
 [13
 
-]
-\openout4 = `formalisationofcwcomplexes.vrb'.
-
- (./formalisationofcwcomplexes.vrb
-LaTeX Font Info:    Trying to load font information for T1+cmtt on input line 2.
- (c:/texlive/2024/texmf-dist/tex/latex/base/t1cmtt.fd
-File: t1cmtt.fd 2023/04/13 v2.5m Standard LaTeX font definitions
-))
-Overfull \vbox (23.88322pt too high) detected at line 197
- []
-
-[14
-
-] [15
-
-]
-\openout4 = `formalisationofcwcomplexes.vrb'.
-
- (./formalisationofcwcomplexes.vrb
-Overfull \hbox (38.88719pt too wide) in paragraph at lines 4--11
-[][]  
- []
-
-) [16
-
-]
-Overfull \hbox (23.27313pt too wide) detected at line 249
-[]
- []
-
-
-Overfull \vbox (52.99664pt too high) detected at line 249
- []
-
-[17
-
-]
+{c:/texlive/2024/texmf-dist/fonts/enc/dvips/cm-super/cm-super-ts1.enc}]
 \tf@nav=\write6
 \openout6 = `formalisationofcwcomplexes.nav'.
 
@@ -1041,18 +1027,18 @@ Package rerunfilecheck Info: File `formalisationofcwcomplexes.out' has not chang
 (rerunfilecheck)             Checksum: D41D8CD98F00B204E9800998ECF8427E;0.
  ) 
 Here is how much of TeX's memory you used:
- 29723 strings out of 474104
- 579638 string characters out of 5747502
- 2124496 words of memory out of 5000000
- 51468 multiletter control sequences out of 15000+600000
- 581449 words of font info for 100 fonts, out of 8000000 for 9000
+ 29634 strings out of 474104
+ 578509 string characters out of 5747502
+ 1943496 words of memory out of 5000000
+ 51390 multiletter control sequences out of 15000+600000
+ 579245 words of font info for 92 fonts, out of 8000000 for 9000
  1141 hyphenation exceptions out of 8191
- 128i,15n,123p,521b,1157s stack positions out of 10000i,1000n,20000p,200000b,200000s
-<c:/texlive/2024/texmf-dist/fonts/type1/public/amsfonts/cm/cmex10.pfb><c:/texlive/2024/texmf-dist/fonts/type1/public/amsfonts/cmextra/cmex9.pfb><c:/texlive/2024/texmf-dist/fonts/type1/public/amsfonts/cm/cmmi10.pfb><c:/texlive/2024/texmf-dist/fonts/type1/public/amsfonts/cm/cmmi7.pfb><c:/texlive/2024/texmf-dist/fonts/type1/public/amsfonts/cm/cmmi8.pfb><c:/texlive/2024/texmf-dist/fonts/type1/public/amsfonts/cm/cmss10.pfb><c:/texlive/2024/texmf-dist/fonts/type1/public/amsfonts/cm/cmss8.pfb><c:/texlive/2024/texmf-dist/fonts/type1/public/amsfonts/cm/cmss9.pfb><c:/texlive/2024/texmf-dist/fonts/type1/public/amsfonts/cm/cmssi10.pfb><c:/texlive/2024/texmf-dist/fonts/type1/public/amsfonts/cm/cmssi8.pfb><c:/texlive/2024/texmf-dist/fonts/type1/public/amsfonts/cm/cmsy10.pfb><c:/texlive/2024/texmf-dist/fonts/type1/public/amsfonts/cm/cmsy6.pfb><c:/texlive/2024/texmf-dist/fonts/type1/public/amsfonts/cm/cmsy7.pfb><c:/texlive/2024/texmf-dist/fonts/type1/public/amsfonts/cm/cmsy8.pfb><c:/texlive/2024/texmf-dist/fonts/type1/public/amsfonts/cm/cmsy9.pfb><c:/texlive/2024/texmf-dist/fonts/type1/public/amsfonts/euler/eurm10.pfb><c:/texlive/2024/texmf-dist/fonts/type1/public/amsfonts/symbols/msam10.pfb><c:/texlive/2024/texmf-dist/fonts/type1/public/amsfonts/symbols/msbm10.pfb><c:/texlive/2024/texmf-dist/fonts/type1/public/amsfonts/symbols/msbm7.pfb><c:/texlive/2024/texmf-dist/fonts/type1/public/cm-super/sfsi1000.pfb><c:/texlive/2024/texmf-dist/fonts/type1/public/cm-super/sfsi1095.pfb><c:/texlive/2024/texmf-dist/fonts/type1/public/cm-super/sfss0600.pfb><c:/texlive/2024/texmf-dist/fonts/type1/public/cm-super/sfss0700.pfb><c:/texlive/2024/texmf-dist/fonts/type1/public/cm-super/sfss0800.pfb><c:/texlive/2024/texmf-dist/fonts/type1/public/cm-super/sfss0900.pfb><c:/texlive/2024/texmf-dist/fonts/type1/public/cm-super/sfss1000.pfb><c:/texlive/2024/texmf-dist/fonts/type1/public/cm-super/sfss1095.pfb><c:/texlive/2024/texmf-dist/fonts/type1/public/cm-super/sfss1440.pfb><c:/texlive/2024/texmf-dist/fonts/type1/public/cm-super/sftt0900.pfb><c:/texlive/2024/texmf-dist/fonts/type1/public/cm-super/sftt1000.pfb>
-Output written on formalisationofcwcomplexes.pdf (17 pages, 1134025 bytes).
+ 128i,15n,123p,521b,1121s stack positions out of 10000i,1000n,20000p,200000b,200000s
+<c:/texlive/2024/texmf-dist/fonts/type1/public/amsfonts/cm/cmmi10.pfb><c:/texlive/2024/texmf-dist/fonts/type1/public/amsfonts/cm/cmmi7.pfb><c:/texlive/2024/texmf-dist/fonts/type1/public/amsfonts/cm/cmss10.pfb><c:/texlive/2024/texmf-dist/fonts/type1/public/amsfonts/cm/cmss8.pfb><c:/texlive/2024/texmf-dist/fonts/type1/public/amsfonts/cm/cmssi10.pfb><c:/texlive/2024/texmf-dist/fonts/type1/public/amsfonts/cm/cmssi8.pfb><c:/texlive/2024/texmf-dist/fonts/type1/public/amsfonts/cm/cmsy10.pfb><c:/texlive/2024/texmf-dist/fonts/type1/public/amsfonts/cm/cmsy7.pfb><c:/texlive/2024/texmf-dist/fonts/type1/public/amsfonts/symbols/msbm10.pfb><c:/texlive/2024/texmf-dist/fonts/type1/public/amsfonts/symbols/msbm7.pfb><c:/texlive/2024/texmf-dist/fonts/type1/public/cm-super/sfsi1000.pfb><c:/texlive/2024/texmf-dist/fonts/type1/public/cm-super/sfsi1095.pfb><c:/texlive/2024/texmf-dist/fonts/type1/public/cm-super/sfss0600.pfb><c:/texlive/2024/texmf-dist/fonts/type1/public/cm-super/sfss0700.pfb><c:/texlive/2024/texmf-dist/fonts/type1/public/cm-super/sfss0800.pfb><c:/texlive/2024/texmf-dist/fonts/type1/public/cm-super/sfss0900.pfb><c:/texlive/2024/texmf-dist/fonts/type1/public/cm-super/sfss1000.pfb><c:/texlive/2024/texmf-dist/fonts/type1/public/cm-super/sfss1095.pfb><c:/texlive/2024/texmf-dist/fonts/type1/public/cm-super/sfss1440.pfb><c:/texlive/2024/texmf-dist/fonts/type1/public/cm-super/sftt1000.pfb>
+Output written on formalisationofcwcomplexes.pdf (13 pages, 1090977 bytes).
 PDF statistics:
- 680 PDF objects out of 1000 (max. 8388607)
- 543 compressed objects within 6 object streams
- 35 named destinations out of 1000 (max. 500000)
- 179 words of extra memory for PDF output out of 10000 (max. 10000000)
+ 525 PDF objects out of 1000 (max. 8388607)
+ 415 compressed objects within 5 object streams
+ 27 named destinations out of 1000 (max. 500000)
+ 184 words of extra memory for PDF output out of 10000 (max. 10000000)
 

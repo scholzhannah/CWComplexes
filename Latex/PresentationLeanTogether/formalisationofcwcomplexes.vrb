@@ -1,20 +1,19 @@
-\frametitle{Closedness of CW-complexes}
-\begin{exampleblock}{Proof}
-    \small
-    \begin{tabular}{ll}
-      1& By the weak topology it is enough to show that the intersection with every \\
-      & closed cell is closed.\\
-      2& Take any closed cell of $C$.\\
-      3& Since the closed cell is a subset of $C$, the intersection is just the closed cell.\\
-      4& Every closed cell is closed.\\
-    \end{tabular}
-  \end{exampleblock}
-  \begin{exampleblock}{Proof (Lean)}
-\begin{lstlisting}[basicstyle=\ttfamily\small, numbers=left, xleftmargin=21pt]
-rw [closed _ (by rfl)]
-intros
-rw [inter_eq_right.2 (closedCell_subset_complex _ _)]
-exact isClosed_closedCell
-\end{lstlisting}
-  \end{exampleblock}
-
+\frametitle{What has been done in Lean?}
+By other people (that I am aware of):
+  \begin{itemize}
+    \item[\textcolor{Green}{\textbullet}] Categorical definition \lstinline|TopCat.RelativeCWComplex| by Jiazhen Xia and Elliot Dean Young and refactored by Joël Riou: in Mathlib
+    \item[\textcolor{YellowOrange}{\textbullet}] Equivalence of the definitions by Robert Maxton: PRs
+  \end{itemize}
+  \begin{itemize}
+    \item[\textcolor{Green}{\textbullet}] Definition and basic properties: In mathlib
+    \item[\textcolor{Yellow}{\textbullet}] Finiteness notions on CW Complexes: PR
+    \item[\textcolor{YellowOrange}{\textbullet}] Subcomplexes: Done
+    \item[\textcolor{YellowOrange}{\textbullet}] Basic constructions: Done
+    \item[\textcolor{Yellow}{\textbullet}] KSpaces: PR
+    \item[\textcolor{YellowOrange}{\textbullet}] Additional Lemmas: Done
+    \item[\textcolor{YellowOrange}{\textbullet}] Product: Done
+    \item[\textcolor{Orange}{\textbullet}] Examples: Needs clean-up
+    \item[\textcolor{Orange}{\textbullet}] Maps: Work in progress
+    \item[\textcolor{Red}{\textbullet}] Quotients: To be done (by me)
+    \item[\textcolor{BrickRed}{\textbullet}] Equivalence to other definition: To be done (probably not by me)
+  \end{itemize}
