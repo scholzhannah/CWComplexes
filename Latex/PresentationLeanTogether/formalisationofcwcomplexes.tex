@@ -44,6 +44,8 @@
 
 \frame{\titlepage}
 
+\section{Motivation}
+
 \begin{frame}
 \frametitle{Why CW complexes?}
 \begin{itemize}
@@ -112,6 +114,8 @@ Let $X$ be a CW complex. Then the cellular and singular homology of $X$ agree.
     \end{figure}
 \end{frame}
 
+\section{Definition}
+
 \begin{frame}
 \frametitle{Examples: What is a CW complex?}
 \begin{figure}
@@ -151,32 +155,112 @@ Let $X$ be a Hausdorff space.
     \end{enumerate}
 \end{frame}
 
+
 \begin{frame}
 \frametitle{Lean: What is a CW complex?}
-\includegraphics[width=1.05\textwidth]{images/CWComplexinLean.png}
+\makebox[\textwidth][c]{\includegraphics[width=1.15\textwidth]{images/CWComplexinLean.png}}
+%\includegraphics[width=1.05\textwidth]{images/CWComplexinLean.png}
 \end{frame}
 
-\begin{frame}[fragile]
+\begin{frame}
+\frametitle{Intuition: What is a relative CW complex?}
+A relative CW complex additionally has a base set that the boundaries can attach to. 
+\begin{figure}
+  \includegraphics[width=0.4\textwidth]{RelativeCW.png}
+  \caption{An example of a relative CW complex}
+\end{figure}
+\end{frame}
+
+\begin{frame}
+\frametitle{Lean: What is a relative CW complex?}
+\makebox[\textwidth][c]{\includegraphics[width=1.15\textwidth]{images/RelativeinLean.png}}
+\end{frame}
+
+\begin{frame}
+\frametitle{Problem with the definition}
+Situation: 
+We have a general and a specific definition where
+\begin{itemize}
+  \item[\textbullet] the specific definition is a lot more commonly used
+  \item[\textbullet] the specific case provides significant simplifications
+\end{itemize}
+Issues with defining absolute CW complex as relative CW complex with empty base: 
+\begin{itemize}
+  \item[\textbullet] repeated simplifications
+  \item[\textbullet] instances where the base is provably but not definitionally equal to empty set
+\end{itemize} 
+\end{frame}
+
+\section{Project status}
+
+\begin{frame}%[fragile]
 \frametitle{What has been done in Lean?}
 By other people (that I am aware of): 
   \begin{itemize}
     \item[\textcolor{Green}{\textbullet}] Categorical definition \lstinline|TopCat.RelativeCWComplex| by Jiazhen Xia and Elliot Dean Young and refactored by Joël Riou: in Mathlib
-    \item[\textcolor{YellowOrange}{\textbullet}] Equivalence of the definitions by Robert Maxton: PRs
+    \item[\textcolor{Yellow}{\textbullet}] Equivalence of the definitions by Robert Maxton: PRs
   \end{itemize}
+By us: 
   \begin{itemize}
-    \item[\textcolor{Green}{\textbullet}] Definition and basic properties: In mathlib
-    \item[\textcolor{Yellow}{\textbullet}] Finiteness notions on CW Complexes: PR
-    \item[\textcolor{YellowOrange}{\textbullet}] Subcomplexes: Done
-    \item[\textcolor{YellowOrange}{\textbullet}] Basic constructions: Done 
-    \item[\textcolor{Yellow}{\textbullet}] KSpaces: PR
-    \item[\textcolor{YellowOrange}{\textbullet}] Additional Lemmas: Done
-    \item[\textcolor{YellowOrange}{\textbullet}] Product: Done
-    \item[\textcolor{Orange}{\textbullet}] Examples: Needs clean-up
-    \item[\textcolor{Orange}{\textbullet}] Maps: Work in progress
-    \item[\textcolor{Red}{\textbullet}] Quotients: To be done (by me)
-    \item[\textcolor{BrickRed}{\textbullet}] Equivalence to other definition: To be done (probably not by me)
+    \item[\textcolor{Green}{\textbullet}] Definition and basic properties: in Mathlib
+    \item[\textcolor{Green}{\textbullet}] Finiteness notions: in Mathlib
+    \item[\textcolor{Yellow}{\textbullet}] Subcomplexes: in Mathlib/PRs
+    \item[\textcolor{Green}{\textbullet}] Compactly coherent spaces: in Mathlib
+    \item[\textcolor{YellowOrange}{\textbullet}] Product: done
+    \item[\textcolor{Orange}{\textbullet}] Examples: needs refactor
   \end{itemize}
 \end{frame}
 
+\section{Products}
+
+\iffalse
+\begin{frame}
+\frametitle{Products of CW complexes}
+
+The product of two CW complexes is not necessarily a CW complex. 
+
+Let $X = \bigvee_{i \in \iota} A_i$ where $A_i$ is the unit interval for every $i \in \iota$ and $\iota$ is the set of all infinite sequences in $\bN$. 
+Let $Y = \bigvee_{j \in \bN}B_k$, where $B_k$ is the unit interval for every $j \in \bN$.
+\end{frame}
+\fi
+
+\begin{frame}
+\frametitle{Products of CW complexes}
+Let $X$ and $Y$ be CW complexes.
+The respective families of characteristic maps are $(Q_i^n \colon D^n \to X)_{n \in \bN, i \in I_n}$ and $(P_j^m \colon D^m \to Y)_{m \in \bN, j \in J_m}$. 
+\pause
+\begin{theorem}
+  Assume that $X \times Y$ is compactly coherent. Then $X \times Y$ is a CW complex with characteristic maps $(Q_i^n \times P_j^m \colon D^n \times D^m \to C \times E)_{n,m \in \bN,i \in I_n,j \in J_m}$ and
+  indexing sets $K_l = \bigcup_{n + m = l}I_n \times J_m$.
+\end{theorem}
+\pause
+\begin{theorem}
+  In general, the compact coherentification of $X \times Y$ is a CW complex. 
+\end{theorem}
+\end{frame}
+
+\begin{frame}
+\frametitle{Compactly coherent spaces}
+\pause
+\begin{figure}
+  \makebox[\textwidth][c]{\includegraphics[width=1.15\textwidth]{images/Wikipedia.png}}
+\end{figure}
+\pause
+\begin{definition}
+  Let $X$ be a topological space. 
+  We call $X$ \emph{compactly coherent} if a set $A \subseteq X$ is open iff for all compact sets $C \subseteq X$, the intersection $A \cap C$ is open in $C$. 
+\end{definition}
+\end{frame}
+
+\begin{frame}
+\frametitle{Compatly coherent spaces}
+\begin{figure}
+  \makebox[\textwidth][c]{\includegraphics[width=1.15\textwidth]{images/compactlycoherentspace.png}}
+\end{figure}
+\begin{figure}
+  \makebox[\textwidth][c]{\includegraphics[width=1.15\textwidth]{images/iscoherentwith.png}}
+\end{figure}
+
+\end{frame}
 
 \end{document}
