@@ -1,4 +1,4 @@
-This is pdfTeX, Version 3.141592653-2.6-1.40.26 (TeX Live 2024) (preloaded format=pdflatex 2024.4.20)  7 JAN 2026 17:55
+This is pdfTeX, Version 3.141592653-2.6-1.40.26 (TeX Live 2024) (preloaded format=pdflatex 2024.4.20)  13 JAN 2026 19:06
 entering extended mode
  restricted \write18 enabled.
  file:line:error style messages enabled.
@@ -851,12 +851,12 @@ LaTeX Font Info:    Trying to load font information for OT1+mathkerncmss on inpu
  (c:/texlive/2024/texmf-dist/tex/latex/sansmathaccent/ot1mathkerncmss.fd
 File: ot1mathkerncmss.fd 2020/01/31 Fontinst v1.933 font definitions for OT1/mathkerncmss.
 )
-<images/hedgehog_space.png, id=169, 963.6pt x 963.6pt>
+<images/hedgehog_space.png, id=197, 963.6pt x 963.6pt>
 File: images/hedgehog_space.png Graphic file (type png)
 <use images/hedgehog_space.png>
 Package pdftex.def Info: images/hedgehog_space.png  used on input line 73.
 (pdftex.def)             Requested size: 71.34744pt x 71.34056pt.
-<images/hawaiian_earring.png, id=171, 1204.5pt x 1204.5pt>
+<images/hawaiian_earring.png, id=199, 1204.5pt x 1204.5pt>
 File: images/hawaiian_earring.png Graphic file (type png)
 <use images/hawaiian_earring.png>
 Package pdftex.def Info: images/hawaiian_earring.png  used on input line 73.
@@ -866,80 +866,80 @@ Package pdftex.def Info: images/hawaiian_earring.png  used on input line 73.
  <./images/Hedgehog_space.png> <./images/Hawaiian_earring.png>] [3
 
 ]
-<images/zerocells.png, id=302, 604.2575pt x 413.545pt>
+<images/zerocells.png, id=349, 604.2575pt x 413.545pt>
 File: images/zerocells.png Graphic file (type png)
 <use images/zerocells.png>
-Package pdftex.def Info: images/zerocells.png  used on input line 115.
+Package pdftex.def Info: images/zerocells.png  used on input line 117.
 (pdftex.def)             Requested size: 76.82246pt x 52.57642pt.
-<images/onecells.png, id=303, 702.625pt x 445.665pt>
+<images/onecells.png, id=350, 702.625pt x 445.665pt>
 File: images/onecells.png Graphic file (type png)
 <use images/onecells.png>
-Package pdftex.def Info: images/onecells.png  used on input line 115.
+Package pdftex.def Info: images/onecells.png  used on input line 117.
 (pdftex.def)             Requested size: 76.82246pt x 48.72408pt.
-<images/twocells.png, id=304, 1061.9675pt x 722.7pt>
+<images/twocells.png, id=351, 1061.9675pt x 722.7pt>
 File: images/twocells.png Graphic file (type png)
 <use images/twocells.png>
-Package pdftex.def Info: images/twocells.png  used on input line 115.
+Package pdftex.def Info: images/twocells.png  used on input line 117.
 (pdftex.def)             Requested size: 76.82246pt x 52.27034pt.
  [4
 
  <./images/zerocells.png> <./images/onecells.png> <./images/twocells.png>]
 File: images/zerocells.png Graphic file (type png)
 <use images/zerocells.png>
-Package pdftex.def Info: images/zerocells.png  used on input line 115.
+Package pdftex.def Info: images/zerocells.png  used on input line 117.
 (pdftex.def)             Requested size: 76.82246pt x 52.57642pt.
 File: images/onecells.png Graphic file (type png)
 <use images/onecells.png>
-Package pdftex.def Info: images/onecells.png  used on input line 115.
+Package pdftex.def Info: images/onecells.png  used on input line 117.
 (pdftex.def)             Requested size: 76.82246pt x 48.72408pt.
 File: images/twocells.png Graphic file (type png)
 <use images/twocells.png>
-Package pdftex.def Info: images/twocells.png  used on input line 115.
+Package pdftex.def Info: images/twocells.png  used on input line 117.
 (pdftex.def)             Requested size: 76.82246pt x 52.27034pt.
  [5
 
 ]
 File: images/zerocells.png Graphic file (type png)
 <use images/zerocells.png>
-Package pdftex.def Info: images/zerocells.png  used on input line 115.
+Package pdftex.def Info: images/zerocells.png  used on input line 117.
 (pdftex.def)             Requested size: 76.82246pt x 52.57642pt.
 File: images/onecells.png Graphic file (type png)
 <use images/onecells.png>
-Package pdftex.def Info: images/onecells.png  used on input line 115.
+Package pdftex.def Info: images/onecells.png  used on input line 117.
 (pdftex.def)             Requested size: 76.82246pt x 48.72408pt.
 File: images/twocells.png Graphic file (type png)
 <use images/twocells.png>
-Package pdftex.def Info: images/twocells.png  used on input line 115.
+Package pdftex.def Info: images/twocells.png  used on input line 117.
 (pdftex.def)             Requested size: 76.82246pt x 52.27034pt.
  [6
 
 ]
 File: images/zerocells.png Graphic file (type png)
 <use images/zerocells.png>
-Package pdftex.def Info: images/zerocells.png  used on input line 115.
+Package pdftex.def Info: images/zerocells.png  used on input line 117.
 (pdftex.def)             Requested size: 76.82246pt x 52.57642pt.
 File: images/onecells.png Graphic file (type png)
 <use images/onecells.png>
-Package pdftex.def Info: images/onecells.png  used on input line 115.
+Package pdftex.def Info: images/onecells.png  used on input line 117.
 (pdftex.def)             Requested size: 76.82246pt x 48.72408pt.
 File: images/twocells.png Graphic file (type png)
 <use images/twocells.png>
-Package pdftex.def Info: images/twocells.png  used on input line 115.
+Package pdftex.def Info: images/twocells.png  used on input line 117.
 (pdftex.def)             Requested size: 76.82246pt x 52.27034pt.
  [7
 
 ]
-<images/interval.png, id=499, 770.88pt x 447.6725pt>
+<images/interval.png, id=572, 770.88pt x 447.6725pt>
 File: images/interval.png Graphic file (type png)
 <use images/interval.png>
 Package pdftex.def Info: images/interval.png  used on input line 141.
 (pdftex.def)             Requested size: 76.82246pt x 44.61275pt.
-<images/realline.png, id=500, 1158.3275pt x 413.545pt>
+<images/realline.png, id=573, 1158.3275pt x 413.545pt>
 File: images/realline.png Graphic file (type png)
 <use images/realline.png>
 Package pdftex.def Info: images/realline.png  used on input line 141.
 (pdftex.def)             Requested size: 153.64493pt x 54.85439pt.
-<images/sphere.png, id=501, 1282.7925pt x 700.6175pt>
+<images/sphere.png, id=574, 1282.7925pt x 700.6175pt>
 File: images/sphere.png Graphic file (type png)
 <use images/sphere.png>
 Package pdftex.def Info: images/sphere.png  used on input line 141.
@@ -983,7 +983,7 @@ Overfull \vbox (2.72093pt too high) detected at line 156
 [11
 
 ]
-<images/CWComplexinLean.png, id=719, 524.71031pt x 187.45032pt>
+<images/CWComplexinLean.png, id=823, 524.71031pt x 187.45032pt>
 File: images/CWComplexinLean.png Graphic file (type png)
 <use images/CWComplexinLean.png>
 Package pdftex.def Info: images/CWComplexinLean.png  used on input line 163.
@@ -991,7 +991,7 @@ Package pdftex.def Info: images/CWComplexinLean.png  used on input line 163.
  [12
 
  <./images/CWComplexinLean.png>]
-<./images/RelativeCW.png, id=782, 1136.245pt x 899.36pt>
+<./images/RelativeCW.png, id=895, 1136.245pt x 899.36pt>
 File: ./images/RelativeCW.png Graphic file (type png)
 <use ./images/RelativeCW.png>
 Package pdftex.def Info: ./images/RelativeCW.png  used on input line 172.
@@ -999,7 +999,7 @@ Package pdftex.def Info: ./images/RelativeCW.png  used on input line 172.
  [13
 
  <./images/RelativeCW.png>]
-<images/RelativeinLean.png, id=844, 584.1825pt x 222.8325pt>
+<images/RelativeinLean.png, id=968, 584.1825pt x 222.8325pt>
 File: images/RelativeinLean.png Graphic file (type png)
 <use images/RelativeinLean.png>
 Package pdftex.def Info: images/RelativeinLean.png  used on input line 177.
@@ -1007,59 +1007,83 @@ Package pdftex.def Info: images/RelativeinLean.png  used on input line 177.
  [14
 
  <./images/RelativeInLean.png>]
-LaTeX Font Info:    Trying to load font information for TS1+cmss on input line 192.
+LaTeX Font Info:    Trying to load font information for TS1+cmss on input line 188.
  (c:/texlive/2024/texmf-dist/tex/latex/base/ts1cmss.fd
 File: ts1cmss.fd 2023/04/13 v2.5m Standard LaTeX font definitions
-) [15
-
-{c:/texlive/2024/texmf-dist/fonts/enc/dvips/cm-super/cm-super-ts1.enc}]
-LaTeX Font Info:    Trying to load font information for T1+cmtt on input line 212.
+)
+LaTeX Font Info:    Trying to load font information for T1+cmtt on input line 188.
  (c:/texlive/2024/texmf-dist/tex/latex/base/t1cmtt.fd
 File: t1cmtt.fd 2023/04/13 v2.5m Standard LaTeX font definitions
-) [16
+) [15
 
-] [17
+{c:/texlive/2024/texmf-dist/fonts/enc/dvips/cm-super/cm-super-ts1.enc}] [16
 
-] [18
+]
+<./images/relproduct.png, id=1184, 344.78813pt x 25.21922pt>
+File: ./images/relproduct.png Graphic file (type png)
+<use ./images/relproduct.png>
+Package pdftex.def Info: ./images/relproduct.png  used on input line 219.
+(pdftex.def)             Requested size: 245.83282pt x 17.98119pt.
+<./images/product.png, id=1185, 156.96141pt x 24.84282pt>
+File: ./images/product.png Graphic file (type png)
+<use ./images/product.png>
+Package pdftex.def Info: ./images/product.png  used on input line 219.
+(pdftex.def)             Requested size: 116.77164pt x 18.48155pt.
+<./images/naiveprod.png, id=1186, 247.67531pt x 23.33719pt>
+File: ./images/naiveprod.png Graphic file (type png)
+<use ./images/naiveprod.png>
+Package pdftex.def Info: ./images/naiveprod.png  used on input line 219.
+(pdftex.def)             Requested size: 135.20828pt x 12.74004pt.
+ [17
+
+ <./images/relproduct.png> <./images/product.png> <./images/naiveprod.png>] [18
 
 ] [19
 
+] [20
+
+] [21
+
+] [22
+
 ]
-<images/Wikipedia.png, id=1181, 730.98094pt x 126.4725pt>
+<images/Wikipedia.png, id=1573, 730.98094pt x 126.4725pt>
 File: images/Wikipedia.png Graphic file (type png)
 <use images/Wikipedia.png>
-Package pdftex.def Info: images/Wikipedia.png  used on input line 253.
+Package pdftex.def Info: images/Wikipedia.png  used on input line 298.
 (pdftex.def)             Requested size: 353.38147pt x 61.1403pt.
- [20
+ [23
 
  <./images/Wikipedia.png>]
 File: images/Wikipedia.png Graphic file (type png)
 <use images/Wikipedia.png>
-Package pdftex.def Info: images/Wikipedia.png  used on input line 253.
+Package pdftex.def Info: images/Wikipedia.png  used on input line 298.
 (pdftex.def)             Requested size: 353.38147pt x 61.1403pt.
- [21
+ [24
 
 ]
 File: images/Wikipedia.png Graphic file (type png)
 <use images/Wikipedia.png>
-Package pdftex.def Info: images/Wikipedia.png  used on input line 253.
+Package pdftex.def Info: images/Wikipedia.png  used on input line 298.
 (pdftex.def)             Requested size: 353.38147pt x 61.1403pt.
- [22
+ [25
 
 ]
-<images/compactlycoherentspace.png, id=1330, 536.75531pt x 40.65187pt>
+<images/compactlycoherentspace.png, id=1743, 536.75531pt x 40.65187pt>
 File: images/compactlycoherentspace.png Graphic file (type png)
 <use images/compactlycoherentspace.png>
-Package pdftex.def Info: images/compactlycoherentspace.png  used on input line 264.
+Package pdftex.def Info: images/compactlycoherentspace.png  used on input line 308.
 (pdftex.def)             Requested size: 353.38147pt x 26.76393pt.
-<images/iscoherentwith.png, id=1331, 398.99063pt x 48.18pt>
+<images/iscoherentwith.png, id=1744, 398.99063pt x 48.18pt>
 File: images/iscoherentwith.png Graphic file (type png)
 <use images/iscoherentwith.png>
-Package pdftex.def Info: images/iscoherentwith.png  used on input line 264.
+Package pdftex.def Info: images/iscoherentwith.png  used on input line 308.
 (pdftex.def)             Requested size: 353.38147pt x 42.6742pt.
- [23
+ [26
 
- <./images/compactlycoherentspace.png> <./images/iscoherentwith.png>]
+ <./images/compactlycoherentspace.png> <./images/iscoherentwith.png>] [27
+
+]
 \tf@nav=\write6
 \openout6 = `formalisationofcwcomplexes.nav'.
 
@@ -1075,21 +1099,21 @@ LaTeX2e <2023-11-01> patch level 1
 L3 programming layer <2024-03-14>
  ***********
 Package rerunfilecheck Info: File `formalisationofcwcomplexes.out' has not changed.
-(rerunfilecheck)             Checksum: 20294A23D248F19312CCC389A694533B;385.
+(rerunfilecheck)             Checksum: 0C886A38B9D3989E9BB105723303283C;463.
  ) 
 Here is how much of TeX's memory you used:
- 29733 strings out of 474104
- 580325 string characters out of 5747502
- 1950496 words of memory out of 5000000
- 51468 multiletter control sequences out of 15000+600000
- 579245 words of font info for 92 fonts, out of 8000000 for 9000
+ 29784 strings out of 474104
+ 581251 string characters out of 5747502
+ 1952496 words of memory out of 5000000
+ 51508 multiletter control sequences out of 15000+600000
+ 580361 words of font info for 94 fonts, out of 8000000 for 9000
  1141 hyphenation exceptions out of 8191
- 128i,19n,123p,521b,1099s stack positions out of 10000i,1000n,20000p,200000b,200000s
-<c:/texlive/2024/texmf-dist/fonts/type1/public/amsfonts/cm/cmex10.pfb><c:/texlive/2024/texmf-dist/fonts/type1/public/amsfonts/cm/cmmi10.pfb><c:/texlive/2024/texmf-dist/fonts/type1/public/amsfonts/cm/cmmi7.pfb><c:/texlive/2024/texmf-dist/fonts/type1/public/amsfonts/cm/cmmi8.pfb><c:/texlive/2024/texmf-dist/fonts/type1/public/amsfonts/cm/cmss10.pfb><c:/texlive/2024/texmf-dist/fonts/type1/public/amsfonts/cm/cmss8.pfb><c:/texlive/2024/texmf-dist/fonts/type1/public/amsfonts/cm/cmssi10.pfb><c:/texlive/2024/texmf-dist/fonts/type1/public/amsfonts/cm/cmssi8.pfb><c:/texlive/2024/texmf-dist/fonts/type1/public/amsfonts/cm/cmsy10.pfb><c:/texlive/2024/texmf-dist/fonts/type1/public/amsfonts/cm/cmsy7.pfb><c:/texlive/2024/texmf-dist/fonts/type1/public/amsfonts/cm/cmsy8.pfb><c:/texlive/2024/texmf-dist/fonts/type1/public/amsfonts/symbols/msbm10.pfb><c:/texlive/2024/texmf-dist/fonts/type1/public/amsfonts/symbols/msbm7.pfb><c:/texlive/2024/texmf-dist/fonts/type1/public/cm-super/sfsi1000.pfb><c:/texlive/2024/texmf-dist/fonts/type1/public/cm-super/sfsi1095.pfb><c:/texlive/2024/texmf-dist/fonts/type1/public/cm-super/sfss0600.pfb><c:/texlive/2024/texmf-dist/fonts/type1/public/cm-super/sfss0700.pfb><c:/texlive/2024/texmf-dist/fonts/type1/public/cm-super/sfss0800.pfb><c:/texlive/2024/texmf-dist/fonts/type1/public/cm-super/sfss0900.pfb><c:/texlive/2024/texmf-dist/fonts/type1/public/cm-super/sfss1000.pfb><c:/texlive/2024/texmf-dist/fonts/type1/public/cm-super/sfss1095.pfb><c:/texlive/2024/texmf-dist/fonts/type1/public/cm-super/sfss1440.pfb><c:/texlive/2024/texmf-dist/fonts/type1/public/cm-super/sftt1000.pfb>
-Output written on formalisationofcwcomplexes.pdf (23 pages, 1367588 bytes).
+ 128i,19n,123p,521b,1088s stack positions out of 10000i,1000n,20000p,200000b,200000s
+<c:/texlive/2024/texmf-dist/fonts/type1/public/amsfonts/cm/cmex10.pfb><c:/texlive/2024/texmf-dist/fonts/type1/public/amsfonts/cm/cmmi10.pfb><c:/texlive/2024/texmf-dist/fonts/type1/public/amsfonts/cm/cmmi7.pfb><c:/texlive/2024/texmf-dist/fonts/type1/public/amsfonts/cm/cmmi8.pfb><c:/texlive/2024/texmf-dist/fonts/type1/public/amsfonts/cm/cmss10.pfb><c:/texlive/2024/texmf-dist/fonts/type1/public/amsfonts/cm/cmss8.pfb><c:/texlive/2024/texmf-dist/fonts/type1/public/amsfonts/cm/cmssi10.pfb><c:/texlive/2024/texmf-dist/fonts/type1/public/amsfonts/cm/cmssi8.pfb><c:/texlive/2024/texmf-dist/fonts/type1/public/amsfonts/cm/cmsy10.pfb><c:/texlive/2024/texmf-dist/fonts/type1/public/amsfonts/cm/cmsy7.pfb><c:/texlive/2024/texmf-dist/fonts/type1/public/amsfonts/cm/cmsy8.pfb><c:/texlive/2024/texmf-dist/fonts/type1/public/amsfonts/symbols/msbm10.pfb><c:/texlive/2024/texmf-dist/fonts/type1/public/amsfonts/symbols/msbm7.pfb><c:/texlive/2024/texmf-dist/fonts/type1/public/cm-super/sfsi1000.pfb><c:/texlive/2024/texmf-dist/fonts/type1/public/cm-super/sfsi1095.pfb><c:/texlive/2024/texmf-dist/fonts/type1/public/cm-super/sfss0600.pfb><c:/texlive/2024/texmf-dist/fonts/type1/public/cm-super/sfss0700.pfb><c:/texlive/2024/texmf-dist/fonts/type1/public/cm-super/sfss0800.pfb><c:/texlive/2024/texmf-dist/fonts/type1/public/cm-super/sfss0900.pfb><c:/texlive/2024/texmf-dist/fonts/type1/public/cm-super/sfss1000.pfb><c:/texlive/2024/texmf-dist/fonts/type1/public/cm-super/sfss1095.pfb><c:/texlive/2024/texmf-dist/fonts/type1/public/cm-super/sfss1440.pfb><c:/texlive/2024/texmf-dist/fonts/type1/public/cm-super/sfsx1095.pfb><c:/texlive/2024/texmf-dist/fonts/type1/public/cm-super/sftt1000.pfb>
+Output written on formalisationofcwcomplexes.pdf (27 pages, 1418994 bytes).
 PDF statistics:
- 1490 PDF objects out of 1728 (max. 8388607)
- 1089 compressed objects within 11 object streams
- 51 named destinations out of 1000 (max. 500000)
- 241 words of extra memory for PDF output out of 10000 (max. 10000000)
+ 1988 PDF objects out of 2073 (max. 8388607)
+ 1403 compressed objects within 15 object streams
+ 60 named destinations out of 1000 (max. 500000)
+ 264 words of extra memory for PDF output out of 10000 (max. 10000000)
 

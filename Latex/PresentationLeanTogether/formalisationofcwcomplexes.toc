@@ -1,4 +1,5 @@
 \beamer@sectionintoc {1}{Motivation}{2}{0}{1}
-\beamer@sectionintoc {2}{Definition}{8}{0}{2}
-\beamer@sectionintoc {3}{Project status}{16}{0}{3}
-\beamer@sectionintoc {4}{Products}{17}{0}{4}
+\beamer@sectionintoc {2}{Definition}{4}{0}{2}
+\beamer@sectionintoc {3}{Project status}{18}{0}{3}
+\beamer@sectionintoc {4}{Products}{20}{0}{4}
+\beamer@sectionintoc {5}{Summary}{27}{0}{5}

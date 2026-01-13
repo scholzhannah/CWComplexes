@@ -35,7 +35,7 @@
 \title{Formalisation of CW complexes}
 \author{Hannah Scholz}
 \institute[MI]{Mathematical Institute of the University of Bonn}
-\date[\today]{\today \\ \vspace{1cm} \footnotesize{Joint work with and supervised by Prof.\ Floris van Doorn}}
+\date[22.01.2026]{22.01.2026 \\ \vspace{1cm} \footnotesize{Joint work with and supervised by Prof.\ Floris van Doorn}}
 %\date{20.09.2024}
 
 
@@ -85,6 +85,8 @@ Let $X$ be a CW complex. Then the cellular and singular homology of $X$ agree.
 \end{theorem}
 \end{frame}
 
+\section{Definition}
+
 \begin{frame}
 \frametitle{Intuition: What is a CW complex?}
 \begin{itemize}
@@ -114,8 +116,6 @@ Let $X$ be a CW complex. Then the cellular and singular homology of $X$ agree.
     \end{figure}
 \end{frame}
 
-\section{Definition}
-
 \begin{frame}
 \frametitle{Examples: What is a CW complex?}
 \begin{figure}
@@ -144,7 +144,7 @@ Let $X$ be a CW complex. Then the cellular and singular homology of $X$ agree.
 \frametitle{Definition: What is a CW complex?}
 \small  
 Let $X$ be a Hausdorff space. 
-  A \emph{CW complex} on $X$ consists of a family of indexing sets $(I_n)_{n \in \bN}$ and a family of continuous maps $(Q_i^n \colon D^n \to X)_{n \in \bN, i \in I_n}$ called \emph{characteristic maps} with the following properties: 
+  An \emph{(absolute) CW complex} on $X$ consists of a family of indexing sets $(I_n)_{n \in \bN}$ and a family of continuous maps $(Q_i^n \colon D^n \to X)_{n \in \bN, i \in I_n}$ called \emph{characteristic maps} with the following properties: 
   \setbeamertemplate{enumerate items}[default]
   \begin{enumerate}[(i)]
       \item $\restrict{Q_i^n}{\interior{D^n}} \colon \interior{D^n} \to Q_i^n(\interior{D^n})$ is a homeomorphism for every $n \in \bN$ and $i \in I_n$. We call $\openCell{n}{i} \coloneq Q_i^n(\interior{D^n})$ an \emph{(open) $n$-cell} and $\closedCell{n}{i} \coloneq Q_i^n(D^n)$ a \emph{closed $n$-cell}.
@@ -177,19 +177,58 @@ A relative CW complex additionally has a base set that the boundaries can attach
 \end{frame}
 
 \begin{frame}
-\frametitle{Problem with the definition}
+\frametitle{Implementation: general situation}
 Situation: 
 We have a general and a specific definition where
 \begin{itemize}
   \item[\textbullet] the specific definition is a lot more commonly used
   \item[\textbullet] the specific case provides significant simplifications
+  \item[\textbullet] the differentiating parameter is an \lstinline|outParam| 
 \end{itemize}
-Issues with defining absolute CW complex as relative CW complex with empty base: 
+\end{frame}
+
+\begin{frame}
+\frametitle{Implementation: Issues with naive definition}
 \begin{itemize}
+  \item[\textbullet] Naive approach: define an absolute CW complex as a relative one with empty base
+  \item[\textbullet] Issues with naive approach: 
+  \begin{itemize}
   \item[\textbullet] repeated simplifications
   \item[\textbullet] instances where the base is provably but not definitionally equal to empty set
-\end{itemize} 
+  \end{itemize} 
+\end{itemize}
 \end{frame}
+
+\begin{frame}
+\frametitle{Implementation: Issues with naive definition}
+\small
+\begin{itemize} 
+\item[\textbullet] Product of two relative CW complexes $(C, \varnothing)$ and $(E, \varnothing)$ has type: 
+\begin{figure}
+  \includegraphics[width=0.8\textwidth]{relproduct.png}
+\end{figure}
+\item[\textbullet] Product of two absolute CW complexes $C$ and $E$ has type: 
+\begin{figure}
+\includegraphics[width=0.38\textwidth]{product.png}
+\end{figure}
+\item[\textbullet] With the naive approach this would be definitionally the same as: 
+\begin{figure} 
+\includegraphics[width=0.44\textwidth]{naiveprod.png}
+\end{figure}
+\end{itemize}
+\end{frame}
+
+\iffalse
+\begin{center}
+\begin{tabular}{ |p{5cm}|p{5cm}| } 
+ \hline
+ Product of $(C,\varnothing)$ and $(E, \varnothing)$ & Product of $C$ and $E$ \\ 
+ \hline
+ \lstinline|RelCWComplex (C ×ˢ E) (∅ ×ˢ E ∪ C ×ˢ ∅)| & \lstinline|CWComplex (C ×ˢ E)|  \\ 
+ \hline
+\end{tabular}
+\end{center}
+\fi
 
 \section{Project status}
 
@@ -198,16 +237,22 @@ Issues with defining absolute CW complex as relative CW complex with empty base:
 By other people (that I am aware of): 
   \begin{itemize}
     \item[\textcolor{Green}{\textbullet}] Categorical definition \lstinline|TopCat.RelativeCWComplex| by Jiazhen Xia and Elliot Dean Young and refactored by Joël Riou: in Mathlib
+    \item[\textcolor{Green}{\textbullet}] Whitehead theorem in model categories by Joël Riou: in Mathlib
     \item[\textcolor{Yellow}{\textbullet}] Equivalence of the definitions by Robert Maxton: PRs
   \end{itemize}
+\end{frame}
+
+\begin{frame}
+\frametitle{What has been done in Lean?}
 By us: 
   \begin{itemize}
-    \item[\textcolor{Green}{\textbullet}] Definition and basic properties: in Mathlib
-    \item[\textcolor{Green}{\textbullet}] Finiteness notions: in Mathlib
-    \item[\textcolor{Yellow}{\textbullet}] Subcomplexes: in Mathlib/PRs
-    \item[\textcolor{Green}{\textbullet}] Compactly coherent spaces: in Mathlib
-    \item[\textcolor{YellowOrange}{\textbullet}] Product: done
-    \item[\textcolor{Orange}{\textbullet}] Examples: needs refactor
+    \item[\textcolor{Green}{\textbullet}] Definition and basic properties ($\sim 600$ LOC): in Mathlib
+    \item[\textcolor{Green}{\textbullet}] Finiteness notions ($\sim 300$ LOC): in Mathlib
+    \item[\textcolor{Yellow}{\textbullet}] Subcomplexes ($\sim 800$ LOC): in Mathlib/PRs
+    \item[\textcolor{Green}{\textbullet}] Compactly coherent spaces ($\sim 200$ LOC): in Mathlib/PRs
+    \item[\textcolor{YellowOrange}{\textbullet}] Product ($\sim 600$ LOC): done
+    \item[\textcolor{Orange}{\textbullet}] Examples ($\sim 1000$ LOC): needs refactor
+    \item[\textbullet] Rest of the Project ($\sim 3000$ LOC)
   \end{itemize}
 \end{frame}
 
@@ -253,14 +298,24 @@ The respective families of characteristic maps are $(Q_i^n \colon D^n \to X)_{n 
 \end{frame}
 
 \begin{frame}
-\frametitle{Compatly coherent spaces}
+\frametitle{Compactly coherent spaces}
 \begin{figure}
   \makebox[\textwidth][c]{\includegraphics[width=1.15\textwidth]{images/compactlycoherentspace.png}}
 \end{figure}
 \begin{figure}
   \makebox[\textwidth][c]{\includegraphics[width=1.15\textwidth]{images/iscoherentwith.png}}
 \end{figure}
+\end{frame}
 
+\section{Summary}
+
+\begin{frame}
+\frametitle{Summary}
+\begin{itemize}
+  \item[\textbullet] CW complexes are an important class of topological spaces 
+  \item[\textbullet] a CW complex is made up of a lot of discs glued together
+  \item[\textbullet] the product of two CW complexes is in general \textbf{not} a CW complex 
+\end{itemize}
 \end{frame}
 
 \end{document}
