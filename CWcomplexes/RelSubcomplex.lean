@@ -174,9 +174,50 @@ protected def RelCWComplex.Subcomplex.sInf' [T2Space X] [RelCWComplex C D]
 
 protected def RelCWComplex.Subcomplex.CompletelyDistribLattice.MinimalAxioms [T2Space X]
     [RelCWComplex C D] : CompletelyDistribLattice.MinimalAxioms (Subcomplex C) :=
-  { __ := (inferInstance : DistribLattice (Subcomplex C))
+  { sSup := Topology.RelCWComplex.Subcomplex.sSup'
+    isLUB_sSup S := by
+      rw [isLUB_iff_le_iff]
+      intro E
+      constructor
+      · intro hES F hF
+        apply LE.le.trans ?_ hES
+        simp only [← SetLike.coe_subset_coe, coe_sSup']
+        apply subset_union_of_subset_right
+        exact subset_biUnion_of_mem hF
+      · intro h
+        simpa [← SetLike.coe_subset_coe, coe_sSup', base_subset_complex]
+    sInf :=Topology.RelCWComplex.Subcomplex.sInf'
+    isGLB_sInf := sorry
+    top := Topology.RelCWComplex.Subcomplex.top'
+    le_top := by simp [← SetLike.coe_subset_coe, subset_complex, coe_top']
+    bot := Topology.RelCWComplex.Subcomplex.bot'
+    bot_le := by simp [← SetLike.coe_subset_coe, base_subset_complex]
+    iInf_iSup_eq {ι} f E := by
+      simp_rw [eq_iff, iSup, coe_sSup', iInf, coe_sInf']
+      by_cases h : Nonempty ι
+      · simp only [mem_range, iInter_exists, iInter_iInter_eq', coe_sSup', iUnion_exists,
+          iUnion_iUnion_eq', inter_iInter, inter_union_distrib_left,
+          inter_eq_right.2 (base_subset_complex (C := C)), inter_iUnion, coe_sInf']
+        by_cases h' : ∀ a, Nonempty (f a)
+        · simp only [union_iUnion, union_iInter]
+          ext x
+          simp only [mem_iUnion, mem_iInter]
+          exact ⟨fun hE ↦ ⟨(fun i ↦ (hE i).choose), fun i ↦ (hE i).choose_spec⟩,
+            fun ⟨g, hg⟩ i ↦ ⟨g i, hg i ⟩⟩
+        · simp_all only [not_forall, not_nonempty_iff, isEmpty_pi, iUnion_of_empty, union_empty]
+          refine subset_antisymm ?_ (subset_iInter (fun ?_ ↦ subset_union_left))
+          obtain ⟨a, ha⟩ := h'
+          apply iInter_subset_of_subset a
+          simp
+      · simp_all only [not_nonempty_iff, mem_range, IsEmpty.exists_iff, iInter_of_empty,
+        iInter_univ, inter_univ, iUnion_exists, iUnion_iUnion_eq', coe_sInf']
+        ext x
+        simp only [mem_union, mem_iUnion, exists_const, iff_or_self]
+        exact fun h ↦ base_subset_complex h}
+
+  /-{ __ := (inferInstance : DistribLattice (Subcomplex C))
     sSup := Topology.RelCWComplex.Subcomplex.sSup'
-    le_sSup S E hES := by
+    isLUB_sSup S E hES := by
       simp only [← SetLike.coe_subset_coe, coe_sSup']
       apply subset_union_of_subset_right
       exact subset_biUnion_of_mem hES
@@ -213,7 +254,7 @@ protected def RelCWComplex.Subcomplex.CompletelyDistribLattice.MinimalAxioms [T2
         ext x
         simp only [mem_union, mem_iUnion, exists_const, iff_or_self]
         exact fun h ↦ base_subset_complex h
-    }
+    }-/
 
 instance RelCWComplex.Subcomplex.instCompletelyDistribLattice [T2Space X]
     [RelCWComplex C D] : CompletelyDistribLattice (Subcomplex C) :=

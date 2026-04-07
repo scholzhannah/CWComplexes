@@ -649,15 +649,13 @@ lemma PartialEquiv.EuclideanSpaceSucc_image_sphere (n : ℕ) :
     intro y hy hyx
     constructor
     · rw [EuclideanSpace.norm_eq, Fin.sum_univ_castSucc, ← hyx]
-      simp only [EuclideanSpaceSucc_apply, Fin.snoc_castSucc, Fin.snoc_last,
-        Real.norm_eq_abs (r := 0), sq_abs, ne_eq, OfNat.ofNat_ne_zero, not_false_eq_true, zero_pow,
-        add_zero]
-      rw [← EuclideanSpace.norm_eq, hy]
+      simp only [EuclideanSpaceSucc_apply_ofLp, Fin.snoc_castSucc, Fin.snoc_last, norm_zero, ne_eq,
+        OfNat.ofNat_ne_zero, not_false_eq_true, zero_pow, add_zero, ← EuclideanSpace.norm_eq, hy]
     · rw [← hyx]
       simp
   · simp only [mem_inter_iff, mem_sphere_iff_norm, sub_zero, mem_setOf_eq, mem_image, and_imp]
     intro hx hx0
-    use Fin.init x
+    use WithLp.toLp 2 (Fin.init x)
     constructor
     · rw [EuclideanSpace.norm_eq, Fin.sum_univ_castSucc, hx0] at hx
       simp only [Real.norm_eq_abs (r := 0), sq_abs, ne_eq, OfNat.ofNat_ne_zero, not_false_eq_true,
@@ -665,9 +663,7 @@ lemma PartialEquiv.EuclideanSpaceSucc_image_sphere (n : ℕ) :
       rw [EuclideanSpace.norm_eq]
       simp only [Fin.init]
       exact hx
-    · simp only [EuclideanSpaceSucc]
-      rw [← hx0]
-      exact Fin.snoc_init_self _
+    · simp [EuclideanSpaceSucc, ← hx0]
 
 /-! # Isometry between different metrics on ℝ-/
 
@@ -677,8 +673,8 @@ lemma PartialEquiv.EuclideanSpaceSucc_image_sphere (n : ℕ) :
 /-- The isometry between the euclidean and the `∞`-metric on `ℝ`. -/
 def EuclideanFunUnique (n 𝕜 : Type*) [RCLike 𝕜] [Unique n] [Fintype n] :
     EuclideanSpace 𝕜 n ≃ᵢ (n → 𝕜) where
-  toFun := id
-  invFun := id
+  toFun := WithLp.ofLp
+  invFun := WithLp.toLp 2
   left_inv := by intro; rfl
   right_inv := by intro; rfl
   isometry_toFun := by
