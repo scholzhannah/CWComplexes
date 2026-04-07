@@ -137,10 +137,10 @@ lemma Homeomorph.tendsto_norm_comp_unitBall_symm {E : Type*} [NormedAddCommGroup
     Homeomorph.coe_symm_toEquiv, Homeomorph.symm_symm, Homeomorph.Set.univ_apply,
     Homeomorph.homeomorph_mk_coe_symm, Equiv.coe_fn_symm_mk]
   change Filter.Tendsto
-    (norm ∘ (PartialHomeomorph.univUnitBall (E := E)).symm ∘ (Subtype.val : ball (0 : E) 1 → E))
+    (norm ∘ (OpenPartialHomeomorph.univUnitBall (E := E)).symm ∘ (Subtype.val : ball (0 : E) 1 → E))
       (Filter.comap Subtype.val (nhds x)) Filter.atTop
   rw [← Function.comp_assoc, ← Filter.tendsto_map'_iff, Filter.subtype_coe_map_comap,
-    PartialHomeomorph.univUnitBall, PartialHomeomorph.mk_coe_symm, PartialEquiv.coe_symm_mk]
+    OpenPartialHomeomorph.univUnitBall, OpenPartialHomeomorph.mk_coe_symm, PartialEquiv.coe_symm_mk]
   suffices Filter.Tendsto ((fun r ↦ (√(1 - r ^ 2))⁻¹ * r) ∘ norm)
       (nhds x ⊓ Filter.principal (ball 0 1)) Filter.atTop by
     convert this
@@ -161,10 +161,10 @@ theorem div_tendsto_leadingCoeff_div_of_degree_le (hdeg : P.degree ≤ Q.degree)
   rcases hdeg with hdeg | hdeg
   · suffices P.coeff (natDegree Q) = 0 by
       rw [this, zero_div]
-      exact div_tendsto_zero_of_degree_lt _ _ hdeg
+      exact Polynomial.div_tendsto_atTop_zero_of_degree_lt _ _ hdeg
     exact coeff_natDegree_eq_zero_of_degree_lt hdeg
   · rw [← natDegree_eq_of_degree_eq hdeg, coeff_natDegree]
-    exact Polynomial.div_tendsto_leadingCoeff_div_of_degree_eq _ _ hdeg
+    exact Polynomial.div_tendsto_atTop_leadingCoeff_div_of_degree_eq _ _ hdeg
 
 theorem tendsto_add_mul_sq_div_add_mul_atTop_nhds {𝕜 : Type*} [NormedField 𝕜] [LinearOrder 𝕜]
   [IsStrictOrderedRing 𝕜] [OrderTopology 𝕜] (a b c d e : 𝕜) {f : 𝕜} (hf : f ≠ 0) :
@@ -188,32 +188,35 @@ lemma stereographic_symm_tendsto {E : Type*} [NormedAddCommGroup E] [InnerProduc
     (hv : ‖v‖ = 1) (α : Filter (↥(Submodule.span ℝ {v})ᗮ))
     (h : Filter.Tendsto norm α Filter.atTop) :
     Filter.Tendsto (stereographic hv).symm α (nhds ⟨v, by simp [hv]⟩) := by
-  simp only [stereographic, PartialHomeomorph.mk_coe_symm, PartialEquiv.coe_symm_mk]
+  simp only [stereographic, OpenPartialHomeomorph.mk_coe_symm, PartialEquiv.coe_symm_mk]
   rw [nhds_subtype, Filter.tendsto_comap_iff]
   have : Subtype.val ∘ (stereoInvFun hv) = fun (w : ↥(Submodule.span ℝ {v})ᗮ) ↦
       (4 * (‖w‖ ^ 2 + 4)⁻¹) • w + ((‖w‖ ^ 2 - 4) * (‖w‖ ^ 2 + 4)⁻¹) • v := by
     ext w
-    simp only [Function.comp_apply, stereoInvFun_apply, AddSubgroupClass.coe_norm, smul_add,
-      smul_smul]
+    simp only [Function.comp_apply, stereoInvFun_apply, Submodule.coe_norm, smul_add, smul_smul]
     ring_nf
-  simp_rw [this, AddSubgroupClass.coe_norm]
-  nth_rw 8 [← zero_add (a := v)]
+  simp_rw [this,] --AddSubgroupClass.coe_norm]
+  suffices Tendsto (fun w ↦ (4 * (‖w‖ ^ 2 + 4)⁻¹) • ↑w + ((‖w‖ ^ 2 - 4) * (‖w‖ ^ 2 + 4)⁻¹) • v) α
+      (𝓝 (0 + v)) by
+    simp_all
+  --nth_rw  [← zero_add (a := v)]
   apply Filter.Tendsto.add
   · rw [← comap_norm_nhds_zero, Filter.tendsto_comap_iff]
-    have : (norm ∘ fun (x : ↥(Submodule.span ℝ {v})ᗮ) ↦ (4 * (‖(x : E)‖ ^ 2 + 4)⁻¹) • (x : E)) =
+    have : (norm ∘ fun (x : ↥(Submodule.span ℝ {v})ᗮ) ↦ (4 * (‖x‖ ^ 2 + 4)⁻¹) • (x : E)) =
         (fun x ↦ 4 * x * (x ^ 2 + 4)⁻¹) ∘ (norm : ↥(Submodule.span ℝ {v})ᗮ → ℝ) := by
       ext x
-      simp only [AddSubgroupClass.coe_norm, Function.comp_apply, norm_smul, norm_mul,
-        Real.norm_ofNat, norm_inv, Real.norm_eq_abs,
-        abs_of_nonneg (add_nonneg (sq_nonneg ‖(x : E)‖) zero_le_four)]
+      simp only [Function.comp_apply, norm_smul, norm_mul, RCLike.norm_ofNat, norm_inv,
+        Real.norm_eq_abs, abs_of_nonneg (add_nonneg (sq_nonneg ‖(x : E)‖) zero_le_four),
+        Submodule.coe_norm]
       ring
     rw [this]
     refine Filter.Tendsto.comp ?_ h
     simp_rw [← div_eq_mul_inv]
     simpa [add_comm] using tendsto_add_mul_sq_div_add_mul_atTop_nhds (0 : ℝ) 4 4 0 0 one_ne_zero
-  · nth_rw 6 [← one_smul (M := ℝ) (b := v)]
+  · suffices Tendsto (fun x ↦ ((‖x‖ ^ 2 - 4) * (‖x‖ ^ 2 + 4)⁻¹) • v) α (𝓝 ((1 : ℝ) • v)) by simp_all
+    --nth_rw 6 [← one_smul (M := ℝ) (b := v)]
     apply Filter.Tendsto.smul_const
-    change Filter.Tendsto ((fun y ↦ (y ^ 2 - 4) * (y ^ 2 + 4)⁻¹) ∘ norm) α (nhds 1)
+    change Tendsto ((fun x ↦ (x ^ 2 - 4) * (x ^ 2 + 4)⁻¹) ∘ norm) α (𝓝 1)
     refine Filter.Tendsto.comp ?_ h
     simp_rw [← div_eq_mul_inv]
     simpa [add_comm, ← sub_eq_add_neg] using
@@ -228,13 +231,35 @@ lemma stereographic'_symm_tendsto {n : ℕ} (α : Filter (EuclideanSpace ℝ (Fi
     Filter.Tendsto (stereographic' (E := EuclideanSpace ℝ (Fin (n + 1))) n
     ⟨EuclideanSpace.single (Fin.last n) 1, by simp⟩).symm α
     (nhds ⟨EuclideanSpace.single (Fin.last n) 1, by simp⟩) := by
-  simp only [stereographic', PartialHomeomorph.coe_trans_symm,
-    Homeomorph.toPartialHomeomorph_symm_apply, ← tendsto_map'_iff]
+  letI : Fact (Module.finrank ℝ (EuclideanSpace ℝ (Fin (n + 1))) = n + 1) := {
+      out := finrank_euclideanSpace_fin (𝕜 := ℝ) (n := n + 1)}
+  rw [stereographic', OpenPartialHomeomorph.coe_trans_symm]
+  -- I want to rewrite with `Homeomorph.toOpenPartialHomeomorph_symm_apply` here but I just cannot
+  -- make this work.
+  sorry
+  /-
+  letI : Fact (Module.finrank ℝ (EuclideanSpace ℝ (Fin (n + 1))) = n + 1) := {
+      out := finrank_euclideanSpace_fin (𝕜 := ℝ) (n := n + 1)}
+  rw [stereographic', OpenPartialHomeomorph.coe_trans_symm, ← tendsto_map'_iff]
+  rw [tendsto_map'_iff]
+  have h : EuclideanSpace.single (Fin.last n) (1 : ℝ) ∈ sphere 0 1 := by
+    sorry
+  conv =>
+    pattern _ ∘ _
+    rhs
+
+    rw [@Homeomorph.toOpenPartialHomeomorph_symm_apply
+      (X := (↥(ℝ ∙ ↑(⟨EuclideanSpace.single (Fin.last n) 1, h⟩))ᗮ)) (Y := (EuclideanSpace ℝ (Fin n))) _ _
+      (LinearIsometryEquiv.toHomeomorph (OrthonormalBasis.repr (OrthonormalBasis.fromOrthogonalSpanSingleton n _)))]
+  --simp []
   apply stereographic_symm_tendsto
   rw [Filter.tendsto_map'_iff]
   convert h
-  ext
-  simp
+  ext x
+  simp -/
+
+-- `(↥(ℝ ∙ ↑⟨EuclideanSpace.single (Fin.last n) 1, ⋯⟩)ᗮ)`
+-- { x // x ∈ sphere 0 1 }
 
 /-! # Scaling to a different norm-/
 
@@ -462,7 +487,7 @@ lemma toEuclideanNormScale_image_sphere (n : ℕ) (r : ℝ) :
   `EuclideanSpace ℝ (Fin (n + 1))` on the hyperplane where the last coordinate is zero. -/
 def LinearIsometryEquiv.negLast (n : ℕ) :
     EuclideanSpace ℝ (Fin (n + 1)) ≃ₗᵢ[ℝ] EuclideanSpace ℝ (Fin (n + 1)) where
-  toFun x := Function.update x (Fin.last n) (-(x (Fin.last n)))
+  toFun x := WithLp.toLp 2 (Function.update x (Fin.last n) (-(x.ofLp (Fin.last n))))
   map_add' x y := by
     ext i
     by_cases h : i = Fin.last n
@@ -477,7 +502,7 @@ def LinearIsometryEquiv.negLast (n : ℕ) :
       simp
     · unfold Function.update
       simp [h]
-  invFun y := Function.update y (Fin.last n) (-(y (Fin.last n)))
+  invFun y := WithLp.toLp 2 (Function.update y (Fin.last n) (-(y (Fin.last n))))
   left_inv x := by simp
   right_inv y := by simp
   norm_map' x := by
@@ -553,7 +578,8 @@ lemma isClosed_plane (n : ℕ) :
 /-- The euclidean norm of `Fin.init` is less then or equal to the euclidean norm of the element. -/
 lemma EuclideanSpace.norm_finInit_le {𝕜 : Type*} [RCLike 𝕜] {n : ℕ}
     (q : EuclideanSpace 𝕜 (Fin (n + 1))) :
-    norm (Fin.init q : EuclideanSpace 𝕜 (Fin n)) (self := (PiLp.instNorm 2 fun _ ↦ 𝕜)) ≤ ‖q‖ := by
+    norm (WithLp.toLp _ (Fin.init q) : EuclideanSpace 𝕜 (Fin n))
+      (self := (PiLp.instNorm 2 fun _ ↦ 𝕜)) ≤ ‖q‖ := by
   simp_rw [← sq_le_sq₀ (norm_nonneg _) (norm_nonneg _), EuclideanSpace.norm_eq,
     Real.sq_sqrt (Finset.sum_nonneg (fun _ _ ↦ sq_nonneg _)), Fin.sum_univ_castSucc, Fin.init,
     le_add_iff_nonneg_right]
@@ -563,7 +589,8 @@ lemma EuclideanSpace.norm_finInit_le {𝕜 : Type*} [RCLike 𝕜] {n : ℕ}
   of `Fin.init q` is strictly less than the euclidean norm of `q`. -/
 lemma EuclideanSpace.norm_finInit_lt {𝕜 : Type*} [RCLike 𝕜] {n : ℕ}
     (q : EuclideanSpace 𝕜 (Fin (n + 1))) (hq : ‖q (Fin.last n)‖ > 0):
-    norm (Fin.init q : EuclideanSpace 𝕜 (Fin n)) (self := (PiLp.instNorm 2 fun _ ↦ 𝕜)) < ‖q‖ := by
+    norm (WithLp.toLp _ (Fin.init q) : EuclideanSpace 𝕜 (Fin n))
+      (self := (PiLp.instNorm 2 fun _ ↦ 𝕜)) < ‖q‖ := by
   simp_rw [← sq_lt_sq₀ (norm_nonneg _) (norm_nonneg _), EuclideanSpace.norm_eq,
     Real.sq_sqrt (Finset.sum_nonneg (fun _ _ ↦ sq_nonneg _)), Fin.sum_univ_castSucc, Fin.init,
     lt_add_iff_pos_right]
@@ -572,9 +599,9 @@ lemma EuclideanSpace.norm_finInit_lt {𝕜 : Type*} [RCLike 𝕜] {n : ℕ}
 /-- The norm of `Fin.init` is less than or equal to the norm of the original element. -/
 lemma Fin.norm_init_le {n : ℕ} {α : Type*} [SeminormedAddGroup α] (q : (Fin (n + 1)) → α) :
     ‖Fin.init q‖ ≤ ‖q‖ := by
-  simp only [Pi.norm_def, NNReal.coe_le_coe, Finset.sup_le_iff, Finset.mem_univ, forall_const]
-  intro b
-  exact Finset.le_sup (Finset.mem_univ b.castSucc) (f := fun x ↦ ‖q x‖₊)
+  rw [pi_norm_le_iff_of_nonneg (norm_nonneg q)]
+  intro i
+  exact norm_le_pi_norm q i.castSucc
 
 /-! # Embedding the euclidean space of dimension `n` into dimension `n + 1` -/
 
@@ -587,31 +614,29 @@ lemma Fin.norm_init_le {n : ℕ} {α : Type*} [SeminormedAddGroup α] (q : (Fin 
 @[simps!]
 def PartialEquiv.EuclideanSpaceSucc (n : ℕ) :
     PartialEquiv (EuclideanSpace ℝ (Fin n)) (EuclideanSpace ℝ (Fin (n + 1))) where
-  toFun x := Fin.snoc x 0
-  invFun := Fin.init
+  toFun x := WithLp.toLp 2 (Fin.snoc x 0)
+  invFun x := WithLp.toLp 2 (Fin.init x)
   source := univ
   target := {y | y (Fin.last n) = 0}
   map_source' := by simp
   map_target' := by simp
   left_inv' x _ := by simp
   right_inv' y hy := by
-    simp_all only [mem_setOf_eq]
-    rw [← hy]
-    exact Fin.snoc_init_self _
+    simp only [mem_setOf_eq] at hy ⊢
+    simp [← hy]
 
 /-- `PartialEquiv.EuclideanSpaceSucc` is continuous. -/
 lemma PartialEquiv.continuous_EuclideanSpaceSucc (n : ℕ) :
     Continuous (EuclideanSpaceSucc n) := by
-  simp only [EuclideanSpaceSucc]
-  apply Continuous.finSnoc
-  · exact continuous_id'
-  · exact continuous_const
+  simp [EuclideanSpaceSucc]
+  apply (PiLp.continuous_toLp 2 fun i ↦ ℝ).comp
+  exact (PiLp.continuous_ofLp 2 fun i ↦ ℝ).finSnoc continuous_const
 
 /-- The inverse of `PartialEquiv.EuclideanSpaceSucc` is continuous. -/
 lemma PartialEquiv.continuous_EuclideanSpaceSucc_symm (n : ℕ) :
     Continuous (EuclideanSpaceSucc n).symm := by
   simp only [EuclideanSpaceSucc, PartialEquiv.coe_symm_mk]
-  exact Continuous.finInit continuous_id'
+  exact (PiLp.continuous_toLp 2 fun i ↦ ℝ).comp (PiLp.continuous_ofLp 2 fun i ↦ ℝ).finInit
 
 /-- The image of the sphere under `PartialEquiv.EuclideanSpaceSucc` is the sphere intersected
   with the hyperplane with last coordinate zero. -/

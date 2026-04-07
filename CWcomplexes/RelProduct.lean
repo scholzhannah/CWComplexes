@@ -106,6 +106,8 @@ end CWComplex
 
 variable [T2Space X] [T2Space Y]
 
+-- this should be a corollary
+-- lowercase p
 /-- If `C` and `E` are CW-complexes in `X` and `Y` relative to `D` and `F`,
   and `X × Y` is a k-space, then `C ×ˢ D` is a CW-complex relative to `D ×ˢ E ∪ C ×ˢ F`. -/
 @[simps]

@@ -723,8 +723,8 @@ lemma _root_.PartialEquiv.continuous_sumRight_symm {α β : Type*} [Inhabited β
     [TopologicalSpace β] (s : Set β) : Continuous (PartialEquiv.sumRight (α := α) s).symm :=
   continuous_const.sumElim continuous_id
 
-def RelCWComplex.disjointUnion' [Inhabited X] [RelCWComplex C D] {Y : Type*} [TopologicalSpace Y]
-    [T2Space Y] [Inhabited Y] {E F : Set Y} [RelCWComplex E F] :
+instance RelCWComplex.disjointUnion' [Inhabited X] [RelCWComplex C D] {Y : Type*}
+    [TopologicalSpace Y] [T2Space Y] [Inhabited Y] {E F : Set Y} [RelCWComplex E F] :
     RelCWComplex (Sum.inl '' C ∪ Sum.inr '' E) (Sum.inl '' D ∪ Sum.inr '' F) :=
   letI : RelCWComplex (Sum.inl (β := Y) '' C) (Sum.inl '' D) :=
     ofPartialEquiv C (Sum.inl (β := Y) '' C) (isClosedMap_inl C isClosed) (PartialEquiv.sumLeft C)
