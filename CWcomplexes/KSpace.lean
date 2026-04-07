@@ -217,10 +217,9 @@ lemma isCompact_iff_isCompact_tokification_image (K : Set X) :
     rcases (isCompact_iff_finite_subcover.1 hK) (fun i ↦ U' i K hK)
       (fun i ↦ (hU' i K hK).1) hKU' with ⟨ι', hι'⟩
     use ι'
-    have := fun i ↦ toKification_symm_image _ ▸
-      Subtype.preimage_coe_eq_preimage_coe_iff.mp (hU' i K hK).2
-    simp_rw [toKification_image, ← inter_eq_left, inter_iUnion,
-      ← this, ← inter_iUnion, inter_eq_left]
+    have := fun i ↦ Subtype.preimage_coe_eq_preimage_coe_iff.mp (hU' i K hK).2
+    simp_rw [← Equiv.subset_symm_image, image_iUnion₂, ← inter_eq_left, inter_iUnion, ← this,
+      ← inter_iUnion, inter_eq_left]
     exact hι'
   · intro hK
     exact (toKification X).symm_image_image K ▸ hK.image continuous_toKification_symm
@@ -239,14 +238,16 @@ instance kspace_kification : KSpace (kification X) where
       refine ⟨F, openF, ?_⟩
       rw [toKification_image] at hEA
       simp only [kification] at hEA
-      simp_rw [hF, toKification_symm_image, hEA]}
+      simp_rw [hF, toKification_symm_image]
+      exact hEA}
 
 /-- The k-ification preserves the topology of k-spaces. -/
 lemma kification_kspace_eq_self {X : Type*} [t : TopologicalSpace X] [KSpace X] :
     t = kification.instTopologicalSpace := by
   rw [TopologicalSpace.ext_iff]
-  intro
-  rw [kification.isOpen_iff, KSpace.isOpen_iff, toKification_symm_image]
+  intro s
+  change IsOpen s ↔ IsOpen (X := kification X) s
+  rw [kification.isOpen_iff (A := s), KSpace.isOpen_iff, toKification_symm_image]
 
 variable {Y : Type*} [TopologicalSpace Y]
 
