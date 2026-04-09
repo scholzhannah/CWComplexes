@@ -222,6 +222,15 @@ lemma stereographic_symm_tendsto {E : Type*} [NormedAddCommGroup E] [InnerProduc
     simpa [add_comm, ← sub_eq_add_neg] using
       tendsto_add_mul_sq_div_add_mul_atTop_nhds (-4 : ℝ) 4 0 0 1 one_ne_zero
 
+lemma help {X Y Z : Type*} {f g : X → Y} {h : Y → Z} (hg : f = g) : h ∘ f = h ∘ g := by rw [hg]
+
+--set_option backward.isDefEq.respectTransparency false in
+
+--attribute [local implicit_reducible] LinearMap.toAddMonoidHom
+--set_option allowUnsafeReducibility true
+--attribute [local implicit_reducible] LinearMap.toAddHom
+set_option backward.isDefEq.respectTransparency false in
+--#defeq_abuse in
 /-- As we approach infinite norm the inverse of the stereographic projection `stereographic'`
   approaches the centre of the projection. -/
 lemma stereographic'_symm_tendsto {n : ℕ} (α : Filter (EuclideanSpace ℝ (Fin n)))
@@ -231,32 +240,14 @@ lemma stereographic'_symm_tendsto {n : ℕ} (α : Filter (EuclideanSpace ℝ (Fi
     Filter.Tendsto (stereographic' (E := EuclideanSpace ℝ (Fin (n + 1))) n
     ⟨EuclideanSpace.single (Fin.last n) 1, by simp⟩).symm α
     (nhds ⟨EuclideanSpace.single (Fin.last n) 1, by simp⟩) := by
-  letI : Fact (Module.finrank ℝ (EuclideanSpace ℝ (Fin (n + 1))) = n + 1) := {
-      out := finrank_euclideanSpace_fin (𝕜 := ℝ) (n := n + 1)}
-  rw [stereographic', OpenPartialHomeomorph.coe_trans_symm]
-  -- I want to rewrite with `Homeomorph.toOpenPartialHomeomorph_symm_apply` here but I just cannot
-  -- make this work.
-  sorry
-  /-
-  letI : Fact (Module.finrank ℝ (EuclideanSpace ℝ (Fin (n + 1))) = n + 1) := {
-      out := finrank_euclideanSpace_fin (𝕜 := ℝ) (n := n + 1)}
-  rw [stereographic', OpenPartialHomeomorph.coe_trans_symm, ← tendsto_map'_iff]
-  rw [tendsto_map'_iff]
-  have h : EuclideanSpace.single (Fin.last n) (1 : ℝ) ∈ sphere 0 1 := by
-    sorry
-  conv =>
-    pattern _ ∘ _
-    rhs
-
-    rw [@Homeomorph.toOpenPartialHomeomorph_symm_apply
-      (X := (↥(ℝ ∙ ↑(⟨EuclideanSpace.single (Fin.last n) 1, h⟩))ᗮ)) (Y := (EuclideanSpace ℝ (Fin n))) _ _
-      (LinearIsometryEquiv.toHomeomorph (OrthonormalBasis.repr (OrthonormalBasis.fromOrthogonalSpanSingleton n _)))]
-  --simp []
+  simp only [stereographic', OpenPartialHomeomorph.coe_trans_symm,
+    Homeomorph.toOpenPartialHomeomorph_symm_apply]
+  rw [← Filter.tendsto_map'_iff]
   apply stereographic_symm_tendsto
   rw [Filter.tendsto_map'_iff]
   convert h
-  ext x
-  simp -/
+  ext
+  simp
 
 -- `(↥(ℝ ∙ ↑⟨EuclideanSpace.single (Fin.last n) 1, ⋯⟩)ᗮ)`
 -- { x // x ∈ sphere 0 1 }

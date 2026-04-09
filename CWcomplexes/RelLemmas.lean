@@ -55,8 +55,7 @@ lemma RelCWComplex.inter_skeletonLT_succ_isClosed_iff
   constructor
   · intro hclosed
     constructor
-    · rw [← inter_eq_right.2 (skeletonLT_mono ((by norm_cast; exact Nat.le_succ n) : ↑n ≤ ↑n.succ)),
-        ← inter_assoc]
+    · rw [← inter_eq_right.2 (skeletonLT_mono ((by norm_num) : ↑n ≤ ↑n.succ)), ← inter_assoc]
       exact hclosed.inter (isClosed_skeletonLT n)
     · intro j
       have : A ∩ skeletonLT C n.succ ⊆ C := by
@@ -85,9 +84,9 @@ lemma RelCWComplex.inter_skeletonLT_succ_isClosed_iff
     · right
       rw [inter_assoc, ← inter_eq_right.2
         ((closedCell_subset_skeletonLT m j).trans
-          (skeletonLT_mono (by norm_cast : (m : ℕ∞) + 1 ≤ n))),
+          (skeletonLT_mono (by tauto : (m : ℕ∞) + 1 ≤ n))),
         ← inter_assoc (skeletonLT C _ : Set X),
-        inter_eq_right.2 (skeletonLT_mono (by norm_cast; exact Nat.le_succ n)), ← inter_assoc]
+        inter_eq_right.2 (skeletonLT_mono (by norm_num)), ← inter_assoc]
       exact closed1.inter isClosed_closedCell
     by_cases msucceqn : m = n
     · right
@@ -98,7 +97,7 @@ lemma RelCWComplex.inter_skeletonLT_succ_isClosed_iff
     have : n.succ ≤ m := by
       push_neg at msuccltn msucceqn
       exact msuccltn.lt_of_ne msucceqn.symm
-    rw [inter_assoc, (disjoint_skeletonLT_openCell (by norm_cast)).inter_eq, inter_empty]
+    rw [inter_assoc, (disjoint_skeletonLT_openCell (by gcongr)).inter_eq, inter_empty]
     exact isClosed_empty
 
 /-- A set `A` in a CW-complex is closed if `A ∩ D` is closed and assuming that the intersection
@@ -112,7 +111,7 @@ lemma RelCWComplex.induction_isClosed_skeletonLT [RelCWComplex C D] {A : Set X} 
   rw [isClosed_iff_inter_skeletonLT_isClosed (D := D) asub]
   intro n
   induction n using Nat.case_strong_induction_on with
-  | hz =>  simpa only [CharP.cast_eq_zero, skeletonLT_zero_eq_base (C := C)]
+  | hz =>  simpa [skeletonLT_zero_eq_base (C := C)]
   | hi n hn =>
     rw [inter_skeletonLT_succ_isClosed_iff]
     exact ⟨hn n n.le_refl, step n hn⟩
@@ -126,7 +125,7 @@ lemma CWComplex.induction_isClosed_skeletonLT [CWComplex C] {A : Set X} (asub : 
   rw [RelCWComplex.isClosed_iff_inter_skeletonLT_isClosed (D := ∅) asub]
   intro n
   induction n using Nat.case_strong_induction_on with
-  | hz => simp only [CharP.cast_eq_zero, skeletonLT_zero_eq_empty, inter_empty, isClosed_empty]
+  | hz => simp [skeletonLT_zero_eq_empty]
   | hi n hn =>
     rw [RelCWComplex.inter_skeletonLT_succ_isClosed_iff]
     exact ⟨hn n n.le_refl, step n hn⟩
@@ -140,8 +139,7 @@ lemma CWComplex.isDiscrete_levelaux_one [CWComplex C] {A : Set X} :
   intro n nlt j
   left
   simp_rw [← Nat.succ_le_iff] at nlt
-  rw [inter_assoc, (disjoint_skeletonLT_openCell (by simp only [Nat.one_le_cast, nlt])).inter_eq,
-    inter_empty]
+  rw [inter_assoc, (disjoint_skeletonLT_openCell (by tauto)).inter_eq, inter_empty]
   exact isClosed_empty
 
 /-- `level 0` is discrete. -/
@@ -252,10 +250,10 @@ lemma RelCWComplex.compact_inter_finite [RelCWComplex C D] (A : Set X) (compact 
           simp only [singleton_subset_iff]
           exact ymem
         refine this y (Subtype.coe_image_subset P s ymem.1) (mem_of_mem_image_val ymem.1) ymem.2
-  have discrete : DiscreteTopology ↑P := by
-    rw [discreteTopology_iff_forall_isClosed]
+  have discrete : IsDiscrete P := by
+    simp_rw [isDiscrete_iff_discreteTopology, discreteTopology_iff_forall_isClosed,
+      isClosed_induced_iff]
     intro s
-    simp only [instTopologicalSpaceSubtype, isClosed_induced_iff]
     use s
     simp only [Subtype.val_injective, preimage_image_eq, and_true]
     exact subsetsclosed s
@@ -411,16 +409,16 @@ lemma RelCWComplex.Subcomplex.compact_subset_finite_subcomplex [RelCWComplex C D
 instance RelCWComplex.finiteDimensional_instskeletonLT_of_nat [RelCWComplex C D]
     [FiniteDimensional C] (n : ℕ) : FiniteDimensional (skeletonLT C n : Set X) where
   eventually_isEmpty_cell := by
-    simp only [Subcomplex.cell_def, isEmpty_subtype, Filter.eventually_atTop,
-      ge_iff_le]
+    simp only [Subcomplex.cell_def, isEmpty_subtype, Filter.eventually_atTop, ge_iff_le]
     use n
-    intro b hnb
-    simp [hnb, skeletonLT_I]
+    intro b hnb x
+    simp [ skeletonLT_I, ENat.coe_le_coe, hnb]
 
 instance RelCWComplex.finiteDimensional_instskeleton_of_nat [RelCWComplex C D] [FiniteDimensional C]
     (n : ℕ) : FiniteDimensional (skeleton C n : Set X) :=
   finiteDimensional_instskeletonLT_of_nat _
 
+@[implicit_reducible]
 def RelCWComplex.kSpace [RelCWComplex (univ: Set X) D] (hD : IsCompact D) : KSpace X := by
   apply KSpace.of_isClosed
   intro A hA

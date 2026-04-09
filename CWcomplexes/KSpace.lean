@@ -173,8 +173,7 @@ lemma kification.isOpen_iff {A : Set (kification X)} : IsOpen A ↔
 /-- A set `A` is the k-ification is closed iff for all compact sets `K`,
 the intersection `K ∩ A` is closed in `K`. -/
 lemma kification.isClosed_iff {A : Set (kification X)} :
-    IsClosed (X := kification X) A ↔
-      ∀ (K : Set X), IsCompact K → IsClosed (K ↓∩ (toKification X).symm '' A) := by
+    IsClosed A ↔ ∀ (K : Set X), IsCompact K → IsClosed (K ↓∩ (toKification X).symm '' A) := by
   rw [← isOpen_compl_iff, isOpen_iff, Equiv.image_compl]
   congrm ∀ (K : Set X), IsCompact K → ?_
   exact isOpen_compl_iff
@@ -252,17 +251,19 @@ lemma kification_kspace_eq_self {X : Type*} [t : TopologicalSpace X] [KSpace X] 
 variable {Y : Type*} [TopologicalSpace Y]
 
 lemma from_kification_continuous_of_continuous (f : X → Y)
-    (hf : Continuous f) : Continuous (X := kification X) f := by
+    (hf : Continuous f) : Continuous (f ∘ (toKification X).symm) := by
   rw [continuous_def] at hf ⊢
   intro s hs
   exact (TopologicalSpace.le_def.1 kification_le) (f ⁻¹' s) (hf s hs)
 
 lemma from_kification_continuousOn_of_continuousOn (f : X → Y) (s : Set X) (hf : ContinuousOn f s) :
-    ContinuousOn (X := kification X) f s := by
+    ContinuousOn (f ∘ (toKification X).symm) (toKification X '' s) := by
   rw [continuousOn_iff'] at hf ⊢
   intro t ht
   obtain ⟨u, hu, hut⟩ := hf t ht
-  exact ⟨u, ⟨(TopologicalSpace.le_def.1 kification_le) u hu, hut⟩⟩
+  rw [preimage_comp, ← Equiv.image_eq_preimage_symm, ← image_inter (toKification X).injective, hut]
+  exact ⟨toKification X '' u, ⟨isOpenMap_tokification u hu,
+    by rw [ ← image_inter (toKification X).injective]⟩⟩
 
 lemma continuous_compact_to_kification [CompactSpace X] (f : X → Y) (hf : Continuous f) :
     Continuous ((toKification Y) ∘ f) := by

@@ -44,13 +44,14 @@ def RelCWComplex.prodCellEquiv (C : Set X) {D : Set X} (E : Set Y) {F : Set Y} [
 -- PR this more generally
 
 /-- The natural `IsometryEquiv` `(Fin n → ℝ) ≃ᵢ (Fin m → ℝ) × (Fin l → ℝ)` when `n = m + l`. -/
-@[simps!]
+@[simps! -isSimp]
 def RelCWComplex.prodIsometryEquiv {n m l : ℕ} (hmln : m + l = n) :
     (Fin n → ℝ) ≃ᵢ (Fin m → ℝ) × (Fin l → ℝ) :=
   (IsometryEquiv.piCongrLeft (Y := fun _ ↦ ℝ) (finCongr hmln.symm)).trans
   ((Fin.appendIsometry m l).symm)
 
 /-- The characterstic maps of the product of CW-complexes. -/
+@[simps! -isSimp]
 def RelCWComplex.prodMap [RelCWComplex C D] [RelCWComplex E F] {n : ℕ} (e : prodCell C E n) :
     PartialEquiv (Fin n → ℝ) (X × Y) :=
   (prodIsometryEquiv e.hml).transPartialEquiv
@@ -260,8 +261,7 @@ instance RelCWComplex.Product [RelCWComplex C D] [RelCWComplex E F] [KSpace (X �
           (D ×ˢ closedCell i.fst i.snd.1) ⊆
           (D ×ˢ E ∪ C ×ˢ F) := by
         rw [← iUnion_prod_const, ← prod_iUnion]
-        apply union_subset
-        apply union_subset
+        refine union_subset (union_subset ?_ ?_) ?_
         · exact subset_union_of_subset_left (prod_mono Subset.rfl (base_subset_complex (C := E))) _
         · refine subset_union_of_subset_right (prod_mono ?_ Subset.rfl) _
           exact iUnion_subset fun _ ↦  closedCell_subset_complex _ _
@@ -364,58 +364,56 @@ instance CWComplex.finiteType_product [KSpace (X × Y)] [CWComplex C] [CWComplex
   letI := RelCWComplex.Product (C := C) (E := E)
   RelCWComplex.finiteType_ofEq (C ×ˢ E) (∅ ×ˢ E ∪ C ×ˢ ∅) rfl (by simp)
 
+--set_option backward.isDefEq.respectTransparency true in
+--#defeq_abuse in
 /-- If `C` and `D` are CW-complexes in `X` and `Y` then `C ×ˢ D` is a CW-complex in the k-ification
   of `X × Y`. -/
 @[simps]
 instance RelCWComplex.ProductKification [RelCWComplex C D] [RelCWComplex E F] :
-    RelCWComplex (X := kification (X × Y)) (C ×ˢ E) (D ×ˢ E ∪ C ×ˢ F) where
+    RelCWComplex (toKification (X × Y) '' C ×ˢ E) (toKification (X × Y) '' (D ×ˢ E ∪ C ×ˢ F)) where
   cell n := prodCell C E n
-  map n i := prodMap i
-  source_eq n i := by
-    rcases i with  ⟨m, l, hmln, j, k⟩
+  map n i := (prodMap i).transEquiv (toKification (X × Y))
+  source_eq _ _ := by
     ext x
-    simp only [prodMap, Equiv.transPartialEquiv_source, IsometryEquiv.coe_toEquiv,
-      PartialEquiv.prod_source, source_eq m j, source_eq, ball_prod_same, ← Prod.zero_eq_mk,
-      mem_preimage, mem_ball, dist_zero_right]
-    rw [Isometry.norm_map_of_map_zero (by exact (prodIsometryEquiv hmln).isometry_toFun)]
+    rw [PartialEquiv.transEquiv_source, prodMap_source, source_eq, source_eq, ball_prod_same,
+      ← Prod.zero_eq_mk, mem_preimage, mem_ball, dist_zero_right, mem_ball, dist_zero_right,
+      Isometry.norm_map_of_map_zero (by exact (prodIsometryEquiv _).isometry_toFun)]
     rfl
-  continuousOn n i := by
-    rcases i with  ⟨m, l, hmln, j, k⟩
-    simp only [Equiv.transPartialEquiv_eq_trans, PartialEquiv.coe_trans, prodMap]
-    apply ContinuousOn.image_comp_continuous
-    · rw [Equiv.toPartialEquiv_apply, IsometryEquiv.coe_toEquiv, IsometryEquiv.image_closedBall,
-        ← closedBall_prod_same]
-      simp only [PartialEquiv.prod_coe]
-      apply continuousOn_compact_to_kification
-        (by rw [closedBall_prod_same]; exact isCompact_closedBall _ _)
-      exact ContinuousOn.prodMap (continuousOn _ _) (continuousOn _ _)
-    · rw [Equiv.toPartialEquiv_apply, IsometryEquiv.coe_toEquiv]
-      exact (prodIsometryEquiv hmln).continuous
-  continuousOn_symm n i := by
-    rcases i with ⟨m, l, hmln, j, k⟩
-    simp only [Equiv.transPartialEquiv_eq_trans, PartialEquiv.coe_trans_symm,
-      Equiv.toPartialEquiv_symm_apply, PartialEquiv.trans_target, PartialEquiv.prod_target,
-      Equiv.toPartialEquiv_target, preimage_univ, inter_univ, prodMap]
-    apply (prodIsometryEquiv hmln).symm.continuous.comp_continuousOn
-    rw [PartialEquiv.prod_symm]
-    exact from_kification_continuousOn_of_continuousOn ((map m j).symm.prod (map l k).symm)
-      ((map m j).target ×ˢ (map l k).target) ((continuousOn_symm m j).prodMap
-        (continuousOn_symm l k))
+  continuousOn _ _ := by
+    simp only [prodMap, Equiv.transPartialEquiv_eq_trans, PartialEquiv.transEquiv_eq_trans,
+      PartialEquiv.coe_trans, Equiv.toPartialEquiv_apply, PartialEquiv.prod_coe,
+      IsometryEquiv.coe_toEquiv, ← Function.comp_assoc]
+    refine ContinuousOn.image_comp_continuous ?_ (IsometryEquiv.continuous _)
+    rw [IsometryEquiv.image_closedBall]
+    apply continuousOn_compact_to_kification
+      (by  exact isCompact_closedBall _ _)
+    rw [← closedBall_prod_same]
+    exact ContinuousOn.prodMap (continuousOn _ _) (continuousOn _ _)
+  continuousOn_symm _ _ := by
+    simp only [prodMap, Equiv.transPartialEquiv_eq_trans, PartialEquiv.transEquiv_eq_trans,
+      PartialEquiv.coe_trans_symm, Equiv.toPartialEquiv_symm_apply, PartialEquiv.prod_symm,
+      PartialEquiv.trans_target, Equiv.toPartialEquiv_target, PartialEquiv.prod_target,
+      preimage_univ, inter_univ, ← Equiv.image_eq_preimage_symm, univ_inter]
+    apply (prodIsometryEquiv _).symm.continuous.comp_continuousOn
+    exact from_kification_continuousOn_of_continuousOn _ _
+      ((continuousOn_symm _ _).prodMap (continuousOn_symm _ _))
   pairwiseDisjoint' := by
     intro ⟨n1, m, l, hmln1, j, k⟩ _ ⟨n2, p, q, hpqn2, i, o⟩ _ ne
-    simp only [Function.onFun, disjoint_iff_inter_eq_empty]
-    rw [prodMap_image_ball, prodMap_image_ball, prod_inter_prod, prod_eq_empty_iff]
+    simp only [Function.onFun, PartialEquiv.transEquiv_eq_trans, disjoint_iff_inter_eq_empty,
+      PartialEquiv.coe_trans, Equiv.toPartialEquiv_apply, image_comp]
+    rw [prodMap_image_ball, prodMap_image_ball, ← image_inter (toKification (X × Y)).injective,
+      prod_inter_prod, image_eq_empty, prod_eq_empty_iff]
     suffices (⟨m, j⟩ : Σ n, cell C n) ≠ ⟨p, i⟩ ∨  (⟨l, k⟩ : Σ n, cell E n) ≠ ⟨q, o⟩ by
       rcases this with ne1 | ne2
       · exact Or.intro_left _ (disjoint_openCell_of_ne ne1).inter_eq
       · exact Or.intro_right _ (disjoint_openCell_of_ne ne2).inter_eq
-    by_contra h
-    push_neg at h
+    by_contra! h
     apply ne
     aesop
-  disjointBase' n := by
-    intro ⟨m, l, hml, i, j⟩
-    rw [prodMap_image_ball]
+  disjointBase' _ _ := by
+    rw [PartialEquiv.transEquiv_eq_trans, PartialEquiv.coe_trans, image_comp,
+      Equiv.toPartialEquiv_apply, prodMap_image_ball,
+      disjoint_image_iff (toKification (X × Y)).injective]
     simp [disjoint_iff_inter_eq_empty, inter_union_distrib_left,
       prod_inter_prod, (disjointBase _ _).inter_eq]
   mapsTo n i := by
@@ -425,6 +423,10 @@ instance RelCWComplex.ProductKification [RelCWComplex C D] [RelCWComplex E F] :
     -- We then do two completely symmetric proofs.
     classical
     rcases i with ⟨m, l, hmln, j, k⟩
+    simp_rw [PartialEquiv.transEquiv_eq_trans, PartialEquiv.coe_trans]
+    simp_rw [Equiv.toPartialEquiv_apply (toKification (X × Y)), image_comp,
+      ← image_iUnion (f := toKification (X × Y)), ← image_union]
+    apply Exists.imp (fun _ ↦ MapsTo.comp_left _)
     simp_rw [mapsTo_iff_image_subset]
     rw [prodMap_image_sphere]
     simp_rw [union_subset_iff]
@@ -432,12 +434,12 @@ instance RelCWComplex.ProductKification [RelCWComplex C D] [RelCWComplex E F] :
     swap
     · refine fun J K JleK sub ↦ sub.trans ?_
       apply union_subset_union_right
-      repeat apply iUnion_mono fun _ ↦ ?_
+      apply iUnion₂_mono fun _ _ ↦ iUnion_mono fun _↦ ?_
       exact iUnion_subset_iUnion_const (fun a ↦ JleK _ a)
     swap
     · refine fun J K JleK sub ↦ sub.trans ?_
       apply union_subset_union_right
-      repeat apply iUnion_mono fun _ ↦ ?_
+      apply iUnion₂_mono fun _ _ ↦ iUnion_mono fun _↦ ?_
       exact iUnion_subset_iUnion_const (fun a ↦ JleK _ a)
     constructor
     · obtain ⟨J1, hJ1⟩ := cellFrontier_subset_base_union_finite_closedCell m j
@@ -493,65 +495,70 @@ instance RelCWComplex.ProductKification [RelCWComplex C D] [RelCWComplex E F] :
     -- So we have `K ⊆ H ×ˢ G`.
     -- But `H ×ˢ G` is just a finite union of cells of the product.
     -- Therefore we are done by `isClosed_iUnion_of_finite` and the assumption `hA`.
+    let K₁ := Prod.fst '' ((toKification (X × Y)).symm '' K)
+    let K₂ := Prod.snd '' ((toKification (X × Y)).symm '' K)
     let H := D ∪ ⋃ (x : Σ (m : ℕ),
-      {j : cell C m // ¬ Disjoint (Prod.fst '' K) (openCell m j)}), closedCell (C := C) x.1 x.2
+      {j : cell C m // ¬ Disjoint K₁ (openCell m j)}), closedCell (C := C) x.1 x.2
     let G := F ∪ ⋃ (x : Σ (m : ℕ),
-      {j : cell E m // ¬ Disjoint (Prod.snd '' K) (openCell m j)}), closedCell (C := E) x.1 x.2
-    have hH : Prod.fst '' K ∩ C ⊆ H := subset_not_disjoint (C := C) (Prod.fst '' K)
-    have hG : Prod.snd '' K ∩ E ⊆ G := subset_not_disjoint (C := E) (Prod.snd '' K)
-    have hHfinite := compact_inter_finite (C := C) (Prod.fst '' K)
-      (hK.image (from_kification_continuous_of_continuous _ continuous_fst))
-    have hGfinite := compact_inter_finite (C := E) (Prod.snd '' K)
-      (hK.image (from_kification_continuous_of_continuous _ continuous_snd))
-    have Asub' : A ∩ K ⊆ A ∩ H ×ˢ G := by
+      {j : cell E m // ¬ Disjoint K₂ (openCell m j)}), closedCell (C := E) x.1 x.2
+    have hH : K₁ ∩ C ⊆ H := subset_not_disjoint _
+    have hG : K₂ ∩ E ⊆ G := subset_not_disjoint _
+    have hHfinite : _root_.Finite ((m : ℕ) × { j // ¬Disjoint K₁ (openCell (C := C) m j)}) :=
+      compact_inter_finite _ ((hK.image continuous_toKification_symm).image continuous_fst)
+    have hGfinite :  _root_.Finite ((m : ℕ) × { j // ¬Disjoint K₂ (openCell (C := E) m j)}) :=
+      compact_inter_finite _ ((hK.image continuous_toKification_symm).image continuous_snd)
+    have Asub' : A ∩ K ⊆ A ∩ toKification (X × Y) '' H ×ˢ G := by
       apply subset_inter inter_subset_left
-      refine subset_trans ?_ (prod_mono hH hG)
-      intro ⟨x1, x2⟩ xmem
-      constructor
-      · exact ⟨((subset_trans inter_subset_right subset_prod) xmem).1,
-          ((subset_trans inter_subset_left Asub) xmem).1⟩
-      · exact ⟨((subset_trans inter_subset_right subset_prod) xmem).2,
-          ((subset_trans inter_subset_left Asub) xmem).2⟩
-    suffices IsClosed (A ∩ H ×ˢ G) by
+      refine subset_trans ?_ (image_mono (prod_mono hH hG))
+      rw [← prod_inter_prod, image_inter (toKification _).injective, inter_comm]
+      apply inter_subset_inter ?_ Asub
+      rw [← Equiv.symm_image_subset]
+      exact subset_fst_image_prod_snd_image
+    suffices IsClosed (A ∩ toKification (X × Y) '' H ×ˢ G) by
       rw [← inter_eq_left.2 Asub', ← inter_assoc, inter_comm A K, inter_assoc K A, inter_self,
         inter_assoc]
       exact hK.isClosed.inter this
     simp_rw [H, G, prod_union, union_prod, prod_iUnion, iUnion_prod_const, ← union_assoc]
-    rw [inter_union_distrib_left]
+    rw [image_union, inter_union_distrib_left]
     apply IsClosed.union
-    · have : (D ×ˢ F ∪ ⋃ (i : (m : ℕ) × { j // ¬Disjoint (Prod.fst '' K) (openCell (C := C) m j) }),
+    · have : (D ×ˢ F ∪ ⋃ (i : (m : ℕ) × { j // ¬Disjoint K₁ (openCell (C := C) m j) }),
           closedCell i.fst i.snd.1 ×ˢ F) ∪
-          ⋃ (i : (m : ℕ) × { j // ¬Disjoint (Prod.snd '' K) (openCell (C := E) m j) }),
+          ⋃ (i : (m : ℕ) × { j // ¬Disjoint K₂ (openCell (C := E) m j) }),
           (D ×ˢ closedCell i.fst i.snd.1) ⊆
           (D ×ˢ E ∪ C ×ˢ F) := by
         rw [← iUnion_prod_const, ← prod_iUnion]
-        apply union_subset
-        apply union_subset
+        refine union_subset (union_subset ?_ ?_) ?_
         · exact subset_union_of_subset_left (prod_mono Subset.rfl (base_subset_complex (C := E))) _
         · refine subset_union_of_subset_right (prod_mono ?_ Subset.rfl) _
           exact iUnion_subset fun _ ↦  closedCell_subset_complex _ _
         · apply subset_union_of_subset_left
           apply prod_mono Subset.rfl
           exact iUnion_subset fun _ ↦ closedCell_subset_complex _ _
-      rw [← inter_eq_right.2 this, ← inter_assoc]
+      rw [← inter_eq_right.2 this, image_inter (toKification _).injective, ← inter_assoc]
       apply hbase.inter
+      simp_rw [image_union, Equiv.image_eq_preimage_symm]
       apply IsClosed.union
       · apply IsClosed.union
-        · exact ((isClosedBase C).prod (isClosedBase E)).mono kification_le
-        · exact isClosed_iUnion_of_finite fun ⟨n, j, hnj⟩ ↦
-            (isClosed_closedCell.prod (isClosedBase E)).mono kification_le
-      · exact isClosed_iUnion_of_finite fun ⟨n, j, hnj⟩ ↦
-          ((isClosedBase C).prod isClosed_closedCell).mono kification_le
-    simp_rw [inter_iUnion]
+        · exact (((isClosedBase C).prod (isClosedBase E))).preimage continuous_toKification_symm
+        · exact (isClosed_iUnion_of_finite fun _ ↦
+            (isClosed_closedCell.prod (isClosedBase E))).preimage continuous_toKification_symm
+      · exact (isClosed_iUnion_of_finite fun _ ↦
+          ((isClosedBase C).prod isClosed_closedCell)).preimage continuous_toKification_symm
+    simp_rw [image_iUnion, inter_iUnion]
     refine isClosed_iUnion_of_finite fun ⟨n, j, hnj⟩ ↦
       isClosed_iUnion_of_finite fun ⟨m, i, hmi⟩ ↦ ?_
-    replace hA : IsClosed (A ∩ prodMap ⟨m, n, rfl, i, j⟩ '' closedBall 0 1) :=
-      hA (m + n) ⟨m, n, rfl, i, j⟩
-    rw [prodMap_image_closedBall] at hA
+    specialize hA (m + n) ⟨m, n, rfl, i, j⟩
+    rw [PartialEquiv.transEquiv_eq_trans, PartialEquiv.coe_trans, image_comp,
+      prodMap_image_closedBall] at hA
     exact hA
-  isClosedBase := (((isClosedBase C).prod isClosed).union (isClosed.prod (isClosedBase E))).mono
-    kification_le
+  isClosedBase := by
+    rw [Equiv.image_eq_preimage_symm]
+    exact (((isClosedBase C).prod isClosed).union (isClosed.prod (isClosedBase E))).preimage
+      continuous_toKification_symm
   union' := by
+    simp_rw [PartialEquiv.transEquiv_eq_trans, PartialEquiv.coe_trans, Equiv.toPartialEquiv_apply,
+      image_comp, ← image_iUnion, ← image_union]
+    rw [(toKification _).image_eq_iff_eq]
     apply subset_antisymm
     · refine union_subset (union_subset (prod_mono base_subset_complex Subset.rfl)
           (prod_mono Subset.rfl base_subset_complex)) ?_
@@ -574,6 +581,15 @@ instance RelCWComplex.ProductKification [RelCWComplex C D] [RelCWComplex E F] :
       · right
         exact mk_mem_prod hx1' hx2
 
+@[simps!]
+instance CWComplex.ProductKification [CWComplex C] [CWComplex E] :
+    CWComplex (toKification (X × Y) ''C ×ˢ E) := by
+  have : RelCWComplex (⇑(toKification (X × Y)) '' C ×ˢ E) ∅ := by
+    apply RelCWComplex.ofEq (toKification (X × Y) ''C ×ˢ E)
+      (toKification (X × Y) '' (∅ ×ˢ E ∪ C ×ˢ ∅)) rfl (by sorry)
+  apply RelCWComplex.toCWComplex
+
+set_option backward.isDefEq.respectTransparency false in
 /-- If `C` and `E` are CW-complexes in `X` and `Y`, and `X × Y` is a k-space, then `C ×ˢ D` is a
   CW-complex. -/
 @[simps!]
@@ -621,12 +637,14 @@ instance RelCWComplex.finiteType_productKification [RelCWComplex C D]
       simp_all [f, PSigma.ext_iff]
     exact Finite.of_injective f hf
 
+set_option backward.isDefEq.respectTransparency false in
 instance CWComplex.finiteDimensional_productKification [CWComplex C] [CWComplex E]
     [FiniteDimensional C] [FiniteDimensional E] :
     FiniteDimensional (X := kification (X × Y)) (C ×ˢ E) :=
   @RelCWComplex.finiteDimensional_ofEq (kification (X × Y)) _ (C ×ˢ E) (∅ ×ˢ E ∪ C ×ˢ ∅) _ _
     (RelCWComplex.ProductKification (C := C) (E := E)) _ rfl (by simp)
 
+set_option backward.isDefEq.respectTransparency false in
 instance CWComplex.finiteType_productKification [CWComplex C] [CWComplex E]
     [FiniteType C] [FiniteType E] : FiniteType (X := kification (X × Y)) (C ×ˢ E) :=
   @RelCWComplex.finiteType_ofEq (kification (X × Y)) _ (C ×ˢ E) (∅ ×ˢ E ∪ C ×ˢ ∅) _ _
