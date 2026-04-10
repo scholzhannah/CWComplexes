@@ -656,10 +656,8 @@ instance RelCWComplex.ProductKificationUniv [RelCWComplex (univ : Set X) D]
 
 @[simps!]
 instance CWComplex.ProductKificationUniv [CWComplex (univ : Set X)]
-    [CWComplex (univ : Set Y)] :
-    CWComplex (X := kification (X × Y)) (univ : Set (X × Y)) :=
-  (RelCWComplex.ofEq (X := kification (X × Y)) (univ ×ˢ univ : Set (X × Y)) ∅
-    univ_prod_univ rfl).toCWComplex
+    [CWComplex (univ : Set Y)] : CWComplex (univ : Set (kification (X × Y))) :=
+  (RelCWComplex.ofEq (toKification (X × Y) '' univ ×ˢ univ) ∅ (by simp) rfl).toCWComplex
 
 end
 

@@ -1,4 +1,6 @@
-import Mathlib.Analysis.NormedSpace.HomeomorphBall
+import Mathlib.Analysis.Normed.Group.Basic
+import Mathlib.Data.EReal.Inv
+import Mathlib.Data.Real.Sqrt
 import Mathlib.Geometry.Manifold.Instances.Sphere
 import CWcomplexes.Auxiliary
 import CWcomplexes.RelConstructions
@@ -47,21 +49,19 @@ open Classical in
 @[simps]
 def Function.Embedding.euclidean (𝕜 : Type*) {n m : Type*} [Inhabited 𝕜] (f : n ↪ m) :
     EuclideanSpace 𝕜 n ↪ EuclideanSpace 𝕜 m where
-  toFun s i := if h : i ∈ range f then s (choose (mem_range.1 h)) else default
+  toFun s := WithLp.toLp 2 fun i ↦  if h : i ∈ range f then s (choose (mem_range.1 h)) else default
   inj' s1 s2 h := by
     ext i
     rw [PiLp.ext_iff] at h
     specialize h (f i)
-    simp at h
-    change s1 (choose (mem_range.mp (mem_range_self i))) =
-      s2 (choose (mem_range.mp (mem_range_self i))) at h
+    simp only [mem_range, EmbeddingLike.apply_eq_iff_eq, exists_eq, ↓reduceDIte, choose_eq] at h
     have := choose_spec (p := fun x ↦ f x = f i) (mem_range.mp (mem_range_self i))
     apply f.injective at this
     exact this ▸ h
 
 lemma h {𝕜 n m : Type*} [Inhabited 𝕜] {f : n ↪ m} {i : n} {s : EuclideanSpace 𝕜 n} :
     f.euclidean 𝕜 s (f i) = s i := by
-  simp only [f.euclidean_apply 𝕜, mem_range_self i, ↓reduceDIte]
+  simp only [f.euclidean_apply_ofLp 𝕜, mem_range_self i, ↓reduceDIte]
   have := Classical.choose_spec (p := fun x ↦ f x = f i) (mem_range.1 (mem_range_self i))
   rw [f.injective.eq_iff.1 this]
 

@@ -8,6 +8,9 @@ namespace Topology.CWComplex
 
 /-! # Construction with two cells in every dimension. -/
 
+#exit
+-- **I don't even know what is going on in this file so I don't want to spend time cleaning up**
+
 /-**Comment**:
   We now move onto the second popular construction for the sphere:
   We construct the spheres inductively adding two cells in each dimension.

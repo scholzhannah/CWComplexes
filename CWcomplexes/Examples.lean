@@ -67,6 +67,7 @@ lemma mapLTPartial_image {a b : ℝ} (hab : a < b) {s : Set (Fin 1 → ℝ)} :
 --set_option trace. in
 --set_option trace.Meta.Tactic.simp.rewrite true in
 /-- A helper definition for `instIccLT` where the set is presented differently. -/
+@[implicit_reducible]
 protected def instIccLT' {a b : ℝ} (hab : a < b) :
     CWComplex (mapLTPartial hab '' closedBall 0 1 ∪ {a, b}) :=
   letI := CWComplex.ofFiniteSet (C := {a, b}) (toFinite {a, b})
@@ -105,6 +106,7 @@ protected lemma finite_instIccLT' {a b : ℝ} (hab : a < b) :
   finite_attachCellFiniteType ..
 
 /-- A (non-degenerate) closed interval is a CW-complex. -/
+@[implicit_reducible]
 def instIccLT {a b : ℝ} (hab : a < b) : CWComplex (Icc a b : Set ℝ) :=
   letI := CWComplex.instIccLT' hab
   ofEq (mapLTPartial hab '' closedBall 0 1 ∪ {a, b})
@@ -273,6 +275,7 @@ instance finiteDimensional_instReal : FiniteDimensional (univ : Set ℝ) where
 /-! # Spheres in dimensions zero and one -/
 
 /-- The sphere in dimension zero is a CW-complex. -/
+@[implicit_reducible]
 def SphereZero (x : EuclideanSpace ℝ (Fin 0)) (ε : ℝ) (h : ε ≠ 0) : CWComplex (sphere x ε) :=
   letI := ofFiniteSet (X := EuclideanSpace ℝ (Fin 0)) finite_empty
   ofEq ∅ (E := (sphere x ε)) (sphere_eq_empty_of_subsingleton h).symm
@@ -291,6 +294,7 @@ lemma finite_SphereZero (x : EuclideanSpace ℝ (Fin 0)) (ε : ℝ) (h : ε ≠ 
   letI := finite_ofFiniteSet (X := EuclideanSpace ℝ (Fin 0)) finite_empty
   finite_ofEq ∅ (E := (sphere x ε)) (sphere_eq_empty_of_subsingleton h).symm
 
+
 /-- The CW-complex structure on the sphere in dimension 0 has no cells. This is an auxiliary lemma
   for `AuxSphereInduct`. -/
 lemma isEmpty_cell_SphereZero (x : EuclideanSpace ℝ (Fin 0)) (ε : ℝ) (h : ε ≠ 0)  :
@@ -298,9 +302,10 @@ lemma isEmpty_cell_SphereZero (x : EuclideanSpace ℝ (Fin 0)) (ε : ℝ) (h : �
     ∀ m, IsEmpty (cell (sphere x ε) m) := by
   intro m
   simp only [RelCWComplex.ofEq_cell]
-  cases m <;> (simp [RelCWComplex.mkFinite, PEmpty.instIsEmpty])
+  cases m <;> (simp [PEmpty.instIsEmpty, RelCWComplex.mkFinite_cell])
 
 /-- The sphere in dimension 1 is a CW-complex. -/
+@[implicit_reducible]
 def SphereOne (x ε : ℝ) (hε : ε ≥ 0) : CWComplex (sphere x ε) :=
   letI := ofFiniteSet (toFinite {x - ε, x + ε})
   (RelCWComplex.ofEq {x - ε, x + ε} ∅ (by
@@ -317,15 +322,13 @@ lemma SphereOne_cell {x ε : ℝ} {hε : ε ≥ 0} {n : ℕ} :
     letI := SphereOne x ε hε
     cell (sphere x ε) n = (match n with
         | 0 => ({x - ε, x + ε} : Set ℝ)
-        | (_ + 1) => PEmpty) := by
-  rw [SphereOne, cell_def, RelCWComplex.toCWComplex_cell, RelCWComplex.ofEq_cell]
+        | (_ + 1) => PEmpty) :=
   rfl
 
 lemma SphereOne_map {x ε : ℝ} {hε : ε ≥ 0}
     {i : ({x - ε, x + ε} : Set ℝ)} :
     letI := SphereOne x ε hε
-    map (C := sphere x ε) 0 ↑i = PartialEquiv.single ![] i.1 := by
-  simp_rw [map_def, SphereOne, RelCWComplex.toCWComplex, RelCWComplex.ofEq_map]
+    map (C := sphere x ε) 0 ↑i = PartialEquiv.single ![] i.1 :=
   rfl
 
 /-- The CW-complex structure on the sphere in dimension 1 in finite. -/
@@ -338,7 +341,7 @@ lemma finite_SphereOne (x ε : ℝ) (hε : ε ≥ 0) :
   exact RelCWComplex.finite_ofEq ..
 
 /-- The sphere as a CW-complex in `ℝ` with the euclidean metric. -/
-@[simps! -isSimp]
+@[simps! -isSimp, implicit_reducible]
 def SphereOneEuclidean (ε : ℝ) (x : EuclideanSpace ℝ (Fin 1)) (hε : ε ≥ 0) :
     CWComplex (sphere x ε) :=
   letI := SphereOne (EuclideanUnique ℝ (Fin 1) x) ε hε
@@ -375,7 +378,7 @@ open Metric in
 def sphereToDisc' (n : ℕ) :=
   letI : Fact (Module.finrank ℝ (EuclideanSpace ℝ (Fin (n + 1))) = n + 1) := {
     out := finrank_euclideanSpace_fin (𝕜 := ℝ) (n := n + 1)}
-  PartialHomeomorph.transHomeomorph
+  OpenPartialHomeomorph.transHomeomorph
     (stereographic'
       (E := EuclideanSpace ℝ (Fin (n + 1))) n ⟨EuclideanSpace.single (Fin.last n) 1, by simp⟩)
     Homeomorph.unitBall
@@ -401,7 +404,7 @@ def sphereToDisc (n : ℕ) :
     have hy2 := (sphereToDisc' n).map_target'
     simp only [sphereToDisc'_source, sphereToDisc'_target, PartialEquiv.invFun_as_coe] at hy2
     specialize hy2 (x := ⟨y, hy⟩) (mem_univ _)
-    simp only [PartialHomeomorph.coe_coe_symm, mem_compl_iff, mem_singleton_iff] at hy2
+    simp only [OpenPartialHomeomorph.coe_coe_symm, mem_compl_iff, mem_singleton_iff] at hy2
     simp only [mem_diff, mem_singleton_iff]
     constructor
     · exact Subtype.coe_prop ((sphereToDisc' n).symm ⟨y, of_eq_true (eq_true hy)⟩)
@@ -471,8 +474,7 @@ lemma tendsto_sphereToDisc_symm {n : ℕ} (hn : n > 0) (x : EuclideanSpace ℝ (
     exists_pair_ne := by
       use 0, (EuclideanSpace.single (⟨0, Nat.zero_lt_of_lt hn⟩ : Fin n) 1)
       intro h
-      replace h := congrFun h ⟨0, Nat.zero_lt_of_lt hn⟩
-      simp_all}
+      simpa using congrArg Norm.norm h}
   suffices Filter.Tendsto (↑(sphereToDisc n).symm ∘  Subtype.val)
       (Filter.comap (α := ball 0 1) Subtype.val (nhdsWithin x (ball 0 1)))
       (nhds (EuclideanSpace.single (Fin.last n) 1)) by
@@ -487,7 +489,7 @@ lemma tendsto_sphereToDisc_symm {n : ℕ} (hn : n > 0) (x : EuclideanSpace ℝ (
     rfl
   nth_rw 9 [← this]
   rw [comap_nhdsWithin_range]
-  simp only [sphereToDisc', PartialHomeomorph.transHomeomorph_symm_apply]
+  simp only [sphereToDisc', OpenPartialHomeomorph.transHomeomorph_symm_apply]
   rw [← Filter.tendsto_comap_iff]
   have : EuclideanSpace.single (Fin.last n) 1 = Subtype.val
       (⟨(EuclideanSpace.single (Fin.last n) 1), by simp⟩ :
@@ -511,7 +513,7 @@ lemma sphereToDisc_symm_continuousOn {n : ℕ} (hn : n > 0) :
       apply Continuous.congr (f := Subtype.val ∘ (sphereToDisc' n).symm)
       · apply continuous_subtype_val.comp
         have := (sphereToDisc' n).continuousOn_invFun
-        simp only [PartialEquiv.invFun_as_coe, PartialHomeomorph.coe_coe_symm,
+        simp only [PartialEquiv.invFun_as_coe, OpenPartialHomeomorph.coe_coe_symm,
           sphereToDisc'_target] at this
         exact continuousOn_univ.mp this
       · simp only [sphereToDisc]
@@ -569,7 +571,7 @@ def spheremap (n : ℕ) : PartialEquiv (Fin n → ℝ) (EuclideanSpace ℝ (Fin 
 
 /-- The sphere in dimension at least 1 is a CW-complex. This is an auxiliary version of
   `instSphereGT` where the set is presented in a nicer way. -/
-@[simps! -isSimp]
+@[simps! -isSimp, implicit_reducible]
 def instSphereGT' (n : ℕ) (h : n > 0) :
     CWComplex ((spheremap n) '' closedBall 0 1 ∪ {EuclideanSpace.single (Fin.last n) 1}) :=
   letI := ofFiniteSet
@@ -628,7 +630,7 @@ lemma finite_instSphereGT' (n : ℕ) (h : n > 0) :
   finite_attachCellFiniteType ..
 
 /-- The sphere in dimension at least 1 is a CW-complex. -/
-@[simps! -isSimp]
+@[simps! -isSimp, implicit_reducible]
 def instSphereGT (n : ℕ) (h : n > 0) :
     CWComplex (sphere 0 1 : Set (EuclideanSpace ℝ (Fin (n + 1)))) :=
   letI := instSphereGT' n h
@@ -638,7 +640,7 @@ def instSphereGT (n : ℕ) (h : n > 0) :
       simp only [spheremap, Equiv.transPartialEquiv_apply, Homeomorph.coe_toEquiv, ← image_image,
         toEuclideanNormScale_image_closedBall, sphereToDisc_symm_image_closedBall n h,
         union_eq_left, singleton_subset_iff, mem_sphere_iff_norm, sub_zero,
-        EuclideanSpace.norm_single, norm_one])
+        PiLp.norm_single, norm_one])
 
 /-- The CW-complex structure on the sphere in dimension at least 1 is finite. -/
 lemma finite_instSphereGT (n : ℕ) (h : n > 0) :
@@ -695,8 +697,8 @@ example : CWComplex
 @[simps -isSimp]
 def discToSphereUp (n : ℕ) :
     PartialEquiv (EuclideanSpace ℝ (Fin n)) (EuclideanSpace ℝ (Fin (n + 1))) where
-  toFun := fun x ↦ Fin.snoc x (√(1 - ‖x‖ ^ 2))
-  invFun := Fin.init
+  toFun := fun x ↦ WithLp.toLp 2 (Fin.snoc x (√(1 - ‖x‖ ^ 2)))
+  invFun := WithLp.toLp 2 ∘ Fin.init ∘ WithLp.ofLp
   source := ball 0 1
   target := sphere 0 1 ∩ {x | x (Fin.last n) > 0}
   map_source' x hx := by
@@ -705,7 +707,7 @@ def discToSphereUp (n : ℕ) :
       rw [mem_sphere_iff_norm, sub_zero, ← sq_eq_sq₀ (norm_nonneg _) zero_le_one, one_pow,
         EuclideanSpace.norm_eq, Real.sq_sqrt (Finset.sum_nonneg (fun _ _ ↦ sq_nonneg _)),
         Fin.sum_univ_castSucc]
-      simp only [Fin.snoc, Fin.coe_castSucc, Fin.is_lt, ↓reduceDIte, Fin.castLT_castSucc, cast_eq,
+      simp only [Fin.snoc, Fin.val_castSucc, Fin.is_lt, ↓reduceDIte, Fin.castLT_castSucc, cast_eq,
         Real.norm_eq_abs, sq_abs, Fin.val_last, lt_self_iff_false]
       rw [Real.sq_sqrt (by simp_all [hx.le]),
         ← Real.sq_sqrt (Finset.sum_nonneg (fun _ _ ↦ sq_nonneg _))]
@@ -723,9 +725,9 @@ def discToSphereUp (n : ℕ) :
   right_inv' y := by
     intro ⟨hy1, hy2⟩
     simp_all
-    suffices √(1 - norm (Fin.init y) (self := (PiLp.instNorm 2 fun x ↦ ℝ)) ^ 2) = y (Fin.last n) by
+    suffices √(1 - ‖WithLp.toLp 2 (Fin.init y.ofLp)‖ ^ 2) = y (Fin.last n) by
       rw [this, Fin.snoc_init_self]
-    have : norm (Fin.init y) (self := (PiLp.instNorm 2 fun x ↦ ℝ)) ≤ 1 := by
+    have : ‖WithLp.toLp 2 (Fin.init y.ofLp)‖ ≤ 1 := by
       rw [← hy1]
       exact EuclideanSpace.norm_finInit_le y
     rw [← sq_eq_sq₀ (Real.sqrt_nonneg _) hy2.le, Real.sq_sqrt (by simp_all), EuclideanSpace.norm_eq,
@@ -736,15 +738,12 @@ def discToSphereUp (n : ℕ) :
     rfl
 
 /-- `discToSphereUp` is continuous. -/
-lemma continuous_discToSphereUp (n : ℕ) : Continuous (discToSphereUp n) := by
-  simp only [discToSphereUp]
-  apply Continuous.finSnoc
-  · exact continuous_id'
-  · continuity
+lemma continuous_discToSphereUp (n : ℕ) : Continuous (discToSphereUp n) :=
+  (PiLp.continuous_toLp 2 _).comp' (Continuous.finSnoc (PiLp.continuous_ofLp 2 _) (by continuity))
 
 /-- The inverse of `discToSphereUp` is continuous. -/
 lemma continuous_discToSphereUp_symm (n : ℕ) : Continuous (discToSphereUp n).symm :=
-  continuous_id.finInit
+  (PiLp.continuous_toLp 2 _).comp (PiLp.continuous_ofLp 2 _).finInit
 
 /-- The image of the sphere in dimension `n` under `discToSphereUp` is the 'equator' of the
   sphere in dimension `n + 1`, i.e. the sphere intersected with the hyperplane where the last
@@ -764,12 +763,12 @@ lemma discToSphereUp_image_sphere (n : ℕ) :
       add_zero]
     rw [← EuclideanSpace.norm_eq, hy1]
   · intro ⟨h1, h2⟩
-    use Fin.init x
+    use WithLp.toLp 2 (Fin.init x)
     simp only [EuclideanSpace.norm_eq, Fin.sum_univ_castSucc, h2, Real.norm_eq_abs (r := 0),
       sq_abs, ne_eq, OfNat.ofNat_ne_zero, not_false_eq_true, zero_pow, add_zero] at h1
     simp only [EuclideanSpace.norm_eq, Fin.init, h1, discToSphereUp,
       one_pow, sub_self, Real.sqrt_zero, true_and]
-    simp only [← h2, Fin.snoc_init_self]
+    simp [← h2]
 
 /-- The image of the closed ball in dimension `n` under `discToSphereUp` is the
   upper hemisphere of the sphere in dimenion `n + 1`. -/
@@ -790,14 +789,16 @@ lemma discToSphereUp_image_closedBall (n : ℕ) :
       simp only [EuclideanSpace.norm_eq, Real.norm_eq_abs, sq_abs,
         (∑ x : Fin n, y x ^ 2).sq_sqrt (Finset.sum_nonneg' (fun i ↦ sq_nonneg (y i))),
         add_sub_cancel]
-    · simp [← hy2, discToSphereUp_apply]
+    · simp [← hy2, discToSphereUp_apply_ofLp]
   · intro ⟨h1, h2⟩
-    use Fin.init x
+    use WithLp.toLp 2 (Fin.init x)
     simp only [EuclideanSpace.norm_eq, Fin.sum_univ_castSucc, Real.sqrt_eq_one] at h1
     symm at h1
-    rw [← sub_eq_iff_eq_add', ← Real.sq_sqrt (Finset.sum_nonneg' (fun i ↦ sq_nonneg _)),
-      ← EuclideanSpace.norm_eq, Real.norm_eq_abs, sq_abs] at h1
-    change 1 - (norm (E := EuclideanSpace ℝ (Fin n)) (Fin.init x)) ^ 2 = x (Fin.last n) ^ 2 at h1
+    rw [← sub_eq_iff_eq_add', ← Real.sq_sqrt (Finset.sum_nonneg' (fun i ↦ sq_nonneg _))] at h1
+    change 1 - √(∑ (i : Fin n), ‖(x.map 2 (· ∘ Fin.castSucc)).ofLp i‖ ^ 2) ^ 2
+      = ‖x.ofLp (Fin.last n)‖ ^ 2 at h1
+    rw [← EuclideanSpace.norm_eq,  Real.norm_eq_abs, sq_abs] at h1
+    change 1 - (‖WithLp.toLp 2 (Fin.init x)‖ ) ^ 2 = x (Fin.last n) ^ 2 at h1
     constructor
     · rw [sub_eq_iff_eq_add', ← sub_eq_iff_eq_add] at h1
       rw [mem_closedBall, dist_zero_right, ← sq_le_sq₀ (norm_nonneg _) zero_le_one, one_pow, ← h1]
@@ -836,7 +837,7 @@ def spheremapup (n : ℕ) := (toEuclideanNormScale n).transPartialEquiv (discToS
   the sphere in dimension `n + 1`. -/
 lemma spheremapup_image_closedBall (n : ℕ) :
     spheremapup n '' closedBall 0 1 = sphere 0 1 ∩ {x | x (Fin.last n) ≥ 0} := by
-  simp [← image_image]
+  simp [spheremapup, ← image_image]
 
 /-- This is an auxiliary definition for the lower characteristic map of the sphere. -/
 @[simps!]
@@ -846,10 +847,11 @@ def spheremapdown (n : ℕ) := (toEuclideanNormScale n).transPartialEquiv (discT
   the sphere in dimension `n + 1`. -/
 lemma spheremapdown_image_closedBall (n : ℕ) :
     spheremapdown n '' closedBall 0 1 = sphere 0 1 ∩ {x | x (Fin.last n) ≤ 0} := by
-  simp only [spheremapdown_apply, ← image_image, toEuclideanNormScale_image_closedBall,
-    discToSphereUp_image_closedBall, ge_iff_le,
-    image_inter (LinearIsometryEquiv.negLast n).injective, LinearIsometryEquiv.image_sphere,
-    map_zero]
+  simp only [spheremapdown, discToSphereDown, Equiv.transPartialEquiv_apply, Homeomorph.coe_toEquiv,
+    PartialEquiv.transEquiv_apply, LinearEquiv.coe_toEquiv, LinearIsometryEquiv.coe_toLinearEquiv,
+    ← image_image, toEuclideanNormScale_image_closedBall, discToSphereUp_image_closedBall,
+    ge_iff_le, image_inter (LinearIsometryEquiv.negLast n).injective,
+    LinearIsometryEquiv.image_sphere, map_zero]
   congr
   · ext x
     simp [mem_image, mem_setOf_eq]
@@ -888,9 +890,11 @@ lemma spheremaps_source (n : ℕ) (i : Fin 2) : (spheremaps n i).source = ball 0
 lemma spheremaps_image_sphere (n : ℕ) (i : Fin 2) :
     (spheremaps n i) '' sphere 0 1 = (sphere 0 1) ∩ {x | x (Fin.last n) = 0} :=
   match i with
-  | 0 => by simp [spheremaps, ← image_image]
+  | 0 => by simp [spheremaps, spheremapup, ← image_image]
   | 1 => by
-    simp only [spheremaps, spheremapdown_apply, ← image_image, toEuclideanNormScale_image_sphere,
+    simp only [spheremaps, spheremapdown, discToSphereDown, Equiv.transPartialEquiv_apply,
+      Homeomorph.coe_toEquiv, PartialEquiv.transEquiv_apply, LinearEquiv.coe_toEquiv,
+      LinearIsometryEquiv.coe_toLinearEquiv, ← image_image, toEuclideanNormScale_image_sphere,
       discToSphereUp_image_sphere]
     ext x
     simp only [mem_image, mem_inter_iff, mem_sphere_iff_norm, sub_zero, mem_setOf_eq]
@@ -927,6 +931,7 @@ lemma continuous_spheremaps_symm (n : ℕ) (i : Fin 2) : Continuous (spheremaps 
 /-- The 'equator' of the sphere in dimension `n + 1` receives a natural CW-complex structure from
   a CW-complex structure on the sphere in dimension `n`. -/
 --@[simps!? -isSimp]
+@[implicit_reducible]
 def sphereEmbed (n : ℕ) [CWComplex (sphere (0 : EuclideanSpace ℝ (Fin n)) 1)] :
     CWComplex (sphere 0 1 ∩ {x | x (Fin.last n) = 0} : Set (EuclideanSpace ℝ (Fin (n + 1)))) :=
   ofPartialEquiv (X := EuclideanSpace ℝ (Fin n)) (Y := EuclideanSpace ℝ (Fin (n + 1)))
@@ -977,7 +982,7 @@ lemma isEmpty_cell_sphereEmbed (n : ℕ) [CWComplex (sphere (0 : EuclideanSpace 
 /-**Comment**: We can now show that the actual induction step works. -/
 
 /-- An auxiliary version of `SphereInductStep` where the set is presented in a nicer way. -/
-@[simps! -isSimp]
+@[simps! -isSimp, implicit_reducible]
 def SphereInductStep' (n : ℕ) [CWComplex (sphere (0 : EuclideanSpace ℝ (Fin n)) 1)]
     [Finite (sphere (0 : EuclideanSpace ℝ (Fin n)) 1)]
     (h : ∀ m ≥ n, IsEmpty (cell (sphere (0 : EuclideanSpace ℝ (Fin n)) 1) m)) :
@@ -1109,7 +1114,7 @@ lemma isEmpty_cell_SphereInductStep' (n : ℕ)
 
 /-- If the sphere in dimension `n` is a finite CW-complex that has no cells in dimension
   `n` or higher, then the sphere in dimension `n + 1` is a CW-complex. -/
-@[simps! -isSimp]
+@[simps! -isSimp, implicit_reducible]
 def SphereInductStep (n : ℕ) [CWComplex (sphere (0 : EuclideanSpace ℝ (Fin n)) 1)]
     [Finite (sphere (0 : EuclideanSpace ℝ (Fin n)) 1)]
     (h : ∀ m ≥ n, IsEmpty (cell (sphere (0 : EuclideanSpace ℝ (Fin n)) 1) m)) :
@@ -1167,7 +1172,6 @@ lemma isEmpty_cell_SphereInductStep (n : ℕ)
     ∀ m ≥ n + 1, IsEmpty (cell (sphere (0 : EuclideanSpace ℝ (Fin (n + 1))) 1) m) := by
   letI := SphereInductStep n h
   intro m hm
-  simp only [SphereInductStep, RelCWComplex.ofEq_cell]
   exact isEmpty_cell_SphereInductStep' n h m hm
 
 /-**Comment**:
@@ -1191,6 +1195,7 @@ def SphereInduct' (n : ℕ) :
 
 /-- The unit sphere is a CW-complex. This construction uses two cells in each dimension. See
   `instSphere` for an alternative construction. -/
+@[implicit_reducible]
 def SphereInduct (n : ℕ) : CWComplex (sphere (0 : EuclideanSpace ℝ (Fin n)) 1) :=
   SphereInduct' n
 
