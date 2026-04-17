@@ -1,10 +1,11 @@
+module
 -- need `skeletonLT_eq`
-import CWcomplexes.RelSubcomplex
+public import CWcomplexes.RelSubcomplex
 --import Mathlib.Topology.CWComplex.Classical.Subcomplex
-import Mathlib.Topology.OpenPartialHomeomorph.Constructions
-import Mathlib.Data.Setoid.Partition
+public import Mathlib.Topology.OpenPartialHomeomorph.Constructions
+public import Mathlib.Data.Setoid.Partition
 
-noncomputable section
+@[expose] public noncomputable section
 
 open Metric Set Function
 

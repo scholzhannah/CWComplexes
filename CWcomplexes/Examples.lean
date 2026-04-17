@@ -1,7 +1,9 @@
-import Mathlib.Analysis.Normed.Module.Ball.Homeomorph
-import Mathlib.Geometry.Manifold.Instances.Sphere
-import CWcomplexes.Auxiliary
-import CWcomplexes.RelConstructions
+module
+
+public import Mathlib.Analysis.Normed.Module.Ball.Homeomorph
+public import Mathlib.Geometry.Manifold.Instances.Sphere
+public import CWcomplexes.Auxiliary
+public import CWcomplexes.RelConstructions
 
 /-!
 # Examples of CW-complexes
@@ -13,7 +15,8 @@ In this file we present some examples of CW-complexes:
 * `instIcc`: The interval `Icc a b` in `ℝ` is a CW-complex.
 * `instReal`: The real numbers are a CW-complex.
 -/
-noncomputable section
+
+@[expose] public noncomputable section
 
 open Metric Set
 

@@ -1,5 +1,7 @@
-import Mathlib.Topology.CWComplex.Classical.Subcomplex
-import Mathlib.Analysis.Normed.Module.RCLike.Real
+module
+
+public import Mathlib.Topology.CWComplex.Classical.Subcomplex
+public import Mathlib.Analysis.Normed.Module.RCLike.Real
 
 /-!
 # Subcomplexes
@@ -19,7 +21,7 @@ In this file we discuss subcomplexes of CW-complexes.
 * [K. Jänich, *Topology*]
 -/
 
-noncomputable section
+public noncomputable section
 
 open Metric Set
 
@@ -29,7 +31,7 @@ variable {X : Type*} [t : TopologicalSpace X] {C D : Set X}
 
 section Lattice
 
-@[simps -isSimp]
+@[expose, simps -isSimp]
 protected def RelCWComplex.Subcomplex.sup [RelCWComplex C D] (E F : Subcomplex C) :
     Subcomplex C where
   carrier := E ∪ F
@@ -39,7 +41,7 @@ protected def RelCWComplex.Subcomplex.sup [RelCWComplex C D] (E F : Subcomplex C
     simp [mem_union, iUnion_or, iUnion_union_distrib, ← union, ← union_assoc _ D, union_comm,
       union_assoc]
 
-@[simps -isSimp]
+@[expose, simps -isSimp]
 protected def RelCWComplex.Subcomplex.inf [RelCWComplex C D] (E F : Subcomplex C) :
     Subcomplex C where
   carrier := E ∩ F
@@ -95,7 +97,7 @@ instance RelCWComplex.Subcomplex.instDistribLattice [RelCWComplex C D] :
     }
 
 /-- Auxiliary definition used to define `top` in `Subcomplex C`. -/
-@[simps -isSimp]
+@[expose, simps -isSimp]
 protected def RelCWComplex.Subcomplex.top' [T2Space X] [RelCWComplex C D] : Subcomplex C where
   carrier := C
   I n := univ
@@ -103,7 +105,7 @@ protected def RelCWComplex.Subcomplex.top' [T2Space X] [RelCWComplex C D] : Subc
   union' := by simp [← union_iUnion_openCell_eq_complex]
 
 /-- Auxiliary definition used to define `bot` in `Subcomplex C`. -/
-@[simps -isSimp]
+@[expose, simps -isSimp]
 protected def RelCWComplex.Subcomplex.bot' [RelCWComplex C D] : Subcomplex C where
   carrier := D
   I n := ∅
@@ -111,7 +113,7 @@ protected def RelCWComplex.Subcomplex.bot' [RelCWComplex C D] : Subcomplex C whe
   union' := by simp
 
 /-- Auxiliary definition used to define `sSup` in `Subcomplex C`. -/
-@[simps! -isSimp]
+@[expose, simps! -isSimp]
 protected def RelCWComplex.Subcomplex.sSup' [T2Space X] [RelCWComplex C D]
     (S : Set (Subcomplex C)) : Subcomplex C :=
   mk' C (D ∪ ⋃ (E ∈ S), E) (fun n ↦ ⋃ (E ∈ S), E.I n)
@@ -141,7 +143,7 @@ protected def RelCWComplex.Subcomplex.sSup' [T2Space X] [RelCWComplex C D]
       · simp_all)
 
 /-- Auxiliary definition used to define `sInf` in `Subcomplex C`. -/
-@[simps -isSimp]
+@[expose, simps -isSimp]
 protected def RelCWComplex.Subcomplex.sInf' [T2Space X] [RelCWComplex C D]
     (S : Set (Subcomplex C)) : Subcomplex C where
   carrier := C ∩ ⋂ (E ∈ S), E
@@ -172,7 +174,7 @@ protected def RelCWComplex.Subcomplex.sInf' [T2Space X] [RelCWComplex C D]
         mem_univ, iUnion_true, iInter_coe_set, inter_univ]
       exact union_iUnion_openCell_eq_complex
 
-@[simps! -isSimp]
+@[expose, simps! -isSimp]
 protected def RelCWComplex.Subcomplex.CompletelyDistribLattice.MinimalAxioms [T2Space X]
     [RelCWComplex C D] : CompletelyDistribLattice.MinimalAxioms (Subcomplex C) :=
   { sSup := Topology.RelCWComplex.Subcomplex.sSup'
@@ -412,7 +414,7 @@ def RelCWComplex.Subcomplex.attachBase [T2Space X] [RelCWComplex C D] (n : ℕ) 
 lemma RelCWComplex.Subcomplex.attachBase_I [T2Space X] [RelCWComplex C D] (n : ℕ)
     (i : cell C n) (hD : cellFrontier n i ⊆ D) (m : ℕ) :
     (attachBase n i hD).I m = {x | HEq (⟨m, x⟩ : Σ m, cell C m) (⟨n, i⟩ : Σ n, cell C n)} :=
-  rfl
+  (rfl)
 
 lemma RelCWComplex.Subcomplex.finite_attachBase [T2Space X] [RelCWComplex C D] (n : ℕ)
     (i : cell C n) (hD: cellFrontier n i ⊆ D) :
@@ -441,9 +443,12 @@ lemma RelCWComplex.Subcomplex.finite_attachBase [T2Space X] [RelCWComplex C D] (
         intro c eq
         contradiction
 
-@[simps! -isSimp]
 def RelCWComplex.Subcomplex.cellZero [T2Space X] [RelCWComplex C D] (i : cell C 0) :
   Subcomplex C := attachBase 0 i (by simp [cellFrontier_zero_eq_empty])
+
+lemma RelCWComplex.Subcomplex.cellZero_eq [T2Space X] [RelCWComplex C D] (i : cell C 0) :
+    cellZero i = attachBase 0 i (by simp [cellFrontier_zero_eq_empty]) := by
+  rfl
 
 @[simps]
 instance CWComplex.Subcomplex.cellZero [T2Space X] [CWComplex C] (i : cell C 0) :
@@ -596,7 +601,7 @@ lemma CWComplex.Subcomplex.attachCell_I [T2Space X] [CWComplex C] (n : ℕ)
       cellFrontier n i ⊆ ⋃ m, ⋃ (_ : m < n), ⋃ j ∈ I m, closedCell m j)
     (l : ℕ) :
     (attachCell n i E subset).I l =
-    {j | j ∈ E.I l ∨ (⟨l, j⟩ : Σ n, cell C n) = ⟨n, i⟩} :=
+    {j | j ∈ E.I l ∨ (⟨l, j⟩ : Σ n, cell C n) = ⟨n, i⟩} := by
   rfl
 
 lemma RelCWComplex.Subcomplex.finiteDimensional_attachCell [T2Space X] [RelCWComplex C D] (n : ℕ)
@@ -683,8 +688,7 @@ lemma RelCWComplex.Subcomplex.cell_mem_finite_subcomplex [T2Space X] [RelCWCompl
     simp only [nonempty_sigma, nonempty_subtype, Subtype.exists]
     have :
         ∃ x, x ∈ cellFrontier n.succ i ∩ ⋃ m, ⋃ (_ : m < n.succ), ⋃ j ∈ I m, closedCell m j := by
-      by_contra h'
-      push_neg at h'
+      by_contra! h'
       apply h
       intro x xmem
       rcases hI xmem with xmem' | xmem'

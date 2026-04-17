@@ -1,7 +1,9 @@
-import CWcomplexes.RelConstructions
-import CWcomplexes.RelSubcomplex
-import CWcomplexes.KSpace
-import Mathlib.Topology.Sets.Compacts
+module
+
+public import CWcomplexes.RelConstructions
+public import CWcomplexes.RelSubcomplex
+public import CWcomplexes.CompactCoherentification
+public import Mathlib.Topology.Sets.Compacts
 
 /-!
 # Lemmas about CW-complexes
@@ -19,6 +21,8 @@ In this file we proof some lemmas about CW-complexes such as:
 ## References
 * [A. Hatcher, *Algebraic Topology*]
 -/
+
+public noncomputable section
 
 open Metric Set
 
@@ -95,7 +99,7 @@ lemma RelCWComplex.inter_skeletonLT_succ_isClosed_iff
       exact (closed2 _).inter (isClosed_skeletonLT _)
     left
     have : n.succ ≤ m := by
-      push_neg at msuccltn msucceqn
+      push Not at msuccltn msucceqn
       exact msuccltn.lt_of_ne msucceqn.symm
     rw [inter_assoc, (disjoint_skeletonLT_openCell (by gcongr)).inter_eq, inter_empty]
     exact isClosed_empty
@@ -193,8 +197,7 @@ lemma RelCWComplex.compact_inter_finite [RelCWComplex C D] (A : Set X) (compact 
     · suffices Subtype.val '' s ∩ D = ∅ by
         rw [this]
         exact isClosed_empty
-      by_contra h
-      push_neg at h
+      by_contra! h
       rw [inter_nonempty_iff_exists_left] at h
       rcases h with ⟨x, hx1, hx2⟩
       replace hx1 := (Subtype.coe_image_subset P s) hx1
@@ -412,15 +415,16 @@ instance RelCWComplex.finiteDimensional_instskeletonLT_of_nat [RelCWComplex C D]
     simp only [Subcomplex.cell_def, isEmpty_subtype, Filter.eventually_atTop, ge_iff_le]
     use n
     intro b hnb x
-    simp [ skeletonLT_I, ENat.coe_le_coe, hnb]
+    simp [ skeletonLT_I, hnb]
 
 instance RelCWComplex.finiteDimensional_instskeleton_of_nat [RelCWComplex C D] [FiniteDimensional C]
     (n : ℕ) : FiniteDimensional (skeleton C n : Set X) :=
   finiteDimensional_instskeletonLT_of_nat _
 
 @[implicit_reducible]
-def RelCWComplex.kSpace [RelCWComplex (univ: Set X) D] (hD : IsCompact D) : KSpace X := by
-  apply KSpace.of_isClosed
+def RelCWComplex.compactlyCoherentSpace [RelCWComplex (univ: Set X) D] (hD : IsCompact D) :
+    CompactlyCoherentSpace X := by
+  apply CompactlyCoherentSpace.of_isClosed
   intro A hA
   rw [closed univ A A.subset_univ]
   constructor
@@ -432,8 +436,8 @@ def RelCWComplex.kSpace [RelCWComplex (univ: Set X) D] (hD : IsCompact D) : KSpa
     apply hA
     exact hD
 
-instance CWComplex.instKSpace [CWComplex (univ : Set X)] : KSpace X := by
-  exact RelCWComplex.kSpace isCompact_empty
+instance CWComplex.instKSpace [CWComplex (univ : Set X)] : CompactlyCoherentSpace X :=
+  RelCWComplex.compactlyCoherentSpace isCompact_empty
 
 namespace CWComplex
 

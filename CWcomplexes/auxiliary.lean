@@ -1,6 +1,8 @@
-import Mathlib.Analysis.InnerProductSpace.EuclideanDist
-import Mathlib.Geometry.Manifold.Instances.Sphere
-import Mathlib.Analysis.Polynomial.Basic
+module
+
+public import Mathlib.Analysis.InnerProductSpace.EuclideanDist
+public import Mathlib.Geometry.Manifold.Instances.Sphere
+public import Mathlib.Analysis.Polynomial.Basic
 
 /-!
 # Auxiliary lemmas and definitions
@@ -10,13 +12,29 @@ to CW-complexes.
 They are sorted by topics.
 -/
 
-noncomputable section
+@[expose] public noncomputable section
 
 /-! ### Basic logic and set theory-/
 
 /-! ### Topology -/
 
 /-! ### PartialEquiv-/
+
+lemma PartialEquiv.coe_transEquiv {α β γ : Type*} {f : PartialEquiv α β} {g : β ≃ γ} :
+    f.transEquiv g = g ∘ f :=
+  rfl
+
+lemma PartialEquiv.coe_transEquiv_symm {α β γ : Type*} {f : PartialEquiv α β} {g : β ≃ γ} :
+    (f.transEquiv g).symm = f.symm ∘ g.symm :=
+  rfl
+
+lemma Equiv.coe_transPartialEquiv {α β γ : Type*} {f : α ≃ β} {g : PartialEquiv β γ} :
+    f.transPartialEquiv g = g ∘ f :=
+  rfl
+
+lemma Equiv.coe_transPartialEquiv_symm {α β γ : Type*} {f : α ≃ β} {g : PartialEquiv β γ} :
+    (f.transPartialEquiv g).symm = f.symm ∘ g.symm :=
+  rfl
 
 --**PR**
 -- needed in this file

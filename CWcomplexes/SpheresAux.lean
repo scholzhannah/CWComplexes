@@ -1,12 +1,14 @@
-import Mathlib.Analysis.Normed.Group.Basic
-import Mathlib.Data.EReal.Inv
-import Mathlib.Data.Real.Sqrt
-import Mathlib.Geometry.Manifold.Instances.Sphere
-import CWcomplexes.Auxiliary
-import CWcomplexes.RelConstructions
-import Mathlib.Data.Fin.Tuple.Take
+module
 
-noncomputable section
+public import Mathlib.Analysis.Normed.Group.Basic
+public import Mathlib.Data.EReal.Inv
+public import Mathlib.Data.Real.Sqrt
+public import Mathlib.Geometry.Manifold.Instances.Sphere
+public import CWcomplexes.Auxiliary
+public import CWcomplexes.RelConstructions
+public import Mathlib.Data.Fin.Tuple.Take
+
+@[expose] public noncomputable section
 
 open Metric Set
 

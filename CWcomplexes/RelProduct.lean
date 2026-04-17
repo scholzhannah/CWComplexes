@@ -1,5 +1,7 @@
-import CWcomplexes.RelLemmas
-import Mathlib.Data.Finset.NatAntidiagonal
+module
+
+public import CWcomplexes.RelLemmas
+public import Mathlib.Data.Finset.NatAntidiagonal
 
 /-!
 # The product of CW-complexes
@@ -13,9 +15,9 @@ In this file we proof the following two statements:
 ## References
 [A. Hatcher, *Algebraic Topology*]
 -/
-noncomputable section
+public noncomputable section
 
-open Metric Set Set.Notation KSpace
+open Metric Set Set.Notation CompactlyCoherentSpace
 
 namespace Topology
 
@@ -44,14 +46,14 @@ def RelCWComplex.prodCellEquiv (C : Set X) {D : Set X} (E : Set Y) {F : Set Y} [
 -- PR this more generally
 
 /-- The natural `IsometryEquiv` `(Fin n → ℝ) ≃ᵢ (Fin m → ℝ) × (Fin l → ℝ)` when `n = m + l`. -/
-@[simps! -isSimp]
+@[expose, simps! -isSimp]
 def RelCWComplex.prodIsometryEquiv {n m l : ℕ} (hmln : m + l = n) :
     (Fin n → ℝ) ≃ᵢ (Fin m → ℝ) × (Fin l → ℝ) :=
   (IsometryEquiv.piCongrLeft (Y := fun _ ↦ ℝ) (finCongr hmln.symm)).trans
   ((Fin.appendIsometry m l).symm)
 
 /-- The characterstic maps of the product of CW-complexes. -/
-@[simps! -isSimp]
+@[expose, simps! -isSimp]
 def RelCWComplex.prodMap [RelCWComplex C D] [RelCWComplex E F] {n : ℕ} (e : prodCell C E n) :
     PartialEquiv (Fin n → ℝ) (X × Y) :=
   (prodIsometryEquiv e.hml).transPartialEquiv
@@ -112,8 +114,8 @@ variable [T2Space X] [T2Space Y]
 /-- If `C` and `E` are CW-complexes in `X` and `Y` relative to `D` and `F`,
   and `X × Y` is a k-space, then `C ×ˢ D` is a CW-complex relative to `D ×ˢ E ∪ C ×ˢ F`. -/
 @[simps]
-instance RelCWComplex.Product [RelCWComplex C D] [RelCWComplex E F] [KSpace (X × Y)] :
-    RelCWComplex (C ×ˢ E) (D ×ˢ E ∪ C ×ˢ F) where
+instance RelCWComplex.Product [RelCWComplex C D] [RelCWComplex E F]
+    [CompactlyCoherentSpace (X × Y)] : RelCWComplex (C ×ˢ E) (D ×ˢ E ∪ C ×ˢ F) where
   cell n := prodCell C E n
   map n i := prodMap i
   source_eq n i := by
@@ -150,10 +152,9 @@ instance RelCWComplex.Product [RelCWComplex C D] [RelCWComplex E F] [KSpace (X �
       rcases this with ne1 | ne2
       · exact Or.intro_left _ (disjoint_openCell_of_ne ne1).inter_eq
       · exact Or.intro_right _ (disjoint_openCell_of_ne ne2).inter_eq
-    by_contra h
-    push_neg at h
+    by_contra! h
     apply ne
-    aesop
+    grind
   disjointBase' n := by
     intro ⟨m, l, hml, i, j⟩
     simp [prodMap_image_ball, disjoint_iff_inter_eq_empty, inter_union_distrib_left,
@@ -220,7 +221,7 @@ instance RelCWComplex.Product [RelCWComplex C D] [RelCWComplex E F] [KSpace (X �
       use i, imem
   closed' A Asub := by
     intro ⟨hA, hbase⟩
-    rw [KSpace.isClosed_iff]
+    rw [isClosed_iff]
     intro K hK
     suffices IsClosed (A ∩ K) by
       rw [← Subtype.preimage_coe_inter_self]
@@ -310,11 +311,11 @@ instance RelCWComplex.Product [RelCWComplex C D] [RelCWComplex E F] [KSpace (X �
 /-- If `C` and `E` are CW-complexes in `X` and `Y`, and `X × Y` is a k-space, then `C ×ˢ D` is a
   CW-complex. -/
 @[simps!]
-instance CWComplex.Product [CWComplex C] [CWComplex E] [KSpace (X × Y)] :
+instance CWComplex.Product [CWComplex C] [CWComplex E] [CompactlyCoherentSpace (X × Y)] :
     CWComplex (C ×ˢ E) :=
   (RelCWComplex.ofEq (C ×ˢ E) (∅ ×ˢ E ∪ C ×ˢ ∅) rfl (by simp)).toCWComplex
 
-instance RelCWComplex.finiteDimensional_product [KSpace (X × Y)] [RelCWComplex C D]
+instance RelCWComplex.finiteDimensional_product [CompactlyCoherentSpace (X × Y)] [RelCWComplex C D]
     [RelCWComplex E F] [FiniteDimensional C] [FiniteDimensional E] :
     FiniteDimensional (C ×ˢ E) where
   eventually_isEmpty_cell := by
@@ -333,12 +334,11 @@ instance RelCWComplex.finiteDimensional_product [KSpace (X × Y)] [RelCWComplex 
       rcases this with h | h
       · exact (hc m h).false j
       · exact (he l h).false k
-    by_contra h
-    push_neg at h
+    by_contra! h
     linarith
 
-instance RelCWComplex.finiteType_product [KSpace (X × Y)] [RelCWComplex C D] [RelCWComplex E F]
-    [FiniteType C] [FiniteType E] : FiniteType (C ×ˢ E) where
+instance RelCWComplex.finiteType_product [CompactlyCoherentSpace (X × Y)] [RelCWComplex C D]
+    [RelCWComplex E F] [FiniteType C] [FiniteType E] : FiniteType (C ×ˢ E) where
   finite_cell := by
     have hC := FiniteType.finite_cell (C := C) (D := D)
     have hD := FiniteType.finite_cell (C := E) (D := F)
@@ -354,55 +354,58 @@ instance RelCWComplex.finiteType_product [KSpace (X × Y)] [RelCWComplex C D] [R
       simp_all [f, PSigma.ext_iff]
     exact Finite.of_injective f hf
 
-instance CWComplex.finiteDimensional_product [KSpace (X × Y)] [CWComplex C] [CWComplex E]
-    [FiniteDimensional C] [FiniteDimensional E] : FiniteDimensional (C ×ˢ E) :=
+instance CWComplex.finiteDimensional_product [CompactlyCoherentSpace (X × Y)] [CWComplex C]
+    [CWComplex E] [FiniteDimensional C] [FiniteDimensional E] : FiniteDimensional (C ×ˢ E) :=
   letI := RelCWComplex.Product (C := C) (E := E)
   RelCWComplex.finiteDimensional_ofEq (C ×ˢ E) (∅ ×ˢ E ∪ C ×ˢ ∅) rfl (by simp)
 
-instance CWComplex.finiteType_product [KSpace (X × Y)] [CWComplex C] [CWComplex E]
+instance CWComplex.finiteType_product [CompactlyCoherentSpace (X × Y)] [CWComplex C] [CWComplex E]
     [FiniteType C] [FiniteType E] : FiniteType (C ×ˢ E) :=
   letI := RelCWComplex.Product (C := C) (E := E)
   RelCWComplex.finiteType_ofEq (C ×ˢ E) (∅ ×ˢ E ∪ C ×ˢ ∅) rfl (by simp)
 
 --set_option backward.isDefEq.respectTransparency true in
 --#defeq_abuse in
+open CompactCoherentification
+
+--set_option backward.isDefEq.respectTransparency true in
 /-- If `C` and `D` are CW-complexes in `X` and `Y` then `C ×ˢ D` is a CW-complex in the k-ification
   of `X × Y`. -/
 @[simps]
 instance RelCWComplex.ProductKification [RelCWComplex C D] [RelCWComplex E F] :
-    RelCWComplex (toKification (X × Y) '' C ×ˢ E) (toKification (X × Y) '' (D ×ˢ E ∪ C ×ˢ F)) where
+    RelCWComplex (CompactCoherentification.mk (X × Y) '' C ×ˢ E)
+      (CompactCoherentification.mk (X × Y) '' (D ×ˢ E ∪ C ×ˢ F)) where
   cell n := prodCell C E n
-  map n i := (prodMap i).transEquiv (toKification (X × Y))
-  source_eq _ _ := by
+  map n i := (prodMap i).transEquiv (CompactCoherentification.mk (X × Y))
+  source_eq n i := by
     ext x
     rw [PartialEquiv.transEquiv_source, prodMap_source, source_eq, source_eq, ball_prod_same,
       ← Prod.zero_eq_mk, mem_preimage, mem_ball, dist_zero_right, mem_ball, dist_zero_right,
       Isometry.norm_map_of_map_zero (by exact (prodIsometryEquiv _).isometry_toFun)]
     rfl
-  continuousOn _ _ := by
+  continuousOn n i := by
     simp only [prodMap, Equiv.transPartialEquiv_eq_trans, PartialEquiv.transEquiv_eq_trans,
       PartialEquiv.coe_trans, Equiv.toPartialEquiv_apply, PartialEquiv.prod_coe,
       IsometryEquiv.coe_toEquiv, ← Function.comp_assoc]
     refine ContinuousOn.image_comp_continuous ?_ (IsometryEquiv.continuous _)
     rw [IsometryEquiv.image_closedBall]
-    apply continuousOn_compact_to_kification
-      (by  exact isCompact_closedBall _ _)
+    rw [CompactCoherentification.continuousOn_mk_comp_iff_of_Compact (isCompact_closedBall _ _)]
     rw [← closedBall_prod_same]
     exact ContinuousOn.prodMap (continuousOn _ _) (continuousOn _ _)
-  continuousOn_symm _ _ := by
-    simp only [prodMap, Equiv.transPartialEquiv_eq_trans, PartialEquiv.transEquiv_eq_trans,
-      PartialEquiv.coe_trans_symm, Equiv.toPartialEquiv_symm_apply, PartialEquiv.prod_symm,
-      PartialEquiv.trans_target, Equiv.toPartialEquiv_target, PartialEquiv.prod_target,
-      preimage_univ, inter_univ, ← Equiv.image_eq_preimage_symm, univ_inter]
+  continuousOn_symm n i := by
+    rw [PartialEquiv.coe_transEquiv_symm]
+    apply ContinuousOn.image_comp_continuous ?_ continuous_mk_symm
+    unfold prodMap
+    rw [PartialEquiv.transEquiv_target, Equiv.image_preimage, Equiv.coe_transPartialEquiv_symm]
     apply (prodIsometryEquiv _).symm.continuous.comp_continuousOn
-    exact from_kification_continuousOn_of_continuousOn _ _
-      ((continuousOn_symm _ _).prodMap (continuousOn_symm _ _))
+    exact (continuousOn_symm _ _).prodMap (continuousOn_symm _ _)
   pairwiseDisjoint' := by
     intro ⟨n1, m, l, hmln1, j, k⟩ _ ⟨n2, p, q, hpqn2, i, o⟩ _ ne
     simp only [Function.onFun, PartialEquiv.transEquiv_eq_trans, disjoint_iff_inter_eq_empty,
       PartialEquiv.coe_trans, Equiv.toPartialEquiv_apply, image_comp]
-    rw [prodMap_image_ball, prodMap_image_ball, ← image_inter (toKification (X × Y)).injective,
-      prod_inter_prod, image_eq_empty, prod_eq_empty_iff]
+    rw [prodMap_image_ball, prodMap_image_ball,
+      ← image_inter (CompactCoherentification.mk (X × Y)).injective, prod_inter_prod,
+      image_eq_empty, prod_eq_empty_iff]
     suffices (⟨m, j⟩ : Σ n, cell C n) ≠ ⟨p, i⟩ ∨  (⟨l, k⟩ : Σ n, cell E n) ≠ ⟨q, o⟩ by
       rcases this with ne1 | ne2
       · exact Or.intro_left _ (disjoint_openCell_of_ne ne1).inter_eq
@@ -413,7 +416,7 @@ instance RelCWComplex.ProductKification [RelCWComplex C D] [RelCWComplex E F] :
   disjointBase' _ _ := by
     rw [PartialEquiv.transEquiv_eq_trans, PartialEquiv.coe_trans, image_comp,
       Equiv.toPartialEquiv_apply, prodMap_image_ball,
-      disjoint_image_iff (toKification (X × Y)).injective]
+      disjoint_image_iff (CompactCoherentification.mk (X × Y)).injective]
     simp [disjoint_iff_inter_eq_empty, inter_union_distrib_left,
       prod_inter_prod, (disjointBase _ _).inter_eq]
   mapsTo n i := by
@@ -424,8 +427,8 @@ instance RelCWComplex.ProductKification [RelCWComplex C D] [RelCWComplex E F] :
     classical
     rcases i with ⟨m, l, hmln, j, k⟩
     simp_rw [PartialEquiv.transEquiv_eq_trans, PartialEquiv.coe_trans]
-    simp_rw [Equiv.toPartialEquiv_apply (toKification (X × Y)), image_comp,
-      ← image_iUnion (f := toKification (X × Y)), ← image_union]
+    simp_rw [Equiv.toPartialEquiv_apply (CompactCoherentification.mk (X × Y)), image_comp,
+      ← image_iUnion (f := CompactCoherentification.mk (X × Y)), ← image_union]
     apply Exists.imp (fun _ ↦ MapsTo.comp_left _)
     simp_rw [mapsTo_iff_image_subset]
     rw [prodMap_image_sphere]
@@ -484,7 +487,7 @@ instance RelCWComplex.ProductKification [RelCWComplex C D] [RelCWComplex E F] :
       use i, imem
   closed' A Asub := by
     intro ⟨hA, hbase⟩
-    rw [KSpace.isClosed_iff]
+    rw [CompactlyCoherentSpace.isClosed_iff]
     intro K hK
     suffices IsClosed (A ∩ K) by
       rw [← Subtype.preimage_coe_inter_self]
@@ -495,8 +498,8 @@ instance RelCWComplex.ProductKification [RelCWComplex C D] [RelCWComplex E F] :
     -- So we have `K ⊆ H ×ˢ G`.
     -- But `H ×ˢ G` is just a finite union of cells of the product.
     -- Therefore we are done by `isClosed_iUnion_of_finite` and the assumption `hA`.
-    let K₁ := Prod.fst '' ((toKification (X × Y)).symm '' K)
-    let K₂ := Prod.snd '' ((toKification (X × Y)).symm '' K)
+    let K₁ := Prod.fst '' ((CompactCoherentification.mk (X × Y)).symm '' K)
+    let K₂ := Prod.snd '' ((CompactCoherentification.mk (X × Y)).symm '' K)
     let H := D ∪ ⋃ (x : Σ (m : ℕ),
       {j : cell C m // ¬ Disjoint K₁ (openCell m j)}), closedCell (C := C) x.1 x.2
     let G := F ∪ ⋃ (x : Σ (m : ℕ),
@@ -504,17 +507,17 @@ instance RelCWComplex.ProductKification [RelCWComplex C D] [RelCWComplex E F] :
     have hH : K₁ ∩ C ⊆ H := subset_not_disjoint _
     have hG : K₂ ∩ E ⊆ G := subset_not_disjoint _
     have hHfinite : _root_.Finite ((m : ℕ) × { j // ¬Disjoint K₁ (openCell (C := C) m j)}) :=
-      compact_inter_finite _ ((hK.image continuous_toKification_symm).image continuous_fst)
+      compact_inter_finite _ ((hK.image continuous_mk_symm).image continuous_fst)
     have hGfinite :  _root_.Finite ((m : ℕ) × { j // ¬Disjoint K₂ (openCell (C := E) m j)}) :=
-      compact_inter_finite _ ((hK.image continuous_toKification_symm).image continuous_snd)
-    have Asub' : A ∩ K ⊆ A ∩ toKification (X × Y) '' H ×ˢ G := by
+      compact_inter_finite _ ((hK.image continuous_mk_symm).image continuous_snd)
+    have Asub' : A ∩ K ⊆ A ∩ CompactCoherentification.mk (X × Y) '' H ×ˢ G := by
       apply subset_inter inter_subset_left
       refine subset_trans ?_ (image_mono (prod_mono hH hG))
-      rw [← prod_inter_prod, image_inter (toKification _).injective, inter_comm]
+      rw [← prod_inter_prod, image_inter (CompactCoherentification.mk _).injective, inter_comm]
       apply inter_subset_inter ?_ Asub
       rw [← Equiv.symm_image_subset]
       exact subset_fst_image_prod_snd_image
-    suffices IsClosed (A ∩ toKification (X × Y) '' H ×ˢ G) by
+    suffices IsClosed (A ∩ CompactCoherentification.mk (X × Y) '' H ×ˢ G) by
       rw [← inter_eq_left.2 Asub', ← inter_assoc, inter_comm A K, inter_assoc K A, inter_self,
         inter_assoc]
       exact hK.isClosed.inter this
@@ -534,16 +537,17 @@ instance RelCWComplex.ProductKification [RelCWComplex C D] [RelCWComplex E F] :
         · apply subset_union_of_subset_left
           apply prod_mono Subset.rfl
           exact iUnion_subset fun _ ↦ closedCell_subset_complex _ _
-      rw [← inter_eq_right.2 this, image_inter (toKification _).injective, ← inter_assoc]
+      rw [← inter_eq_right.2 this, image_inter (CompactCoherentification.mk _).injective,
+        ← inter_assoc]
       apply hbase.inter
       simp_rw [image_union, Equiv.image_eq_preimage_symm]
       apply IsClosed.union
       · apply IsClosed.union
-        · exact (((isClosedBase C).prod (isClosedBase E))).preimage continuous_toKification_symm
+        · exact (((isClosedBase C).prod (isClosedBase E))).preimage continuous_mk_symm
         · exact (isClosed_iUnion_of_finite fun _ ↦
-            (isClosed_closedCell.prod (isClosedBase E))).preimage continuous_toKification_symm
+            (isClosed_closedCell.prod (isClosedBase E))).preimage continuous_mk_symm
       · exact (isClosed_iUnion_of_finite fun _ ↦
-          ((isClosedBase C).prod isClosed_closedCell)).preimage continuous_toKification_symm
+          ((isClosedBase C).prod isClosed_closedCell)).preimage continuous_mk_symm
     simp_rw [image_iUnion, inter_iUnion]
     refine isClosed_iUnion_of_finite fun ⟨n, j, hnj⟩ ↦
       isClosed_iUnion_of_finite fun ⟨m, i, hmi⟩ ↦ ?_
@@ -554,11 +558,11 @@ instance RelCWComplex.ProductKification [RelCWComplex C D] [RelCWComplex E F] :
   isClosedBase := by
     rw [Equiv.image_eq_preimage_symm]
     exact (((isClosedBase C).prod isClosed).union (isClosed.prod (isClosedBase E))).preimage
-      continuous_toKification_symm
+      continuous_mk_symm
   union' := by
     simp_rw [PartialEquiv.transEquiv_eq_trans, PartialEquiv.coe_trans, Equiv.toPartialEquiv_apply,
       image_comp, ← image_iUnion, ← image_union]
-    rw [(toKification _).image_eq_iff_eq]
+    rw [(CompactCoherentification.mk _).image_eq_iff_eq]
     apply subset_antisymm
     · refine union_subset (union_subset (prod_mono base_subset_complex Subset.rfl)
           (prod_mono Subset.rfl base_subset_complex)) ?_
@@ -583,14 +587,15 @@ instance RelCWComplex.ProductKification [RelCWComplex C D] [RelCWComplex E F] :
 
 @[simps!]
 instance CWComplex.ProductKification [CWComplex C] [CWComplex E] :
-    CWComplex (toKification (X × Y) ''C ×ˢ E) :=
-  (RelCWComplex.ofEq (toKification (X × Y) ''C ×ˢ E) (toKification (X × Y) '' (∅ ×ˢ E ∪ C ×ˢ ∅))
+    CWComplex (CompactCoherentification.mk (X × Y) '' C ×ˢ E) :=
+  (RelCWComplex.ofEq (CompactCoherentification.mk (X × Y) ''C ×ˢ E)
+    (CompactCoherentification.mk (X × Y) '' (∅ ×ˢ E ∪ C ×ˢ ∅))
     rfl (by simp)).toCWComplex
 
 
 instance RelCWComplex.finiteDimensional_productKification [RelCWComplex C D]
     [RelCWComplex E F] [FiniteDimensional C] [FiniteDimensional E] :
-    FiniteDimensional (toKification (X × Y) ''C ×ˢ E) where
+    FiniteDimensional (CompactCoherentification.mk (X × Y) ''C ×ˢ E) where
   eventually_isEmpty_cell := by
     have hC := FiniteDimensional.eventually_isEmpty_cell (C := C) (D := D)
     have hE := FiniteDimensional.eventually_isEmpty_cell (C := E) (D := F)
@@ -611,7 +616,7 @@ instance RelCWComplex.finiteDimensional_productKification [RelCWComplex C D]
 
 instance RelCWComplex.finiteType_productKification [RelCWComplex C D]
     [RelCWComplex E F] [FiniteType C] [FiniteType E] :
-    FiniteType (toKification (X × Y) ''C ×ˢ E) where
+    FiniteType (CompactCoherentification.mk (X × Y) ''C ×ˢ E) where
   finite_cell := by
     have hC := FiniteType.finite_cell (C := C) (D := D)
     have hD := FiniteType.finite_cell (C := E) (D := F)
@@ -629,20 +634,20 @@ instance RelCWComplex.finiteType_productKification [RelCWComplex C D]
 
 instance CWComplex.finiteDimensional_productKification [CWComplex C] [CWComplex E]
     [FiniteDimensional C] [FiniteDimensional E] :
-    FiniteDimensional (toKification (X × Y) '' C ×ˢ E) :=
+    FiniteDimensional (CompactCoherentification.mk (X × Y) '' C ×ˢ E) :=
   @RelCWComplex.finiteDimensional_ofEq _ _ _ _ _ _ RelCWComplex.ProductKification _ rfl (by simp)
 
 instance CWComplex.finiteType_productKification [CWComplex C] [CWComplex E]
-    [FiniteType C] [FiniteType E] : FiniteType (toKification (X × Y) '' C ×ˢ E) :=
+    [FiniteType C] [FiniteType E] : FiniteType (CompactCoherentification.mk (X × Y) '' C ×ˢ E) :=
   @RelCWComplex.finiteType_ofEq _ _ _ _ _ _ RelCWComplex.ProductKification _ rfl (by simp)
 
 @[simps!]
-instance RelCWComplex.ProductUniv [KSpace (X × Y)] [RelCWComplex (univ : Set X) D]
+instance RelCWComplex.ProductUniv [CompactlyCoherentSpace (X × Y)] [RelCWComplex (univ : Set X) D]
     [RelCWComplex (univ : Set Y) F] : RelCWComplex (univ : Set (X × Y)) (D ×ˢ univ ∪ univ ×ˢ F) :=
   ofEq (univ ×ˢ univ : Set (X × Y)) (D ×ˢ univ ∪ univ ×ˢ F) univ_prod_univ rfl
 
 @[simps!]
-instance CWComplex.ProductUniv [KSpace (X × Y)] [CWComplex (univ : Set X)]
+instance CWComplex.ProductUniv [CompactlyCoherentSpace (X × Y)] [CWComplex (univ : Set X)]
     [CWComplex (univ : Set Y)] : CWComplex (univ : Set (X × Y)) :=
   (RelCWComplex.ofEq (univ ×ˢ univ : Set (X × Y)) ∅ (E := (univ : Set (X × Y)))
     univ_prod_univ rfl).toCWComplex
@@ -651,13 +656,14 @@ set_option backward.isDefEq.respectTransparency false in
 @[simps!]
 instance RelCWComplex.ProductKificationUniv [RelCWComplex (univ : Set X) D]
     [RelCWComplex (univ : Set Y) F] :
-    RelCWComplex univ (toKification (X × Y) '' (D ×ˢ univ ∪ univ ×ˢ F)) :=
-  ofEq (toKification (X × Y) '' univ ×ˢ univ) _ (by simp) rfl
+    RelCWComplex univ (CompactCoherentification.mk (X × Y) '' (D ×ˢ univ ∪ univ ×ˢ F)) :=
+  ofEq (CompactCoherentification.mk (X × Y) '' univ ×ˢ univ) _ (by simp) rfl
 
 @[simps!]
 instance CWComplex.ProductKificationUniv [CWComplex (univ : Set X)]
-    [CWComplex (univ : Set Y)] : CWComplex (univ : Set (kification (X × Y))) :=
-  (RelCWComplex.ofEq (toKification (X × Y) '' univ ×ˢ univ) ∅ (by simp) rfl).toCWComplex
+    [CWComplex (univ : Set Y)] : CWComplex (univ : Set (CompactCoherentification (X × Y))) :=
+  (RelCWComplex.ofEq (CompactCoherentification.mk (X × Y) '' univ ×ˢ univ) ∅
+    (by simp) rfl).toCWComplex
 
 end
 
