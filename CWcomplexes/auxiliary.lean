@@ -20,18 +20,22 @@ They are sorted by topics.
 
 /-! ### PartialEquiv-/
 
+@[simp]
 lemma PartialEquiv.coe_transEquiv {α β γ : Type*} {f : PartialEquiv α β} {g : β ≃ γ} :
     f.transEquiv g = g ∘ f :=
   rfl
 
+@[simp]
 lemma PartialEquiv.coe_transEquiv_symm {α β γ : Type*} {f : PartialEquiv α β} {g : β ≃ γ} :
     (f.transEquiv g).symm = f.symm ∘ g.symm :=
   rfl
 
+@[simp]
 lemma Equiv.coe_transPartialEquiv {α β γ : Type*} {f : α ≃ β} {g : PartialEquiv β γ} :
     f.transPartialEquiv g = g ∘ f :=
   rfl
 
+@[simp]
 lemma Equiv.coe_transPartialEquiv_symm {α β γ : Type*} {f : α ≃ β} {g : PartialEquiv β γ} :
     (f.transPartialEquiv g).symm = f.symm ∘ g.symm :=
   rfl

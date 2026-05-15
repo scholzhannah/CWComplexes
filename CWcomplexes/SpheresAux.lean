@@ -7,6 +7,7 @@ public import Mathlib.Geometry.Manifold.Instances.Sphere
 public import CWcomplexes.Auxiliary
 public import CWcomplexes.RelConstructions
 public import Mathlib.Data.Fin.Tuple.Take
+public import CWcomplexes.PartialHomeomorph.Constructions
 
 @[expose] public noncomputable section
 
@@ -40,12 +41,38 @@ theorem PartialEquiv.coe_transEmbedding {α β γ : Type*} [Inhabited β] (e : P
     (f : β ↪ γ) : (e.transEmbedding f : α → γ) = f ∘ e :=
   rfl
 
--- probably not the best name
+open Function in
+lemma Pi.injective_compRightL_of_injective(R : Type*) [Semiring R] {ι : Type*} (φ : ι → Type*)
+    [(i : ι) → TopologicalSpace (φ i)] [(i : ι) → AddCommMonoid (φ i)] [(i : ι) → Module R (φ i)]
+    {α : Type*} (f : α → ι) (h : Surjective f) : Injective (Pi.compRightL R φ f) := by
+  intro a b
+  simp_rw [funext_iff]
+  intro h' x
+  obtain ⟨y, rfl⟩ := h x
+  exact h' y
+
+@[simps!]
+def PiLp.compRightL (p : ENNReal) (𝕜 : Type*) [SeminormedRing 𝕜] {ι κ : Type*}
+    (β : κ → Type*) (f : ι → κ) [(i : ι) → SeminormedAddCommGroup (β (f i))]
+    [(i : ι) → Module 𝕜 (β (f i))]
+    [(i : κ) → SeminormedAddCommGroup (β i)] [(i : κ) → Module 𝕜 (β i)] :
+    PiLp p β →L[𝕜] PiLp p (fun i ↦ β (f i)) :=
+  ((continuousLinearEquiv p 𝕜 (fun i ↦ β (f i))).symm.toContinuousLinearMap).comp
+    ((Pi.compRightL 𝕜 β f).comp (continuousLinearEquiv p 𝕜 β).toContinuousLinearMap)
+
+open Function in
+lemma PiLp.injective_compRightL_of_injective (p : ENNReal) (𝕜 : Type*) [SeminormedRing 𝕜]
+    {ι κ : Type*} (β : κ → Type*) (f : ι → κ) [(i : ι) → SeminormedAddCommGroup (β (f i))]
+    [(i : ι) → Module 𝕜 (β (f i))]
+    [(i : κ) → SeminormedAddCommGroup (β i)] [(i : κ) → Module 𝕜 (β i)] (h : Surjective f) :
+    Injective (compRightL p 𝕜 β f) := by
+  simp only [compRightL, ContinuousLinearMap.coe_comp', ContinuousLinearEquiv.coe_coe,
+    EmbeddingLike.comp_injective, EquivLike.injective_comp]
+  exact Pi.injective_compRightL_of_injective 𝕜 β f h
+
 def EuclideanSpace.compRightL (𝕜 : Type*) [SeminormedRing 𝕜] {n m : Type*} (f : m → n) :
     EuclideanSpace 𝕜 n →L[𝕜] EuclideanSpace 𝕜 m :=
-  (PiLp.continuousLinearEquiv 2 𝕜 (fun (_ : m) ↦ 𝕜)).symm.toContinuousLinearMap.comp
-    ((Pi.compRightL 𝕜 (fun _ ↦ 𝕜) f).comp
-      (PiLp.continuousLinearEquiv 2 𝕜 (fun (_ : n) ↦ 𝕜)).toContinuousLinearMap)
+  PiLp.compRightL 2 𝕜 (fun _ ↦ 𝕜) f
 
 open Classical in
 @[simps]
@@ -84,5 +111,5 @@ example (n m : ℕ) : range ((Fin.castAddEmb m).euclidean ℝ) = Hyperplane (n +
 
     sorry
 
-example (n m : ℕ) :  EuclideanSpace ℝ (Fin n) ↪ EuclideanSpace ℝ (Fin (n + m)) :=
+example (n m : ℕ) : EuclideanSpace ℝ (Fin n) ↪ EuclideanSpace ℝ (Fin (n + m)) :=
   (Fin.castAddEmb m).euclidean ℝ

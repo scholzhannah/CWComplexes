@@ -8,7 +8,7 @@ namespace Topology.CWComplex
 
 /-! # Construction with two cells in every dimension. -/
 
-#exit
+
 -- **I don't even know what is going on in this file so I don't want to spend time cleaning up**
 
 /-**Comment**:
