@@ -25,7 +25,7 @@ variable {X : Type*} [t : TopologicalSpace X] {C D : Set X}
 section
 
 /-- Every finite set is a CW complex. -/
-@[implicit_reducible]
+@[expose, instance_reducible]
 def CWComplex.ofFiniteSet {C : Set X} (h : C.Finite) : CWComplex C := mkFinite C
   (cell := fun n ↦ match n with
     | 0 => C
@@ -76,26 +76,19 @@ def CWComplex.ofFiniteSet {C : Set X} (h : C.Finite) : CWComplex C := mkFinite C
       use 0, ⟨x, hx⟩
       simp)
 
+lemma CWComplex.ofFiniteSet_map {C : Set X} (h : C.Finite) {i : C} :
+    letI := ofFiniteSet h
+    map (C := C) 0 i = PartialEquiv.single (β := X) ![] i  := by
+  rfl
 
 lemma CWComplex.ofFiniteSet_cell_zero {C : Set X} (h : C.Finite) :
     letI := ofFiniteSet h
     cell C 0 = C :=
-  (rfl)
+  rfl
 
-lemma CWComplex.ofFiniteSet_cell_of_gt_zero {C : Set X} (h : C.Finite) {n : ℕ} :
+lemma CWComplex.ofFiniteSet_cell_add_one {C : Set X} (h : C.Finite) (n : ℕ) :
     letI := ofFiniteSet h
-    cell C (n + 1) =  PEmpty :=
-  (rfl)
-
-def CWComplex.toFiniteSetCell {C : Set X} [_root_.Finite C] :
-    letI := ofFiniteSet (C := C) sorry
-    C ≃ cell (C := C) 0 :=
-  Equiv.refl C
-
-lemma CWComplex.ofFiniteSet_map {C : Set X} [_root_.Finite C] {i : C} :
-    letI := ofFiniteSet (C := C) sorry
-    map 0 (toFiniteSetCell i) =
-      PartialEquiv.single (β := X) ![] i  := by
+    cell C (n + 1) = PEmpty :=
   rfl
 
 /-- The CW-complex on a finite set is finite. -/
@@ -1696,4 +1689,4 @@ end CWComplex
 
 end Topology
 
-set_option linter.style.longFile 1900
+set_option linter.style.longFile 1700

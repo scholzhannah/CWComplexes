@@ -74,6 +74,10 @@ def EuclideanSpace.compRightL (𝕜 : Type*) [SeminormedRing 𝕜] {n m : Type*}
     EuclideanSpace 𝕜 n →L[𝕜] EuclideanSpace 𝕜 m :=
   PiLp.compRightL 2 𝕜 (fun _ ↦ 𝕜) f
 
+/-- The standard `m`-dimensional plane in -/
+abbrev StandardPlane (n m : ℕ) : Set (EuclideanSpace ℝ (Fin n)) :=
+  {x | ∀ i (h1 : i ≥ m) (h2 : i < n), x ⟨i, by simp [h2]⟩ = 0}
+
 open Classical in
 @[simps]
 def Function.Embedding.euclidean (𝕜 : Type*) {n m : Type*} [Inhabited 𝕜] (f : n ↪ m) :
@@ -95,7 +99,7 @@ lemma h {𝕜 n m : Type*} [Inhabited 𝕜] {f : n ↪ m} {i : n} {s : Euclidean
   rw [f.injective.eq_iff.1 this]
 
 abbrev Hyperplane (n m : ℕ) : Set (EuclideanSpace ℝ (Fin n)) :=
-  {x | ∀ i (h1 : i ≥  m) (h2 : i < n), x ⟨i, by simp [h2]⟩ = 0}
+  {x | ∀ i (h1 : i ≥ m) (h2 : i < n), x ⟨i, by simp [h2]⟩ = 0}
 
 example (n m : ℕ) : range ((Fin.castAddEmb m).euclidean ℝ) = Hyperplane (n + m) n := by
   apply subset_antisymm

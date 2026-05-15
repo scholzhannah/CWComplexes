@@ -85,12 +85,10 @@ protected def instIccLT' {a b : ℝ} (hab : a < b) :
       simp only [mapLTPartial_image, mapLT_image_ball]
       exact match m, i with
         | 0, ⟨i, hi⟩ => by
-          simp only [openCell_zero_eq_singleton, ofFiniteSet_map,
-            PartialEquiv.single_apply, Function.const_apply, disjoint_singleton_right, mem_Ioo,
-            not_and, not_lt]
+          simp only [openCell_zero_eq_singleton, disjoint_singleton_right, mem_Ioo, not_and, not_lt]
           intro hai
           apply le_of_eq
-          have : i = a ∨ i = b := by simp_all
+          have : i = a ∨ i = b := by simpa using hi
           rcases this with hi | hi
           · subst i
             exact hai.false.elim
@@ -287,7 +285,7 @@ lemma SphereZero_cell {x : EuclideanSpace ℝ (Fin 0)} {ε : ℝ} {h : ε ≠ 0}
     letI := SphereZero x ε h
     IsEmpty (cell (sphere x ε) n) := by
   rw [SphereZero, cell_def, RelCWComplex.toCWComplex_cell, RelCWComplex.ofEq_cell]
-  cases n <;> simp [ofFiniteSet_cell_zero, ofFiniteSet_cell_of_gt_zero, PEmpty.instIsEmpty]
+  cases n <;> simp [ofFiniteSet_cell_zero, ofFiniteSet_cell_add_one, PEmpty.instIsEmpty]
 
 /-- The CW-complex structure on the sphere in dimension zero  is finite. -/
 lemma finite_SphereZero (x : EuclideanSpace ℝ (Fin 0)) (ε : ℝ) (h : ε ≠ 0) :
@@ -296,7 +294,6 @@ lemma finite_SphereZero (x : EuclideanSpace ℝ (Fin 0)) (ε : ℝ) (h : ε ≠ 
   letI := ofFiniteSet (X := EuclideanSpace ℝ (Fin 0)) finite_empty
   letI := finite_ofFiniteSet (X := EuclideanSpace ℝ (Fin 0)) finite_empty
   finite_ofEq ∅ (E := (sphere x ε)) (sphere_eq_empty_of_subsingleton h).symm
-
 
 /-- The CW-complex structure on the sphere in dimension 0 has no cells. This is an auxiliary lemma
   for `AuxSphereInduct`. -/
@@ -688,6 +685,9 @@ example : CWComplex
 -/
 
 /-! # Construction with two cells in every dimension. -/
+
+-- **Notice**: Considering `EuclideanHalfSpace` it seems like we should actually be considering the
+-- first element to be greater than zero :((
 
 /-**Comment**:
   We now move onto the second popular construction for the sphere:
@@ -1128,28 +1128,9 @@ def SphereInductStep (n : ℕ) [CWComplex (sphere (0 : EuclideanSpace ℝ (Fin n
       spheremaps n i '' (closedBall 0 1)) ∪ (sphere 0 1 ∩ {x | x (Fin.last n) = 0}))
     (E := sphere 0 1)
     (by
-      apply subset_antisymm
-      · apply union_subset
-        · apply iUnion_subset
-          exact fun i ↦ match i with
-            | 0 => by
-              simp only [spheremaps, spheremapup_image_closedBall]
-              exact inter_subset_left
-            | 1 => by
-              simp only [spheremaps, spheremapdown_image_closedBall]
-              exact inter_subset_left
-        · exact inter_subset_left
-      · intro x hx
-        left
-        rw [mem_iUnion]
-        by_cases hx' : x (Fin.last n) ≥ 0
-        · use 0
-          simp only [spheremaps, spheremapup_image_closedBall, ge_iff_le, mem_inter_iff, hx,
-            mem_setOf_eq, hx', and_self]
-        · use 1
-          simp only [ge_iff_le, not_le] at hx'
-          simp only [spheremaps, spheremapdown_image_closedBall, mem_inter_iff, hx, mem_setOf_eq,
-            hx'.le, and_self])
+      simp [iUnion_fin_add_one_eq_iUnion_succ, spheremaps, spheremapup_image_closedBall,
+        spheremapdown_image_closedBall, ← inter_union_distrib_left, ← setOf_or, subset_def]
+      grind)
 
 /-- If the sphere in dimension `n` is a finite CW-complex that has no cells in dimension
   `n` or higher, then the CW-complex structure on the sphere in dimension `n + 1` is finite. -/

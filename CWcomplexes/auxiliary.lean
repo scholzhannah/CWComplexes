@@ -20,26 +20,6 @@ They are sorted by topics.
 
 /-! ### PartialEquiv-/
 
-@[simp]
-lemma PartialEquiv.coe_transEquiv {α β γ : Type*} {f : PartialEquiv α β} {g : β ≃ γ} :
-    f.transEquiv g = g ∘ f :=
-  rfl
-
-@[simp]
-lemma PartialEquiv.coe_transEquiv_symm {α β γ : Type*} {f : PartialEquiv α β} {g : β ≃ γ} :
-    (f.transEquiv g).symm = f.symm ∘ g.symm :=
-  rfl
-
-@[simp]
-lemma Equiv.coe_transPartialEquiv {α β γ : Type*} {f : α ≃ β} {g : PartialEquiv β γ} :
-    f.transPartialEquiv g = g ∘ f :=
-  rfl
-
-@[simp]
-lemma Equiv.coe_transPartialEquiv_symm {α β γ : Type*} {f : α ≃ β} {g : PartialEquiv β γ} :
-    (f.transPartialEquiv g).symm = f.symm ∘ g.symm :=
-  rfl
-
 --**PR**
 -- needed in this file
 /-- A partial bijection that is continuous on the source and the target restricts to a
@@ -244,15 +224,6 @@ lemma stereographic_symm_tendsto {E : Type*} [NormedAddCommGroup E] [InnerProduc
     simpa [add_comm, ← sub_eq_add_neg] using
       tendsto_add_mul_sq_div_add_mul_atTop_nhds (-4 : ℝ) 4 0 0 1 one_ne_zero
 
-lemma help {X Y Z : Type*} {f g : X → Y} {h : Y → Z} (hg : f = g) : h ∘ f = h ∘ g := by rw [hg]
-
---set_option backward.isDefEq.respectTransparency false in
-
---attribute [local implicit_reducible] LinearMap.toAddMonoidHom
---set_option allowUnsafeReducibility true
---attribute [local implicit_reducible] LinearMap.toAddHom
-set_option backward.isDefEq.respectTransparency false in
---#defeq_abuse in
 /-- As we approach infinite norm the inverse of the stereographic projection `stereographic'`
   approaches the centre of the projection. -/
 lemma stereographic'_symm_tendsto {n : ℕ} (α : Filter (EuclideanSpace ℝ (Fin n)))
@@ -270,9 +241,6 @@ lemma stereographic'_symm_tendsto {n : ℕ} (α : Filter (EuclideanSpace ℝ (Fi
   convert h
   ext
   simp
-
--- `(↥(ℝ ∙ ↑⟨EuclideanSpace.single (Fin.last n) 1, ⋯⟩)ᗮ)`
--- { x // x ∈ sphere 0 1 }
 
 /-! # Scaling to a different norm-/
 

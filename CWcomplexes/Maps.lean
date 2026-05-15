@@ -1,7 +1,7 @@
 module
--- need `skeletonLT_eq`
+-- need `skeletonLT_eq` which could in principal be PRd immediately
 public import CWcomplexes.RelSubcomplex
---import Mathlib.Topology.CWComplex.Classical.Subcomplex
+--public import Mathlib.Topology.CWComplex.Classical.Subcomplex
 public import Mathlib.Topology.OpenPartialHomeomorph.Constructions
 public import Mathlib.Data.Setoid.Partition
 
